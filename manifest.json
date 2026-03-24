@@ -1,17 +1,23 @@
 {
   "name": "OrLog — Logbook chirurgical",
   "short_name": "OrLog",
-  "description": "Logbook chirurgical personnel",
+  "description": "Logbook chirurgical personnel — blocs, suivi post-op, scores fonctionnels, radiographies",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0f2340",
-  "theme_color": "#1a1915",
+  "background_color": "#8B4A14",
+  "theme_color": "#8B4A14",
   "icons": [
     {
-      "src": "icon-512.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
