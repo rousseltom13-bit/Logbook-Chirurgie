@@ -479,6 +479,12 @@ async function sbFetch(path,opts={}){
 }
 async function syncToSupabase(){
   if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
+  // Sécurité : ne jamais écraser Supabase avec des données vides
+  if(!blocs||blocs.length===0){
+    // Si local est vide, récupérer depuis Supabase au lieu d'écraser
+    await syncFromSupabase();
+    return;
+  }
   try{
     await sbFetch('orlog_blocs?id=eq.'+encodeURIComponent(sbConfig.uid+'_blocs'),{method:'DELETE',prefer:''});
     await sbFetch('orlog_blocs',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:sbConfig.uid+'_blocs',user_id:sbConfig.uid,data:blocs,updated_at:new Date().toISOString()})});
