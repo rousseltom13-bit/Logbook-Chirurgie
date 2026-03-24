@@ -309,12 +309,23 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- BLOCS -->
     <div class="view" id="view-blocs">
-      <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;" id="bloc-filters">
+      <!-- Barre de recherche -->
+      <div style="position:relative;margin-bottom:10px;">
+        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, implant, tag..." oninput="renderBlocs()"
+          style="width:100%;padding:11px 36px 11px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;">
+        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);line-height:1;">×</span>
+      </div>
+      <!-- Filtres spécialité -->
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="bloc-filters">
         <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
         <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
         <button class="rtab" onclick="filterB(this,'Hanche')">Hanche</button>
         <button class="rtab" onclick="filterB(this,'Traumatologie')">Trauma</button>
       </div>
+      <!-- Tags actifs -->
+      <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
+      <!-- Résultats -->
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="search-count"></div>
       <div class="section"><div id="bloc-list"></div></div>
     </div>
 
@@ -631,7 +642,36 @@ function renderComplications(){
   }).join('');
 }
 
-function filterB(btn,spec){document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
+let activeTagFilters = new Set();
+
+function filterB(btn,spec){
+  document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');curFilter=spec;renderBlocs();
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').style.display='none';
+  renderBlocs();
+}
+
+function toggleTagFilter(tag){
+  if(activeTagFilters.has(tag))activeTagFilters.delete(tag);
+  else activeTagFilters.add(tag);
+  renderTagFilters();renderBlocs();
+}
+
+function renderTagFilters(){
+  // Collecter tous les tags existants
+  const allTags = new Set();
+  blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(t)));
+  const el = document.getElementById('tag-filters');
+  if(!allTags.size){el.innerHTML='';return;}
+  el.innerHTML = Array.from(allTags).sort().map(t=>{
+    const active = activeTagFilters.has(t);
+    return `<button onclick="toggleTagFilter('${t}')" style="padding:4px 10px;font-size:11px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'none'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;
+  }).join('');
+}
 
 let detailBlocIdx = -1;
 
@@ -769,9 +809,48 @@ function confirmDelete(){
   sw('blocs');
 }
 function renderBlocs(){
-  const filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
+  const searchRaw = (document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const searchClear = document.getElementById('search-clear');
+  if(searchClear) searchClear.style.display = searchRaw ? 'block' : 'none';
+
+  // Filtrer
+  let filtered = curFilter==='all' ? blocs : blocs.filter(b=>b.spec===curFilter);
+
+  // Filtre tags actifs
+  if(activeTagFilters.size>0){
+    filtered = filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(t)));
+  }
+
+  // Filtre recherche texte
+  if(searchRaw){
+    filtered = filtered.filter(b=>{
+      const hay = [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,...(b.tags||[])].join(' ').toLowerCase();
+      return hay.includes(searchRaw);
+    });
+  }
+
   const el=document.getElementById('bloc-list');
-  if(!filtered.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';return;}
+  const countEl=document.getElementById('search-count');
+
+  // Mettre à jour les tag filters
+  renderTagFilters();
+
+  // Compteur
+  if(countEl){
+    if(searchRaw||activeTagFilters.size>0){
+      countEl.textContent = filtered.length + ' résultat' + (filtered.length>1?'s':'') + ' sur ' + blocs.length + ' blocs';
+    } else {
+      countEl.textContent = '';
+    }
+  }
+
+  if(!filtered.length){
+    el.innerHTML=searchRaw||activeTagFilters.size>0
+      ? '<div class="empty"><div class="empty-icon">🔍</div>Aucun résultat</div>'
+      : '<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';
+    return;
+  }
+
   el.innerHTML=filtered.slice().reverse().map(b=>{
     const bi=blocs.indexOf(b);
     const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
@@ -780,6 +859,13 @@ function renderBlocs(){
     const nc=(b.complications||[]).length;
     const implantsTxt=b.implants?`<div style="font-size:12px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.implants}</div>`:'';
     const astucesTxt=b.astuces?`<div style="font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">💡 ${b.astuces.substring(0,60)}${b.astuces.length>60?'…':''}</div>`:'';
+    // Highlight recherche dans le nom patient
+    let patientTxt = b.patient||'—';
+    if(searchRaw && patientTxt.toLowerCase().includes(searchRaw)){
+      const idx = patientTxt.toLowerCase().indexOf(searchRaw);
+      patientTxt = patientTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+patientTxt.slice(idx,idx+searchRaw.length)+'</mark>'+patientTxt.slice(idx+searchRaw.length);
+    }
+    const tagsTxt = (b.tags||[]).length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${(b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:${activeTagFilters.has(t)?'var(--accent)':'var(--blue-l)'};color:${activeTagFilters.has(t)?'white':'var(--blue-d)'};">${t}</span>`).join('')}</div>` : '';
     return `<div class="bloc-item" onclick="openBlocDetail(${bi})" style="cursor:pointer;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -791,10 +877,11 @@ function renderBlocs(){
       </div>
       <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
         <span class="bloc-date">${fmtDate(b.date)}</span>
-        <span class="bloc-meta">${b.patient||'—'} · ${b.duree?b.duree+' min':'—'}</span>
+        <span class="bloc-meta">${patientTxt} · ${b.duree?b.duree+' min':'—'}</span>
       </div>
       ${implantsTxt}
       ${astucesTxt}
+      ${tagsTxt}
     </div>`;
   }).join('');
 }
