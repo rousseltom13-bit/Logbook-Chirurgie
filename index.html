@@ -318,6 +318,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="section"><div id="bloc-list"></div></div>
     </div>
 
+    <!-- DETAIL BLOC -->
+    <div class="view" id="view-detail">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="sw('blocs')" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);padding:0;line-height:1;">&#8249;</button>
+        <div style="font-size:16px;font-weight:700;flex:1;" id="det-title">—</div>
+      </div>
+      <div id="det-content"></div>
+      <div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
+        <button class="btn-secondary" style="flex:1;" id="det-edit-btn" onclick="openEditModal()">Modifier</button>
+        <button class="btn-secondary" style="flex:1;color:var(--red-d);border-color:var(--red);" id="det-del-btn" onclick="confirmDelete()">Supprimer</button>
+      </div>
+    </div>
+
     <!-- SAISIE -->
     <div class="view" id="view-saisie">
       <div class="form-group"><label>Date du bloc</label><input type="date" id="f-date"></div>
@@ -437,6 +450,42 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="form-group"><label>Identifiant utilisateur</label><input class="config-input" type="text" id="cfg-uid" placeholder="ex. tom"></div>
     <button class="btn-primary" onclick="saveConfig()">Enregistrer & tester</button>
     <div class="instructions-box"><strong style="color:var(--text);">Instructions Supabase :</strong><br>1. supabase.com → nouveau projet<br>2. Table Editor → New table → <code>orlog_blocs</code><br>3. Colonnes : <code>id</code> text PK, <code>user_id</code> text, <code>data</code> jsonb, <code>updated_at</code> timestamptz<br>4. Désactiver RLS<br>5. Settings → API → Legacy anon key</div>
+    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Sauvegarde locale</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-secondary" style="flex:1;" onclick="exportData()">⬇ Exporter JSON</button>
+        <label style="flex:1;text-align:center;padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">⬆ Importer JSON<input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;">L'export génère un fichier JSON horodaté avec tous vos blocs. L'import restaure depuis ce fichier — les données actuelles seront remplacées.</div>
+      <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITION -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('edit-modal')">×</button>
+    <div class="modal-title">Modifier le bloc</div>
+    <div class="form-group"><label>Date du bloc</label><input type="date" id="e-date"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Spécialité</label><select id="e-spec" onchange="upIntervEdit()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
+      <div class="form-group"><label>Côté</label><select id="e-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+    </div>
+    <div class="form-group"><label>Intervention</label><select id="e-interv"></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Rôle</label><select id="e-role"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
+      <div class="form-group"><label>Durée (min)</label><input type="number" id="e-duree" inputmode="numeric"></div>
+    </div>
+    <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off"></div>
+    <div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div>
+    <div class="form-group"><label>Implants utilisés</label><input type="text" id="e-implants"></div>
+    <div class="form-group"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
+    <div class="form-group"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
+    <div class="form-group"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
+    <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Évolution favorable</option><option value="orange">Vigilance</option><option value="rouge">Complication</option></select></div>
+    <button class="btn-primary" onclick="saveEdit()">Enregistrer les modifications</button>
   </div>
 </div>
 
@@ -583,6 +632,142 @@ function renderComplications(){
 }
 
 function filterB(btn,spec){document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
+
+let detailBlocIdx = -1;
+
+function openBlocDetail(bi){
+  detailBlocIdx = bi;
+  const b = blocs[bi];
+  const bc = b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
+  const rc = b.role==='Principal'?'bp':'ba';
+  const{dc,tc,sl}=statusClasses(b.statut);
+  const stars = b.diff ? '★'.repeat(b.diff)+'☆'.repeat(5-b.diff) : '—';
+  const tags = (b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${t}</span>`).join('');
+  const nc = (b.complications||[]).length;
+  const complList = (b.complications||[]).map(c=>`
+    <div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+        <span class="compl-tag">${c.type}</span>
+        <span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>
+        ${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${c.clavien.split('—')[0].trim()}</span>`:''}
+      </div>
+      ${c.detail?`<div style="color:var(--text2);">${c.detail}</div>`:''}
+    </div>`).join('');
+
+  document.getElementById('det-title').textContent = (b.patient||'—') + ' — ' + (b.interv||'');
+  document.getElementById('det-content').innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+      <span class="badge ${bc}">${b.spec}</span>
+      <span class="badge ${rc}">${b.role}</span>
+      <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(b.date)}</span>
+      <span class="status-row"><span class="sdot ${dc}"></span><span class="${tc}" style="font-size:12px;">${sl}</span></span>
+    </div>
+
+    <div class="section" style="margin-bottom:10px;">
+      <div style="padding:12px 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${b.interv||'—'}</div>
+        <div style="font-size:13px;color:var(--text2);">
+          ${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="margin-bottom:10px;">
+      <div style="padding:12px 14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Implants</div>
+        <div style="font-size:14px;color:var(--text);">${b.implants||'Non renseigné'}</div>
+      </div>
+    </div>
+
+    ${b.astuces?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Difficultés & astuces</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.astuces}</div></div></div>`:''}
+
+    ${b.remarques?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Remarques</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.remarques}</div></div></div>`:''}
+
+    <div class="section" style="margin-bottom:10px;">
+      <div style="padding:12px 14px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${b.patient||'—'}</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
+        </div>
+        ${tags?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">${tags}</div>`:''}
+      </div>
+    </div>
+
+    ${nc>0?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Complications</div>${complList}</div></div>`:''}
+  `;
+
+  // Mettre à jour les boutons avec le bon index
+  document.getElementById('det-edit-btn').onclick = () => openEditModal();
+  document.getElementById('det-del-btn').onclick = () => confirmDelete();
+
+  // Afficher la vue détail (pas dans le bottomnav)
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-detail').classList.add('active');
+  document.getElementById('bn-blocs').classList.add('active');
+}
+
+function openEditModal(){
+  if(detailBlocIdx<0)return;
+  const b=blocs[detailBlocIdx];
+  document.getElementById('e-date').value=b.date||'';
+  document.getElementById('e-spec').value=b.spec||'';
+  upIntervEdit();
+  document.getElementById('e-interv').value=b.interv||'';
+  document.getElementById('e-side').value=b.side||'';
+  document.getElementById('e-role').value=b.role||'Principal';
+  document.getElementById('e-duree').value=b.duree||'';
+  document.getElementById('e-patient').value=b.patient||'';
+  document.getElementById('e-imc').value=b.imc||'';
+  document.getElementById('e-implants').value=b.implants||'';
+  document.getElementById('e-abord').value=b.abord||'';
+  document.getElementById('e-astuces').value=b.astuces||'';
+  document.getElementById('e-remarques').value=b.remarques||'';
+  document.getElementById('e-statut').value=b.statut||'gris';
+  openModal('edit-modal');
+}
+
+function upIntervEdit(){
+  const sp=document.getElementById('e-spec').value;
+  const sel=document.getElementById('e-interv');
+  if(!sp){sel.innerHTML='<option>—</option>';return;}
+  sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
+}
+
+function saveEdit(){
+  if(detailBlocIdx<0)return;
+  const b=blocs[detailBlocIdx];
+  b.date=document.getElementById('e-date').value;
+  b.spec=document.getElementById('e-spec').value;
+  b.interv=document.getElementById('e-interv').value;
+  b.side=document.getElementById('e-side').value;
+  b.role=document.getElementById('e-role').value;
+  b.duree=parseInt(document.getElementById('e-duree').value)||null;
+  b.patient=document.getElementById('e-patient').value;
+  b.imc=document.getElementById('e-imc').value;
+  b.implants=document.getElementById('e-implants').value;
+  b.abord=document.getElementById('e-abord').value;
+  b.astuces=document.getElementById('e-astuces').value;
+  b.remarques=document.getElementById('e-remarques').value;
+  b.statut=document.getElementById('e-statut').value;
+  saveLocal();syncToSupabase();
+  closeModal('edit-modal');
+  openBlocDetail(detailBlocIdx);
+  showToast('Bloc modifié');
+}
+
+function confirmDelete(){
+  if(detailBlocIdx<0)return;
+  const b=blocs[detailBlocIdx];
+  if(!confirm('Supprimer définitivement le bloc de '+( b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible.'))return;
+  blocs.splice(detailBlocIdx,1);
+  saveLocal();syncToSupabase();renderAll();
+  showToast('Bloc supprimé');
+  sw('blocs');
+}
 function renderBlocs(){
   const filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   const el=document.getElementById('bloc-list');
@@ -592,9 +777,25 @@ function renderBlocs(){
     const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
     const rc=b.role==='Principal'?'bp':'ba';
     const{dc,tc,sl}=statusClasses(b.statut);
-    const nr=b.radios?Object.values(b.radios).reduce((a,r)=>a+r.length,0):0;
     const nc=(b.complications||[]).length;
-    return `<div class="bloc-item" onclick="openRadioModal(${bi})"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="badge ${bc}">${(b.interv||'').substring(0,18)}</span><span class="badge ${rc}">${b.role}</span>${nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">${nr} radio(s)</span>`:''} ${nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">${nc} compl.</span>`:''}</div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div><div style="display:flex;align-items:center;gap:8px;"><span class="bloc-date">${fmtDate(b.date)}</span><span class="bloc-meta">${b.patient||'—'} · ${b.duree?b.duree+' min':'—'}</span></div></div>`;
+    const implantsTxt=b.implants?`<div style="font-size:12px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.implants}</div>`:'';
+    const astucesTxt=b.astuces?`<div style="font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">💡 ${b.astuces.substring(0,60)}${b.astuces.length>60?'…':''}</div>`:'';
+    return `<div class="bloc-item" onclick="openBlocDetail(${bi})" style="cursor:pointer;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span class="badge ${bc}">${(b.interv||'').substring(0,20)}</span>
+          <span class="badge ${rc}">${b.role}</span>
+          ${nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">${nc} compl.</span>`:''}
+        </div>
+        <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+        <span class="bloc-date">${fmtDate(b.date)}</span>
+        <span class="bloc-meta">${b.patient||'—'} · ${b.duree?b.duree+' min':'—'}</span>
+      </div>
+      ${implantsTxt}
+      ${astucesTxt}
+    </div>`;
   }).join('');
 }
 
@@ -718,6 +919,44 @@ function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'RAS'},orange:{dc:
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+
+function exportData(){
+  if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
+  const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+  const payload={version:'orlog-v5',exported_at:new Date().toISOString(),user_id:sbConfig.uid||'unknown',blocs_count:blocs.length,blocs};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`orlog_backup_${ts}.json`;a.click();
+  URL.revokeObjectURL(url);
+  showToast(blocs.length+' blocs exportés');
+}
+
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      const imported=parsed.blocs||parsed;
+      if(!Array.isArray(imported)){throw new Error('Format invalide');}
+      if(!confirm(`Importer ${imported.length} blocs ? Les données actuelles (${blocs.length} blocs) seront remplacées.`)){e.target.value='';return;}
+      blocs=imported;
+      saveLocal();
+      syncToSupabase();
+      renderAll();
+      const st=document.getElementById('import-status');
+      st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
+      st.textContent=imported.length+' blocs importés avec succès — Supabase mis à jour.';
+      setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},3000);
+    }catch(err){
+      const st=document.getElementById('import-status');
+      st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';
+      st.textContent='Erreur : fichier JSON invalide.';
+    }
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 loadLocal();buildStars();renderAll();
