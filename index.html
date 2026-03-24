@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OrLog">
+<meta name="theme-color" content="#185FA5">
+<title>OrLog</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root {
+  --blue: #185FA5; --blue-l: #E6F1FB; --blue-d: #0C447C;
+  --green: #639922; --green-l: #EAF3DE; --green-d: #27500A;
+  --amber: #BA7517; --amber-l: #FAEEDA; --amber-d: #633806;
+  --red: #E24B4A; --red-l: #FCEBEB; --red-d: #791F1F;
+  --purple-l: #EEEDFE; --purple-d: #3C3489;
+  --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeece6;
+  --text: #1a1a18; --text2: #6b6b68; --text3: #9e9c96;
+  --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+  --radius: 8px; --radius-lg: 12px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+    --text: #f0ede6; --text2: #9e9c96; --text3: #6b6b68;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+    --blue-l: #0c2d52; --green-l: #1a2e09; --amber-l: #2e1e04; --red-l: #2e0f0f;
+    --purple-l: #1e1c3a;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+#app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); }
+
+/* NAV BAR */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 10px; border-bottom: 0.5px solid var(--border); background: var(--bg); flex-shrink: 0; }
+.topbar-title { font-size: 17px; font-weight: 600; }
+.topbar-sub { font-size: 12px; color: var(--text2); }
+.sync-btn { display: flex; align-items: center; gap: 5px; padding: 5px 10px; font-size: 12px; border: 0.5px solid var(--border2); border-radius: 99px; background: none; cursor: pointer; color: var(--text2); font-family: inherit; }
+.sync-btn:active { background: var(--bg2); }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.sync-dot.off { background: var(--amber); }
+.sync-dot.err { background: var(--red); }
+
+/* VIEWS */
+.views { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 0 0 80px; }
+.view { display: none; padding: 16px; }
+.view.active { display: block; }
+
+/* BOTTOM NAV */
+.bottomnav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: var(--bg); border-top: 0.5px solid var(--border); padding-bottom: var(--safe-bot); z-index: 100; }
+.bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 6px; font-size: 10px; color: var(--text3); cursor: pointer; gap: 3px; border: none; background: none; font-family: inherit; }
+.bnav-item.active { color: var(--blue); }
+.bnav-icon { font-size: 22px; line-height: 1; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--bg2); border-radius: var(--radius-lg); padding: 14px; }
+.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.stat-val { font-size: 26px; font-weight: 600; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* SECTION */
+.section { border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 12px; }
+.section-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg2); cursor: pointer; }
+.section-hdr-left { display: flex; flex-direction: column; gap: 2px; }
+.section-title { font-size: 14px; font-weight: 500; }
+.section-sub { font-size: 12px; color: var(--text2); }
+.section-body { padding: 14px; display: none; }
+.section-body.open { display: block; }
+
+/* BADGES */
+.badge { display: inline-flex; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+.bg { background: var(--blue-l); color: var(--blue-d); }
+.bh { background: var(--purple-l); color: var(--purple-d); }
+.bt { background: var(--amber-l); color: var(--amber-d); }
+.bp { background: var(--green-l); color: var(--green-d); }
+.ba { background: var(--bg2); color: var(--text2); }
+
+/* STATUS */
+.sdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.sv { background: var(--green); } .so { background: var(--amber); } .sr { background: var(--red); } .sg { background: var(--text3); }
+.tv { color: var(--green-d); } .to { color: var(--amber-d); } .tr { color: var(--red-d); } .tg { color: var(--text2); }
+.status-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+
+/* TIMELINE */
+.tl { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-bottom: 12px; }
+.tl-step { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tl-dw { display: flex; align-items: center; width: 100%; }
+.tl-line { flex: 1; height: 1px; background: var(--border); }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; cursor: pointer; }
+.tl-dot.dp { background: var(--bg3); border: 1.5px dashed var(--border2); }
+.tl-dot.da { background: var(--blue); }
+.tl-dot.dv { background: var(--green); } .tl-dot.do { background: var(--amber); } .tl-dot.dr { background: var(--red); }
+.tl-lbl { font-size: 9px; color: var(--text3); }
+.tl-val { font-size: 10px; font-weight: 500; text-align: center; }
+
+/* CHIPS */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { background: var(--bg2); padding: 5px 10px; border-radius: var(--radius); font-size: 12px; }
+.chip span { font-weight: 500; }
+.chip-btn { background: var(--blue-l); color: var(--blue-d); border: 0.5px solid rgba(24,95,165,0.25); padding: 5px 10px; border-radius: var(--radius); font-size: 12px; cursor: pointer; font-family: inherit; }
+.chip-btn:active { opacity: 0.7; }
+.chip-btn.green { background: var(--green-l); color: var(--green-d); border-color: rgba(99,153,34,0.25); }
+
+/* FORMS */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 10px 12px; font-size: 15px; border: 0.5px solid var(--border2);
+  border-radius: var(--radius); background: var(--bg); color: var(--text);
+  font-family: inherit; -webkit-appearance: none; appearance: none;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(24,95,165,0.12); }
+.form-group textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-section { font-size: 12px; font-weight: 500; color: var(--text2); margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* STARS */
+.stars-row { display: flex; align-items: center; gap: 8px; }
+.star { font-size: 22px; cursor: pointer; color: var(--border2); }
+.star.on { color: var(--amber); }
+.star-lbl { font-size: 13px; color: var(--text2); }
+
+/* TAGS */
+.tag-wrap { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); cursor: text; min-height: 44px; }
+.tag { background: var(--blue-l); color: var(--blue-d); padding: 3px 8px; border-radius: 99px; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.tag-rm { cursor: pointer; opacity: 0.6; font-size: 14px; }
+.tag-field { border: none; outline: none; background: transparent; font-size: 15px; color: var(--text); min-width: 80px; flex: 1; font-family: inherit; }
+
+/* BUTTONS */
+.btn-primary { width: 100%; padding: 14px; font-size: 15px; font-weight: 500; background: var(--blue); color: white; border: none; border-radius: var(--radius-lg); cursor: pointer; font-family: inherit; margin-top: 8px; }
+.btn-primary:active { background: var(--blue-d); }
+.btn-secondary { padding: 10px 16px; font-size: 13px; background: var(--bg2); color: var(--text); border: 0.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; font-family: inherit; }
+.btn-secondary:active { background: var(--bg3); }
+.btn-row { display: flex; gap: 8px; margin-top: 14px; }
+
+/* BLOC LIST */
+.bloc-item { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+.bloc-item:last-child { border-bottom: none; }
+.bloc-item:active { background: var(--bg2); }
+.bloc-item-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.bloc-item-bot { display: flex; align-items: center; gap: 8px; }
+.bloc-date { font-size: 11px; color: var(--text3); }
+.bloc-meta { font-size: 12px; color: var(--text2); }
+
+/* RADIO GRID */
+.radio-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+.rtab { padding: 6px 12px; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: 99px; background: none; cursor: pointer; color: var(--text2); font-family: inherit; }
+.rtab.active { background: var(--blue); color: white; border-color: var(--blue); }
+.radio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.radio-thumb { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--bg2); border: 0.5px solid var(--border); aspect-ratio: 1; cursor: pointer; }
+.radio-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.radio-del { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 99px; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.radio-lbl { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.4); color: white; font-size: 9px; padding: 3px 5px; text-align: center; }
+.upload-zone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 20px; border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); cursor: pointer; color: var(--text2); font-size: 13px; text-align: center; }
+.upload-zone:active { border-color: var(--blue); background: var(--blue-l); }
+.upload-zone input { display: none; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; padding-bottom: var(--safe-bot); }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--bg); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
+.modal-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 99px; margin: 0 auto 16px; }
+.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
+.modal-close { float: right; background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text2); padding: 0; line-height: 1; }
+
+/* SCORE FORM */
+.score-type-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.score-type-btn { flex: 1; padding: 10px; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border2); border-radius: var(--radius); background: none; cursor: pointer; color: var(--text2); font-family: inherit; }
+.score-type-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+.prog-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.prog-bar { height: 3px; background: var(--bg3); border-radius: 99px; margin-bottom: 14px; }
+.prog-fill { height: 100%; border-radius: 99px; background: var(--blue); transition: width 0.2s; }
+.qb { border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; }
+.qb.answered { border-color: var(--border2); }
+.qnum { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.qtxt { font-size: 13px; margin-bottom: 10px; line-height: 1.5; }
+.opts { display: flex; flex-direction: column; gap: 4px; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: 13px; }
+.opt:active { background: var(--bg2); }
+.opt.sel { background: var(--blue-l); border-color: rgba(24,95,165,0.4); color: var(--blue-d); }
+.oradio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; }
+.opt.sel .oradio { border-color: var(--blue); background: var(--blue); position: relative; }
+.opt.sel .oradio::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: white; display: block; margin: 2.5px auto; }
+
+/* SCORE RESULT */
+.score-result { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; margin-top: 14px; }
+.score-big { font-size: 44px; font-weight: 700; }
+.score-band { display: inline-flex; padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 500; margin: 6px 0 10px; }
+.b-sev { background: var(--red-l); color: var(--red-d); }
+.b-mod { background: var(--amber-l); color: var(--amber-d); }
+.b-mild { background: var(--green-l); color: var(--green-d); }
+.b-sat { background: var(--blue-l); color: var(--blue-d); }
+.score-bar-wrap { height: 6px; background: var(--bg3); border-radius: 99px; margin-bottom: 12px; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 99px; }
+
+/* LIGHTBOX */
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 300; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+.lightbox.show { display: flex; }
+.lightbox img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: var(--radius); }
+.lb-close { position: absolute; top: calc(16px + var(--safe-top)); right: 16px; background: rgba(255,255,255,0.15); color: white; border: none; border-radius: 99px; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.lb-nav { display: flex; gap: 12px; margin-top: 16px; }
+.lb-nav button { background: rgba(255,255,255,0.15); color: white; border: none; border-radius: var(--radius); padding: 8px 18px; font-size: 14px; cursor: pointer; font-family: inherit; }
+.lb-info { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 8px; text-align: center; }
+
+/* SUPABASE CONFIG */
+.config-card { background: var(--bg2); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; }
+.config-label { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+.config-input { width: 100%; padding: 10px 12px; font-size: 13px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); font-family: monospace; }
+.config-input:focus { outline: none; border-color: var(--blue); }
+
+/* TOAST */
+.toast { position: fixed; bottom: calc(80px + var(--safe-bot) + 10px); left: 50%; transform: translateX(-50%); background: #1a1a18; color: white; padding: 10px 18px; border-radius: 99px; font-size: 13px; white-space: nowrap; z-index: 400; display: none; }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 48px 20px; color: var(--text3); font-size: 14px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* WARN */
+.warn { background: var(--amber-l); color: var(--amber-d); padding: 8px 12px; border-radius: var(--radius); font-size: 12px; margin-bottom: 10px; display: none; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">OrLog</div>
+      <div class="topbar-sub">Logbook chirurgical</div>
+    </div>
+    <button class="sync-btn" onclick="manualSync()" id="sync-btn">
+      <span class="sync-dot off" id="sync-dot"></span>
+      <span id="sync-label">Non configuré</span>
+    </button>
+  </div>
+
+  <div class="views">
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="d-total">0</div><div class="stat-sub" id="d-principal">0 en principal</div></div>
+        <div class="stat-card"><div class="stat-label">Scores saisis</div><div class="stat-val" id="d-scores">0</div><div class="stat-sub">OKS / OHS</div></div>
+        <div class="stat-card"><div class="stat-label">Genou</div><div class="stat-val" id="d-genou">0</div></div>
+        <div class="stat-card"><div class="stat-label">Hanche</div><div class="stat-val" id="d-hanche">0</div></div>
+      </div>
+      <div style="font-size: 13px; font-weight: 500; margin-bottom: 10px; color: var(--text2);">Derniers suivis</div>
+      <div id="d-recents"></div>
+      <div style="font-size: 13px; font-weight: 500; margin: 16px 0 10px; color: var(--text2);">Accès rapide</div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <button class="btn-secondary" onclick="sw('saisie')">+ Nouveau bloc</button>
+        <button class="btn-secondary" onclick="sw('suivi')">Suivi post-op</button>
+        <button class="btn-secondary" onclick="showSettings()">Réglages Supabase</button>
+      </div>
+    </div>
+
+    <!-- BLOCS -->
+    <div class="view" id="view-blocs">
+      <div style="display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;" id="bloc-filters">
+        <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
+        <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
+        <button class="rtab" onclick="filterB(this,'Hanche')">Hanche</button>
+        <button class="rtab" onclick="filterB(this,'Traumatologie')">Trauma</button>
+      </div>
+      <div class="section" id="bloc-list-wrap">
+        <div id="bloc-list"></div>
+      </div>
+    </div>
+
+    <!-- SAISIE -->
+    <div class="view" id="view-saisie">
+      <div class="form-group">
+        <label>Date du bloc</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Spécialité</label>
+          <select id="f-spec" onchange="upInterv()">
+            <option value="">Choisir...</option>
+            <option>Genou</option><option>Hanche</option><option>Traumatologie</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Côté</label>
+          <select id="f-side">
+            <option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Intervention</label>
+        <select id="f-interv"><option>Sélectionner une spécialité d'abord</option></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rôle</label>
+          <select id="f-role"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select>
+        </div>
+        <div class="form-group">
+          <label>Durée (min)</label>
+          <input type="number" id="f-duree" placeholder="ex. 95" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="form-section">Patient</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Initiales / ID</label>
+          <input type="text" id="f-patient" placeholder="ex. J.D." autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>IMC</label>
+          <input type="number" id="f-imc" placeholder="ex. 28" step="0.1" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="form-section">Implants & technique</div>
+      <div class="form-group">
+        <label>Implants utilisés</label>
+        <input type="text" id="f-implants" placeholder="ex. Nexgen Legacy PS, fémur D3, tibia 4...">
+      </div>
+      <div class="form-group">
+        <label>Voie d'abord</label>
+        <select id="f-abord">
+          <option value="">—</option>
+          <option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option>
+          <option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option>
+          <option>Arthroscopique</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Difficulté technique</label>
+        <div class="stars-row" style="margin-top: 4px;" id="stars-row">
+          <span class="star" onclick="setStar(1)">★</span><span class="star" onclick="setStar(2)">★</span>
+          <span class="star" onclick="setStar(3)">★</span><span class="star" onclick="setStar(4)">★</span>
+          <span class="star" onclick="setStar(5)">★</span>
+          <span class="star-lbl" id="star-lbl">Non évalué</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Difficultés / astuces</label>
+        <textarea id="f-astuces" placeholder="Points techniques, difficultés rencontrées, astuces opératoires..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Remarques libres</label>
+        <textarea id="f-remarques" placeholder="Observations, questions, points à retravailler..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tags</label>
+        <div class="tag-wrap" id="tag-wrap" onclick="document.getElementById('tf').focus()">
+          <input class="tag-field" id="tf" placeholder="Ajouter un tag..." onkeydown="handleTag(event)">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveBloc()">Enregistrer le bloc</button>
+    </div>
+
+    <!-- SUIVI -->
+    <div class="view" id="view-suivi">
+      <div style="display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;">
+        <div class="status-row"><span class="sdot sv"></span><span style="font-size:11px;color:var(--text2);">Favorable</span></div>
+        <div class="status-row"><span class="sdot so"></span><span style="font-size:11px;color:var(--text2);">Vigilance</span></div>
+        <div class="status-row"><span class="sdot sr"></span><span style="font-size:11px;color:var(--text2);">Complication</span></div>
+        <div class="status-row"><span class="sdot" style="background:var(--blue);"></span><span style="font-size:11px;color:var(--text2);">Score saisi</span></div>
+      </div>
+      <div id="suivi-list"></div>
+    </div>
+  </div>
+
+  <nav class="bottomnav">
+    <button class="bnav-item active" onclick="sw('dashboard')" id="bn-dashboard">
+      <span class="bnav-icon">◎</span><span>Accueil</span>
+    </button>
+    <button class="bnav-item" onclick="sw('blocs')" id="bn-blocs">
+      <span class="bnav-icon">≡</span><span>Mes blocs</span>
+    </button>
+    <button class="bnav-item" onclick="sw('saisie')" id="bn-saisie">
+      <span class="bnav-icon">＋</span><span>Nouveau</span>
+    </button>
+    <button class="bnav-item" onclick="sw('suivi')" id="bn-suivi">
+      <span class="bnav-icon">♡</span><span>Suivi</span>
+    </button>
+  </nav>
+</div>
+
+<!-- MODAL SCORE -->
+<div class="modal-overlay" id="score-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('score-modal')">×</button>
+    <div class="modal-title" id="sm-title">Saisir un score</div>
+    <div class="form-row" style="margin-bottom:12px;">
+      <div><div class="config-label" style="margin-bottom:3px;">Patient</div><div style="font-size:14px;font-weight:500;" id="sm-patient"></div></div>
+      <div><div class="config-label" style="margin-bottom:3px;">Échéance</div><div style="font-size:14px;font-weight:500;" id="sm-time"></div></div>
+    </div>
+    <div class="score-type-row">
+      <button class="score-type-btn active" id="stb-oks" onclick="switchST('oks')">OKS — Genou</button>
+      <button class="score-type-btn" id="stb-ohs" onclick="switchST('ohs')">OHS — Hanche</button>
+    </div>
+    <div id="sm-oks"><div class="prog-row"><span id="sp-oks-lbl">0 / 12</span><span id="sp-oks-live" style="font-weight:500;color:var(--blue);"></span></div><div class="prog-bar"><div class="prog-fill" id="sp-oks-fill" style="width:0%"></div></div><div id="sq-oks"></div><div class="warn" id="sw-oks">Répondre à toutes les questions.</div><div id="sr-oks"></div></div>
+    <div id="sm-ohs" style="display:none;"><div class="prog-row"><span id="sp-ohs-lbl">0 / 12</span><span id="sp-ohs-live" style="font-weight:500;color:var(--blue);"></span></div><div class="prog-bar"><div class="prog-fill" id="sp-ohs-fill" style="width:0%"></div></div><div id="sq-ohs"></div><div class="warn" id="sw-ohs">Répondre à toutes les questions.</div><div id="sr-ohs"></div></div>
+    <button class="btn-primary" onclick="calcScore()" style="margin-top:16px;">Calculer & enregistrer</button>
+  </div>
+</div>
+
+<!-- MODAL RADIOS -->
+<div class="modal-overlay" id="radio-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('radio-modal')">×</button>
+    <div class="modal-title" id="rm-title">Radiographies</div>
+    <div class="radio-tabs" id="rm-tabs"></div>
+    <div id="rm-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL SETTINGS -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    <div class="modal-title">Configuration Supabase</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Renseigner l'URL et la clé anonyme de votre projet Supabase pour activer la synchronisation entre appareils.</p>
+    <div class="form-group"><label>URL du projet</label><input class="config-input" type="url" id="cfg-url" placeholder="https://xxxx.supabase.co"></div>
+    <div class="form-group"><label>Clé anonyme (anon key)</label><input class="config-input" type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIs..."></div>
+    <div class="form-group"><label>Identifiant utilisateur</label><input class="config-input" type="text" id="cfg-uid" placeholder="tom (identifiant unique, même sur tous vos appareils)"></div>
+    <button class="btn-primary" onclick="saveConfig()">Enregistrer & tester la connexion</button>
+    <div style="margin-top:16px;padding:12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.7;">
+      <strong style="color:var(--text);">Instructions :</strong><br>
+      1. Créer un compte sur <strong>supabase.com</strong> (gratuit)<br>
+      2. Nouveau projet → "Table Editor" → "New table" nommée <code>orlog_blocs</code><br>
+      3. Colonnes : <code>id</code> (uuid, PK), <code>user_id</code> (text), <code>data</code> (jsonb), <code>updated_at</code> (timestamptz)<br>
+      4. Settings → API → copier l'URL et la clé "anon public"<br>
+      5. Coller ici et tester
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" onclick="closeLB()">×</button>
+  <img id="lb-img" src="" alt="">
+  <div class="lb-info" id="lb-info"></div>
+  <div class="lb-nav">
+    <button onclick="lbNav(-1)">← Préc.</button>
+    <button onclick="lbNav(1)">Suiv. →</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const INTERV = {
+  Genou: ['PTG','PTG de révision','Ligamentoplastie LCA (DIDT)','Ligamentoplastie LCA (KJ)','Méniscectomie arthroscopique','Suture méniscale','Ostéotomie tibiale de valgisation','Prothèse unicompartimentale'],
+  Hanche: ['PTH voie antérolatérale','PTH voie postérieure','PTH de révision','Vissage col fémoral','Prothèse intermédiaire de hanche'],
+  Traumatologie: ['Fracture col fémur — DHS','Fracture col fémur — clouage','Fracture tibia — enclouage','Fracture fémur — enclouage','Fracture cheville — ostéosynthèse','Fracture radius distal','Autre traumatologie']
+};
+const TL = ['Préop','J45','3 mois','6 mois','1 an'];
+const RT = ['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
+const OKS_Q = [
+  {t:"Douleur habituelle du genou ?",o:["Aucune","Très légère","Légère","Modérée","Sévère"]},
+  {t:"Difficultés à vous laver/sécher (genou) ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Difficultés à monter/descendre d'une voiture ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Durée de marche avant douleur sévère ?",o:["+ de 30 min","16 à 30 min","5 à 15 min","Autour de la maison","Impossible"]},
+  {t:"Douleur pour se lever d'une chaise ?",o:["Pas du tout","Légèrement","Modérément","Très douloureux","Insupportable"]},
+  {t:"Avez-vous boité en marchant ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},
+  {t:"Pouvez-vous vous agenouiller et vous relever ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Genou gênant la nuit ?",o:["Pas du tout","1-2 nuits","Quelques nuits","La plupart des nuits","Toutes les nuits"]},
+  {t:"Genou perturbant le travail / tâches ménagères ?",o:["Pas du tout","Un peu","Modérément","Beaucoup","Totalement"]},
+  {t:"Impression que le genou allait se dérober ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},
+  {t:"Faire les courses seul(e) ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Descendre un escalier ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]}
+];
+const OHS_Q = [
+  {t:"Douleur habituelle de la hanche ?",o:["Aucune","Très légère","Légère","Modérée","Sévère"]},
+  {t:"Difficultés à vous laver/sécher (hanche) ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Difficultés à monter/descendre d'une voiture ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Mettre vos chaussettes/chaussures ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Faire les courses seul(e) ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Durée de marche avant douleur sévère ?",o:["+ de 30 min","16 à 30 min","5 à 15 min","Autour de la maison","Impossible"]},
+  {t:"Monter un escalier ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},
+  {t:"Douleur pour se lever d'une chaise ?",o:["Pas du tout","Légèrement","Modérément","Très douloureux","Insupportable"]},
+  {t:"Avez-vous boité en marchant ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},
+  {t:"Douleurs soudaines vives de hanche ?",o:["Jamais","1-2 jours","Quelques jours","La plupart des jours","Tous les jours"]},
+  {t:"Hanche perturbant le travail / tâches ménagères ?",o:["Pas du tout","Un peu","Modérément","Beaucoup","Totalement"]},
+  {t:"Hanche gênante la nuit ?",o:["Pas du tout","1-2 nuits","Quelques nuits","La plupart des nuits","Toutes les nuits"]}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let blocs = [];
+let cStar = 0, formTags = [], mCtx = {}, rCtx = {}, lbImgs = [], lbIdx = 0;
+let mAns = {oks:{}, ohs:{}};
+let curRTab = 'Préopératoire';
+let sbConfig = { url: '', key: '', uid: '' };
+
+// ─── PERSISTENCE ─────────────────────────────────────────────────────────────
+function loadLocal() {
+  try {
+    const d = localStorage.getItem('orlog_blocs');
+    if (d) blocs = JSON.parse(d);
+    const c = localStorage.getItem('orlog_config');
+    if (c) sbConfig = { ...sbConfig, ...JSON.parse(c) };
+  } catch(e) { blocs = []; }
+  updateSyncUI();
+}
+
+function saveLocal() {
+  try { localStorage.setItem('orlog_blocs', JSON.stringify(blocs)); } catch(e) {}
+}
+
+function updateSyncUI() {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (!sbConfig.url || !sbConfig.key) {
+    dot.className = 'sync-dot off';
+    lbl.textContent = 'Non configuré';
+  } else {
+    dot.className = 'sync-dot';
+    lbl.textContent = 'Supabase';
+  }
+}
+
+// ─── SUPABASE ────────────────────────────────────────────────────────────────
+async function sbFetch(path, opts = {}) {
+  if (!sbConfig.url || !sbConfig.key) return null;
+  const res = await fetch(sbConfig.url + '/rest/v1/' + path, {
+    headers: {
+      'apikey': sbConfig.key,
+      'Authorization': 'Bearer ' + sbConfig.key,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || ''
+    },
+    ...opts
+  });
+  if (!res.ok) throw new Error('Supabase error: ' + res.status);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function syncToSupabase() {
+  if (!sbConfig.url || !sbConfig.key || !sbConfig.uid) return;
+  try {
+    const payload = {
+      id: sbConfig.uid + '_blocs',
+      user_id: sbConfig.uid,
+      data: blocs,
+      updated_at: new Date().toISOString()
+    };
+    await sbFetch('orlog_blocs?id=eq.' + encodeURIComponent(sbConfig.uid + '_blocs'), {
+      method: 'DELETE', prefer: ''
+    });
+    await sbFetch('orlog_blocs', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('sync-dot').className = 'sync-dot';
+    document.getElementById('sync-label').textContent = 'Synchronisé';
+    return true;
+  } catch(e) {
+    document.getElementById('sync-dot').className = 'sync-dot err';
+    document.getElementById('sync-label').textContent = 'Erreur sync';
+    return false;
+  }
+}
+
+async function syncFromSupabase() {
+  if (!sbConfig.url || !sbConfig.key || !sbConfig.uid) return;
+  try {
+    const rows = await sbFetch('orlog_blocs?user_id=eq.' + encodeURIComponent(sbConfig.uid) + '&select=data,updated_at');
+    if (rows && rows.length > 0) {
+      blocs = rows[0].data || [];
+      saveLocal();
+      renderAll();
+      showToast('Données synchronisées depuis Supabase');
+    }
+  } catch(e) {
+    showToast('Erreur de synchronisation');
+  }
+}
+
+async function manualSync() {
+  if (!sbConfig.url || !sbConfig.key) { showSettings(); return; }
+  showToast('Synchronisation...');
+  await syncFromSupabase();
+}
+
+async function saveConfig() {
+  sbConfig.url = document.getElementById('cfg-url').value.replace(/\/$/, '');
+  sbConfig.key = document.getElementById('cfg-key').value.trim();
+  sbConfig.uid = document.getElementById('cfg-uid').value.trim();
+  localStorage.setItem('orlog_config', JSON.stringify(sbConfig));
+  updateSyncUI();
+  showToast('Test de connexion...');
+  const ok = await syncToSupabase();
+  if (ok) { showToast('Connexion réussie ! Données synchronisées.'); closeModal('settings-modal'); }
+  else showToast('Échec — vérifier URL et clé anon');
+}
+
+function showSettings() {
+  document.getElementById('cfg-url').value = sbConfig.url || '';
+  document.getElementById('cfg-key').value = sbConfig.key || '';
+  document.getElementById('cfg-uid').value = sbConfig.uid || '';
+  openModal('settings-modal');
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+function sw(v) {
+  document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(e => e.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.getElementById('bn-' + v).classList.add('active');
+  if (v === 'dashboard') renderDash();
+  if (v === 'blocs') renderBlocs();
+  if (v === 'suivi') renderSuivi();
+  if (v === 'saisie') initForm();
+}
+
+function renderAll() { renderDash(); renderBlocs(); renderSuivi(); }
+
+// ─── DASHBOARD ───────────────────────────────────────────────────────────────
+function renderDash() {
+  document.getElementById('d-total').textContent = blocs.length;
+  document.getElementById('d-principal').textContent = blocs.filter(b => b.role === 'Principal').length + ' en principal';
+  let sc = 0;
+  blocs.forEach(b => { if (b.scores) TL.forEach(t => { if (b.scores[t]?.val) sc++; }); });
+  document.getElementById('d-scores').textContent = sc;
+  document.getElementById('d-genou').textContent = blocs.filter(b => b.spec === 'Genou').length;
+  document.getElementById('d-hanche').textContent = blocs.filter(b => b.spec === 'Hanche').length;
+  const el = document.getElementById('d-recents');
+  const recent = blocs.slice(-5).reverse();
+  if (!recent.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucun bloc enregistré</div>'; return; }
+  el.innerHTML = recent.map(b => {
+    const {dc,tc,sl} = statusClasses(b.statut);
+    return `<div class="section" style="margin-bottom:8px;cursor:pointer;" onclick="sw('suivi')">
+      <div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <div><div style="font-size:13px;font-weight:500;">${b.patient||'—'} — ${b.interv||''}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:2px;">${fmtDate(b.date)} · ${b.implants||'—'}</div></div>
+        <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
+      </div></div>`;
+  }).join('');
+}
+
+// ─── BLOCS LIST ──────────────────────────────────────────────────────────────
+let curFilter = 'all';
+function filterB(btn, spec) {
+  document.querySelectorAll('#bloc-filters .rtab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); curFilter = spec; renderBlocs();
+}
+
+function renderBlocs() {
+  const filtered = curFilter === 'all' ? blocs : blocs.filter(b => b.spec === curFilter);
+  const el = document.getElementById('bloc-list');
+  if (!filtered.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>'; return; }
+  el.innerHTML = filtered.slice().reverse().map((b, i) => {
+    const bi = blocs.indexOf(b);
+    const bc = b.spec === 'Genou' ? 'bg' : b.spec === 'Hanche' ? 'bh' : 'bt';
+    const rc = b.role === 'Principal' ? 'bp' : 'ba';
+    const {dc,tc,sl} = statusClasses(b.statut);
+    const nr = b.radios ? Object.values(b.radios).reduce((a,r) => a + r.length, 0) : 0;
+    return `<div class="bloc-item" onclick="openRadioModal(${bi})">
+      <div class="bloc-item-top">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span class="badge ${bc}">${(b.interv||'').substring(0,20)}</span>
+          <span class="badge ${rc}">${b.role}</span>
+          ${nr > 0 ? `<span class="badge" style="background:var(--green-l);color:var(--green-d);">${nr} radio(s)</span>` : ''}
+        </div>
+        <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
+      </div>
+      <div class="bloc-item-bot">
+        <span class="bloc-date">${fmtDate(b.date)}</span>
+        <span class="bloc-meta">${b.patient||'—'} · ${b.duree ? b.duree + ' min' : '—'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── SUIVI ────────────────────────────────────────────────────────────────────
+function renderSuivi() {
+  const el = document.getElementById('suivi-list');
+  if (!blocs.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">♡</div>Aucun patient à suivre</div>'; return; }
+  el.innerHTML = blocs.map((b, bi) => {
+    const {dc,tc,sl} = statusClasses(b.statut);
+    const stype = b.spec === 'Hanche' ? 'ohs' : 'oks';
+    const tl = TL.map((t, ti) => {
+      const hasScore = b.scores?.[t]?.val;
+      const dotCls = hasScore ? 'da' : 'dp';
+      const val = hasScore ? `<span style="color:var(--blue);font-size:9px;">${b.scores[t].type.toUpperCase()} ${b.scores[t].val}</span>` : '<span style="color:var(--text3);font-size:9px;">—</span>';
+      const lv = ti === 0 ? 'visibility:hidden;' : '';
+      const rv = ti === 4 ? 'visibility:hidden;' : '';
+      return `<div class="tl-step"><div class="tl-dw"><div class="tl-line" style="${lv}"></div><div class="tl-dot ${dotCls}" onclick="openScoreModal(${bi},'${t}','${stype}')"></div><div class="tl-line" style="${rv}"></div></div><div class="tl-lbl">${t}</div><div class="tl-val">${val}</div></div>`;
+    }).join('');
+    const chips = TL.filter(t => b.scores?.[t]?.val).map(t => `<span class="chip">${b.scores[t].type.toUpperCase()} ${t} <span>${b.scores[t].val}/48</span></span>`).join('');
+    const nr = b.radios ? Object.values(b.radios).reduce((a,r) => a + r.length, 0) : 0;
+    return `<div class="section">
+      <div class="section-hdr" onclick="toggleSection(this)">
+        <div class="section-hdr-left">
+          <div class="section-title">${b.patient||'—'} — ${(b.interv||'').substring(0,24)}</div>
+          <div class="section-sub">${fmtDate(b.date)} · ${b.implants||'—'} · ${b.role}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
+          <span style="color:var(--text3);">›</span>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="tl">${tl}</div>
+        <div class="chips">
+          ${chips}
+          <button class="chip-btn" onclick="openScoreModal(${bi},'','${stype}')">+ Score</button>
+          <button class="chip-btn ${nr > 0 ? 'green' : ''}" onclick="openRadioModal(${bi})">${nr > 0 ? nr + ' radio(s)' : '+ Radios'}</button>
+        </div>
+        ${b.astuces ? `<div style="margin-top:12px;padding:10px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.6;"><strong style="color:var(--text);">Astuces :</strong> ${b.astuces}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSection(hdr) {
+  const body = hdr.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ─── FORM SAISIE ─────────────────────────────────────────────────────────────
+function initForm() {
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  cStar = 0; formTags = []; updateStars(); renderTags();
+  ['f-spec','f-side','f-patient','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('f-role').value = 'Principal';
+  document.getElementById('f-interv').innerHTML = '<option>Sélectionner une spécialité d\'abord</option>';
+}
+
+function upInterv() {
+  const sp = document.getElementById('f-spec').value;
+  const sel = document.getElementById('f-interv');
+  if (!sp) { sel.innerHTML = '<option>Sélectionner une spécialité d\'abord</option>'; return; }
+  sel.innerHTML = INTERV[sp].map(i => `<option>${i}</option>`).join('');
+}
+
+function setStar(n) { cStar = n; updateStars(); }
+function updateStars() {
+  const lbls = ['Non évalué','Simple','Modéré','Difficile','Très difficile','Exceptionnel'];
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('on', i < cStar));
+  document.getElementById('star-lbl').textContent = lbls[cStar];
+}
+
+function handleTag(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/,/g,'');
+    if (v && !formTags.includes(v)) { formTags.push(v); renderTags(); }
+    e.target.value = '';
+  } else if (e.key === 'Backspace' && !e.target.value && formTags.length) { formTags.pop(); renderTags(); }
+}
+function removeTag(t) { formTags = formTags.filter(x => x !== t); renderTags(); }
+function renderTags() {
+  const c = document.getElementById('tag-wrap'); const f = document.getElementById('tf');
+  c.innerHTML = '';
+  formTags.forEach(t => { const el = document.createElement('span'); el.className = 'tag'; el.innerHTML = t + '<span class="tag-rm" onclick="removeTag(\'' + t + '\')">×</span>'; c.appendChild(el); });
+  c.appendChild(f); f.placeholder = formTags.length ? '' : 'Ajouter un tag...';
+}
+
+function saveBloc() {
+  const sp = document.getElementById('f-spec').value;
+  const iv = document.getElementById('f-interv').value;
+  if (!sp || iv.includes('Sélectionner')) { showToast('Spécialité et intervention requises'); return; }
+  const radios = {}; RT.forEach(t => radios[t] = []);
+  blocs.push({
+    id: Date.now().toString(),
+    date: document.getElementById('f-date').value,
+    spec: sp, interv: iv,
+    side: document.getElementById('f-side').value,
+    role: document.getElementById('f-role').value,
+    duree: parseInt(document.getElementById('f-duree').value) || null,
+    patient: document.getElementById('f-patient').value,
+    imc: document.getElementById('f-imc').value,
+    implants: document.getElementById('f-implants').value,
+    abord: document.getElementById('f-abord').value,
+    diff: cStar,
+    astuces: document.getElementById('f-astuces').value,
+    remarques: document.getElementById('f-remarques').value,
+    tags: [...formTags], statut: 'gris', scores: {}, radios
+  });
+  saveLocal();
+  syncToSupabase();
+  showToast('Bloc enregistré');
+  sw('suivi');
+}
+
+// ─── SCORES ───────────────────────────────────────────────────────────────────
+function openScoreModal(bi, time, stype) {
+  mCtx = { bi, time, stype: stype || 'oks' };
+  mAns = { oks: {}, ohs: {} };
+  const b = blocs[bi];
+  document.getElementById('sm-title').textContent = 'Score fonctionnel';
+  document.getElementById('sm-patient').textContent = b.patient || '—';
+  document.getElementById('sm-time').textContent = time || 'Hors échéance';
+  buildScoreQ('oks'); buildScoreQ('ohs');
+  switchST(stype === 'ohs' ? 'ohs' : 'oks');
+  document.getElementById('sr-oks').innerHTML = '';
+  document.getElementById('sr-ohs').innerHTML = '';
+  document.getElementById('sw-oks').style.display = 'none';
+  document.getElementById('sw-ohs').style.display = 'none';
+  openModal('score-modal');
+}
+
+function buildScoreQ(s) {
+  const qs = s === 'oks' ? OKS_Q : OHS_Q;
+  const cont = document.getElementById('sq-' + s); cont.innerHTML = '';
+  qs.forEach((q, qi) => {
+    const d = document.createElement('div'); d.className = 'qb'; d.id = 'qb-' + s + '-' + qi;
+    d.innerHTML = `<div class="qnum">Q${qi+1}/12</div><div class="qtxt">${q.t}</div><div class="opts">` +
+      q.o.map((o, oi) => `<div class="opt" onclick="selOpt('${s}',${qi},${oi},${4-oi})" id="opt-${s}-${qi}-${oi}"><div class="oradio"></div><span>${o}</span></div>`).join('') + '</div>';
+    cont.appendChild(d);
+  });
+}
+
+function selOpt(s, qi, oi, val) {
+  for (let i = 0; i < 5; i++) { const e = document.getElementById('opt-' + s + '-' + qi + '-' + i); if (e) e.classList.remove('sel'); }
+  document.getElementById('opt-' + s + '-' + qi + '-' + oi)?.classList.add('sel');
+  document.getElementById('qb-' + s + '-' + qi)?.classList.add('answered');
+  mAns[s][qi] = val;
+  const n = Object.keys(mAns[s]).length;
+  document.getElementById('sp-' + s + '-lbl').textContent = n + ' / 12';
+  document.getElementById('sp-' + s + '-fill').style.width = Math.round(n / 12 * 100) + '%';
+  const live = Object.values(mAns[s]).reduce((a,b) => a+b, 0);
+  document.getElementById('sp-' + s + '-live').textContent = n > 0 ? 'Partiel : ' + live : '';
+}
+
+function switchST(s) {
+  document.getElementById('sm-oks').style.display = s === 'oks' ? 'block' : 'none';
+  document.getElementById('sm-ohs').style.display = s === 'ohs' ? 'block' : 'none';
+  document.getElementById('stb-oks').classList.toggle('active', s === 'oks');
+  document.getElementById('stb-ohs').classList.toggle('active', s === 'ohs');
+  mCtx.stype = s;
+}
+
+function calcScore() {
+  const s = mCtx.stype;
+  if (Object.keys(mAns[s]).length < 12) { document.getElementById('sw-' + s).style.display = 'block'; return; }
+  document.getElementById('sw-' + s).style.display = 'none';
+  const total = Object.values(mAns[s]).reduce((a,b) => a+b, 0);
+  const pct = Math.round(total / 48 * 100);
+  let band, bc, color;
+  if (total <= 19) { band = 'Sévère'; bc = 'b-sev'; color = 'var(--red)'; }
+  else if (total <= 29) { band = 'Modéré'; bc = 'b-mod'; color = 'var(--amber)'; }
+  else if (total <= 39) { band = 'Léger'; bc = 'b-mild'; color = 'var(--green)'; }
+  else { band = 'Satisfaisant'; bc = 'b-sat'; color = 'var(--blue)'; }
+  document.getElementById('sr-' + s).innerHTML = `
+    <div class="score-result">
+      <div class="score-big" style="color:${color}">${total}</div>
+      <div style="font-size:14px;color:var(--text2);margin-top:2px;">/ 48 — ${pct}%</div>
+      <div class="score-band ${bc}">${band}</div>
+      <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div style="font-size:11px;color:var(--text2);">MCID : 5 points — ${s.toUpperCase()}</div>
+    </div>`;
+  const bi = mCtx.bi; const time = mCtx.time || 'hors-echeance';
+  if (!blocs[bi].scores) blocs[bi].scores = {};
+  blocs[bi].scores[time] = { type: s, val: total, date: new Date().toISOString().split('T')[0] };
+  if (total >= 40) blocs[bi].statut = 'vert';
+  else if (total >= 30) blocs[bi].statut = blocs[bi].statut === 'rouge' ? 'rouge' : 'vert';
+  else if (total >= 20) blocs[bi].statut = blocs[bi].statut === 'rouge' ? 'rouge' : 'orange';
+  saveLocal(); syncToSupabase();
+  showToast(s.toUpperCase() + ' ' + total + '/48 enregistré');
+  setTimeout(() => { closeModal('score-modal'); renderSuivi(); }, 1800);
+}
+
+// ─── RADIOS ───────────────────────────────────────────────────────────────────
+function openRadioModal(bi) {
+  rCtx = { bi }; curRTab = 'Préopératoire';
+  const b = blocs[bi];
+  document.getElementById('rm-title').textContent = 'Radios — ' + (b.patient || '—');
+  renderRTabs(bi); renderRGrid(bi);
+  openModal('radio-modal');
+}
+
+function renderRTabs(bi) {
+  const b = blocs[bi];
+  document.getElementById('rm-tabs').innerHTML = RT.map(t => {
+    const n = b.radios?.[t]?.length || 0;
+    return `<button class="rtab${t === curRTab ? ' active' : ''}" onclick="switchRTab('${t}',${bi})">${t}${n > 0 ? ' (' + n + ')' : ''}</button>`;
+  }).join('');
+}
+
+function switchRTab(t, bi) { curRTab = t; renderRTabs(bi); renderRGrid(bi); }
+
+function renderRGrid(bi) {
+  const b = blocs[bi]; const imgs = b.radios?.[curRTab] || [];
+  let html = '<div class="radio-grid">';
+  imgs.forEach((img, i) => {
+    html += `<div class="radio-thumb" onclick="openLB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadio(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;
+  });
+  html += '</div>';
+  html += `<label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUpload(event,${bi},'${curRTab}')"><div style="font-size:32px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
+  document.getElementById('rm-grid').innerHTML = html;
+}
+
+function handleUpload(e, bi, type) {
+  const files = Array.from(e.target.files); if (!files.length) return;
+  let done = 0;
+  files.forEach(f => {
+    const r = new FileReader();
+    r.onload = ev => {
+      if (!blocs[bi].radios) blocs[bi].radios = {};
+      if (!blocs[bi].radios[type]) blocs[bi].radios[type] = [];
+      blocs[bi].radios[type].push({ data: ev.target.result, name: f.name, date: new Date().toISOString().split('T')[0] });
+      done++;
+      if (done === files.length) { renderRTabs(bi); renderRGrid(bi); saveLocal(); syncToSupabase(); showToast(done + ' image(s) ajoutée(s)'); }
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function delRadio(bi, type, idx) {
+  blocs[bi].radios[type].splice(idx, 1);
+  renderRTabs(bi); renderRGrid(bi); saveLocal(); syncToSupabase();
+}
+
+function openLB(bi, type, idx) {
+  lbImgs = blocs[bi].radios[type]; lbIdx = idx;
+  const img = lbImgs[idx];
+  document.getElementById('lb-img').src = img.data;
+  document.getElementById('lb-info').textContent = img.name + ' · ' + type + ' · ' + img.date;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLB() { document.getElementById('lightbox').classList.remove('show'); }
+function lbNav(dir) {
+  lbIdx = (lbIdx + dir + lbImgs.length) % lbImgs.length;
+  const img = lbImgs[lbIdx];
+  document.getElementById('lb-img').src = img.data;
+  document.getElementById('lb-info').textContent = img.name + ' · ' + img.date;
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+}
+
+function statusClasses(s) {
+  const map = { vert: {dc:'sv',tc:'tv',sl:'RAS'}, orange: {dc:'so',tc:'to',sl:'Vigilance'}, rouge: {dc:'sr',tc:'tr',sl:'Complication'} };
+  return map[s] || {dc:'sg',tc:'tg',sl:'En attente'};
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+loadLocal();
+renderAll();
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+syncFromSupabase();
+</script>
+</body>
+</html>
