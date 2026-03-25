@@ -818,7 +818,7 @@ function removeEditTag(t){editTags=editTags.filter(x=>x!==t);renderEditTags();}
 function renderEditTags(){
   const c=document.getElementById('e-tag-wrap');if(!c)return;
   const f=document.getElementById('etf');c.innerHTML='';
-  editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';el.innerHTML=t+'<span class="tag-rm" onclick="removeEditTag(''+t+'')">×</span>';c.appendChild(el);});
+  editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeEditTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=editTags.length?'':'Ajouter un tag...';
 }
 
