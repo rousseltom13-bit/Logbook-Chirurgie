@@ -515,6 +515,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="form-group"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
     <div class="form-group"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
     <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Évolution favorable</option><option value="orange">Vigilance</option><option value="rouge">Complication</option><option value="pdv">Perdu de vue</option><option value="deces">Décès</option></select></div>
+    <div class="form-group"><label>Tags</label><div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()"><input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)"></div></div>
     <button class="btn-primary" onclick="saveEdit()">Enregistrer les modifications</button>
   </div>
 </div>
@@ -535,7 +536,7 @@ const OKS_Q=[{t:"Douleur habituelle du genou ?",o:["Aucune","Très légère","L�
 const OHS_Q=[{t:"Douleur habituelle de la hanche ?",o:["Aucune","Très légère","Légère","Modérée","Sévère"]},{t:"Difficultés à vous laver/sécher (hanche) ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Difficultés à monter/descendre d'une voiture ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Mettre vos chaussettes/chaussures ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Faire les courses seul(e) ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Durée de marche avant douleur sévère ?",o:["+ de 30 min","16 à 30 min","5 à 15 min","Autour de la maison","Impossible"]},{t:"Monter un escalier ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Douleur pour se lever d'une chaise ?",o:["Pas du tout","Légèrement","Modérément","Très douloureux","Insupportable"]},{t:"Avez-vous boité en marchant ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},{t:"Douleurs soudaines vives de hanche ?",o:["Jamais","1-2 jours","Quelques jours","La plupart des jours","Tous les jours"]},{t:"Hanche perturbant le travail / tâches ménagères ?",o:["Pas du tout","Un peu","Modérément","Beaucoup","Totalement"]},{t:"Hanche gênante la nuit ?",o:["Pas du tout","1-2 nuits","Quelques nuits","La plupart des nuits","Toutes les nuits"]}];
 const SPEC_COLORS={Genou:'var(--blue)',Hanche:'var(--purple)',Traumatologie:'var(--amber)'};
 
-let blocs=[],cStar=0,formTags=[],mCtx={},rCtx={},lbImgs=[],lbIdx=0;
+let blocs=[],cStar=0,formTags=[],editTags=[],mCtx={},rCtx={},lbImgs=[],lbIdx=0;
 let mAns={oks:{},ohs:{}},curRTab='Préopératoire',curFilter='all',complCtx={};
 let sbConfig={url:'',key:'',uid:''};
 
@@ -792,6 +793,7 @@ function openEditModal(){
   document.getElementById('e-duree').value=b.duree||'';
   document.getElementById('e-patient').value=b.patient||'';
   document.getElementById('e-age').value=b.age||'';
+  editTags=[...(b.tags||[])];renderEditTags();
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
   document.getElementById('e-abord').value=b.abord||'';
@@ -799,6 +801,18 @@ function openEditModal(){
   document.getElementById('e-remarques').value=b.remarques||'';
   document.getElementById('e-statut').value=b.statut||'gris';
   openModal('edit-modal');
+}
+
+function handleEditTag(e){
+  if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!editTags.includes(v)){editTags.push(v);renderEditTags();}e.target.value='';}
+  else if(e.key==='Backspace'&&!e.target.value&&editTags.length){editTags.pop();renderEditTags();}
+}
+function removeEditTag(t){editTags=editTags.filter(x=>x!==t);renderEditTags();}
+function renderEditTags(){
+  const c=document.getElementById('e-tag-wrap');if(!c)return;
+  const f=document.getElementById('etf');c.innerHTML='';
+  editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';el.innerHTML=t+'<span class="tag-rm" onclick="removeEditTag(''+t+'')">×</span>';c.appendChild(el);});
+  c.appendChild(f);f.placeholder=editTags.length?'':'Ajouter un tag...';
 }
 
 function upIntervEdit(){
@@ -825,6 +839,7 @@ function saveEdit(){
   b.duree=parseInt(document.getElementById('e-duree').value)||null;
   b.patient=document.getElementById('e-patient').value;
   b.age=document.getElementById('e-age').value;
+  b.tags=[...editTags];
   b.imc=document.getElementById('e-imc').value;
   b.implants=document.getElementById('e-implants').value;
   b.abord=document.getElementById('e-abord').value;
@@ -890,7 +905,8 @@ function renderBlocs(){
     return;
   }
 
-  el.innerHTML=filtered.slice().reverse().map(b=>{
+  const sorted = filtered.slice().sort((a,b)=>{ const da=a.date||''; const db=b.date||''; return db.localeCompare(da); });
+  el.innerHTML=sorted.map(b=>{
     const bi=blocs.indexOf(b);
     const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
     const rc=b.role==='Principal'?'bp':'ba';
@@ -928,7 +944,8 @@ function renderBlocs(){
 function renderSuivi(){
   const el=document.getElementById('suivi-list');
   if(!blocs.length){el.innerHTML='<div class="empty"><div class="empty-icon">♡</div>Aucun patient</div>';return;}
-  el.innerHTML=blocs.map((b,bi)=>{
+  const sorted_suivi = blocs.slice().sort((a,b)=>{ const da=a.date||''; const db=b.date||''; return db.localeCompare(da); });
+  el.innerHTML=sorted_suivi.map((b,bi)=>{ const bi2=blocs.indexOf(b); const bi=bi2;
     const{dc,tc,sl}=statusClasses(b.statut);
     const stype=b.spec==='Hanche'?'ohs':'oks';
     const tl=TL.map((t,ti)=>{
@@ -1002,7 +1019,7 @@ function saveBloc(){
   const iv=sp==='Traumatologie'?document.getElementById('f-interv-libre').value:document.getElementById('f-interv').value;
   if(!sp||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
   const radios={};RT.forEach(t=>radios[t]=[]);
-  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,imc:document.getElementById('f-imc').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',scores:{},complications:[],radios});
+  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',scores:{},complications:[],radios});
   saveLocal();syncToSupabase();showToast('Bloc enregistré');sw('suivi');
 }
 
