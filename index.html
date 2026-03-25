@@ -349,7 +349,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="form-group"><label>Spécialité</label><select id="f-spec" onchange="upInterv()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
         <div class="form-group"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
       </div>
-      <div class="form-group"><label>Intervention</label><select id="f-interv"><option>Sélectionner une spécialité d'abord</option></select></div>
+      <div class="form-group"><label>Intervention</label>
+        <select id="f-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
+        <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention (ex. plaque tibia distal, enclouage fémur...)" style="display:none;margin-top:6px;" autocomplete="off">
+      </div>
       <div class="form-row">
         <div class="form-group"><label>Rôle</label><select id="f-role"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
         <div class="form-group"><label>Durée (min)</label><input type="number" id="f-duree" placeholder="ex. 95" inputmode="numeric"></div>
@@ -484,7 +487,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Spécialité</label><select id="e-spec" onchange="upIntervEdit()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
       <div class="form-group"><label>Côté</label><select id="e-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
     </div>
-    <div class="form-group"><label>Intervention</label><select id="e-interv"></select></div>
+    <div class="form-group"><label>Intervention</label>
+      <select id="e-interv" style="display:block;"></select>
+      <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Rôle</label><select id="e-role"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
       <div class="form-group"><label>Durée (min)</label><input type="number" id="e-duree" inputmode="numeric"></div>
@@ -756,7 +762,11 @@ function openEditModal(){
   document.getElementById('e-date').value=b.date||'';
   document.getElementById('e-spec').value=b.spec||'';
   upIntervEdit();
-  document.getElementById('e-interv').value=b.interv||'';
+  if(b.spec==='Traumatologie'){
+    document.getElementById('e-interv-libre').value=b.interv||'';
+  } else {
+    document.getElementById('e-interv').value=b.interv||'';
+  }
   document.getElementById('e-side').value=b.side||'';
   document.getElementById('e-role').value=b.role||'Principal';
   document.getElementById('e-duree').value=b.duree||'';
@@ -773,8 +783,14 @@ function openEditModal(){
 function upIntervEdit(){
   const sp=document.getElementById('e-spec').value;
   const sel=document.getElementById('e-interv');
-  if(!sp){sel.innerHTML='<option>—</option>';return;}
-  sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
+  const libre=document.getElementById('e-interv-libre');
+  if(!sp){sel.innerHTML='<option>—</option>';if(libre){sel.style.display='block';libre.style.display='none';}return;}
+  if(sp==='Traumatologie'){
+    sel.style.display='none';if(libre)libre.style.display='block';
+  } else {
+    sel.style.display='block';if(libre)libre.style.display='none';
+    sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
+  }
 }
 
 function saveEdit(){
@@ -782,7 +798,7 @@ function saveEdit(){
   const b=blocs[detailBlocIdx];
   b.date=document.getElementById('e-date').value;
   b.spec=document.getElementById('e-spec').value;
-  b.interv=document.getElementById('e-interv').value;
+  b.interv=b.spec==='Traumatologie'?document.getElementById('e-interv-libre').value:document.getElementById('e-interv').value;
   b.side=document.getElementById('e-side').value;
   b.role=document.getElementById('e-role').value;
   b.duree=parseInt(document.getElementById('e-duree').value)||null;
@@ -928,8 +944,22 @@ function initForm(){
   ['f-spec','f-side','f-patient','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-role').value='Principal';
   document.getElementById('f-interv').innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
+  document.getElementById('f-interv').style.display='block';
+  document.getElementById('f-interv-libre').style.display='none';
+  document.getElementById('f-interv-libre').value='';
 }
-function upInterv(){const sp=document.getElementById('f-spec').value;const sel=document.getElementById('f-interv');if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';return;}sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');}
+function upInterv(){
+  const sp=document.getElementById('f-spec').value;
+  const sel=document.getElementById('f-interv');
+  const libre=document.getElementById('f-interv-libre');
+  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
+  if(sp==='Traumatologie'){
+    sel.style.display='none';libre.style.display='block';libre.value='';libre.focus();
+  } else {
+    sel.style.display='block';libre.style.display='none';
+    sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
+  }
+}
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
   const lbls=['Non évalué','Simple','Modéré','Difficile','Très difficile','Exceptionnel'];
@@ -945,7 +975,8 @@ function handleTag(e){if(e.key==='Enter'||e.key===','){e.preventDefault();const 
 function removeTag(t){formTags=formTags.filter(x=>x!==t);renderTags();}
 function renderTags(){const c=document.getElementById('tag-wrap');const f=document.getElementById('tf');c.innerHTML='';formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';el.innerHTML=t+'<span class="tag-rm" onclick="removeTag(\''+t+'\')">×</span>';c.appendChild(el);});c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';}
 function saveBloc(){
-  const sp=document.getElementById('f-spec').value;const iv=document.getElementById('f-interv').value;
+  const sp=document.getElementById('f-spec').value;
+  const iv=sp==='Traumatologie'?document.getElementById('f-interv-libre').value:document.getElementById('f-interv').value;
   if(!sp||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
   const radios={};RT.forEach(t=>radios[t]=[]);
   blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,imc:document.getElementById('f-imc').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',scores:{},complications:[],radios});
