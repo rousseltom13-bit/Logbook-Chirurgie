@@ -110,7 +110,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 .sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .sv{background:var(--green);}.so{background:var(--amber);}.sr{background:var(--red);}.sg{background:var(--text3);}
+.sp{background:#6B7A8D;}.sn{background:#2C2C2A;}
 .tv{color:var(--green);}.to{color:var(--amber);}.tr{color:var(--red);}.tg{color:var(--text3);}
+.tp{color:#4A5568;}.tn{color:#1a1a18;}
 .status-row{display:flex;align-items:center;gap:6px;font-size:12px;}
 
 .tl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:12px;}
@@ -316,11 +318,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);line-height:1;">×</span>
       </div>
       <!-- Filtres spécialité -->
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="bloc-filters">
+      <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;" id="bloc-filters">
         <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
         <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
         <button class="rtab" onclick="filterB(this,'Hanche')">Hanche</button>
         <button class="rtab" onclick="filterB(this,'Traumatologie')">Trauma</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="role-filters">
+        <button class="rtab active" onclick="filterRole(this,'all')">Tous rôles</button>
+        <button class="rtab" onclick="filterRole(this,'Principal')" style="background:none;">Principal</button>
+        <button class="rtab" onclick="filterRole(this,'Aide')" style="background:none;">Aide</button>
       </div>
       <!-- Tags actifs -->
       <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
@@ -360,7 +367,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-section">Patient</div>
       <div class="form-row">
         <div class="form-group"><label>Initiales / ID</label><input type="text" id="f-patient" placeholder="ex. J.D." autocomplete="off"></div>
+        <div class="form-group"><label>Âge</label><input type="number" id="f-age" placeholder="ex. 72" inputmode="numeric"></div>
+      </div>
+      <div class="form-row">
         <div class="form-group"><label>IMC</label><input type="number" id="f-imc" placeholder="ex. 28" step="0.1" inputmode="decimal"></div>
+        <div class="form-group"></div>
       </div>
       <div class="form-section">Implants & technique</div>
       <div class="form-group"><label>Implants utilisés</label><input type="text" id="f-implants" placeholder="ex. Nexgen Legacy PS, fémur D3, tibia 4..."></div>
@@ -378,6 +389,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="status-row"><span class="sdot sv"></span><span style="font-size:11px;color:var(--text2);">Favorable</span></div>
         <div class="status-row"><span class="sdot so"></span><span style="font-size:11px;color:var(--text2);">Vigilance</span></div>
         <div class="status-row"><span class="sdot sr"></span><span style="font-size:11px;color:var(--text2);">Complication</span></div>
+        <div class="status-row"><span class="sdot sp"></span><span style="font-size:11px;color:var(--text2);">Perdu de vue</span></div>
+        <div class="status-row"><span class="sdot sn"></span><span style="font-size:11px;color:var(--text2);">Décès</span></div>
         <div class="status-row"><span class="sdot" style="background:var(--blue);"></span><span style="font-size:11px;color:var(--text2);">Score saisi</span></div>
       </div>
       <div id="suivi-list"></div>
@@ -496,12 +509,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Durée (min)</label><input type="number" id="e-duree" inputmode="numeric"></div>
     </div>
     <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off"></div>
-    <div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div>
+    <div class="form-row"><div class="form-group"><label>Âge</label><input type="number" id="e-age" inputmode="numeric"></div><div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div></div>
     <div class="form-group"><label>Implants utilisés</label><input type="text" id="e-implants"></div>
     <div class="form-group"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
     <div class="form-group"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
     <div class="form-group"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
-    <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Évolution favorable</option><option value="orange">Vigilance</option><option value="rouge">Complication</option></select></div>
+    <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Évolution favorable</option><option value="orange">Vigilance</option><option value="rouge">Complication</option><option value="pdv">Perdu de vue</option><option value="deces">Décès</option></select></div>
     <button class="btn-primary" onclick="saveEdit()">Enregistrer les modifications</button>
   </div>
 </div>
@@ -649,10 +662,16 @@ function renderComplications(){
 }
 
 let activeTagFilters = new Set();
+let curRoleFilter = 'all';
 
 function filterB(btn,spec){
   document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');curFilter=spec;renderBlocs();
+}
+
+function filterRole(btn,role){
+  document.querySelectorAll('#role-filters .rtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');curRoleFilter=role;renderBlocs();
 }
 
 function clearSearch(){
@@ -734,6 +753,7 @@ function openBlocDetail(bi){
       <div style="padding:12px 14px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${b.patient||'—'}</div></div>
+          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Âge</div><div style="font-size:14px;font-weight:600;">${b.age||'—'} ans</div></div>
           <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
           <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
           <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
@@ -771,6 +791,7 @@ function openEditModal(){
   document.getElementById('e-role').value=b.role||'Principal';
   document.getElementById('e-duree').value=b.duree||'';
   document.getElementById('e-patient').value=b.patient||'';
+  document.getElementById('e-age').value=b.age||'';
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
   document.getElementById('e-abord').value=b.abord||'';
@@ -803,6 +824,7 @@ function saveEdit(){
   b.role=document.getElementById('e-role').value;
   b.duree=parseInt(document.getElementById('e-duree').value)||null;
   b.patient=document.getElementById('e-patient').value;
+  b.age=document.getElementById('e-age').value;
   b.imc=document.getElementById('e-imc').value;
   b.implants=document.getElementById('e-implants').value;
   b.abord=document.getElementById('e-abord').value;
@@ -831,6 +853,7 @@ function renderBlocs(){
 
   // Filtrer
   let filtered = curFilter==='all' ? blocs : blocs.filter(b=>b.spec===curFilter);
+  if(curRoleFilter!=='all') filtered = filtered.filter(b=>b.role===curRoleFilter);
 
   // Filtre tags actifs
   if(activeTagFilters.size>0){
@@ -941,7 +964,7 @@ function saveComplication(){
 function initForm(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
-  ['f-spec','f-side','f-patient','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-spec','f-side','f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-role').value='Principal';
   document.getElementById('f-interv').innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
   document.getElementById('f-interv').style.display='block';
@@ -1033,7 +1056,7 @@ function closeLB(){document.getElementById('lightbox').classList.remove('show');
 function lbNav(dir){lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbImgs[lbIdx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+img.date;}
 
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});}
-function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'RAS'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
+function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'RAS'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
