@@ -559,12 +559,19 @@ async function sbFetch(path,opts={}){
 }
 async function syncToSupabase(){
   if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
-  // Sécurité : ne jamais écraser Supabase avec des données vides
-  if(!blocs||blocs.length===0){
-    // Si local est vide, récupérer depuis Supabase au lieu d'écraser
-    await syncFromSupabase();
-    return;
-  }
+  // SÉCURITÉ ABSOLUE : ne jamais écraser Supabase avec données vides
+  if(!blocs||blocs.length===0) return;
+  // Double vérification : si Supabase a des données et qu'on en a 0, on ne fait rien
+  try {
+    const check = await sbFetch('orlog_blocs?user_id=eq.'+encodeURIComponent(sbConfig.uid)+'&select=data');
+    if(check&&check.length>0){
+      const remote = check[0].data||[];
+      if(remote.length > blocs.length) {
+        // Supabase a plus de données — on récupère plutôt qu'on écrase
+        blocs = remote; saveLocal(); renderAll(); return;
+      }
+    }
+  } catch(e) {}
   try{
     await sbFetch('orlog_blocs?id=eq.'+encodeURIComponent(sbConfig.uid+'_blocs'),{method:'DELETE',prefer:''});
     await sbFetch('orlog_blocs',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:sbConfig.uid+'_blocs',user_id:sbConfig.uid,data:blocs,updated_at:new Date().toISOString()})});
@@ -945,7 +952,7 @@ function renderSuivi(){
   const el=document.getElementById('suivi-list');
   if(!blocs.length){el.innerHTML='<div class="empty"><div class="empty-icon">♡</div>Aucun patient</div>';return;}
   const sorted_suivi = blocs.slice().sort((a,b)=>{ const da=a.date||''; const db=b.date||''; return db.localeCompare(da); });
-  el.innerHTML=sorted_suivi.map((b,bi)=>{ const bi2=blocs.indexOf(b); const bi=bi2;
+  el.innerHTML=sorted_suivi.map((b,si)=>{ const bi=blocs.indexOf(b);
     const{dc,tc,sl}=statusClasses(b.statut);
     const stype=b.spec==='Hanche'?'ohs':'oks';
     const tl=TL.map((t,ti)=>{
