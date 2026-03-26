@@ -6,12 +6,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="OrLog">
-<meta name="theme-color" content="#185FA5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#8B4A14" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1e1e1c" media="(prefers-color-scheme: dark)">
 <title>OrLog</title>
 <link rel="manifest" href="manifest.json">
 <style>
-:root {
+:root{
   --bg:#F2EAD8;--bg2:#E8DEC8;--bg3:#DDD0B8;--bg4:#CFC0A0;
   --text:#2C1F0E;--text2:#6B5030;--text3:#9A7A58;
   --border:rgba(100,70,30,0.15);--border2:rgba(100,70,30,0.28);
@@ -42,7 +42,6 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;}
 #app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
-
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;}
 .topbar-logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:34px;height:34px;}
@@ -51,127 +50,98 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .sync-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
 .sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--green);}
 .sync-dot.off{background:var(--amber);}.sync-dot.err{background:var(--red);}
-
 .views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
 .view{display:none;padding:16px;}.view.active{display:block;}
-
 .bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;font-size:10px;color:var(--text3);cursor:pointer;gap:3px;border:none;background:none;font-family:inherit;}
 .bnav-item.active{color:var(--accent);}
 .bnav-icon{font-size:20px;line-height:1;}
-
-/* STATS 2x2 */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .stat-card{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;border:0.5px solid var(--border);}
 .stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;}
-.stat-val{font-size:28px;font-weight:700;color:var(--text);letter-spacing:-1px;}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-1px;}
 .stat-sub{font-size:11px;color:var(--text2);margin-top:2px;}
-
-/* DASHBOARD TABS */
 .dash-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border);}
-.dash-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;transition:all 0.15s;text-align:center;}
+.dash-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;text-align:center;}
 .dash-tab.active{background:var(--bg);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1);}
 .dash-panel{display:none;}.dash-panel.active{display:block;}
-
-/* DASHBOARD CARDS ROW */
-.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0;}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .dash-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;}
 .dash-card-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;}
-
-/* SPEC BARS */
-.spec-row{display:flex;flex-direction:column;gap:10px;}
-.spec-item{}
+.spec-item{margin-bottom:10px;}
 .spec-label-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;}
-.spec-name{color:var(--text);}
-.spec-count{font-weight:600;color:var(--text);}
 .spec-bar-wrap{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;}
 .spec-bar{height:100%;border-radius:99px;}
-
-/* RECENT LIST */
-.recent-list{display:flex;flex-direction:column;gap:0;}
-.recent-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
+.recent-item{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
 .recent-item:last-child{border-bottom:none;}
-.recent-name{font-weight:500;color:var(--text);}
+.recent-name{font-weight:500;}
 .recent-interv{font-size:11px;color:var(--text2);margin-top:1px;}
-
-/* SECTION */
 .section{border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;background:var(--bg);}
 .section-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg2);cursor:pointer;}
-.section-title{font-size:14px;font-weight:600;color:var(--text);}
+.section-title{font-size:14px;font-weight:600;}
 .section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
 .section-body{padding:14px;display:none;}.section-body.open{display:block;}
-
 .badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:500;}
 .bg{background:var(--blue-l);color:var(--blue-d);}
 .bh{background:var(--purple-l);color:var(--purple-d);}
 .bt{background:var(--amber-l);color:var(--amber-d);}
 .bp{background:var(--green-l);color:var(--green-d);}
 .ba{background:var(--bg2);color:var(--text2);border:0.5px solid var(--border2);}
-
 .sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .sv{background:var(--green);}.so{background:var(--amber);}.sr{background:var(--red);}.sg{background:var(--text3);}
 .sp{background:#6B7A8D;}.sn{background:#2C2C2A;}
 .tv{color:var(--green);}.to{color:var(--amber);}.tr{color:var(--red);}.tg{color:var(--text3);}
 .tp{color:#4A5568;}.tn{color:#1a1a18;}
 .status-row{display:flex;align-items:center;gap:6px;font-size:12px;}
-
 .tl{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:12px;}
 .tl-step{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .tl-dw{display:flex;align-items:center;width:100%;}
 .tl-line{flex:1;height:1px;background:var(--border2);}
-.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;cursor:pointer;}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:transform 0.15s;}
+.tl-dot:active{transform:scale(1.3);}
 .tl-dot.dp{background:var(--bg3);border:1.5px dashed var(--border2);}
-.tl-dot.da{background:var(--blue);}
+.tl-dot.dc{background:var(--accent);}
 .tl-dot.dv{background:var(--green);}.tl-dot.do{background:var(--amber);}.tl-dot.dr{background:var(--red);}
 .tl-lbl{font-size:9px;color:var(--text3);}
-.tl-val{font-size:10px;font-weight:500;text-align:center;color:var(--text);}
-
+.tl-val{font-size:10px;font-weight:500;text-align:center;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
-.chip{background:var(--bg2);padding:5px 10px;border-radius:var(--radius);font-size:12px;color:var(--text);border:0.5px solid var(--border);}
+.chip{background:var(--bg2);padding:5px 10px;border-radius:var(--radius);font-size:12px;border:0.5px solid var(--border);}
 .chip span{font-weight:600;}
 .chip-btn{background:var(--blue-l);color:var(--blue-d);border:0.5px solid var(--border2);padding:5px 10px;border-radius:var(--radius);font-size:12px;cursor:pointer;font-family:inherit;}
 .chip-btn.green{background:var(--green-l);color:var(--green-d);}
-
 .form-group{margin-bottom:14px;}
 .form-group label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;font-size:15px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,74,20,0.12);}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);}
 .form-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-section{font-size:11px;font-weight:600;color:var(--text3);margin:20px 0 12px;padding-bottom:6px;border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:0.05em;}
-
 .stars-row{display:flex;align-items:center;gap:6px;}
 .star{font-size:24px;cursor:pointer;color:var(--border2);}
 .star.on{color:var(--amber);}
 .star-lbl{font-size:13px;color:var(--text2);}
-
 .tag-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);cursor:text;min-height:44px;}
 .tag{background:var(--blue-l);color:var(--blue-d);padding:3px 8px;border-radius:99px;font-size:12px;display:flex;align-items:center;gap:5px;}
 .tag-rm{cursor:pointer;opacity:0.6;font-size:14px;}
 .tag-field{border:none;outline:none;background:transparent;font-size:15px;color:var(--text);min-width:80px;flex:1;font-family:inherit;}
-
 .btn-primary{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--accent);color:white;border:none;border-radius:var(--radius-lg);cursor:pointer;font-family:inherit;margin-top:8px;}
 .btn-primary:active{opacity:0.85;}
 .btn-secondary{padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;}
-
 .bloc-item{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;}
 .bloc-item:last-child{border-bottom:none;}
 .bloc-item:active{background:var(--bg2);}
 .bloc-date{font-size:11px;color:var(--text3);}
 .bloc-meta{font-size:12px;color:var(--text2);}
-
-/* COMPLICATIONS */
 .compl-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .compl-card{background:var(--bg2);border-radius:var(--radius);padding:12px;border:0.5px solid var(--border);}
 .compl-name{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;}
-.compl-count{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-1px;}
+.compl-count{font-size:22px;font-weight:700;letter-spacing:-1px;}
 .compl-pct{font-size:11px;color:var(--text3);margin-top:1px;}
 .compl-bar-wrap{height:4px;background:var(--bg3);border-radius:99px;margin-top:6px;overflow:hidden;}
 .compl-bar{height:100%;border-radius:99px;background:var(--red);}
 .compl-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
 .compl-row:last-child{border-bottom:none;}
 .compl-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px;background:var(--red-l);color:var(--red-d);flex-shrink:0;white-space:nowrap;}
-
 .radio-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
 .rtab{padding:6px 12px;font-size:12px;font-weight:500;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
 .rtab.active{background:var(--accent);color:white;border-color:var(--accent);}
@@ -183,43 +153,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .upload-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px;border:1.5px dashed var(--border2);border-radius:var(--radius-lg);cursor:pointer;color:var(--text2);font-size:13px;text-align:center;}
 .upload-zone:active{border-color:var(--accent);background:var(--accent-l);}
 .upload-zone input{display:none;}
-
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot);}
 .modal-overlay.show{display:flex;}
 .modal{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 16px;}
-.modal-title{font-size:17px;font-weight:700;margin-bottom:14px;color:var(--text);}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:14px;}
 .modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);padding:0;line-height:1;}
-
-.score-type-row{display:flex;gap:8px;margin-bottom:14px;}
-.score-type-btn{flex:1;padding:10px;font-size:13px;font-weight:500;border:0.5px solid var(--border2);border-radius:var(--radius);background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
-.score-type-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
-.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:4px;}
-.prog-bar{height:3px;background:var(--bg3);border-radius:99px;margin-bottom:14px;}
-.prog-fill{height:100%;border-radius:99px;background:var(--accent);transition:width 0.2s;}
-.qb{border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-bottom:8px;background:var(--bg);}
-.qb.answered{border-color:var(--accent);}
-.qnum{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;}
-.qtxt{font-size:13px;margin-bottom:10px;line-height:1.5;color:var(--text);}
-.opts{display:flex;flex-direction:column;gap:4px;}
-.opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:0.5px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text);background:var(--bg);}
-.opt:active{background:var(--bg2);}
-.opt.sel{background:var(--accent-l);border-color:var(--accent);color:var(--accent);}
-.oradio{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;}
-.opt.sel .oradio{border-color:var(--accent);background:var(--accent);position:relative;}
-.opt.sel .oradio::after{content:'';width:5px;height:5px;border-radius:50%;background:white;display:block;margin:2.5px auto;}
-.score-result{background:var(--bg2);border-radius:var(--radius-lg);padding:16px;margin-top:14px;border:0.5px solid var(--border);}
-.score-big{font-size:44px;font-weight:800;letter-spacing:-2px;}
-.score-band{display:inline-flex;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:500;margin:6px 0 10px;}
-.b-sev{background:var(--red-l);color:var(--red-d);}.b-mod{background:var(--amber-l);color:var(--amber-d);}
-.b-mild{background:var(--green-l);color:var(--green-d);}.b-sat{background:var(--blue-l);color:var(--blue-d);}
-.score-bar-wrap{height:6px;background:var(--bg3);border-radius:99px;margin-bottom:12px;overflow:hidden;}
-.score-bar-fill{height:100%;border-radius:99px;}
-
 .config-input{width:100%;padding:10px 12px;font-size:13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:monospace;}
 .config-input:focus{outline:none;border-color:var(--accent);}
 .instructions-box{margin-top:14px;padding:12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.7;border:0.5px solid var(--border);}
-
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
 .lightbox.show{display:flex;}
 .lightbox img{max-width:100%;max-height:70vh;object-fit:contain;border-radius:var(--radius);}
@@ -227,11 +169,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .lb-nav{display:flex;gap:12px;margin-top:16px;}
 .lb-nav button{background:rgba(255,255,255,0.15);color:white;border:none;border-radius:var(--radius);padding:8px 18px;font-size:14px;cursor:pointer;font-family:inherit;}
 .lb-info{color:rgba(255,255,255,0.5);font-size:12px;margin-top:8px;text-align:center;}
-
 .toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 10px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:13px;white-space:nowrap;z-index:400;display:none;font-weight:500;}
 .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
 .empty-icon{font-size:32px;margin-bottom:8px;}
 .warn{background:var(--amber-l);color:var(--amber-d);padding:8px 12px;border-radius:var(--radius);font-size:12px;margin-bottom:10px;display:none;}
+/* STATS */
+.stat-section{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;border:0.5px solid var(--border);}
+.stat-section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;}
+.period-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.period-tab{padding:4px 10px;font-size:11px;border-radius:99px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-family:inherit;}
+.period-tab.active{background:var(--accent);color:white;border-color:var(--accent);}
+/* SUIVI commentaires */
+.tl-comment{font-size:10px;color:var(--text2);text-align:center;margin-top:2px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tl-status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px;}
+/* DETAIL tabs */
+.det-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border);}
+.det-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;text-align:center;}
+.det-tab.active{background:var(--bg);color:var(--text);}
+.det-panel{display:none;}.det-panel.active{display:block;}
 </style>
 </head>
 <body>
@@ -257,51 +212,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <path d="M9.5 20 Q8.5 19 8.5 18" fill="none" stroke="#c0d4f0" stroke-width="0.8" stroke-linecap="round"/>
         <path d="M24.5 20 Q25.5 19 25.5 18" fill="none" stroke="#c0d4f0" stroke-width="0.8" stroke-linecap="round"/>
       </svg>
-      <div>
-        <div class="topbar-title">OrLog</div>
-        <div class="topbar-sub">Logbook chirurgical</div>
-      </div>
+      <div><div class="topbar-title">OrLog</div><div class="topbar-sub">Logbook chirurgical</div></div>
     </div>
     <button class="sync-btn" onclick="manualSync()" id="sync-btn">
-      <span class="sync-dot off" id="sync-dot"></span>
-      <span id="sync-label">Non configuré</span>
+      <span class="sync-dot off" id="sync-dot"></span><span id="sync-label">Non configuré</span>
     </button>
   </div>
 
   <div class="views">
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
-      <!-- 4 stats : blocs, hanche, genou, trauma, complications -->
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="d-total">0</div><div class="stat-sub" id="d-principal">0 en principal</div></div>
         <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="d-compl-pct">0%</div><div class="stat-sub" id="d-compl-sub">0 cas</div></div>
-        <div class="stat-card"><div class="stat-label">Genou</div><div class="stat-val" id="d-genou">0</div><div class="stat-sub" id="d-genou-sub">blocs</div></div>
-        <div class="stat-card"><div class="stat-label">Hanche</div><div class="stat-val" id="d-hanche">0</div><div class="stat-sub" id="d-hanche-sub">blocs</div></div>
-        <div class="stat-card" style="grid-column:1/-1;"><div class="stat-label">Traumatologie</div><div class="stat-val" id="d-trauma">0</div><div class="stat-sub" id="d-trauma-sub">blocs</div></div>
+        <div class="stat-card"><div class="stat-label">Genou</div><div class="stat-val" id="d-genou">0</div></div>
+        <div class="stat-card"><div class="stat-label">Hanche</div><div class="stat-val" id="d-hanche">0</div></div>
+        <div class="stat-card" style="grid-column:1/-1;"><div class="stat-label">Traumatologie</div><div class="stat-val" id="d-trauma">0</div></div>
       </div>
-
       <div class="dash-tabs">
         <button class="dash-tab active" onclick="switchDashTab('recent',this)">Activité</button>
         <button class="dash-tab" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
-
-      <!-- Panel Activité -->
       <div class="dash-panel active" id="dp-recent">
         <div class="dash-row">
-          <!-- Répartition spécialité -->
-          <div class="dash-card">
-            <div class="dash-card-title">Répartition</div>
-            <div class="spec-row" id="spec-bars"></div>
-          </div>
-          <!-- Derniers suivis -->
-          <div class="dash-card">
-            <div class="dash-card-title">Derniers suivis</div>
-            <div class="recent-list" id="d-recents"></div>
-          </div>
+          <div class="dash-card"><div class="dash-card-title">Répartition</div><div id="spec-bars"></div></div>
+          <div class="dash-card"><div class="dash-card-title">Derniers suivis</div><div id="d-recents"></div></div>
         </div>
       </div>
-
-      <!-- Panel Complications -->
       <div class="dash-panel" id="dp-complications">
         <div class="compl-overview" id="compl-overview"></div>
         <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Détail</div>
@@ -311,13 +248,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- BLOCS -->
     <div class="view" id="view-blocs">
-      <!-- Barre de recherche -->
       <div style="position:relative;margin-bottom:10px;">
         <input type="text" id="search-input" placeholder="Rechercher patient, intervention, implant, tag..." oninput="renderBlocs()"
           style="width:100%;padding:11px 36px 11px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;">
-        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);line-height:1;">×</span>
+        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);">×</span>
       </div>
-      <!-- Filtres spécialité -->
       <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;" id="bloc-filters">
         <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
         <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
@@ -326,12 +261,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </div>
       <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="role-filters">
         <button class="rtab active" onclick="filterRole(this,'all')">Tous rôles</button>
-        <button class="rtab" onclick="filterRole(this,'Principal')" style="background:none;">Principal</button>
-        <button class="rtab" onclick="filterRole(this,'Aide')" style="background:none;">Aide</button>
+        <button class="rtab" onclick="filterRole(this,'Principal')">Principal</button>
+        <button class="rtab" onclick="filterRole(this,'Aide')">Aide</button>
       </div>
-      <!-- Tags actifs -->
       <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
-      <!-- Résultats -->
       <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="search-count"></div>
       <div class="section"><div id="bloc-list"></div></div>
     </div>
@@ -342,7 +275,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <button onclick="sw('blocs')" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);padding:0;line-height:1;">&#8249;</button>
         <div style="font-size:16px;font-weight:700;flex:1;" id="det-title">—</div>
       </div>
-      <div id="det-content"></div>
+      <div class="det-tabs">
+        <button class="det-tab active" onclick="switchDetTab('info',this)">Infos</button>
+        <button class="det-tab" onclick="switchDetTab('radios',this)">Radios</button>
+      </div>
+      <div class="det-panel active" id="det-info"></div>
+      <div class="det-panel" id="det-radios"></div>
       <div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
         <button class="btn-secondary" style="flex:1;" id="det-edit-btn" onclick="openEditModal()">Modifier</button>
         <button class="btn-secondary" style="flex:1;color:var(--red-d);border-color:var(--red);" id="det-del-btn" onclick="confirmDelete()">Supprimer</button>
@@ -358,7 +296,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </div>
       <div class="form-group"><label>Intervention</label>
         <select id="f-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
-        <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention (ex. plaque tibia distal, enclouage fémur...)" style="display:none;margin-top:6px;" autocomplete="off">
+        <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
       </div>
       <div class="form-row">
         <div class="form-group"><label>Rôle</label><select id="f-role"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
@@ -385,15 +323,70 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- SUIVI -->
     <div class="view" id="view-suivi">
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
         <div class="status-row"><span class="sdot sv"></span><span style="font-size:11px;color:var(--text2);">Favorable</span></div>
         <div class="status-row"><span class="sdot so"></span><span style="font-size:11px;color:var(--text2);">Vigilance</span></div>
         <div class="status-row"><span class="sdot sr"></span><span style="font-size:11px;color:var(--text2);">Complication</span></div>
         <div class="status-row"><span class="sdot sp"></span><span style="font-size:11px;color:var(--text2);">Perdu de vue</span></div>
         <div class="status-row"><span class="sdot sn"></span><span style="font-size:11px;color:var(--text2);">Décès</span></div>
-        <div class="status-row"><span class="sdot" style="background:var(--blue);"></span><span style="font-size:11px;color:var(--text2);">Score saisi</span></div>
       </div>
       <div id="suivi-list"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="view" id="view-stats">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:14px;text-align:right;" id="stats-count"></div>
+      <!-- KPIs -->
+      <div class="stats-grid" style="margin-bottom:14px;">
+        <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="st-total">0</div><div class="stat-sub" id="st-principal"></div></div>
+        <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="st-compl">0%</div><div class="stat-sub" id="st-compl-sub"></div></div>
+        <div class="stat-card"><div class="stat-label">Durée moy. (trauma)</div><div class="stat-val" id="st-duree-trauma">—</div><div class="stat-sub">min</div></div>
+        <div class="stat-card"><div class="stat-label">Durée moy. (hanche)</div><div class="stat-val" id="st-duree-hanche">—</div><div class="stat-sub">min</div></div>
+      </div>
+      <!-- Activité mensuelle -->
+      <div class="stat-section">
+        <div class="stat-section-title">Activité mensuelle</div>
+        <div class="period-tabs">
+          <button class="period-tab active" onclick="setPeriod(6,this)">6 mois</button>
+          <button class="period-tab" onclick="setPeriod(12,this)">1 an</button>
+          <button class="period-tab" onclick="setPeriod(0,this)">Tout</button>
+        </div>
+        <div style="position:relative;height:130px;"><canvas id="chart-activity"></canvas></div>
+      </div>
+      <!-- Courbe apprentissage -->
+      <div class="stat-section">
+        <div class="stat-section-title">Courbe d'apprentissage — durée opératoire</div>
+        <div class="period-tabs" id="learning-tabs">
+          <button class="period-tab active" onclick="setLearning('PTH',this)">PTH</button>
+          <button class="period-tab" onclick="setLearning('PTG',this)">PTG</button>
+          <button class="period-tab" onclick="setLearning('LCA',this)">LCA</button>
+        </div>
+        <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="learning-trend"></div>
+      </div>
+      <!-- Rôle + Répartition -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+        <div class="stat-section" style="margin-bottom:0;">
+          <div class="stat-section-title">Rôle</div>
+          <div style="position:relative;height:100px;"><canvas id="chart-role"></canvas></div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="role-legend"></div>
+        </div>
+        <div class="stat-section" style="margin-bottom:0;">
+          <div class="stat-section-title">Complications</div>
+          <div style="position:relative;height:100px;"><canvas id="chart-compl"></canvas></div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="compl-legend"></div>
+        </div>
+      </div>
+      <!-- Top interventions -->
+      <div class="stat-section">
+        <div class="stat-section-title">Top interventions</div>
+        <div id="top-interventions"></div>
+      </div>
+      <!-- Taux complication par intervention -->
+      <div class="stat-section">
+        <div class="stat-section-title">Taux de complication par intervention</div>
+        <div id="compl-by-interv"></div>
+      </div>
     </div>
   </div>
 
@@ -402,26 +395,30 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <button class="bnav-item" onclick="sw('blocs')" id="bn-blocs"><span class="bnav-icon">≡</span><span>Mes blocs</span></button>
     <button class="bnav-item" onclick="sw('saisie')" id="bn-saisie"><span class="bnav-icon">＋</span><span>Nouveau</span></button>
     <button class="bnav-item" onclick="sw('suivi')" id="bn-suivi"><span class="bnav-icon">♡</span><span>Suivi</span></button>
+    <button class="bnav-item" onclick="sw('stats')" id="bn-stats"><span class="bnav-icon">◈</span><span>Stats</span></button>
   </nav>
 </div>
 
-<!-- MODAL SCORE -->
-<div class="modal-overlay" id="score-modal">
+<!-- MODAL COMMENTAIRE SUIVI -->
+<div class="modal-overlay" id="comment-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('score-modal')">×</button>
-    <div class="modal-title">Score fonctionnel</div>
-    <div class="form-row" style="margin-bottom:12px;">
-      <div><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Patient</div><div style="font-size:14px;font-weight:600;" id="sm-patient"></div></div>
-      <div><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:3px;">Échéance</div><div style="font-size:14px;font-weight:600;" id="sm-time"></div></div>
+    <button class="modal-close" onclick="closeModal('comment-modal')">×</button>
+    <div class="modal-title" id="cm-title">Note de suivi</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;" id="cm-subtitle"></div>
+    <div class="form-group"><label>Statut</label>
+      <select id="cm-statut">
+        <option value="vert">Évolution favorable</option>
+        <option value="orange">Vigilance</option>
+        <option value="rouge">Complication</option>
+        <option value="gris">En attente</option>
+      </select>
     </div>
-    <div class="score-type-row">
-      <button class="score-type-btn active" id="stb-oks" onclick="switchST('oks')">OKS — Genou</button>
-      <button class="score-type-btn" id="stb-ohs" onclick="switchST('ohs')">OHS — Hanche</button>
+    <div class="form-group"><label>Commentaire</label>
+      <textarea id="cm-comment" placeholder="ex. Flexion 95°, kiné 3x/sem. Douleurs résiduelles modérées..." style="min-height:100px;"></textarea>
     </div>
-    <div id="sm-oks"><div class="prog-row"><span id="sp-oks-lbl">0 / 12</span><span id="sp-oks-live" style="font-weight:600;color:var(--accent);"></span></div><div class="prog-bar"><div class="prog-fill" id="sp-oks-fill" style="width:0%"></div></div><div id="sq-oks"></div><div class="warn" id="sw-oks">Répondre à toutes les questions.</div><div id="sr-oks"></div></div>
-    <div id="sm-ohs" style="display:none;"><div class="prog-row"><span id="sp-ohs-lbl">0 / 12</span><span id="sp-ohs-live" style="font-weight:600;color:var(--accent);"></span></div><div class="prog-bar"><div class="prog-fill" id="sp-ohs-fill" style="width:0%"></div></div><div id="sq-ohs"></div><div class="warn" id="sw-ohs">Répondre à toutes les questions.</div><div id="sr-ohs"></div></div>
-    <button class="btn-primary" onclick="calcScore()">Calculer & enregistrer</button>
+    <div class="form-group"><label>Date de la consultation</label><input type="date" id="cm-date"></div>
+    <button class="btn-primary" onclick="saveComment()">Enregistrer</button>
   </div>
 </div>
 
@@ -442,9 +439,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal('compl-modal')">×</button>
     <div class="modal-title">Enregistrer une complication</div>
-    <div class="form-group"><label>Patient</label><input type="text" id="cm-patient" readonly style="background:var(--bg2);"></div>
+    <div class="form-group"><label>Patient</label><input type="text" id="cmp-patient" readonly style="background:var(--bg2);"></div>
     <div class="form-group"><label>Type de complication</label>
-      <select id="cm-type">
+      <select id="cmp-type">
         <option value="">Sélectionner...</option>
         <option>Pseudarthrose</option><option>Infection superficielle</option><option>Infection profonde (PJI)</option>
         <option>Luxation prothétique</option><option>Fracture péri-prothétique</option><option>Descellement aseptique</option>
@@ -452,16 +449,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <option>Hématome</option><option>Autre</option>
       </select>
     </div>
-    <div class="form-group"><label>Date de survenue</label><input type="date" id="cm-date"></div>
+    <div class="form-group"><label>Date de survenue</label><input type="date" id="cmp-date"></div>
     <div class="form-group"><label>Classification Clavien-Dindo</label>
-      <select id="cm-clavien">
+      <select id="cmp-clavien">
         <option value="">—</option>
         <option>I — Déviation mineure</option><option>II — Traitement médical requis</option>
         <option>IIIa — Intervention sans AG</option><option>IIIb — Intervention sous AG</option>
         <option>IVa — Défaillance mono-organe</option><option>IVb — Défaillance multi-organe</option><option>V — Décès</option>
       </select>
     </div>
-    <div class="form-group"><label>Détails / traitement</label><textarea id="cm-detail" placeholder="Description, traitement, évolution..."></textarea></div>
+    <div class="form-group"><label>Détails / traitement</label><textarea id="cmp-detail" placeholder="Description, traitement, évolution..."></textarea></div>
     <button class="btn-primary" onclick="saveComplication()">Enregistrer</button>
   </div>
 </div>
@@ -483,7 +480,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <button class="btn-secondary" style="flex:1;" onclick="exportData()">⬇ Exporter JSON</button>
         <label style="flex:1;text-align:center;padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">⬆ Importer JSON<input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
       </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;">L'export génère un fichier JSON horodaté avec tous vos blocs. L'import restaure depuis ce fichier — les données actuelles seront remplacées.</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;">L'export génère un fichier JSON horodaté. L'import restaure depuis ce fichier — les données actuelles seront remplacées.</div>
       <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
     </div>
   </div>
@@ -509,7 +506,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Durée (min)</label><input type="number" id="e-duree" inputmode="numeric"></div>
     </div>
     <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off"></div>
-    <div class="form-row"><div class="form-group"><label>Âge</label><input type="number" id="e-age" inputmode="numeric"></div><div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div></div>
+    <div class="form-row">
+      <div class="form-group"><label>Âge</label><input type="number" id="e-age" inputmode="numeric"></div>
+      <div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div>
+    </div>
     <div class="form-group"><label>Implants utilisés</label><input type="text" id="e-implants"></div>
     <div class="form-group"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
     <div class="form-group"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
@@ -528,18 +528,22 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 </div>
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 const INTERV={Genou:['PTG','PTG de révision','Ligamentoplastie LCA (DIDT)','Ligamentoplastie LCA (KJ)','Méniscectomie arthroscopique','Suture méniscale','Ostéotomie tibiale de valgisation','Prothèse unicompartimentale'],Hanche:['PTH voie antérolatérale','PTH voie postérieure','PTH de révision','Vissage col fémoral','Prothèse intermédiaire'],Traumatologie:['Fracture col fémur — DHS','Fracture col fémur — clouage','Fracture tibia — enclouage','Fracture fémur — enclouage','Fracture cheville — ostéosynthèse','Fracture radius distal','Autre traumatologie']};
 const TL=['Préop','J45','3 mois','6 mois','1 an'];
 const RT=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
-const OKS_Q=[{t:"Douleur habituelle du genou ?",o:["Aucune","Très légère","Légère","Modérée","Sévère"]},{t:"Difficultés à vous laver/sécher (genou) ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Difficultés à monter/descendre d'une voiture ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Durée de marche avant douleur sévère ?",o:["+ de 30 min","16 à 30 min","5 à 15 min","Autour de la maison","Impossible"]},{t:"Douleur pour se lever d'une chaise ?",o:["Pas du tout","Légèrement","Modérément","Très douloureux","Insupportable"]},{t:"Avez-vous boité en marchant ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},{t:"Pouvez-vous vous agenouiller et vous relever ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Genou gênant la nuit ?",o:["Pas du tout","1-2 nuits","Quelques nuits","La plupart des nuits","Toutes les nuits"]},{t:"Genou perturbant le travail / tâches ménagères ?",o:["Pas du tout","Un peu","Modérément","Beaucoup","Totalement"]},{t:"Impression que le genou allait se dérober ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},{t:"Faire les courses seul(e) ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Descendre un escalier ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]}];
-const OHS_Q=[{t:"Douleur habituelle de la hanche ?",o:["Aucune","Très légère","Légère","Modérée","Sévère"]},{t:"Difficultés à vous laver/sécher (hanche) ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Difficultés à monter/descendre d'une voiture ?",o:["Pas de difficulté","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Mettre vos chaussettes/chaussures ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Faire les courses seul(e) ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Durée de marche avant douleur sévère ?",o:["+ de 30 min","16 à 30 min","5 à 15 min","Autour de la maison","Impossible"]},{t:"Monter un escalier ?",o:["Facilement","Légère difficulté","Difficulté modérée","Grande difficulté","Impossible"]},{t:"Douleur pour se lever d'une chaise ?",o:["Pas du tout","Légèrement","Modérément","Très douloureux","Insupportable"]},{t:"Avez-vous boité en marchant ?",o:["Rarement/jamais","Parfois","Souvent","La plupart du temps","Tout le temps"]},{t:"Douleurs soudaines vives de hanche ?",o:["Jamais","1-2 jours","Quelques jours","La plupart des jours","Tous les jours"]},{t:"Hanche perturbant le travail / tâches ménagères ?",o:["Pas du tout","Un peu","Modérément","Beaucoup","Totalement"]},{t:"Hanche gênante la nuit ?",o:["Pas du tout","1-2 nuits","Quelques nuits","La plupart des nuits","Toutes les nuits"]}];
 const SPEC_COLORS={Genou:'var(--blue)',Hanche:'var(--purple)',Traumatologie:'var(--amber)'};
+const CHART_COLORS={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amber:'#B06A10',red:'#B03030',green:'#4A7A2A',gray:'#9A7A58'};
 
 let blocs=[],cStar=0,formTags=[],editTags=[],mCtx={},rCtx={},lbImgs=[],lbIdx=0;
-let mAns={oks:{},ohs:{}},curRTab='Préopératoire',curFilter='all',complCtx={};
-let sbConfig={url:'',key:'',uid:''};
+let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},commentCtx={};
+let activeTagFilters=new Set(),sbConfig={url:'',key:'',uid:''};
+let statPeriod=6,statLearning='PTH';
+let chartActivity=null,chartLearning=null,chartRole=null,chartCompl=null;
+let detailBlocIdx=-1,curDetTab='info';
 
+// ── PERSISTENCE ──
 function loadLocal(){
   try{const d=localStorage.getItem('orlog_blocs');if(d)blocs=JSON.parse(d);}catch(e){blocs=[];}
   try{const c=localStorage.getItem('orlog_config');if(c)sbConfig={...sbConfig,...JSON.parse(c)};}catch(e){}
@@ -559,19 +563,7 @@ async function sbFetch(path,opts={}){
 }
 async function syncToSupabase(){
   if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
-  // SÉCURITÉ ABSOLUE : ne jamais écraser Supabase avec données vides
-  if(!blocs||blocs.length===0) return;
-  // Double vérification : si Supabase a des données et qu'on en a 0, on ne fait rien
-  try {
-    const check = await sbFetch('orlog_blocs?user_id=eq.'+encodeURIComponent(sbConfig.uid)+'&select=data');
-    if(check&&check.length>0){
-      const remote = check[0].data||[];
-      if(remote.length > blocs.length) {
-        // Supabase a plus de données — on récupère plutôt qu'on écrase
-        blocs = remote; saveLocal(); renderAll(); return;
-      }
-    }
-  } catch(e) {}
+  if(!blocs||blocs.length===0)return;
   try{
     await sbFetch('orlog_blocs?id=eq.'+encodeURIComponent(sbConfig.uid+'_blocs'),{method:'DELETE',prefer:''});
     await sbFetch('orlog_blocs',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:sbConfig.uid+'_blocs',user_id:sbConfig.uid,data:blocs,updated_at:new Date().toISOString()})});
@@ -580,7 +572,10 @@ async function syncToSupabase(){
 }
 async function syncFromSupabase(){
   if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
-  try{const rows=await sbFetch('orlog_blocs?user_id=eq.'+encodeURIComponent(sbConfig.uid)+'&select=data,updated_at');if(rows&&rows.length>0){blocs=rows[0].data||[];saveLocal();renderAll();showToast('Données synchronisées');}}catch(e){showToast('Erreur de synchronisation');}
+  try{
+    const rows=await sbFetch('orlog_blocs?user_id=eq.'+encodeURIComponent(sbConfig.uid)+'&select=data,updated_at');
+    if(rows&&rows.length>0){blocs=rows[0].data||[];saveLocal();renderAll();showToast('Données synchronisées');}
+  }catch(e){showToast('Erreur de synchronisation');}
 }
 async function manualSync(){if(!sbConfig.url||!sbConfig.key){showSettings();return;}showToast('Synchronisation...');await syncFromSupabase();}
 async function saveConfig(){
@@ -593,223 +588,216 @@ async function saveConfig(){
 }
 function showSettings(){document.getElementById('cfg-url').value=sbConfig.url||'';document.getElementById('cfg-key').value=sbConfig.key||'';document.getElementById('cfg-uid').value=sbConfig.uid||'';openModal('settings-modal');}
 
+// ── NAVIGATION ──
 function sw(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.getElementById('bn-'+v).classList.add('active');
-  if(v==='dashboard')renderDash();if(v==='blocs')renderBlocs();if(v==='suivi')renderSuivi();if(v==='saisie')initForm();
+  const vEl=document.getElementById('view-'+v);
+  const bEl=document.getElementById('bn-'+v);
+  if(vEl)vEl.classList.add('active');
+  if(bEl)bEl.classList.add('active');
+  if(v==='dashboard')renderDash();
+  if(v==='blocs')renderBlocs();
+  if(v==='suivi')renderSuivi();
+  if(v==='saisie')initForm();
+  if(v==='stats')renderStats();
 }
 function renderAll(){renderDash();renderBlocs();renderSuivi();}
 
+// ── DASHBOARD ──
 function switchDashTab(tab,btn){
   document.querySelectorAll('.dash-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='complications')renderComplications();
 }
-
 function renderDash(){
   const total=blocs.length;
   const genou=blocs.filter(b=>b.spec==='Genou').length;
   const hanche=blocs.filter(b=>b.spec==='Hanche').length;
   const trauma=blocs.filter(b=>b.spec==='Traumatologie').length;
   const principal=blocs.filter(b=>b.role==='Principal').length;
-  const allComplics=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allComplics.push(c)));
-  const complPct=total>0?Math.round(allComplics.length/total*100):0;
-
+  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push(c)));
+  const cPct=total>0?Math.round(allC.length/total*100):0;
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-principal').textContent=principal+' en principal';
-  document.getElementById('d-compl-pct').textContent=complPct+'%';
-  document.getElementById('d-compl-sub').textContent=allComplics.length+' cas / '+total+' blocs';
+  document.getElementById('d-compl-pct').textContent=cPct+'%';
+  document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
   document.getElementById('d-genou').textContent=genou;
   document.getElementById('d-hanche').textContent=hanche;
   document.getElementById('d-trauma').textContent=trauma;
-
-  // Barres spécialité
-  const maxSpec=Math.max(genou,hanche,trauma,1);
-  const specs=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}];
-  document.getElementById('spec-bars').innerHTML=specs.map(s=>`
-    <div class="spec-item">
-      <div class="spec-label-row"><span class="spec-name">${s.n}</span><span class="spec-count">${s.v}</span></div>
-      <div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxSpec*100)}%;background:${SPEC_COLORS[s.n]};"></div></div>
-    </div>`).join('');
-
-  // Derniers suivis
+  const maxS=Math.max(genou,hanche,trauma,1);
+  document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>`<div class="spec-item"><div class="spec-label-row"><span>${s.n}</span><span style="font-weight:600;">${s.v}</span></div><div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_COLORS[s.n]};"></div></div></div>`).join('');
   const recent=blocs.slice(-4).reverse();
   const rel=document.getElementById('d-recents');
   if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
-  rel.innerHTML=recent.map(b=>{
-    const{dc,tc,sl}=statusClasses(b.statut);
-    return `<div class="recent-item"><div><div class="recent-name">${b.patient||'—'}</div><div class="recent-interv">${(b.interv||'').substring(0,20)}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;
-  }).join('');
+  rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${b.patient||'—'}</div><div class="recent-interv">${(b.interv||'').substring(0,20)}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
 }
-
 function renderComplications(){
-  const allComplics=[];
-  blocs.forEach(b=>(b.complications||[]).forEach(c=>allComplics.push({...c,patient:b.patient,interv:b.interv})));
-  const counts={};
-  allComplics.forEach(c=>{counts[c.type]=(counts[c.type]||0)+1;});
-  const total=blocs.length||1;
-  const types=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push({...c,patient:b.patient,interv:b.interv})));
+  const counts={};allC.forEach(c=>{counts[c.type]=(counts[c.type]||0)+1;});
+  const total=blocs.length||1;const types=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
   const el=document.getElementById('compl-overview');
   if(!types.length){el.innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✓</div>Aucune complication</div>';}
-  else{
-    const maxC=Math.max(...types.map(t=>counts[t]),1);
-    el.innerHTML=types.map(t=>{
-      const pct=Math.round(counts[t]/total*100);
-      return `<div class="compl-card"><div class="compl-name">${t}</div><div class="compl-count">${counts[t]}</div><div class="compl-pct">${pct}% des blocs</div><div class="compl-bar-wrap"><div class="compl-bar" style="width:${Math.round(counts[t]/maxC*100)}%;"></div></div></div>`;
-    }).join('');
-  }
-  const dl=document.getElementById('compl-detail-list');
-  if(!allComplics.length){dl.innerHTML='';return;}
-  dl.innerHTML=allComplics.slice().reverse().map(c=>{
-    const clav=c.clavien?c.clavien.split('—')[0].trim():'';
-    return `<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${c.patient||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${(c.interv||'').substring(0,18)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${c.type}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${clav}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${c.detail}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;
-  }).join('');
+  else{const maxC=Math.max(...types.map(t=>counts[t]),1);el.innerHTML=types.map(t=>`<div class="compl-card"><div class="compl-name">${t}</div><div class="compl-count">${counts[t]}</div><div class="compl-pct">${Math.round(counts[t]/total*100)}% des blocs</div><div class="compl-bar-wrap"><div class="compl-bar" style="width:${Math.round(counts[t]/maxC*100)}%;"></div></div></div>`).join('');}
+  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${c.patient||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${(c.interv||'').substring(0,18)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${c.type}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${clav}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${c.detail}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
 }
 
-let activeTagFilters = new Set();
-let curRoleFilter = 'all';
-
-function filterB(btn,spec){
-  document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');curFilter=spec;renderBlocs();
-}
-
-function filterRole(btn,role){
-  document.querySelectorAll('#role-filters .rtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');curRoleFilter=role;renderBlocs();
-}
-
-function clearSearch(){
-  document.getElementById('search-input').value='';
-  document.getElementById('search-clear').style.display='none';
-  renderBlocs();
-}
-
-function toggleTagFilter(tag){
-  if(activeTagFilters.has(tag))activeTagFilters.delete(tag);
-  else activeTagFilters.add(tag);
-  renderTagFilters();renderBlocs();
-}
-
+// ── BLOCS ──
+let activeTagFiltersSet=new Set();
+function filterB(btn,spec){document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
+function filterRole(btn,role){document.querySelectorAll('#role-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRoleFilter=role;renderBlocs();}
+function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
+function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
 function renderTagFilters(){
-  // Collecter tous les tags existants
-  const allTags = new Set();
-  blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(t)));
-  const el = document.getElementById('tag-filters');
-  if(!allTags.size){el.innerHTML='';return;}
-  el.innerHTML = Array.from(allTags).sort().map(t=>{
-    const active = activeTagFilters.has(t);
-    return `<button onclick="toggleTagFilter('${t}')" style="padding:4px 10px;font-size:11px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'none'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;
+  const allTags=new Set();blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(t)));
+  const el=document.getElementById('tag-filters');if(!allTags.size){el.innerHTML='';return;}
+  el.innerHTML=Array.from(allTags).sort().map(t=>{const active=activeTagFilters.has(t);return`<button onclick="toggleTagFilter('${t}')" style="padding:4px 10px;font-size:11px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'none'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;}).join('');
+}
+function renderBlocs(){
+  const searchRaw=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'block':'none';
+  let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
+  if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
+  if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(t)));
+  if(searchRaw)filtered=filtered.filter(b=>[b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,...(b.tags||[])].join(' ').toLowerCase().includes(searchRaw));
+  const el=document.getElementById('bloc-list');
+  renderTagFilters();
+  const countEl=document.getElementById('search-count');
+  if(countEl)countEl.textContent=(searchRaw||activeTagFilters.size>0)?filtered.length+' résultat'+(filtered.length>1?'s':'')+' sur '+blocs.length+' blocs':'';
+  if(!filtered.length){el.innerHTML=searchRaw||activeTagFilters.size>0?'<div class="empty"><div class="empty-icon">🔍</div>Aucun résultat</div>':'<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';return;}
+  const sorted=filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  el.innerHTML=sorted.map(b=>{
+    const bi=blocs.indexOf(b);
+    const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
+    const rc=b.role==='Principal'?'bp':'ba';
+    const{dc,tc,sl}=statusClasses(b.statut);
+    const nc=(b.complications||[]).length;
+    const nr=b.radios?Object.values(b.radios).reduce((a,r)=>a+r.length,0):0;
+    let pTxt=b.patient||'—';
+    if(searchRaw&&pTxt.toLowerCase().includes(searchRaw)){const idx=pTxt.toLowerCase().indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}
+    const implantsTxt=b.implants?`<div style="font-size:12px;color:var(--text2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.implants}</div>`:'';
+    const astucesTxt=b.astuces?`<div style="font-size:11px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💡 ${b.astuces.substring(0,60)}${b.astuces.length>60?'…':''}</div>`:'';
+    const tagsTxt=(b.tags||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${(b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:${activeTagFilters.has(t)?'var(--accent)':'var(--blue-l)'};color:${activeTagFilters.has(t)?'white':'var(--blue-d)'};">${t}</span>`).join('')}</div>`:'';
+    return`<div class="bloc-item" onclick="openBlocDetail(${bi})"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"><span class="badge ${bc}">${(b.interv||'').substring(0,20)}</span><span class="badge ${rc}">${b.role}</span>${nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">${nc} compl.</span>`:''}${nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">${nr} radio(s)</span>`:''}</div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div><div style="display:flex;align-items:center;gap:8px;margin-top:2px;"><span class="bloc-date">${fmtDate(b.date)}</span><span class="bloc-meta">${pTxt} · ${b.duree?b.duree+' min':'—'}</span></div>${implantsTxt}${astucesTxt}${tagsTxt}</div>`;
   }).join('');
 }
 
-let detailBlocIdx = -1;
-
+// ── DETAIL BLOC ──
+function switchDetTab(tab,btn){
+  document.querySelectorAll('.det-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');document.getElementById('det-'+tab).classList.add('active');
+  curDetTab=tab;
+  if(tab==='radios'&&detailBlocIdx>=0)renderDetRadios(detailBlocIdx);
+}
 function openBlocDetail(bi){
-  detailBlocIdx = bi;
-  const b = blocs[bi];
-  const bc = b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
-  const rc = b.role==='Principal'?'bp':'ba';
+  detailBlocIdx=bi;const b=blocs[bi];
+  const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
+  const rc=b.role==='Principal'?'bp':'ba';
   const{dc,tc,sl}=statusClasses(b.statut);
-  const stars = b.diff ? '★'.repeat(b.diff)+'☆'.repeat(5-b.diff) : '—';
-  const tags = (b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${t}</span>`).join('');
-  const nc = (b.complications||[]).length;
-  const complList = (b.complications||[]).map(c=>`
-    <div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-        <span class="compl-tag">${c.type}</span>
-        <span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>
-        ${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${c.clavien.split('—')[0].trim()}</span>`:''}
-      </div>
-      ${c.detail?`<div style="color:var(--text2);">${c.detail}</div>`:''}
-    </div>`).join('');
-
-  document.getElementById('det-title').textContent = (b.patient||'—') + ' — ' + (b.interv||'');
-  document.getElementById('det-content').innerHTML = `
+  const stars=b.diff?'★'.repeat(b.diff)+'☆'.repeat(5-b.diff):'—';
+  const tags=(b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${t}</span>`).join('');
+  const nc=(b.complications||[]).length;
+  const complList=(b.complications||[]).map(c=>`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span class="compl-tag">${c.type}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${c.clavien.split('—')[0].trim()}</span>`:''}</div>${c.detail?`<div style="color:var(--text2);">${c.detail}</div>`:''}</div>`).join('');
+  const followComments=[];TL.forEach(t=>{if(b.followup&&b.followup[t]&&b.followup[t].comment){followComments.push({time:t,...b.followup[t]});}});
+  document.getElementById('det-title').textContent=(b.patient||'—')+' — '+(b.interv||'');
+  document.getElementById('det-info').innerHTML=`
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-      <span class="badge ${bc}">${b.spec}</span>
-      <span class="badge ${rc}">${b.role}</span>
+      <span class="badge ${bc}">${b.spec}</span><span class="badge ${rc}">${b.role}</span>
       <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(b.date)}</span>
       <span class="status-row"><span class="sdot ${dc}"></span><span class="${tc}" style="font-size:12px;">${sl}</span></span>
     </div>
-
-    <div class="section" style="margin-bottom:10px;">
-      <div style="padding:12px 14px;">
-        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${b.interv||'—'}</div>
-        <div style="font-size:13px;color:var(--text2);">
-          ${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}
-        </div>
-      </div>
-    </div>
-
-    <div class="section" style="margin-bottom:10px;">
-      <div style="padding:12px 14px;">
-        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Implants</div>
-        <div style="font-size:14px;color:var(--text);">${b.implants||'Non renseigné'}</div>
-      </div>
-    </div>
-
+    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div><div style="font-size:14px;font-weight:600;margin-bottom:4px;">${b.interv||'—'}</div><div style="font-size:13px;color:var(--text2);">${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}</div></div></div>
+    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Implants</div><div style="font-size:14px;color:var(--text);">${b.implants||'Non renseigné'}</div></div></div>
     ${b.astuces?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Difficultés & astuces</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.astuces}</div></div></div>`:''}
-
     ${b.remarques?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Remarques</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.remarques}</div></div></div>`:''}
-
-    <div class="section" style="margin-bottom:10px;">
-      <div style="padding:12px 14px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${b.patient||'—'}</div></div>
-          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Âge</div><div style="font-size:14px;font-weight:600;">${b.age||'—'} ans</div></div>
-          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
-          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
-          <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
-        </div>
-        ${tags?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">${tags}</div>`:''}
-      </div>
-    </div>
-
+    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${b.patient||'—'}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Âge</div><div style="font-size:14px;font-weight:600;">${b.age?b.age+' ans':'—'}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
+      <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
+    </div>${tags?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">${tags}</div>`:''}</div></div>
     ${nc>0?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Complications</div>${complList}</div></div>`:''}
+    ${followComments.length>0?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Notes de suivi</div>${followComments.map(fc=>{const{dc:fd,tc:ft,sl:fs}=statusClasses(fc.status||'gris');return`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12px;font-weight:600;">${fc.time}</span><div style="display:flex;align-items:center;gap:5px;"><span class="sdot ${fd}"></span><span class="${ft}" style="font-size:11px;">${fs}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(fc.date)}</span></div></div><div style="font-size:13px;color:var(--text2);line-height:1.5;">${fc.comment}</div></div>`;}).join('')}</div></div>`:''}
   `;
-
-  // Mettre à jour les boutons avec le bon index
-  document.getElementById('det-edit-btn').onclick = () => openEditModal();
-  document.getElementById('det-del-btn').onclick = () => confirmDelete();
-
-  // Afficher la vue détail (pas dans le bottomnav)
+  // Reset tabs
+  document.querySelectorAll('.det-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.det-tab').classList.add('active');
+  document.getElementById('det-info').classList.add('active');
+  curDetTab='info';
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-detail').classList.add('active');
   document.getElementById('bn-blocs').classList.add('active');
 }
+function renderDetRadios(bi){
+  const b=blocs[bi];
+  const el=document.getElementById('det-radios');
+  let html=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=b.radios?.[t]?.length||0;return`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t}${n>0?' ('+n+')':''}</button>`;}).join('')}</div>`;
+  const imgs=b.radios?.[curRTab]||[];
+  html+='<div class="radio-grid">';
+  imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioFromDet(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
+  html+='</div>';
+  html+=`<label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUploadDet(event,${bi},'${curRTab}')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
+  el.innerHTML=html;
+}
+function switchDetRTab(t){curRTab=t;renderDetRadios(detailBlocIdx);}
+function delRadioFromDet(bi,type,idx){blocs[bi].radios[type].splice(idx,1);saveLocal();syncToSupabase();renderDetRadios(bi);}
+function handleUploadDet(e,bi,type){
+  const files=Array.from(e.target.files);if(!files.length)return;let done=0;
+  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!blocs[bi].radios)blocs[bi].radios={};if(!blocs[bi].radios[type])blocs[bi].radios[type]=[];blocs[bi].radios[type].push({data:ev.target.result,name:f.name,date:new Date().toISOString().split('T')[0]});done++;if(done===files.length){saveLocal();syncToSupabase();renderDetRadios(bi);showToast(done+' image(s) ajoutée(s)');}};r.readAsDataURL(f);});
+}
 
+// ── EDITION ──
 function openEditModal(){
-  if(detailBlocIdx<0)return;
-  const b=blocs[detailBlocIdx];
+  if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
   document.getElementById('e-date').value=b.date||'';
-  document.getElementById('e-spec').value=b.spec||'';
-  upIntervEdit();
-  if(b.spec==='Traumatologie'){
-    document.getElementById('e-interv-libre').value=b.interv||'';
-  } else {
-    document.getElementById('e-interv').value=b.interv||'';
-  }
+  document.getElementById('e-spec').value=b.spec||'';upIntervEdit();
+  if(b.spec==='Traumatologie'){document.getElementById('e-interv-libre').value=b.interv||'';}
+  else{document.getElementById('e-interv').value=b.interv||'';}
   document.getElementById('e-side').value=b.side||'';
   document.getElementById('e-role').value=b.role||'Principal';
   document.getElementById('e-duree').value=b.duree||'';
   document.getElementById('e-patient').value=b.patient||'';
   document.getElementById('e-age').value=b.age||'';
-  editTags=[...(b.tags||[])];renderEditTags();
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
   document.getElementById('e-abord').value=b.abord||'';
   document.getElementById('e-astuces').value=b.astuces||'';
   document.getElementById('e-remarques').value=b.remarques||'';
   document.getElementById('e-statut').value=b.statut||'gris';
+  editTags=[...(b.tags||[])];renderEditTags();
   openModal('edit-modal');
 }
-
+function upIntervEdit(){
+  const sp=document.getElementById('e-spec').value;
+  const sel=document.getElementById('e-interv');const libre=document.getElementById('e-interv-libre');
+  if(!sp){sel.innerHTML='<option>—</option>';sel.style.display='block';if(libre)libre.style.display='none';return;}
+  if(sp==='Traumatologie'){sel.style.display='none';if(libre)libre.style.display='block';}
+  else{sel.style.display='block';if(libre)libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');}
+}
+function saveEdit(){
+  if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
+  b.date=document.getElementById('e-date').value;
+  b.spec=document.getElementById('e-spec').value;
+  b.interv=b.spec==='Traumatologie'?document.getElementById('e-interv-libre').value:document.getElementById('e-interv').value;
+  b.side=document.getElementById('e-side').value;
+  b.role=document.getElementById('e-role').value;
+  b.duree=parseInt(document.getElementById('e-duree').value)||null;
+  b.patient=document.getElementById('e-patient').value;
+  b.age=document.getElementById('e-age').value;
+  b.imc=document.getElementById('e-imc').value;
+  b.implants=document.getElementById('e-implants').value;
+  b.abord=document.getElementById('e-abord').value;
+  b.astuces=document.getElementById('e-astuces').value;
+  b.remarques=document.getElementById('e-remarques').value;
+  b.statut=document.getElementById('e-statut').value;
+  b.tags=[...editTags];
+  saveLocal();syncToSupabase();closeModal('edit-modal');openBlocDetail(detailBlocIdx);showToast('Bloc modifié');
+}
 function handleEditTag(e){
   if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!editTags.includes(v)){editTags.push(v);renderEditTags();}e.target.value='';}
   else if(e.key==='Backspace'&&!e.target.value&&editTags.length){editTags.pop();renderEditTags();}
@@ -821,170 +809,74 @@ function renderEditTags(){
   editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeEditTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=editTags.length?'':'Ajouter un tag...';
 }
-
-function upIntervEdit(){
-  const sp=document.getElementById('e-spec').value;
-  const sel=document.getElementById('e-interv');
-  const libre=document.getElementById('e-interv-libre');
-  if(!sp){sel.innerHTML='<option>—</option>';if(libre){sel.style.display='block';libre.style.display='none';}return;}
-  if(sp==='Traumatologie'){
-    sel.style.display='none';if(libre)libre.style.display='block';
-  } else {
-    sel.style.display='block';if(libre)libre.style.display='none';
-    sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
-  }
-}
-
-function saveEdit(){
-  if(detailBlocIdx<0)return;
-  const b=blocs[detailBlocIdx];
-  b.date=document.getElementById('e-date').value;
-  b.spec=document.getElementById('e-spec').value;
-  b.interv=b.spec==='Traumatologie'?document.getElementById('e-interv-libre').value:document.getElementById('e-interv').value;
-  b.side=document.getElementById('e-side').value;
-  b.role=document.getElementById('e-role').value;
-  b.duree=parseInt(document.getElementById('e-duree').value)||null;
-  b.patient=document.getElementById('e-patient').value;
-  b.age=document.getElementById('e-age').value;
-  b.tags=[...editTags];
-  b.imc=document.getElementById('e-imc').value;
-  b.implants=document.getElementById('e-implants').value;
-  b.abord=document.getElementById('e-abord').value;
-  b.astuces=document.getElementById('e-astuces').value;
-  b.remarques=document.getElementById('e-remarques').value;
-  b.statut=document.getElementById('e-statut').value;
-  saveLocal();syncToSupabase();
-  closeModal('edit-modal');
-  openBlocDetail(detailBlocIdx);
-  showToast('Bloc modifié');
-}
-
 function confirmDelete(){
-  if(detailBlocIdx<0)return;
-  const b=blocs[detailBlocIdx];
-  if(!confirm('Supprimer définitivement le bloc de '+( b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible.'))return;
-  blocs.splice(detailBlocIdx,1);
-  saveLocal();syncToSupabase();renderAll();
-  showToast('Bloc supprimé');
-  sw('blocs');
-}
-function renderBlocs(){
-  const searchRaw = (document.getElementById('search-input')?.value||'').toLowerCase().trim();
-  const searchClear = document.getElementById('search-clear');
-  if(searchClear) searchClear.style.display = searchRaw ? 'block' : 'none';
-
-  // Filtrer
-  let filtered = curFilter==='all' ? blocs : blocs.filter(b=>b.spec===curFilter);
-  if(curRoleFilter!=='all') filtered = filtered.filter(b=>b.role===curRoleFilter);
-
-  // Filtre tags actifs
-  if(activeTagFilters.size>0){
-    filtered = filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(t)));
-  }
-
-  // Filtre recherche texte
-  if(searchRaw){
-    filtered = filtered.filter(b=>{
-      const hay = [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,...(b.tags||[])].join(' ').toLowerCase();
-      return hay.includes(searchRaw);
-    });
-  }
-
-  const el=document.getElementById('bloc-list');
-  const countEl=document.getElementById('search-count');
-
-  // Mettre à jour les tag filters
-  renderTagFilters();
-
-  // Compteur
-  if(countEl){
-    if(searchRaw||activeTagFilters.size>0){
-      countEl.textContent = filtered.length + ' résultat' + (filtered.length>1?'s':'') + ' sur ' + blocs.length + ' blocs';
-    } else {
-      countEl.textContent = '';
-    }
-  }
-
-  if(!filtered.length){
-    el.innerHTML=searchRaw||activeTagFilters.size>0
-      ? '<div class="empty"><div class="empty-icon">🔍</div>Aucun résultat</div>'
-      : '<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';
-    return;
-  }
-
-  const sorted = filtered.slice().sort((a,b)=>{ const da=a.date||''; const db=b.date||''; return db.localeCompare(da); });
-  el.innerHTML=sorted.map(b=>{
-    const bi=blocs.indexOf(b);
-    const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
-    const rc=b.role==='Principal'?'bp':'ba';
-    const{dc,tc,sl}=statusClasses(b.statut);
-    const nc=(b.complications||[]).length;
-    const implantsTxt=b.implants?`<div style="font-size:12px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.implants}</div>`:'';
-    const astucesTxt=b.astuces?`<div style="font-size:11px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">💡 ${b.astuces.substring(0,60)}${b.astuces.length>60?'…':''}</div>`:'';
-    // Highlight recherche dans le nom patient
-    let patientTxt = b.patient||'—';
-    if(searchRaw && patientTxt.toLowerCase().includes(searchRaw)){
-      const idx = patientTxt.toLowerCase().indexOf(searchRaw);
-      patientTxt = patientTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+patientTxt.slice(idx,idx+searchRaw.length)+'</mark>'+patientTxt.slice(idx+searchRaw.length);
-    }
-    const tagsTxt = (b.tags||[]).length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${(b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:${activeTagFilters.has(t)?'var(--accent)':'var(--blue-l)'};color:${activeTagFilters.has(t)?'white':'var(--blue-d)'};">${t}</span>`).join('')}</div>` : '';
-    return `<div class="bloc-item" onclick="openBlocDetail(${bi})" style="cursor:pointer;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span class="badge ${bc}">${(b.interv||'').substring(0,20)}</span>
-          <span class="badge ${rc}">${b.role}</span>
-          ${nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">${nc} compl.</span>`:''}
-        </div>
-        <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-        <span class="bloc-date">${fmtDate(b.date)}</span>
-        <span class="bloc-meta">${patientTxt} · ${b.duree?b.duree+' min':'—'}</span>
-      </div>
-      ${implantsTxt}
-      ${astucesTxt}
-      ${tagsTxt}
-    </div>`;
-  }).join('');
+  if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
+  if(!confirm('Supprimer définitivement le bloc de '+(b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible.'))return;
+  blocs.splice(detailBlocIdx,1);saveLocal();syncToSupabase();renderAll();showToast('Bloc supprimé');sw('blocs');
 }
 
+// ── SUIVI ──
 function renderSuivi(){
   const el=document.getElementById('suivi-list');
   if(!blocs.length){el.innerHTML='<div class="empty"><div class="empty-icon">♡</div>Aucun patient</div>';return;}
-  const sorted_suivi = blocs.slice().sort((a,b)=>{ const da=a.date||''; const db=b.date||''; return db.localeCompare(da); });
-  el.innerHTML=sorted_suivi.map((b,si)=>{ const bi=blocs.indexOf(b);
+  const sorted=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  el.innerHTML=sorted.map(b=>{
+    const bi=blocs.indexOf(b);
     const{dc,tc,sl}=statusClasses(b.statut);
-    const stype=b.spec==='Hanche'?'ohs':'oks';
     const tl=TL.map((t,ti)=>{
-      const hs=b.scores?.[t]?.val;const dc2=hs?'da':'dp';
-      const val=hs?`<span style="color:var(--blue);font-size:9px;">${b.scores[t].type.toUpperCase()} ${b.scores[t].val}</span>`:'<span style="color:var(--text3);font-size:9px;">—</span>';
+      const fu=b.followup&&b.followup[t];
+      const hasComment=fu&&fu.comment;
+      const dotClass=hasComment?(fu.status==='vert'?'dv':fu.status==='orange'?'do':fu.status==='rouge'?'dr':'dc'):'dp';
+      const valTxt=hasComment?`<span style="font-size:9px;color:var(--accent);">✓</span>`:'<span style="color:var(--text3);font-size:9px;">—</span>';
+      const commentPreview=hasComment?`<div class="tl-comment" title="${fu.comment}">${fu.comment.substring(0,12)}${fu.comment.length>12?'…':''}</div>`:'';
       const lv=ti===0?'visibility:hidden;':'';const rv=ti===4?'visibility:hidden;':'';
-      return `<div class="tl-step"><div class="tl-dw"><div class="tl-line" style="${lv}"></div><div class="tl-dot ${dc2}" onclick="openScoreModal(${bi},'${t}','${stype}')"></div><div class="tl-line" style="${rv}"></div></div><div class="tl-lbl">${t}</div><div class="tl-val">${val}</div></div>`;
+      return`<div class="tl-step"><div class="tl-dw"><div class="tl-line" style="${lv}"></div><div class="tl-dot ${dotClass}" onclick="openCommentModal(${bi},'${t}')" title="Ajouter/modifier note"></div><div class="tl-line" style="${rv}"></div></div><div class="tl-lbl">${t}</div><div class="tl-val">${valTxt}</div>${commentPreview}</div>`;
     }).join('');
-    const chips=TL.filter(t=>b.scores?.[t]?.val).map(t=>`<span class="chip">${b.scores[t].type.toUpperCase()} ${t} <span>${b.scores[t].val}/48</span></span>`).join('');
-    const nr=b.radios?Object.values(b.radios).reduce((a,r)=>a+r.length,0):0;
     const complChips=(b.complications||[]).map(c=>`<span class="chip" style="background:var(--red-l);color:var(--red-d);border-color:var(--red);">${c.type.split(' ')[0]} <span>${fmtDate(c.date)}</span></span>`).join('');
-    return `<div class="section"><div class="section-hdr" onclick="toggleSection(this)"><div><div class="section-title">${b.patient||'—'} — ${(b.interv||'').substring(0,22)}</div><div class="section-sub">${fmtDate(b.date)} · ${b.implants||'—'} · ${b.role}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div><span style="color:var(--text3);">›</span></div></div><div class="section-body"><div class="tl">${tl}</div><div class="chips">${chips}<button class="chip-btn" onclick="openScoreModal(${bi},'','${stype}')">+ Score</button><button class="chip-btn ${nr>0?'green':''}" onclick="openRadioModal(${bi})">${nr>0?nr+' radio(s)':'+ Radios'}</button><button class="chip-btn" style="background:var(--red-l);color:var(--red-d);" onclick="openComplModal(${bi})">+ Complication</button></div>${complChips?`<div class="chips" style="margin-top:6px;">${complChips}</div>`:''} ${b.astuces?`<div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.6;"><strong style="color:var(--text);">Astuces :</strong> ${b.astuces}</div>`:''}</div></div>`;
+    return`<div class="section"><div class="section-hdr" onclick="toggleSection(this)"><div><div class="section-title">${b.patient||'—'} — ${(b.interv||'').substring(0,22)}</div><div class="section-sub">${fmtDate(b.date)} · ${b.implants||'—'} · ${b.role}</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div><span style="color:var(--text3);">›</span></div></div><div class="section-body"><div class="tl">${tl}</div><div class="chips"><button class="chip-btn" style="background:var(--red-l);color:var(--red-d);" onclick="openComplModal(${bi})">+ Complication</button></div>${complChips?`<div class="chips" style="margin-top:6px;">${complChips}</div>`:''} ${b.astuces?`<div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--text2);line-height:1.6;"><strong style="color:var(--text);">Astuces :</strong> ${b.astuces}</div>`:''}</div></div>`;
   }).join('');
 }
 function toggleSection(hdr){hdr.nextElementSibling.classList.toggle('open');}
 
+// ── COMMENTAIRES SUIVI ──
+function openCommentModal(bi,time){
+  commentCtx={bi,time};const b=blocs[bi];
+  document.getElementById('cm-title').textContent='Note de suivi — '+time;
+  document.getElementById('cm-subtitle').textContent=b.patient+' · '+(b.interv||'');
+  const fu=b.followup&&b.followup[time];
+  document.getElementById('cm-statut').value=fu&&fu.status?fu.status:'vert';
+  document.getElementById('cm-comment').value=fu&&fu.comment?fu.comment:'';
+  document.getElementById('cm-date').value=fu&&fu.date?fu.date:new Date().toISOString().split('T')[0];
+  openModal('comment-modal');
+}
+function saveComment(){
+  const bi=commentCtx.bi;const time=commentCtx.time;
+  if(!blocs[bi].followup)blocs[bi].followup={};
+  blocs[bi].followup[time]={comment:document.getElementById('cm-comment').value,status:document.getElementById('cm-statut').value,date:document.getElementById('cm-date').value};
+  // Mettre à jour statut global selon le dernier commentaire
+  const statuts=TL.filter(t=>blocs[bi].followup&&blocs[bi].followup[t]&&blocs[bi].followup[t].status).map(t=>blocs[bi].followup[t].status);
+  if(statuts.length>0){const last=statuts[statuts.length-1];if(last!=='gris')blocs[bi].statut=last;}
+  saveLocal();syncToSupabase();closeModal('comment-modal');renderSuivi();showToast('Note enregistrée');
+}
+
+// ── COMPLICATIONS ──
 function openComplModal(bi){
   complCtx={bi};const b=blocs[bi];
-  document.getElementById('cm-patient').value=b.patient||'—';
-  document.getElementById('cm-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('cm-type').value='';document.getElementById('cm-clavien').value='';document.getElementById('cm-detail').value='';
+  document.getElementById('cmp-patient').value=b.patient||'—';
+  document.getElementById('cmp-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('cmp-type').value='';document.getElementById('cmp-clavien').value='';document.getElementById('cmp-detail').value='';
   openModal('compl-modal');
 }
 function saveComplication(){
-  const type=document.getElementById('cm-type').value;
+  const type=document.getElementById('cmp-type').value;
   if(!type){showToast('Sélectionner un type');return;}
   const bi=complCtx.bi;
   if(!blocs[bi].complications)blocs[bi].complications=[];
-  blocs[bi].complications.push({type,date:document.getElementById('cm-date').value,clavien:document.getElementById('cm-clavien').value,detail:document.getElementById('cm-detail').value});
+  blocs[bi].complications.push({type,date:document.getElementById('cmp-date').value,clavien:document.getElementById('cmp-clavien').value,detail:document.getElementById('cmp-detail').value});
   blocs[bi].statut='rouge';saveLocal();syncToSupabase();showToast('Complication enregistrée');closeModal('compl-modal');renderSuivi();renderDash();
 }
 
+// ── SAISIE ──
 function initForm(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
@@ -997,15 +889,10 @@ function initForm(){
 }
 function upInterv(){
   const sp=document.getElementById('f-spec').value;
-  const sel=document.getElementById('f-interv');
-  const libre=document.getElementById('f-interv-libre');
+  const sel=document.getElementById('f-interv');const libre=document.getElementById('f-interv-libre');
   if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
-  if(sp==='Traumatologie'){
-    sel.style.display='none';libre.style.display='block';libre.value='';libre.focus();
-  } else {
-    sel.style.display='block';libre.style.display='none';
-    sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');
-  }
+  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.value='';libre.focus();}
+  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');}
 }
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
@@ -1018,59 +905,154 @@ function buildStars(){
   for(let i=1;i<=5;i++){const s=document.createElement('span');s.className='star';s.textContent='★';const v=i;s.onclick=()=>{cStar=v;updateStars();};c.appendChild(s);}
   const lbl=document.createElement('span');lbl.className='star-lbl';lbl.id='star-lbl';lbl.textContent='Non évalué';c.appendChild(lbl);
 }
-function handleTag(e){if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!formTags.includes(v)){formTags.push(v);renderTags();}e.target.value='';}else if(e.key==='Backspace'&&!e.target.value&&formTags.length){formTags.pop();renderTags();}}
+function handleTag(e){
+  if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!formTags.includes(v)){formTags.push(v);renderTags();}e.target.value='';}
+  else if(e.key==='Backspace'&&!e.target.value&&formTags.length){formTags.pop();renderTags();}
+}
 function removeTag(t){formTags=formTags.filter(x=>x!==t);renderTags();}
-function renderTags(){const c=document.getElementById('tag-wrap');const f=document.getElementById('tf');c.innerHTML='';formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';el.innerHTML=t+'<span class="tag-rm" onclick="removeTag(\''+t+'\')">×</span>';c.appendChild(el);});c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';}
+function renderTags(){
+  const c=document.getElementById('tag-wrap');const f=document.getElementById('tf');c.innerHTML='';
+  formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
+  c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';
+}
 function saveBloc(){
   const sp=document.getElementById('f-spec').value;
   const iv=sp==='Traumatologie'?document.getElementById('f-interv-libre').value:document.getElementById('f-interv').value;
-  if(!sp||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
+  if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
   const radios={};RT.forEach(t=>radios[t]=[]);
-  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',scores:{},complications:[],radios});
+  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],followup:{},radios});
   saveLocal();syncToSupabase();showToast('Bloc enregistré');sw('suivi');
 }
 
-function openScoreModal(bi,time,stype){
-  mCtx={bi,time,stype:stype||'oks'};mAns={oks:{},ohs:{}};
-  const b=blocs[bi];document.getElementById('sm-patient').textContent=b.patient||'—';document.getElementById('sm-time').textContent=time||'Hors échéance';
-  buildScoreQ('oks');buildScoreQ('ohs');switchST(stype==='ohs'?'ohs':'oks');
-  document.getElementById('sr-oks').innerHTML='';document.getElementById('sr-ohs').innerHTML='';
-  document.getElementById('sw-oks').style.display='none';document.getElementById('sw-ohs').style.display='none';
-  openModal('score-modal');
+// ── STATS ──
+function setPeriod(n,btn){
+  statPeriod=n;
+  document.querySelectorAll('.period-tab').forEach(b=>{if(b.parentElement.id!=='learning-tabs')b.classList.remove('active');});
+  btn.classList.add('active');
+  renderActivityChart();
 }
-function buildScoreQ(s){
-  const qs=s==='oks'?OKS_Q:OHS_Q;const cont=document.getElementById('sq-'+s);cont.innerHTML='';
-  qs.forEach((q,qi)=>{const d=document.createElement('div');d.className='qb';d.id='qb-'+s+'-'+qi;d.innerHTML=`<div class="qnum">Q${qi+1}/12</div><div class="qtxt">${q.t}</div><div class="opts">`+q.o.map((o,oi)=>`<div class="opt" onclick="selOpt('${s}',${qi},${oi},${4-oi})" id="opt-${s}-${qi}-${oi}"><div class="oradio"></div><span>${o}</span></div>`).join('')+'</div>';cont.appendChild(d);});
+function setLearning(type,btn){
+  statLearning=type;
+  document.querySelectorAll('#learning-tabs .period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLearningChart();
 }
-function selOpt(s,qi,oi,val){
-  for(let i=0;i<5;i++){const e=document.getElementById('opt-'+s+'-'+qi+'-'+i);if(e)e.classList.remove('sel');}
-  document.getElementById('opt-'+s+'-'+qi+'-'+oi)?.classList.add('sel');document.getElementById('qb-'+s+'-'+qi)?.classList.add('answered');
-  mAns[s][qi]=val;const n=Object.keys(mAns[s]).length;
-  document.getElementById('sp-'+s+'-lbl').textContent=n+' / 12';document.getElementById('sp-'+s+'-fill').style.width=Math.round(n/12*100)+'%';
-  const live=Object.values(mAns[s]).reduce((a,b)=>a+b,0);document.getElementById('sp-'+s+'-live').textContent=n>0?'Partiel : '+live:'';
+function renderStats(){
+  const total=blocs.length;
+  const principal=blocs.filter(b=>b.role==='Principal').length;
+  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push(c)));
+  const cPct=total>0?Math.round(allC.length/total*100):0;
+  const traumaBlocs=blocs.filter(b=>b.spec==='Traumatologie'&&b.duree);
+  const hancheBlocs=blocs.filter(b=>b.spec==='Hanche'&&b.duree);
+  const avgTrauma=traumaBlocs.length?Math.round(traumaBlocs.reduce((a,b)=>a+b.duree,0)/traumaBlocs.length):null;
+  const avgHanche=hancheBlocs.length?Math.round(hancheBlocs.reduce((a,b)=>a+b.duree,0)/hancheBlocs.length):null;
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-principal').textContent=principal+' en principal';
+  document.getElementById('st-compl').textContent=cPct+'%';
+  document.getElementById('st-compl-sub').textContent=allC.length+' cas';
+  document.getElementById('st-duree-trauma').textContent=avgTrauma||'—';
+  document.getElementById('st-duree-hanche').textContent=avgHanche||'—';
+  document.getElementById('stats-count').textContent=total+' blocs au total';
+  renderActivityChart();
+  renderLearningChart();
+  renderRoleChart();
+  renderComplChart();
+  renderTopInterventions();
+  renderComplByInterv();
 }
-function switchST(s){document.getElementById('sm-oks').style.display=s==='oks'?'block':'none';document.getElementById('sm-ohs').style.display=s==='ohs'?'block':'none';document.getElementById('stb-oks').classList.toggle('active',s==='oks');document.getElementById('stb-ohs').classList.toggle('active',s==='ohs');mCtx.stype=s;}
-function calcScore(){
-  const s=mCtx.stype;if(Object.keys(mAns[s]).length<12){document.getElementById('sw-'+s).style.display='block';return;}
-  document.getElementById('sw-'+s).style.display='none';
-  const total=Object.values(mAns[s]).reduce((a,b)=>a+b,0);const pct=Math.round(total/48*100);
-  let band,bc,color;
-  if(total<=19){band='Sévère';bc='b-sev';color='var(--red)';}else if(total<=29){band='Modéré';bc='b-mod';color='var(--amber)';}else if(total<=39){band='Léger';bc='b-mild';color='var(--green)';}else{band='Satisfaisant';bc='b-sat';color='var(--blue)';}
-  document.getElementById('sr-'+s).innerHTML=`<div class="score-result"><div class="score-big" style="color:${color}">${total}</div><div style="font-size:13px;color:var(--text2);margin-top:2px;">/ 48 — ${pct}%</div><div class="score-band ${bc}">${band}</div><div class="score-bar-wrap"><div class="score-bar-fill" style="width:${pct}%;background:${color};"></div></div><div style="font-size:11px;color:var(--text3);">MCID : 5 points — ${s.toUpperCase()}</div></div>`;
-  const bi=mCtx.bi;const time=mCtx.time||'hors-echeance';if(!blocs[bi].scores)blocs[bi].scores={};
-  blocs[bi].scores[time]={type:s,val:total,date:new Date().toISOString().split('T')[0]};
-  if(total>=40)blocs[bi].statut='vert';else if(total>=30)blocs[bi].statut=blocs[bi].statut==='rouge'?'rouge':'vert';else if(total>=20)blocs[bi].statut=blocs[bi].statut==='rouge'?'rouge':'orange';
-  saveLocal();syncToSupabase();showToast(s.toUpperCase()+' '+total+'/48 enregistré');setTimeout(()=>{closeModal('score-modal');renderSuivi();},1600);
+function getMonthLabels(n){
+  const labels=[];const now=new Date();
+  for(let i=n-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labels.push(d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'}));}
+  return labels;
+}
+function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
+function renderActivityChart(){
+  const now=new Date();const months=statPeriod>0?statPeriod:24;
+  const labels=[];const keys=[];
+  for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labels.push(d.toLocaleDateString('fr-FR',{month:'short'}));keys.push(d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0'));}
+  const counts=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length);
+  if(chartActivity){chartActivity.destroy();}
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  chartActivity=new Chart(document.getElementById('chart-activity'),{
+    type:'bar',data:{labels,datasets:[{data:counts,backgroundColor:counts.map((_,i)=>i===counts.length-1?CHART_COLORS.accent:isDark?'#383835':'#CFC0A0'),borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CHART_COLORS.gray,font:{size:10},maxRotation:0}},y:{display:false,beginAtZero:true}}}
+  });
+}
+function renderLearningChart(){
+  const kw={'PTH':['PTH','pth'],'PTG':['PTG','ptg'],'LCA':['LCA','lca','ligamentoplastie']};
+  const keywords=kw[statLearning]||[];
+  const relevant=blocs.filter(b=>b.duree&&keywords.some(k=>((b.interv||'')+(b.tags||[]).join(' ')).toLowerCase().includes(k))).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(chartLearning){chartLearning.destroy();}
+  const el=document.getElementById('learning-trend');
+  if(relevant.length<2){
+    chartLearning=new Chart(document.getElementById('chart-learning'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CHART_COLORS.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    if(el)el.textContent=relevant.length===0?'Aucun bloc '+statLearning+' avec durée renseignée':'Un seul bloc — pas de tendance';
+    return;
+  }
+  const labels=relevant.map(b=>fmtDate(b.date));
+  const data=relevant.map(b=>b.duree);
+  const diff=data[data.length-1]-data[0];
+  if(el)el.textContent=`Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min sur la période':'↑ +'+diff+' min sur la période'}`;
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  chartLearning=new Chart(document.getElementById('chart-learning'),{
+    type:'line',data:{labels,datasets:[{data,borderColor:CHART_COLORS.accent,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CHART_COLORS.accent,pointRadius:3,tension:0.3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CHART_COLORS.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CHART_COLORS.gray,font:{size:10}},beginAtZero:false}}}
+  });
+}
+function renderRoleChart(){
+  const principal=blocs.filter(b=>b.role==='Principal').length;
+  const aide=blocs.length-principal;
+  const pPct=blocs.length?Math.round(principal/blocs.length*100):0;
+  const aPct=100-pPct;
+  if(chartRole){chartRole.destroy();}
+  chartRole=new Chart(document.getElementById('chart-role'),{
+    type:'doughnut',data:{labels:['Principal','Aide'],datasets:[{data:[principal,aide],backgroundColor:[CHART_COLORS.accent,CHART_COLORS.accent2],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+  document.getElementById('role-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CHART_COLORS.accent};display:inline-block;"></span>Principal ${pPct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CHART_COLORS.accent2};display:inline-block;"></span>Aide ${aPct}%</span>`;
+}
+function renderComplChart(){
+  const withC=blocs.filter(b=>(b.complications||[]).length>0).length;
+  const withoutC=blocs.length-withC;
+  if(chartCompl){chartCompl.destroy();}
+  chartCompl=new Chart(document.getElementById('chart-compl'),{
+    type:'doughnut',data:{labels:['Complication','Sans complication'],datasets:[{data:[withC,withoutC],backgroundColor:[CHART_COLORS.red,'#CFC0A0'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+  const pct=blocs.length?Math.round(withC/blocs.length*100):0;
+  document.getElementById('compl-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CHART_COLORS.red};display:inline-block;"></span>Complication ${pct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#CFC0A0;display:inline-block;"></span>Sans ${100-pct}%</span>`;
+}
+function renderTopInterventions(){
+  const counts={};blocs.forEach(b=>{const k=b.interv||'—';counts[k]=(counts[k]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=sorted.length?sorted[0][1]:1;
+  document.getElementById('top-interventions').innerHTML=sorted.map(([name,count])=>{
+    const isHanche=name.toLowerCase().includes('pth')||name.toLowerCase().includes('hanche');
+    const color=isHanche?CHART_COLORS.purple:name.toLowerCase().includes('genou')||name.toLowerCase().includes('ptg')||name.toLowerCase().includes('lca')?CHART_COLORS.blue:CHART_COLORS.accent;
+    return`<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;">${name}</span><span style="font-weight:600;color:var(--text);">${count}</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.round(count/max*100)}%;background:${color};border-radius:99px;"></div></div></div>`;
+  }).join('');
+}
+function renderComplByInterv(){
+  const data={};blocs.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0};data[k].total++;if((b.complications||[]).length>0)data[k].compl++;});
+  const withCompl=Object.entries(data).filter(([,v])=>v.compl>0).sort((a,b)=>b[1].compl/b[1].total-a[1].compl/a[1].total);
+  const el=document.getElementById('compl-by-interv');
+  if(!withCompl.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';return;}
+  el.innerHTML=withCompl.map(([name,v])=>{
+    const pct=Math.round(v.compl/v.total*100);
+    const color=pct>=50?CHART_COLORS.red:pct>=25?CHART_COLORS.amber:CHART_COLORS.green;
+    return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span><span style="font-weight:600;color:${color};">${pct}% (${v.compl}/${v.total})</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div></div></div>`;
+  }).join('');
 }
 
+// ── RADIOS (modal) ──
 function openRadioModal(bi){rCtx={bi};curRTab='Préopératoire';const b=blocs[bi];document.getElementById('rm-title').textContent='Radios — '+(b.patient||'—');renderRTabs(bi);renderRGrid(bi);openModal('radio-modal');}
-function renderRTabs(bi){const b=blocs[bi];document.getElementById('rm-tabs').innerHTML=RT.map(t=>{const n=b.radios?.[t]?.length||0;return `<button class="rtab${t===curRTab?' active':''}" onclick="switchRTab('${t}',${bi})">${t}${n>0?' ('+n+')':''}</button>`;}).join('');}
+function renderRTabs(bi){const b=blocs[bi];document.getElementById('rm-tabs').innerHTML=RT.map(t=>{const n=b.radios?.[t]?.length||0;return`<button class="rtab${t===curRTab?' active':''}" onclick="switchRTab('${t}',${bi})">${t}${n>0?' ('+n+')':''}</button>`;}).join('');}
 function switchRTab(t,bi){curRTab=t;renderRTabs(bi);renderRGrid(bi);}
 function renderRGrid(bi){
   const b=blocs[bi];const imgs=b.radios?.[curRTab]||[];
   let html='<div class="radio-grid">';
   imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadio(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
-  html+='</div><label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUpload(event,'+bi+',\''+curRTab+'\')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>';
+  html+=`</div><label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUpload(event,${bi},'${curRTab}')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
   document.getElementById('rm-grid').innerHTML=html;
 }
 function handleUpload(e,bi,type){const files=Array.from(e.target.files);if(!files.length)return;let done=0;files.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!blocs[bi].radios)blocs[bi].radios={};if(!blocs[bi].radios[type])blocs[bi].radios[type]=[];blocs[bi].radios[type].push({data:ev.target.result,name:f.name,date:new Date().toISOString().split('T')[0]});done++;if(done===files.length){renderRTabs(bi);renderRGrid(bi);saveLocal();syncToSupabase();showToast(done+' image(s) ajoutée(s)');}};r.readAsDataURL(f);});}
@@ -1079,6 +1061,7 @@ function openLB(bi,type,idx){lbImgs=blocs[bi].radios[type];lbIdx=idx;const img=l
 function closeLB(){document.getElementById('lightbox').classList.remove('show');}
 function lbNav(dir){lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbImgs[lbIdx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+img.date;}
 
+// ── UTILS ──
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});}
 function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'RAS'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
@@ -1088,14 +1071,11 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function exportData(){
   if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-  const payload={version:'orlog-v5',exported_at:new Date().toISOString(),user_id:sbConfig.uid||'unknown',blocs_count:blocs.length,blocs};
+  const payload={version:'orlog-v11',exported_at:new Date().toISOString(),user_id:sbConfig.uid||'unknown',blocs_count:blocs.length,blocs};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`orlog_backup_${ts}.json`;a.click();
-  URL.revokeObjectURL(url);
-  showToast(blocs.length+' blocs exportés');
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='orlog_backup_'+ts+'.json';a.click();
+  URL.revokeObjectURL(a.href);showToast(blocs.length+' blocs exportés');
 }
-
 function importData(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -1103,15 +1083,12 @@ function importData(e){
     try{
       const parsed=JSON.parse(ev.target.result);
       const imported=parsed.blocs||parsed;
-      if(!Array.isArray(imported)){throw new Error('Format invalide');}
-      if(!confirm(`Importer ${imported.length} blocs ? Les données actuelles (${blocs.length} blocs) seront remplacées.`)){e.target.value='';return;}
-      blocs=imported;
-      saveLocal();
-      syncToSupabase();
-      renderAll();
+      if(!Array.isArray(imported))throw new Error('Format invalide');
+      if(!confirm('Importer '+imported.length+' blocs ? Les données actuelles ('+blocs.length+' blocs) seront remplacées.'))return;
+      blocs=imported;saveLocal();syncToSupabase();renderAll();
       const st=document.getElementById('import-status');
       st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
-      st.textContent=imported.length+' blocs importés avec succès — Supabase mis à jour.';
+      st.textContent=imported.length+' blocs importés — Supabase mis à jour.';
       setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},3000);
     }catch(err){
       const st=document.getElementById('import-status');
