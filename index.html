@@ -793,8 +793,7 @@ function upIntervEdit(){
   const sel=document.getElementById('e-interv');const libre=document.getElementById('e-interv-libre');
   if(!sp){sel.innerHTML='<option>—</option>';sel.style.display='block';if(libre)libre.style.display='none';return;}
   if(sp==='Traumatologie'){sel.style.display='none';if(libre)libre.style.display='block';}
-  else{sel.style.display='block';if(libre)libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('e');}
-  toggleIntervLibre('e');
+  else{sel.style.display='block';if(libre)libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('e');toggleIntervLibre('e');}
 }
 function saveEdit(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
@@ -911,9 +910,8 @@ function upInterv(){
   const sp=document.getElementById('f-spec').value;
   const sel=document.getElementById('f-interv');const libre=document.getElementById('f-interv-libre');
   if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
-  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.value='';libre.focus();}
-  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('f');}
-  toggleIntervLibre('f');
+  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.placeholder='Décrire l\'intervention...';libre.value='';libre.focus();}
+  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('f');toggleIntervLibre('f');}
 }
 function toggleIntervLibre(prefix){
   const sel=document.getElementById(prefix+'-interv');
