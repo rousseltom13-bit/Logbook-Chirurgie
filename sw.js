@@ -1,4 +1,4 @@
-const CACHE = 'orlog-v11';
+const CACHE = 'orlog-v1';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
