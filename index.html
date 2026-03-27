@@ -48,8 +48,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .topbar-title{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
 .topbar-sub{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
 .sync-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
-.sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--green);}
-.sync-dot.off{background:var(--amber);}.sync-dot.err{background:var(--red);}
+
 .views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
 .view{display:none;padding:16px;}.view.active{display:block;}
 .bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;}
@@ -204,8 +203,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </svg>
       <div><div class="topbar-title">OrLog</div><div class="topbar-sub">Logbook chirurgical</div></div>
     </div>
-    <button class="sync-btn" onclick="manualSync()" id="sync-btn">
-      <span class="sync-dot off" id="sync-dot"></span><span id="sync-label">Non configuré</span>
+    <button class="sync-btn" onclick="exportData()" style="background:var(--accent);color:white;border-color:var(--accent);">
+      ⬇ Exporter
     </button>
   </div>
 
@@ -429,20 +428,22 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="modal">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
-    <div class="modal-title">Configuration Supabase</div>
-    <div class="form-group"><label>URL du projet</label><input class="config-input" type="url" id="cfg-url" placeholder="https://xxxx.supabase.co"></div>
-    <div class="form-group"><label>Clé anonyme (anon key)</label><input class="config-input" type="text" id="cfg-key" placeholder="eyJhbGciOiJIUzI1NiIs..."></div>
-    <div class="form-group"><label>Identifiant utilisateur</label><input class="config-input" type="text" id="cfg-uid" placeholder="ex. tom"></div>
-    <button class="btn-primary" onclick="saveConfig()">Enregistrer & tester</button>
-    <div class="instructions-box"><strong style="color:var(--text);">Instructions Supabase :</strong><br>1. supabase.com → nouveau projet<br>2. Table Editor → New table → <code>orlog_blocs</code><br>3. Colonnes : <code>id</code> text PK, <code>user_id</code> text, <code>data</code> jsonb, <code>updated_at</code> timestamptz<br>4. Désactiver RLS<br>5. Settings → API → Legacy anon key</div>
+    <div class="modal-title">Sauvegarde & synchronisation</div>
+    <div style="background:var(--blue-l);border-radius:var(--radius);padding:12px;margin-bottom:16px;font-size:13px;color:var(--blue-d);line-height:1.6;">
+      <strong>Sync iPhone ↔ Mac via AirDrop</strong><br>
+      1. Exporte depuis un appareil<br>
+      2. AirDrop vers l'autre appareil<br>
+      3. Importe — les données sont fusionnées automatiquement
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <button class="btn-primary" style="flex:1;margin-top:0;" onclick="exportData()">⬇ Exporter JSON</button>
+      <label style="flex:1;text-align:center;padding:14px 16px;font-size:15px;font-weight:600;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-lg);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">⬆ Importer & fusionner<input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6;">L'import fusionne intelligemment — les blocs des deux appareils sont conservés, sans doublon.</div>
+    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
     <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Sauvegarde locale</div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-secondary" style="flex:1;" onclick="exportData()">⬇ Exporter JSON</button>
-        <label style="flex:1;text-align:center;padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">⬆ Importer JSON<input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
-      </div>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.6;">L'export génère un fichier JSON horodaté. L'import restaure depuis ce fichier.</div>
-      <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Statistiques</div>
+      <div style="font-size:13px;color:var(--text2);" id="settings-stats"></div>
     </div>
   </div>
 </div>
@@ -506,7 +507,7 @@ const CC={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amb
 
 let blocs=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
-let activeTagFilters=new Set(),sbConfig={url:'',key:'',uid:''};
+let activeTagFilters=new Set();
 let statPeriod=6,statLearning='PTH';
 let chartActivity=null,chartLearning=null,chartRole=null,chartCompl=null;
 let detailBlocIdx=-1,curDetTab='info';
@@ -514,47 +515,13 @@ let detailBlocIdx=-1,curDetTab='info';
 // ── PERSISTENCE ──
 function loadLocal(){
   try{const d=localStorage.getItem('orlog_blocs');if(d)blocs=JSON.parse(d);}catch(e){blocs=[];}
-  try{const c=localStorage.getItem('orlog_config');if(c)sbConfig={...sbConfig,...JSON.parse(c)};}catch(e){}
-  updateSyncUI();
 }
 function saveLocal(){try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}}
-function updateSyncUI(){
-  const dot=document.getElementById('sync-dot'),lbl=document.getElementById('sync-label');
-  if(!sbConfig.url||!sbConfig.key){dot.className='sync-dot off';lbl.textContent='Non configuré';}
-  else{dot.className='sync-dot';lbl.textContent='Supabase';}
+function showSettings(){
+  const statsEl=document.getElementById('settings-stats');
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v12';
+  openModal('settings-modal');
 }
-async function sbFetch(path,opts={}){
-  if(!sbConfig.url||!sbConfig.key)return null;
-  const res=await fetch(sbConfig.url+'/rest/v1/'+path,{headers:{'apikey':sbConfig.key,'Authorization':'Bearer '+sbConfig.key,'Content-Type':'application/json','Prefer':opts.prefer||''},...opts});
-  if(!res.ok)throw new Error('Supabase '+res.status);
-  const t=await res.text();return t?JSON.parse(t):null;
-}
-async function syncToSupabase(){
-  if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
-  if(!blocs||blocs.length===0)return;
-  try{
-    await sbFetch('orlog_blocs?id=eq.'+encodeURIComponent(sbConfig.uid+'_blocs'),{method:'DELETE',prefer:''});
-    await sbFetch('orlog_blocs',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:sbConfig.uid+'_blocs',user_id:sbConfig.uid,data:blocs,updated_at:new Date().toISOString()})});
-    document.getElementById('sync-dot').className='sync-dot';document.getElementById('sync-label').textContent='Synchronisé';return true;
-  }catch(e){document.getElementById('sync-dot').className='sync-dot err';document.getElementById('sync-label').textContent='Erreur sync';return false;}
-}
-async function syncFromSupabase(){
-  if(!sbConfig.url||!sbConfig.key||!sbConfig.uid)return;
-  try{
-    const rows=await sbFetch('orlog_blocs?user_id=eq.'+encodeURIComponent(sbConfig.uid)+'&select=data,updated_at');
-    if(rows&&rows.length>0){blocs=rows[0].data||[];saveLocal();renderAll();showToast('Données synchronisées');}
-  }catch(e){showToast('Erreur de synchronisation');}
-}
-async function manualSync(){if(!sbConfig.url||!sbConfig.key){showSettings();return;}showToast('Synchronisation...');await syncFromSupabase();}
-async function saveConfig(){
-  sbConfig.url=document.getElementById('cfg-url').value.replace(/\/$/,'');
-  sbConfig.key=document.getElementById('cfg-key').value.trim();
-  sbConfig.uid=document.getElementById('cfg-uid').value.trim();
-  localStorage.setItem('orlog_config',JSON.stringify(sbConfig));updateSyncUI();
-  showToast('Test de connexion...');const ok=await syncToSupabase();
-  if(ok){showToast('Connexion réussie !');closeModal('settings-modal');}else showToast('Échec — vérifier URL et clé anon');
-}
-function showSettings(){document.getElementById('cfg-url').value=sbConfig.url||'';document.getElementById('cfg-key').value=sbConfig.key||'';document.getElementById('cfg-uid').value=sbConfig.uid||'';openModal('settings-modal');}
 
 // ── NAVIGATION ──
 function sw(v){
@@ -783,18 +750,18 @@ function saveConsult(){
   // Mettre à jour statut global selon la dernière consultation
   const sorted=(blocs[bi].consultations||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   if(sorted.length>0){const last=sorted[sorted.length-1];if(last.statut&&last.statut!=='gris')blocs[bi].statut=last.statut;}
-  saveLocal();syncToSupabase();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();showToast('Consultation enregistrée');
+  saveLocal();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();showToast('Consultation enregistrée');
 }
 function deleteConsult(bi,idx){
   if(!confirm('Supprimer cette consultation ?'))return;
   blocs[bi].consultations.splice(idx,1);
-  saveLocal();syncToSupabase();renderDetSuivi(bi);renderBlocs();showToast('Consultation supprimée');
+  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Consultation supprimée');
 }
 function deleteCompl(bi,idx){
   if(!confirm('Supprimer cette complication ?'))return;
   blocs[bi].complications.splice(idx,1);
   if((blocs[bi].complications||[]).length===0&&blocs[bi].statut==='rouge')blocs[bi].statut='gris';
-  saveLocal();syncToSupabase();renderDetSuivi(bi);renderBlocs();showToast('Complication supprimée');
+  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Complication supprimée');
 }
 
 // ── RADIOS (dans détail) ──
@@ -808,10 +775,10 @@ function renderDetRadios(bi){
   el.innerHTML=html;
 }
 function switchDetRTab(t){curRTab=t;renderDetRadios(detailBlocIdx);}
-function delRadioFromDet(bi,type,idx){blocs[bi].radios[type].splice(idx,1);saveLocal();syncToSupabase();renderDetRadios(bi);}
+function delRadioFromDet(bi,type,idx){blocs[bi].radios[type].splice(idx,1);saveLocal();renderDetRadios(bi);}
 function handleUploadDet(e,bi,type){
   const files=Array.from(e.target.files);if(!files.length)return;let done=0;
-  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!blocs[bi].radios)blocs[bi].radios={};if(!blocs[bi].radios[type])blocs[bi].radios[type]=[];blocs[bi].radios[type].push({data:ev.target.result,name:f.name,date:new Date().toISOString().split('T')[0]});done++;if(done===files.length){saveLocal();syncToSupabase();renderDetRadios(bi);showToast(done+' image(s) ajoutée(s)');}};r.readAsDataURL(f);});
+  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!blocs[bi].radios)blocs[bi].radios={};if(!blocs[bi].radios[type])blocs[bi].radios[type]=[];blocs[bi].radios[type].push({data:ev.target.result,name:f.name,date:new Date().toISOString().split('T')[0]});done++;if(done===files.length){saveLocal();renderDetRadios(bi);showToast(done+' image(s) ajoutée(s)');}};r.readAsDataURL(f);});
 }
 function openLB(bi,type,idx){lbImgs=blocs[bi].radios[type];lbIdx=idx;const img=lbImgs[idx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+type+' · '+img.date;document.getElementById('lightbox').classList.add('show');}
 function closeLB(){document.getElementById('lightbox').classList.remove('show');}
@@ -874,7 +841,7 @@ function saveEdit(){
   b.statut=document.getElementById('e-statut').value;
   b.operateur=document.getElementById('e-operateur').value;
   b.tags=[...editTags];
-  saveLocal();syncToSupabase();closeModal('edit-modal');openBlocDetail(detailBlocIdx);showToast('Bloc modifié');
+  saveLocal();closeModal('edit-modal');openBlocDetail(detailBlocIdx);showToast('Bloc modifié');
 }
 function toggleOperateur(prefix){
   const role=document.getElementById(prefix+'-role').value;
@@ -902,7 +869,7 @@ function renderEditTags(){
 function confirmDelete(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
   if(!confirm('Supprimer définitivement le bloc de '+(b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible.'))return;
-  blocs.splice(detailBlocIdx,1);saveLocal();syncToSupabase();renderAll();showToast('Bloc supprimé');sw('blocs');
+  blocs.splice(detailBlocIdx,1);saveLocal();renderAll();showToast('Bloc supprimé');sw('blocs');
 }
 
 // ── COMPLICATIONS ──
@@ -919,7 +886,7 @@ function saveComplication(){
   const bi=complCtx.bi;
   if(!blocs[bi].complications)blocs[bi].complications=[];
   blocs[bi].complications.push({type,date:document.getElementById('cmp-date').value,clavien:document.getElementById('cmp-clavien').value,detail:document.getElementById('cmp-detail').value});
-  blocs[bi].statut='rouge';saveLocal();syncToSupabase();showToast('Complication enregistrée');closeModal('compl-modal');
+  blocs[bi].statut='rouge';saveLocal();showToast('Complication enregistrée');closeModal('compl-modal');
   renderDetSuivi(bi);renderBlocs();renderDash();
 }
 
@@ -970,7 +937,7 @@ function saveBloc(){
   if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
   const radios={};RT.forEach(t=>radios[t]=[]);
   blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radios});
-  saveLocal();syncToSupabase();showToast('Bloc enregistré');sw('blocs');
+  saveLocal();showToast('Bloc enregistré');sw('blocs');
 }
 
 // ── STATS ──
@@ -1085,7 +1052,7 @@ function importData(e){
       const parsed=JSON.parse(ev.target.result);const imported=parsed.blocs||parsed;
       if(!Array.isArray(imported))throw new Error('Format invalide');
       if(!confirm('Importer '+imported.length+' blocs ? Les données actuelles ('+blocs.length+' blocs) seront remplacées.'))return;
-      blocs=imported;saveLocal();syncToSupabase();renderAll();
+      blocs=imported;saveLocal();renderAll();
       const st=document.getElementById('import-status');st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';st.textContent=imported.length+' blocs importés.';
       setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},3000);
     }catch(err){const st=document.getElementById('import-status');st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';st.textContent='Erreur : fichier JSON invalide.';}
@@ -1097,7 +1064,6 @@ function importData(e){
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 loadLocal();buildStars();renderAll();
 document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
-syncFromSupabase();
 </script>
 </body>
 </html>
