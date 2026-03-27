@@ -273,26 +273,28 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="stat-card" style="grid-column:1/-1;"><div class="stat-label">Traumatologie</div><div class="stat-val" id="d-trauma">0</div></div>
       </div>
       <div class="dash-tabs">
-        <button class="dash-tab active" onclick="switchDashTab('planning',this)">Planning</button>
-        <button class="dash-tab" onclick="switchDashTab('recent',this)">Activité</button>
+        <button class="dash-tab active" onclick="switchDashTab('recent',this)">Activité</button>
+        <button class="dash-tab" onclick="switchDashTab('planning',this)">Planning</button>
         <button class="dash-tab" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
-      <div class="dash-panel active" id="dp-planning">
-        <!-- Bande semaine -->
-        <div style="margin-bottom:12px;">
-          <div class="cal-week" id="week-strip"></div>
-          <div style="text-align:center;margin-top:6px;">
-            <button onclick="openCalModal()" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;text-decoration:underline;">Voir le mois complet ›</button>
-          </div>
+      <div class="dash-panel active" id="dp-recent">
+        <div class="dash-row" style="margin-bottom:14px;">
+          <div class="dash-card" style="grid-column:1/-1;"><div class="dash-card-title">Répartition</div><div id="spec-bars"></div></div>
         </div>
-        <!-- Prochains blocs -->
         <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Prochains blocs</div>
         <div class="section"><div id="upcoming-list"></div></div>
       </div>
-      <div class="dash-panel" id="dp-recent">
-        <div class="dash-row">
-          <div class="dash-card"><div class="dash-card-title">Répartition</div><div id="spec-bars"></div></div>
-          <div class="dash-card"><div class="dash-card-title">Derniers blocs</div><div id="d-recents"></div></div>
+      <div class="dash-panel" id="dp-planning">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
+          <div style="font-size:15px;font-weight:700;" id="cal-inline-title"></div>
+          <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+        </div>
+        <div class="cal-month-header" id="cal-inline-header"></div>
+        <div class="cal-month-grid" id="cal-inline-grid"></div>
+        <div style="margin-top:14px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Blocs prévus ce mois</div>
+          <div class="section"><div id="month-planned-list"></div></div>
         </div>
       </div>
       <div class="dash-panel" id="dp-complications">
@@ -673,7 +675,8 @@ function switchDashTab(tab,btn){
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='complications')renderComplications();
-  if(tab==='planning')renderPlanning();
+  if(tab==='recent'){renderUpcoming();}
+  if(tab==='planning'){renderInlineCalendar();renderMonthPlannedList();}
 }
 function renderDash(){
   const total=blocs.length,genou=blocs.filter(b=>b.spec==='Genou').length,hanche=blocs.filter(b=>b.spec==='Hanche').length,trauma=blocs.filter(b=>b.spec==='Traumatologie').length,principal=blocs.filter(b=>b.role==='Principal').length;
@@ -689,6 +692,7 @@ function renderDash(){
   const maxS=Math.max(genou,hanche,trauma,1);
   document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>`<div class="spec-item"><div class="spec-label-row"><span>${s.n}</span><span style="font-weight:600;">${s.v}</span></div><div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_COLORS[s.n]};"></div></div></div>`).join('');
   renderPlanning();
+  if(document.getElementById('dp-planning')&&document.getElementById('dp-planning').classList.contains('active')){renderInlineCalendar();renderMonthPlannedList();}
   const recent=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,4);
   const rel=document.getElementById('d-recents');
   if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
@@ -1190,7 +1194,6 @@ function upcomingPlanned(){
 }
 
 function renderPlanning(){
-  renderWeekStrip();
   renderUpcoming();
 }
 
@@ -1249,7 +1252,60 @@ function openCalModal(){
 }
 function calNavMonth(dir){
   calCurrentMonth=new Date(calCurrentMonth.getFullYear(),calCurrentMonth.getMonth()+dir,1);
-  renderCalMonth();
+  // Mettre à jour calendrier inline si l'onglet planning est actif
+  if(document.getElementById('dp-planning').classList.contains('active')){
+    renderInlineCalendar();renderMonthPlannedList();
+  } else {
+    renderCalMonth();
+  }
+}
+function renderInlineCalendar(){
+  const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
+  const title=new Date(year,month,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const titleEl=document.getElementById('cal-inline-title');
+  if(titleEl)titleEl.textContent=title.charAt(0).toUpperCase()+title.slice(1);
+  const dayNames=['L','M','M','J','V','S','D'];
+  const headerEl=document.getElementById('cal-inline-header');
+  if(headerEl)headerEl.innerHTML=dayNames.map(d=>`<div class="cal-month-dname">${d}</div>`).join('');
+  const gridEl=document.getElementById('cal-inline-grid');if(!gridEl)return;
+  const firstDay=new Date(year,month,1),lastDay=new Date(year,month+1,0);
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  let cells='';
+  for(let i=startDow-1;i>=0;i--){const d=new Date(year,month,0-i);cells+=`<div class="cal-month-cell other-month" onclick="openDayModal('${dateStr(d)}')"><div class="cal-month-num">${d.getDate()}</div></div>`;}
+  const todayS=todayStr();
+  for(let day=1;day<=lastDay.getDate();day++){
+    const d=new Date(year,month,day);const ds=dateStr(d);
+    const pbs=plannedForDate(ds);const n=pbs.length;
+    const isToday=ds===todayS;
+    let dots='';
+    if(n===1)dots=`<div class="cal-dot" style="background:var(--accent);"></div>`;
+    else if(n>1)dots=`<div class="cal-badge" style="background:var(--accent);color:white;">${n}</div>`;
+    cells+=`<div class="cal-month-cell${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}')">
+      <div class="cal-month-num">${day}</div>${dots}
+    </div>`;
+  }
+  const total=startDow+lastDay.getDate();const rem=(7-total%7)%7;
+  for(let i=1;i<=rem;i++){const d=new Date(year,month+1,i);cells+=`<div class="cal-month-cell other-month" onclick="openDayModal('${dateStr(d)}')"><div class="cal-month-num">${d.getDate()}</div></div>`;}
+  gridEl.innerHTML=cells;
+}
+function renderMonthPlannedList(){
+  const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
+  const monthStr=(year+'-'+(month+1).toString().padStart(2,'0'));
+  const monthPlanned=planned.filter(p=>p.date&&p.date.startsWith(monthStr)).sort((a,b)=>a.date.localeCompare(b.date));
+  const el=document.getElementById('month-planned-list');if(!el)return;
+  if(!monthPlanned.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:12px 14px;">Aucun bloc prévu ce mois</div>';return;}
+  const bc_map={Genou:'bg',Hanche:'bh',Traumatologie:'bt'};
+  el.innerHTML=monthPlanned.map(p=>{
+    const idx=planned.indexOf(p);const bc=bc_map[p.spec]||'';const cd=countdown(p.date);
+    return`<div class="planned-item" onclick="openPlannedDetail(${idx})">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:6px;"><span class="badge ${bc}">${(p.interv||'—').substring(0,20)}</span>${p.patient?`<span style="font-size:12px;color:var(--text2);">${p.patient}</span>`:''}</div>
+        ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;">📋 ${p.comment}</div>`:''}
+    </div>`;
+  }).join('');
 }
 function renderCalMonth(){
   const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
