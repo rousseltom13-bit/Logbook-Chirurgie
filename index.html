@@ -177,6 +177,36 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .consult-comment{font-size:13px;color:var(--text2);line-height:1.5;}
 .consult-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px;}
 #app{display:none;}
+/* PLANNING */
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
+.cal-week-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:var(--radius);cursor:pointer;background:none;border:none;font-family:inherit;}
+.cal-week-day.today{background:var(--accent);color:white;}
+.cal-week-day.has-bloc{position:relative;}
+.cal-week-name{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;}
+.cal-week-day.today .cal-week-name{color:rgba(255,255,255,0.8);}
+.cal-week-num{font-size:15px;font-weight:600;}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:1px;}
+.cal-week-day.today .cal-dot{background:white;}
+.cal-badge{font-size:9px;font-weight:700;background:var(--accent);color:white;border-radius:99px;padding:1px 5px;margin-top:1px;}
+.cal-week-day.today .cal-badge{background:white;color:var(--accent);}
+/* Calendrier mensuel */
+.cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-month-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px;}
+.cal-month-dname{font-size:10px;color:var(--text3);text-align:center;font-weight:500;}
+.cal-month-cell{min-height:44px;border-radius:var(--radius);padding:4px;cursor:pointer;border:0.5px solid transparent;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.cal-month-cell:active{background:var(--bg2);}
+.cal-month-cell.today{border-color:var(--accent);}
+.cal-month-cell.other-month{opacity:0.35;}
+.cal-month-cell.has-bloc{background:var(--bg2);}
+.cal-month-num{font-size:13px;font-weight:500;}
+.cal-month-cell.today .cal-month-num{background:var(--accent);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}
+/* Blocs prévus */
+.planned-item{padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;}
+.planned-item:last-child{border-bottom:none;}
+.planned-item:active{background:var(--bg2);}
+.countdown{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--accent-l);color:var(--accent);}
+.countdown.urgent{background:var(--red-l);color:var(--red-d);}
+.countdown.soon{background:var(--amber-l);color:var(--amber-d);}
 </style>
 </head>
 <body>
@@ -243,10 +273,23 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="stat-card" style="grid-column:1/-1;"><div class="stat-label">Traumatologie</div><div class="stat-val" id="d-trauma">0</div></div>
       </div>
       <div class="dash-tabs">
-        <button class="dash-tab active" onclick="switchDashTab('recent',this)">Activité</button>
+        <button class="dash-tab active" onclick="switchDashTab('planning',this)">Planning</button>
+        <button class="dash-tab" onclick="switchDashTab('recent',this)">Activité</button>
         <button class="dash-tab" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
-      <div class="dash-panel active" id="dp-recent">
+      <div class="dash-panel active" id="dp-planning">
+        <!-- Bande semaine -->
+        <div style="margin-bottom:12px;">
+          <div class="cal-week" id="week-strip"></div>
+          <div style="text-align:center;margin-top:6px;">
+            <button onclick="openCalModal()" style="background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;text-decoration:underline;">Voir le mois complet ›</button>
+          </div>
+        </div>
+        <!-- Prochains blocs -->
+        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Prochains blocs</div>
+        <div class="section"><div id="upcoming-list"></div></div>
+      </div>
+      <div class="dash-panel" id="dp-recent">
         <div class="dash-row">
           <div class="dash-card"><div class="dash-card-title">Répartition</div><div id="spec-bars"></div></div>
           <div class="dash-card"><div class="dash-card-title">Derniers blocs</div><div id="d-recents"></div></div>
@@ -416,6 +459,67 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<!-- MODAL CALENDRIER MENSUEL -->
+<div class="modal-overlay" id="cal-modal">
+  <div class="modal" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('cal-modal')">×</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
+      <div style="font-size:16px;font-weight:700;" id="cal-month-title"></div>
+      <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+    </div>
+    <div class="cal-month-header" id="cal-month-header"></div>
+    <div class="cal-month-grid" id="cal-month-grid"></div>
+  </div>
+</div>
+
+<!-- MODAL BLOCS DU JOUR -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('day-modal')">×</button>
+    <div class="modal-title" id="day-modal-title"></div>
+    <div id="day-blocs-list"></div>
+    <button class="btn-primary" onclick="openNewPlannedModal(dayModalDate)">+ Ajouter un bloc ce jour</button>
+  </div>
+</div>
+
+<!-- MODAL SAISIE BLOC PRÉVU -->
+<div class="modal-overlay" id="planned-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('planned-modal')">×</button>
+    <div class="modal-title" id="planned-modal-title">Bloc prévu</div>
+    <div class="form-group"><label>Date</label><input type="date" id="p-date"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Spécialité</label><select id="p-spec" onchange="upIntervPlanned()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
+      <div class="form-group"><label>Côté</label><select id="p-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+    </div>
+    <div class="form-group"><label>Intervention</label>
+      <select id="p-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
+      <input type="text" id="p-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
+    </div>
+    <div class="form-group"><label>Patient (initiales)</label><input type="text" id="p-patient" placeholder="ex. J.D." autocomplete="off"></div>
+    <div class="form-group"><label>Commentaire / matériel à commander</label><textarea id="p-comment" placeholder="ex. Commander implant X, vérifier taille fémur..." style="min-height:80px;"></textarea></div>
+    <button class="btn-primary" id="planned-save-btn" onclick="savePlanned()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- MODAL DETAIL BLOC PRÉVU -->
+<div class="modal-overlay" id="planned-detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('planned-detail-modal')">×</button>
+    <div class="modal-title" id="pdet-title"></div>
+    <div id="pdet-content"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn-primary" style="flex:2;margin-top:0;" onclick="convertPlanned()">Convertir en bloc réalisé</button>
+      <button class="btn-secondary" style="flex:1;color:var(--red-d);border-color:var(--red);" onclick="deletePlanned()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL COMPLICATION -->
 <div class="modal-overlay" id="compl-modal">
   <div class="modal">
@@ -528,7 +632,7 @@ const RT=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 
 const SPEC_COLORS={Genou:'var(--blue)',Hanche:'var(--purple)',Traumatologie:'var(--amber)'};
 const CC={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amber:'#B06A10',red:'#B03030',green:'#4A7A2A',gray:'#9A7A58'};
 
-let blocs=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
+let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
 let statPeriod=6,statLearning='PTH';
@@ -538,8 +642,12 @@ let detailBlocIdx=-1,curDetTab='info';
 // ── PERSISTENCE ──
 function loadLocal(){
   try{const d=localStorage.getItem('orlog_blocs');if(d)blocs=JSON.parse(d);}catch(e){blocs=[];}
+  try{const p=localStorage.getItem('orlog_planned');if(p)planned=JSON.parse(p);}catch(e){planned=[];}
 }
-function saveLocal(){try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}}
+function saveLocal(){
+  try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}
+  try{localStorage.setItem('orlog_planned',JSON.stringify(planned));}catch(e){}
+}
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
   if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v12';
@@ -565,6 +673,7 @@ function switchDashTab(tab,btn){
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='complications')renderComplications();
+  if(tab==='planning')renderPlanning();
 }
 function renderDash(){
   const total=blocs.length,genou=blocs.filter(b=>b.spec==='Genou').length,hanche=blocs.filter(b=>b.spec==='Hanche').length,trauma=blocs.filter(b=>b.spec==='Traumatologie').length,principal=blocs.filter(b=>b.role==='Principal').length;
@@ -579,6 +688,7 @@ function renderDash(){
   document.getElementById('d-trauma').textContent=trauma;
   const maxS=Math.max(genou,hanche,trauma,1);
   document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>`<div class="spec-item"><div class="spec-label-row"><span>${s.n}</span><span style="font-weight:600;">${s.v}</span></div><div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_COLORS[s.n]};"></div></div></div>`).join('');
+  renderPlanning();
   const recent=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,4);
   const rel=document.getElementById('d-recents');
   if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
@@ -1051,6 +1161,260 @@ function renderComplByInterv(){
     const color=pct>=50?CC.red:pct>=25?CC.amber:CC.green;
     return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span><span style="font-weight:600;color:${color};">${pct}% (${v.compl}/${v.total})</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div></div></div>`;
   }).join('');
+}
+
+// ── PLANNING ──
+let calCurrentMonth = new Date();
+let dayModalDate = null;
+let plannedEditIdx = null;
+
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function dateStr(d){return d.toISOString().split('T')[0];}
+function diffDays(dateStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.round((target-today)/(1000*60*60*24));
+}
+function countdown(ds){
+  const d=diffDays(ds);
+  if(d<0)return null;
+  if(d===0)return{label:"Aujourd'hui",cls:'urgent'};
+  if(d===1)return{label:'Demain',cls:'urgent'};
+  if(d<=3)return{label:'J-'+d,cls:'soon'};
+  return{label:'J-'+d,cls:''};
+}
+function plannedForDate(ds){return planned.filter(p=>p.date===ds);}
+function upcomingPlanned(){
+  const today=todayStr();
+  return planned.filter(p=>p.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function renderPlanning(){
+  renderWeekStrip();
+  renderUpcoming();
+}
+
+function renderWeekStrip(){
+  const el=document.getElementById('week-strip');if(!el)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=['D','L','M','M','J','V','S'];
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(today);d.setDate(today.getDate()-today.getDay()+i);
+    const ds=dateStr(d);
+    const isToday=ds===todayStr();
+    const pbs=plannedForDate(ds);
+    const n=pbs.length;
+    let badge='';
+    if(n===1)badge=`<div class="cal-dot"></div>`;
+    else if(n>1)badge=`<div class="cal-badge">${n}</div>`;
+    html+=`<button class="cal-week-day${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}')">
+      <span class="cal-week-name">${days[d.getDay()]}</span>
+      <span class="cal-week-num">${d.getDate()}</span>
+      ${badge}
+    </button>`;
+  }
+  el.innerHTML=html;
+}
+
+function renderUpcoming(){
+  const el=document.getElementById('upcoming-list');if(!el)return;
+  const upcoming=upcomingPlanned().slice(0,8);
+  if(!upcoming.length){
+    el.innerHTML='<div class="empty" style="padding:20px;"><div class="empty-icon" style="font-size:20px;">📅</div><div style="margin-top:6px;">Aucun bloc prévu</div></div>';
+    return;
+  }
+  const bc_map={Genou:'bg',Hanche:'bh',Traumatologie:'bt'};
+  el.innerHTML=upcoming.map((p,i)=>{
+    const cd=countdown(p.date);
+    const bc=bc_map[p.spec]||'';
+    return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <span class="badge ${bc}">${(p.interv||'—').substring(0,20)}</span>
+          ${p.patient?`<span style="font-size:12px;color:var(--text2);">${p.patient}</span>`:''}
+        </div>
+        ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
+      </div>
+      <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📋 ${p.comment}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── CALENDRIER MENSUEL ──
+function openCalModal(){
+  renderCalMonth();
+  openModal('cal-modal');
+}
+function calNavMonth(dir){
+  calCurrentMonth=new Date(calCurrentMonth.getFullYear(),calCurrentMonth.getMonth()+dir,1);
+  renderCalMonth();
+}
+function renderCalMonth(){
+  const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
+  const title=new Date(year,month,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  document.getElementById('cal-month-title').textContent=title.charAt(0).toUpperCase()+title.slice(1);
+  // En-têtes jours
+  const dayNames=['L','M','M','J','V','S','D'];
+  document.getElementById('cal-month-header').innerHTML=dayNames.map(d=>`<div class="cal-month-dname">${d}</div>`).join('');
+  // Grille
+  const firstDay=new Date(year,month,1);
+  const lastDay=new Date(year,month+1,0);
+  // Décalage : lundi=0
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  let cells='';
+  // Jours du mois précédent
+  for(let i=startDow-1;i>=0;i--){
+    const d=new Date(year,month,0-i);
+    cells+=`<div class="cal-month-cell other-month" onclick="openDayModal('${dateStr(d)}')"><div class="cal-month-num">${d.getDate()}</div></div>`;
+  }
+  // Jours du mois
+  const todayS=todayStr();
+  for(let day=1;day<=lastDay.getDate();day++){
+    const d=new Date(year,month,day);const ds=dateStr(d);
+    const pbs=plannedForDate(ds);const n=pbs.length;
+    const isToday=ds===todayS;
+    let dots='';
+    if(n===1)dots=`<div class="cal-dot" style="background:var(--accent);"></div>`;
+    else if(n>1)dots=`<div class="cal-badge" style="background:var(--accent);color:white;">${n}</div>`;
+    cells+=`<div class="cal-month-cell${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}');closeModal('cal-modal');">
+      <div class="cal-month-num">${day}</div>
+      ${dots}
+    </div>`;
+  }
+  // Compléter la grille
+  const total=startDow+lastDay.getDate();const rem=(7-total%7)%7;
+  for(let i=1;i<=rem;i++){
+    const d=new Date(year,month+1,i);
+    cells+=`<div class="cal-month-cell other-month" onclick="openDayModal('${dateStr(d)}')"><div class="cal-month-num">${d.getDate()}</div></div>`;
+  }
+  document.getElementById('cal-month-grid').innerHTML=cells;
+}
+
+// ── MODAL JOUR ──
+function openDayModal(ds){
+  dayModalDate=ds;
+  const d=new Date(ds);
+  document.getElementById('day-modal-title').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  renderDayBlocs(ds);
+  openModal('day-modal');
+}
+function renderDayBlocs(ds){
+  const el=document.getElementById('day-blocs-list');
+  const pbs=plannedForDate(ds);
+  const bc_map={Genou:'bg',Hanche:'bh',Traumatologie:'bt'};
+  if(!pbs.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:12px 0;text-align:center;">Aucun bloc prévu ce jour</div>';
+    return;
+  }
+  el.innerHTML=pbs.map(p=>{
+    const idx=planned.indexOf(p);
+    const bc=bc_map[p.spec]||'';
+    return`<div style="padding:10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;" onclick="closeModal('day-modal');openPlannedDetail(${idx});">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <span class="badge ${bc}">${p.spec}</span>
+        <span style="font-size:13px;font-weight:600;">${p.interv||'—'}</span>
+      </div>
+      ${p.patient?`<div style="font-size:12px;color:var(--text2);">${p.patient}${p.side?' · '+p.side:''}</div>`:''}
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:4px;">📋 ${p.comment}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── SAISIE BLOC PRÉVU ──
+function openNewPlannedModal(ds){
+  plannedEditIdx=null;
+  closeModal('day-modal');
+  document.getElementById('planned-modal-title').textContent='Nouveau bloc prévu';
+  document.getElementById('p-date').value=ds||todayStr();
+  document.getElementById('p-spec').value='';
+  document.getElementById('p-side').value='';
+  document.getElementById('p-interv').innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
+  document.getElementById('p-interv').style.display='block';
+  document.getElementById('p-interv-libre').style.display='none';
+  document.getElementById('p-interv-libre').value='';
+  document.getElementById('p-patient').value='';
+  document.getElementById('p-comment').value='';
+  document.getElementById('planned-save-btn').textContent='Enregistrer';
+  openModal('planned-modal');
+}
+function upIntervPlanned(){
+  const sp=document.getElementById('p-spec').value;
+  const sel=document.getElementById('p-interv');const libre=document.getElementById('p-interv-libre');
+  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
+  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.placeholder='Décrire l\'intervention...';libre.value='';libre.focus();}
+  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');}
+}
+function savePlanned(){
+  const sp=document.getElementById('p-spec').value;
+  const selVal=document.getElementById('p-interv').value;
+  const iv=sp==='Traumatologie'||selVal.startsWith('Autre')?document.getElementById('p-interv-libre').value:selVal;
+  if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
+  const entry={id:Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value,comment:document.getElementById('p-comment').value};
+  if(plannedEditIdx!==null){planned[plannedEditIdx]=entry;}
+  else{planned.push(entry);}
+  saveLocal();closeModal('planned-modal');renderPlanning();
+  showToast(plannedEditIdx!==null?'Bloc prévu modifié':'Bloc prévu ajouté');
+}
+
+// ── DETAIL BLOC PRÉVU ──
+let currentPlannedIdx=null;
+function openPlannedDetail(idx){
+  currentPlannedIdx=idx;const p=planned[idx];
+  const bc_map={Genou:'bg',Hanche:'bh',Traumatologie:'bt'};
+  const bc=bc_map[p.spec]||'';
+  const cd=countdown(p.date);
+  document.getElementById('pdet-title').textContent=fmtDate(p.date)+(p.patient?' — '+p.patient:'');
+  document.getElementById('pdet-content').innerHTML=`
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+      <span class="badge ${bc}">${p.spec}</span>
+      <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(p.date)}</span>
+      ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
+    </div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${p.interv||'—'}</div>
+    ${p.side?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px;">${p.side}</div>`:''}
+    ${p.patient?`<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Patient : ${p.patient}</div>`:''}
+    ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:13px;color:var(--amber-d);line-height:1.5;">📋 ${p.comment}</div>`:''}
+    <button onclick="editPlanned(${idx})" style="width:100%;margin-top:14px;padding:10px;font-size:13px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;color:var(--text);">Modifier</button>
+  `;
+  openModal('planned-detail-modal');
+}
+function editPlanned(idx){
+  plannedEditIdx=idx;const p=planned[idx];
+  closeModal('planned-detail-modal');
+  document.getElementById('planned-modal-title').textContent='Modifier le bloc prévu';
+  document.getElementById('p-date').value=p.date||'';
+  document.getElementById('p-spec').value=p.spec||'';upIntervPlanned();
+  if(p.spec==='Traumatologie'){document.getElementById('p-interv-libre').value=p.interv||'';}
+  else{document.getElementById('p-interv').value=p.interv||'';}
+  document.getElementById('p-side').value=p.side||'';
+  document.getElementById('p-patient').value=p.patient||'';
+  document.getElementById('p-comment').value=p.comment||'';
+  document.getElementById('planned-save-btn').textContent='Enregistrer les modifications';
+  openModal('planned-modal');
+}
+function deletePlanned(){
+  if(!confirm('Supprimer ce bloc prévu ?'))return;
+  planned.splice(currentPlannedIdx,1);saveLocal();closeModal('planned-detail-modal');renderPlanning();showToast('Bloc prévu supprimé');
+}
+function convertPlanned(){
+  const p=planned[currentPlannedIdx];
+  closeModal('planned-detail-modal');
+  // Pré-remplir le formulaire de saisie
+  sw('saisie');
+  setTimeout(()=>{
+    document.getElementById('f-date').value=p.date||todayStr();
+    document.getElementById('f-spec').value=p.spec||'';upInterv();
+    if(p.spec==='Traumatologie'){document.getElementById('f-interv-libre').value=p.interv||'';}
+    else{document.getElementById('f-interv').value=p.interv||'';}
+    document.getElementById('f-side').value=p.side||'';
+    document.getElementById('f-patient').value=p.patient||'';
+    document.getElementById('f-remarques').value=p.comment?'Pré-op : '+p.comment:'';
+    // Supprimer le bloc prévu une fois le formulaire pré-rempli
+    planned.splice(currentPlannedIdx,1);saveLocal();renderPlanning();
+    showToast('Formulaire pré-rempli — complète et valide le bloc');
+  },200);
 }
 
 // ── UTILS ──
