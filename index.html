@@ -163,9 +163,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .warn{background:var(--amber-l);color:var(--amber-d);padding:8px 12px;border-radius:var(--radius);font-size:12px;margin-bottom:10px;display:none;}
 .stat-section{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px;border:0.5px solid var(--border);}
 .stat-section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;}
-.period-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.period-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
 .period-tab{padding:4px 10px;font-size:11px;border-radius:99px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-family:inherit;}
 .period-tab.active{background:var(--accent);color:white;border-color:var(--accent);}
+.statut-bar-row{margin-bottom:10px;}
+.statut-bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.statut-bar-wrap{height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.statut-bar{height:100%;border-radius:99px;}
 .det-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border);}
 .det-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;text-align:center;}
 .det-tab.active{background:var(--bg);color:var(--text);}
@@ -268,9 +272,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="d-total">0</div><div class="stat-sub" id="d-principal">0 en principal</div></div>
         <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="d-compl-pct">0%</div><div class="stat-sub" id="d-compl-sub">0 cas</div></div>
-        <div class="stat-card"><div class="stat-label">Genou</div><div class="stat-val" id="d-genou">0</div></div>
-        <div class="stat-card"><div class="stat-label">Hanche</div><div class="stat-val" id="d-hanche">0</div></div>
-        <div class="stat-card" style="grid-column:1/-1;"><div class="stat-label">Traumatologie</div><div class="stat-val" id="d-trauma">0</div></div>
       </div>
       <div class="dash-tabs">
         <button class="dash-tab active" onclick="switchDashTab('recent',this)">Activité</button>
@@ -387,46 +388,98 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- STATS -->
     <div class="view" id="view-stats">
-      <div style="font-size:11px;color:var(--text3);margin-bottom:14px;text-align:right;" id="stats-count"></div>
-      <div class="stats-grid" style="margin-bottom:14px;">
-        <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="st-total">0</div><div class="stat-sub" id="st-principal"></div></div>
-        <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="st-compl">0%</div><div class="stat-sub" id="st-compl-sub"></div></div>
-        <div class="stat-card"><div class="stat-label">Durée moy. (trauma)</div><div class="stat-val" id="st-duree-trauma">—</div><div class="stat-sub">min</div></div>
-        <div class="stat-card"><div class="stat-label">Durée moy. (hanche)</div><div class="stat-val" id="st-duree-hanche">—</div><div class="stat-sub">min</div></div>
+      <!-- Onglets stats -->
+      <div class="dash-tabs" id="stats-tabs">
+        <button class="dash-tab active" onclick="switchStatsTab('activite',this)">Activité</button>
+        <button class="dash-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
+        <button class="dash-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
+        <button class="dash-tab" onclick="switchStatsTab('top',this)">Top</button>
       </div>
-      <div class="stat-section">
-        <div class="stat-section-title">Activité mensuelle</div>
-        <div class="period-tabs">
-          <button class="period-tab active" onclick="setPeriod(6,this)">6 mois</button>
-          <button class="period-tab" onclick="setPeriod(12,this)">1 an</button>
-          <button class="period-tab" onclick="setPeriod(0,this)">Tout</button>
+
+      <!-- ① ACTIVITÉ -->
+      <div class="dash-panel active" id="sp-activite">
+        <div class="stats-grid" style="margin-bottom:14px;">
+          <div class="stat-card"><div class="stat-label">Ce mois</div><div class="stat-val" id="st-ce-mois">0</div><div class="stat-sub">blocs</div></div>
+          <div class="stat-card"><div class="stat-label">Moy. mensuelle</div><div class="stat-val" id="st-moy-mois">0</div><div class="stat-sub">sur 6 mois</div></div>
         </div>
-        <div style="position:relative;height:130px;"><canvas id="chart-activity"></canvas></div>
+        <div class="stat-section">
+          <div class="stat-section-title">Activité mensuelle — Ortho vs Trauma</div>
+          <div class="period-tabs" id="activity-period-tabs">
+            <button class="period-tab active" onclick="setActivityPeriod(6,this)">6 mois</button>
+            <button class="period-tab" onclick="setActivityPeriod(12,this)">1 an</button>
+            <button class="period-tab" onclick="setActivityPeriod(0,this)">Tout</button>
+          </div>
+          <div style="position:relative;height:140px;"><canvas id="chart-activity"></canvas></div>
+          <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--blue);display:inline-block;"></span>Orthopédie</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Traumatologie</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+          <div class="stat-section" style="margin-bottom:0;">
+            <div class="stat-section-title">Rôle</div>
+            <div style="position:relative;height:110px;"><canvas id="chart-role"></canvas></div>
+            <div style="display:flex;gap:6px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="role-legend"></div>
+          </div>
+          <div class="stat-section" style="margin-bottom:0;">
+            <div class="stat-section-title">Spécialités</div>
+            <div style="position:relative;height:110px;"><canvas id="chart-spec"></canvas></div>
+            <div style="display:flex;gap:6px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="spec-legend"></div>
+          </div>
+        </div>
       </div>
-      <div class="stat-section">
-        <div class="stat-section-title">Courbe d'apprentissage — durée opératoire</div>
-        <div class="period-tabs" id="learning-tabs">
-          <button class="period-tab active" onclick="setLearning('PTH',this)">PTH</button>
-          <button class="period-tab" onclick="setLearning('PTG',this)">PTG</button>
-          <button class="period-tab" onclick="setLearning('LCA',this)">LCA</button>
+
+      <!-- ② ORTHOPÉDIE -->
+      <div class="dash-panel" id="sp-ortho">
+        <div class="stat-section">
+          <div class="stat-section-title">Durée opératoire</div>
+          <div class="period-tabs" id="learning-tabs">
+            <button class="period-tab active" onclick="setLearning('PTH',this)">PTH</button>
+            <button class="period-tab" onclick="setLearning('PTG',this)">PTG</button>
+            <button class="period-tab" onclick="setLearning('LCA',this)">LCA</button>
+            <button class="period-tab" onclick="setLearning('Ménisque',this)">Ménisque</button>
+            <button class="period-tab" onclick="setLearning('Autre',this)">Autre</button>
+          </div>
+          <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="learning-trend"></div>
         </div>
-        <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="learning-trend"></div>
+        <div class="stat-section">
+          <div class="stat-section-title">Résultats patients — Orthopédie</div>
+          <div id="ortho-statuts"></div>
+        </div>
+        <div class="stat-section">
+          <div class="stat-section-title">Complications par intervention — Orthopédie</div>
+          <div id="compl-by-interv-ortho"></div>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-        <div class="stat-section" style="margin-bottom:0;">
-          <div class="stat-section-title">Rôle</div>
-          <div style="position:relative;height:100px;"><canvas id="chart-role"></canvas></div>
-          <div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="role-legend"></div>
+
+      <!-- ③ TRAUMATOLOGIE -->
+      <div class="dash-panel" id="sp-trauma">
+        <div class="stat-section">
+          <div class="stat-section-title">Résultats patients — Traumatologie</div>
+          <div id="trauma-statuts"></div>
         </div>
-        <div class="stat-section" style="margin-bottom:0;">
-          <div class="stat-section-title">Complications</div>
-          <div style="position:relative;height:100px;"><canvas id="chart-compl"></canvas></div>
-          <div style="display:flex;gap:8px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="compl-legend"></div>
+        <div class="stat-section">
+          <div class="stat-section-title">Complications par intervention — Traumatologie</div>
+          <div id="compl-by-interv-trauma"></div>
+        </div>
+        <div class="stat-section">
+          <div class="stat-section-title">Top chirurgiens aidés</div>
+          <div id="top-chirurgiens"></div>
         </div>
       </div>
-      <div class="stat-section"><div class="stat-section-title">Top interventions</div><div id="top-interventions"></div></div>
-      <div class="stat-section"><div class="stat-section-title">Taux de complication par intervention</div><div id="compl-by-interv"></div></div>
+
+      <!-- ④ TOP INTERVENTIONS -->
+      <div class="dash-panel" id="sp-top">
+        <div class="period-tabs" id="top-filter-tabs" style="margin-bottom:14px;">
+          <button class="period-tab active" onclick="setTopFilter('all',this)">Tout</button>
+          <button class="period-tab" onclick="setTopFilter('ortho',this)">Orthopédie</button>
+          <button class="period-tab" onclick="setTopFilter('trauma',this)">Traumatologie</button>
+        </div>
+        <div class="stat-section">
+          <div id="top-interventions"></div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -637,8 +690,7 @@ const CC={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amb
 let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
-let statPeriod=6,statLearning='PTH';
-let chartActivity=null,chartLearning=null,chartRole=null,chartCompl=null;
+let chartActivity=null,chartLearning=null,chartRole=null,chartSpec=null;
 let detailBlocIdx=-1,curDetTab='info';
 
 // ── PERSISTENCE ──
@@ -686,9 +738,6 @@ function renderDash(){
   document.getElementById('d-principal').textContent=principal+' en principal';
   document.getElementById('d-compl-pct').textContent=cPct+'%';
   document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
-  document.getElementById('d-genou').textContent=genou;
-  document.getElementById('d-hanche').textContent=hanche;
-  document.getElementById('d-trauma').textContent=trauma;
   const maxS=Math.max(genou,hanche,trauma,1);
   document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>`<div class="spec-item"><div class="spec-label-row"><span>${s.n}</span><span style="font-weight:600;">${s.v}</span></div><div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_COLORS[s.n]};"></div></div></div>`).join('');
   renderPlanning();
@@ -880,18 +929,21 @@ function openConsultModal(bi){
   document.getElementById('cslt-comment').value='';
   openModal('consult-modal');
 }
+function syncBlocStatutFromConsults(bi){
+  const sorted=(blocs[bi].consultations||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(sorted.length>0&&sorted[sorted.length-1].statut){blocs[bi].statut=sorted[sorted.length-1].statut;}
+}
 function saveConsult(){
   const bi=consultCtx.bi;
   if(!blocs[bi].consultations)blocs[bi].consultations=[];
   blocs[bi].consultations.push({date:document.getElementById('cslt-date').value,statut:document.getElementById('cslt-statut').value,comment:document.getElementById('cslt-comment').value});
-  // Mettre à jour statut global selon la dernière consultation
-  const sorted=(blocs[bi].consultations||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  if(sorted.length>0){const last=sorted[sorted.length-1];if(last.statut&&last.statut!=='gris')blocs[bi].statut=last.statut;}
+  syncBlocStatutFromConsults(bi);
   saveLocal();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();showToast('Consultation enregistrée');
 }
 function deleteConsult(bi,idx){
   if(!confirm('Supprimer cette consultation ?'))return;
   blocs[bi].consultations.splice(idx,1);
+  syncBlocStatutFromConsults(bi);
   saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Consultation supprimée');
 }
 function deleteCompl(bi,idx){
@@ -1205,59 +1257,63 @@ function saveBloc(){
 }
 
 // ── STATS ──
-function setPeriod(n,btn){
-  statPeriod=n;
-  document.querySelectorAll('.period-tab').forEach(b=>{if(b.parentElement.id!=='learning-tabs')b.classList.remove('active');});
+// ── STATS — onglets ──
+let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='activite';
+
+function switchStatsTab(tab,btn){
+  curStatsTab=tab;
+  document.querySelectorAll('#stats-tabs .dash-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sp-'+tab).classList.add('active');
+  if(tab==='activite'){renderActivityChart();renderRoleChart();renderSpecChart();}
+  else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
+  else if(tab==='trauma'){renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
+  else if(tab==='top'){renderTopInterventions();}
+}
+
+function renderStats(){
+  // KPIs activité
+  const now=new Date();
+  const thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  const ceMois=blocs.filter(b=>b.date&&getMonthKey(b.date)===thisMonthKey).length;
+  const months6=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months6.push(getMonthKey(d.toISOString()));}
+  const total6=months6.reduce((s,k)=>s+blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length,0);
+  const moy6=Math.round(total6/6*10)/10;
+  document.getElementById('st-ce-mois').textContent=ceMois;
+  document.getElementById('st-moy-mois').textContent=moy6;
+  // Render onglet actif
+  switchStatsTab(curStatsTab, document.querySelector('#stats-tabs .dash-tab.active'));
+}
+
+function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
+
+function setActivityPeriod(n,btn){
+  statPeriodActivity=n;
+  document.querySelectorAll('#activity-period-tabs .period-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');renderActivityChart();
 }
-function setLearning(type,btn){statLearning=type;document.querySelectorAll('#learning-tabs .period-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderLearningChart();}
-function renderStats(){
-  const total=blocs.length,principal=blocs.filter(b=>b.role==='Principal').length;
-  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push(c)));
-  const cPct=total>0?Math.round(allC.length/total*100):0;
-  const traumaB=blocs.filter(b=>b.spec==='Traumatologie'&&b.duree),hancheB=blocs.filter(b=>b.spec==='Hanche'&&b.duree);
-  const avgT=traumaB.length?Math.round(traumaB.reduce((a,b)=>a+b.duree,0)/traumaB.length):null;
-  const avgH=hancheB.length?Math.round(hancheB.reduce((a,b)=>a+b.duree,0)/hancheB.length):null;
-  document.getElementById('st-total').textContent=total;
-  document.getElementById('st-principal').textContent=principal+' en principal';
-  document.getElementById('st-compl').textContent=cPct+'%';
-  document.getElementById('st-compl-sub').textContent=allC.length+' cas';
-  document.getElementById('st-duree-trauma').textContent=avgT||'—';
-  document.getElementById('st-duree-hanche').textContent=avgH||'—';
-  document.getElementById('stats-count').textContent=total+' blocs au total';
-  renderActivityChart();renderLearningChart();renderRoleChart();renderComplChart();renderTopInterventions();renderComplByInterv();
-}
-function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
+// Alias pour compatibilité (ne devrait plus être appelé mais sécurité)
+function setPeriod(n,btn){setActivityPeriod(n,btn);}
+
 function renderActivityChart(){
-  const now=new Date();const months=statPeriod>0?statPeriod:24;
+  const now=new Date();const months=statPeriodActivity>0?statPeriodActivity:36;
   const labels=[],keys=[];
   for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labels.push(d.toLocaleDateString('fr-FR',{month:'short'}));keys.push(getMonthKey(d.toISOString()));}
-  const counts=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length);
+  const ortho=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&(b.spec==='Genou'||b.spec==='Hanche')).length);
+  const trauma=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&b.spec==='Traumatologie').length);
   if(chartActivity){chartActivity.destroy();}
-  chartActivity=new Chart(document.getElementById('chart-activity'),{
-    type:'bar',data:{labels,datasets:[{data:counts,backgroundColor:counts.map((_,i)=>i===counts.length-1?CC.accent:'#CFC0A0'),borderRadius:4,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:10},maxRotation:0}},y:{display:false,beginAtZero:true}}}
-  });
-}
-function renderLearningChart(){
-  const kw={PTH:['pth','hanche'],PTG:['ptg','genou'],LCA:['lca','ligamentoplastie']};
-  const keywords=kw[statLearning]||[];
-  const relevant=blocs.filter(b=>b.duree&&keywords.some(k=>((b.interv||'')+(b.tags||[]).join(' ')).toLowerCase().includes(k))).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  if(chartLearning){chartLearning.destroy();}
-  const el=document.getElementById('learning-trend');
-  if(relevant.length<2){
-    chartLearning=new Chart(document.getElementById('chart-learning'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-    if(el)el.textContent=relevant.length===0?'Aucun bloc '+statLearning+' avec durée renseignée':'Un seul bloc — pas de tendance';
-    return;
-  }
-  const data=relevant.map(b=>b.duree);const diff=data[data.length-1]-data[0];
-  if(el)el.textContent=`Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min sur la période':'↑ +'+diff+' min sur la période'}`;
   const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
-  chartLearning=new Chart(document.getElementById('chart-learning'),{
-    type:'line',data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{data,borderColor:CC.accent,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.accent,pointRadius:3,tension:0.3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}}}
+  chartActivity=new Chart(document.getElementById('chart-activity'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Orthopédie',data:ortho,backgroundColor:isDark?'rgba(74,159,208,0.8)':'rgba(42,100,150,0.75)',borderRadius:3,borderSkipped:false},
+      {label:'Traumatologie',data:trauma,backgroundColor:isDark?'rgba(208,138,48,0.8)':'rgba(176,106,16,0.75)',borderRadius:3,borderSkipped:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:CC.gray,font:{size:10},maxRotation:0}},y:{stacked:true,display:false,beginAtZero:true}}}
   });
 }
+
 function renderRoleChart(){
   const principal=blocs.filter(b=>b.role==='Principal').length,aide=blocs.length-principal;
   const pPct=blocs.length?Math.round(principal/blocs.length*100):0;
@@ -1265,32 +1321,147 @@ function renderRoleChart(){
   chartRole=new Chart(document.getElementById('chart-role'),{type:'doughnut',data:{labels:['Principal','Aide'],datasets:[{data:[principal,aide],backgroundColor:[CC.accent,CC.accent2],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
   document.getElementById('role-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent};display:inline-block;"></span>Principal ${pPct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent2};display:inline-block;"></span>Aide ${100-pPct}%</span>`;
 }
-function renderComplChart(){
-  const withC=blocs.filter(b=>(b.complications||[]).length>0).length,withoutC=blocs.length-withC;
-  if(chartCompl){chartCompl.destroy();}
-  chartCompl=new Chart(document.getElementById('chart-compl'),{type:'doughnut',data:{labels:['Complication','Sans'],datasets:[{data:[withC,withoutC],backgroundColor:[CC.red,'#CFC0A0'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
-  const pct=blocs.length?Math.round(withC/blocs.length*100):0;
-  document.getElementById('compl-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.red};display:inline-block;"></span>Complication ${pct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#CFC0A0;display:inline-block;"></span>Sans ${100-pct}%</span>`;
+
+function renderSpecChart(){
+  const genou=blocs.filter(b=>b.spec==='Genou').length;
+  const hanche=blocs.filter(b=>b.spec==='Hanche').length;
+  const trauma=blocs.filter(b=>b.spec==='Traumatologie').length;
+  const total=blocs.length||1;
+  if(chartSpec){chartSpec.destroy();}
+  chartSpec=new Chart(document.getElementById('chart-spec'),{
+    type:'doughnut',
+    data:{labels:['Genou','Hanche','Trauma'],datasets:[{data:[genou,hanche,trauma],backgroundColor:[CC.blue,CC.purple,CC.amber],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
+  });
+  const gPct=Math.round(genou/total*100),hPct=Math.round(hanche/total*100),tPct=Math.round(trauma/total*100);
+  document.getElementById('spec-legend').innerHTML=
+    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.blue};display:inline-block;"></span>Genou ${gPct}%</span>`+
+    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.purple};display:inline-block;"></span>Hanche ${hPct}%</span>`+
+    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.amber};display:inline-block;"></span>Trauma ${tPct}%</span>`;
 }
-function renderTopInterventions(){
-  const counts={};blocs.forEach(b=>{const k=b.interv||'—';counts[k]=(counts[k]||0)+1;});
-  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,6);const max=sorted.length?sorted[0][1]:1;
-  document.getElementById('top-interventions').innerHTML=sorted.map(([name,count])=>{
-    const isH=name.toLowerCase().includes('pth')||name.toLowerCase().includes('hanche');
-    const isG=name.toLowerCase().includes('ptg')||name.toLowerCase().includes('lca')||name.toLowerCase().includes('genou');
-    const color=isH?CC.purple:isG?CC.blue:CC.accent;
-    return`<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;">${name}</span><span style="font-weight:600;">${count}</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.round(count/max*100)}%;background:${color};border-radius:99px;"></div></div></div>`;
+
+function setLearning(type,btn){
+  statLearning=type;
+  document.querySelectorAll('#learning-tabs .period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderLearningChart();
+}
+
+function renderLearningChart(){
+  // Filtre par spec (Genou ou Hanche) + mots-clés dans interv
+  const LEARNING_FILTERS={
+    PTH:{spec:'Hanche',kw:['pth','voie postérieure','voie antérolatérale','révision']},
+    PTG:{spec:'Genou',kw:['ptg','prothèse totale genou','révision']},
+    LCA:{spec:'Genou',kw:['lca','ligamentoplastie','didt','kj','dt3']},
+    Ménisque:{spec:'Genou',kw:['ménisque','méniscectomie','suture méniscale']},
+    Autre:{spec:null,kw:['unicompartimentale','otv','vissage']}
+  };
+  const f=LEARNING_FILTERS[statLearning]||{spec:null,kw:[]};
+  const relevant=blocs.filter(b=>{
+    if(!b.duree)return false;
+    if(f.spec&&b.spec!==f.spec)return false;
+    const txt=(b.interv||'').toLowerCase();
+    if(f.kw.length&&!f.kw.some(k=>txt.includes(k)))return false;
+    return true;
+  }).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(chartLearning){chartLearning.destroy();}
+  const el=document.getElementById('learning-trend');
+  if(relevant.length<2){
+    chartLearning=new Chart(document.getElementById('chart-learning'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    if(el)el.textContent=relevant.length===0?'Aucun bloc '+statLearning+' avec durée renseignée':'Un seul bloc enregistré — tendance indisponible';
+    return;
+  }
+  const data=relevant.map(b=>b.duree);const diff=data[data.length-1]-data[0];
+  const avg=Math.round(data.reduce((a,v)=>a+v,0)/data.length);
+  if(el)el.textContent=`${relevant.length} blocs · Moy. ${avg} min · Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min':'↑ +'+diff+' min'}`;
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  chartLearning=new Chart(document.getElementById('chart-learning'),{
+    type:'line',data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{data,borderColor:CC.accent,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.accent,pointRadius:3,tension:0.3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}}}
+  });
+}
+
+function renderStatuts(filter){
+  // filter = 'ortho' | 'trauma'
+  const elId=filter==='ortho'?'ortho-statuts':'trauma-statuts';
+  const el=document.getElementById(elId);
+  const subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
+  const total=subset.length;
+  if(!total){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc enregistré</div>';return;}
+  const STATUTS=[
+    {key:'vert',label:'Bon résultat',color:CC.green},
+    {key:'orange',label:'Vigilance',color:CC.amber},
+    {key:'rouge',label:'Complication',color:CC.red},
+    {key:'gris',label:'En attente',color:CC.gray},
+    {key:'pdv',label:'Perdu de vue',color:'#6B7A8D'},
+    {key:'deces',label:'Décès',color:'#4A4A48'}
+  ];
+  el.innerHTML=STATUTS.map(s=>{
+    const n=subset.filter(b=>(b.statut||'gris')===s.key).length;
+    if(!n)return'';
+    const pct=Math.round(n/total*100);
+    return`<div class="statut-bar-row"><div class="statut-bar-label"><span style="color:${s.color};font-weight:500;">${s.label}</span><span style="color:var(--text2);">${n} <span style="color:var(--text3);font-weight:400;">(${pct}%)</span></span></div><div class="statut-bar-wrap"><div class="statut-bar" style="width:${pct}%;background:${s.color};"></div></div></div>`;
   }).join('');
 }
-function renderComplByInterv(){
-  const data={};blocs.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0};data[k].total++;if((b.complications||[]).length>0)data[k].compl++;});
+
+function renderComplByIntervFiltered(filter){
+  const elId=filter==='ortho'?'compl-by-interv-ortho':'compl-by-interv-trauma';
+  const el=document.getElementById(elId);
+  const subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
+  const data={};
+  subset.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0};data[k].total++;if((b.complications||[]).length>0)data[k].compl++;});
   const withCompl=Object.entries(data).filter(([,v])=>v.compl>0).sort((a,b)=>b[1].compl/b[1].total-a[1].compl/a[1].total);
-  const el=document.getElementById('compl-by-interv');
   if(!withCompl.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';return;}
   el.innerHTML=withCompl.map(([name,v])=>{
     const pct=Math.round(v.compl/v.total*100);
     const color=pct>=50?CC.red:pct>=25?CC.amber:CC.green;
     return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span><span style="font-weight:600;color:${color};">${pct}% (${v.compl}/${v.total})</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div></div></div>`;
+  }).join('');
+}
+
+function renderTopChirurgiens(){
+  const el=document.getElementById('top-chirurgiens');
+  const traumaAide=blocs.filter(b=>b.spec==='Traumatologie'&&b.role==='Aide'&&b.operateur&&b.operateur.trim()!=='');
+  if(!traumaAide.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc trauma en tant qu\'aide enregistré</div>';return;}
+  const counts={};traumaAide.forEach(b=>{const k=b.operateur.trim();counts[k]=(counts[k]||0)+1;});
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];
+  el.innerHTML=sorted.map(([name,count],i)=>{
+    return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;font-weight:${i===0?'600':'400'};">${name}</span><span style="font-weight:600;">${count} bloc${count>1?'s':''}</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.round(count/max*100)}%;background:${CC.amber};border-radius:99px;"></div></div></div>`;
+  }).join('');
+}
+
+function setTopFilter(filter,btn){
+  statTopFilter=filter;
+  document.querySelectorAll('#top-filter-tabs .period-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderTopInterventions();
+}
+
+function renderTopInterventions(){
+  const subset=statTopFilter==='ortho'?blocs.filter(b=>b.spec==='Genou'||b.spec==='Hanche'):
+                statTopFilter==='trauma'?blocs.filter(b=>b.spec==='Traumatologie'):blocs;
+  const counts={};
+  subset.forEach(b=>{
+    const k=b.interv||'—';
+    if(!counts[k])counts[k]={total:0,principal:0,aide:0,spec:b.spec};
+    counts[k].total++;
+    if(b.role==='Principal')counts[k].principal++;else counts[k].aide++;
+  });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1].total-a[1].total);
+  const max=sorted.length?sorted[0][1].total:1;
+  const el=document.getElementById('top-interventions');
+  if(!sorted.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
+  el.innerHTML=sorted.map(([name,v])=>{
+    const isH=v.spec==='Hanche';const isG=v.spec==='Genou';
+    const color=isH?CC.purple:isG?CC.blue:CC.amber;
+    return`<div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span>
+        <span style="font-weight:600;">${v.total}</span>
+      </div>
+      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:4px;">
+        <div style="height:100%;width:${Math.round(v.total/max*100)}%;background:${color};border-radius:99px;"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);">Principal: ${v.principal} · Aide: ${v.aide}</div>
+    </div>`;
   }).join('');
 }
 
