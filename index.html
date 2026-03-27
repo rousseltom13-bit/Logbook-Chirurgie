@@ -737,7 +737,7 @@ function renderBlocs(){
     const rc=b.role==='Principal'?'bp':'ba';
     const{dc,tc,sl}=statusClasses(b.statut);
     const nc=(b.complications||[]).length;
-    const nr=b.radios?Object.values(b.radios).reduce((a,r)=>a+r.length,0):0;
+    const nr=b.radioCount?Object.values(b.radioCount).reduce((a,r)=>a+r,0):0;
     const ncs=(b.consultations||[]).length;
     let pTxt=b.patient||'—';
     if(searchRaw&&pTxt.toLowerCase().includes(searchRaw)){const idx=pTxt.toLowerCase().indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}
@@ -902,22 +902,150 @@ function deleteCompl(bi,idx){
 }
 
 // ── RADIOS (dans détail) ──
-function renderDetRadios(bi){
+// ── INDEXEDDB pour les radios ──
+let radioDB = null;
+function openRadioDB(){
+  return new Promise((resolve,reject)=>{
+    if(radioDB){resolve(radioDB);return;}
+    const req=indexedDB.open('orlog-radios',1);
+    req.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('radios')){
+        db.createObjectStore('radios',{keyPath:'key'});
+      }
+    };
+    req.onsuccess=e=>{radioDB=e.target.result;resolve(radioDB);};
+    req.onerror=e=>{reject(e);};
+  });
+}
+function radioKey(blocId,type,idx){return blocId+'__'+type+'__'+idx;}
+
+async function saveRadio(blocId,type,idx,data,name,date){
+  const db=await openRadioDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('radios','readwrite');
+    tx.objectStore('radios').put({key:radioKey(blocId,type,idx),blocId,type,idx,data,name,date});
+    tx.oncomplete=resolve;tx.onerror=reject;
+  });
+}
+async function deleteRadio(blocId,type,idx){
+  const db=await openRadioDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('radios','readwrite');
+    tx.objectStore('radios').delete(radioKey(blocId,type,idx));
+    tx.oncomplete=resolve;tx.onerror=reject;
+  });
+}
+async function getRadiosForBloc(blocId){
+  const db=await openRadioDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('radios','readonly');
+    const store=tx.objectStore('radios');
+    const results={};RT.forEach(t=>results[t]=[]);
+    const req=store.openCursor();
+    req.onsuccess=e=>{
+      const cursor=e.target.result;
+      if(cursor){
+        const r=cursor.value;
+        if(r.blocId===blocId){
+          if(!results[r.type])results[r.type]=[];
+          results[r.type][r.idx]=r;
+        }
+        cursor.continue();
+      } else {
+        // Nettoyer les trous dans les tableaux
+        RT.forEach(t=>{results[t]=(results[t]||[]).filter(Boolean);});
+        resolve(results);
+      }
+    };
+    req.onerror=reject;
+  });
+}
+async function reindexRadios(blocId,type,imgs){
+  // Après suppression, ré-indexer pour éviter les trous
+  const db=await openRadioDB();
+  const tx=db.transaction('radios','readwrite');
+  const store=tx.objectStore('radios');
+  // Supprimer tous les radios de ce type pour ce bloc
+  const req=store.openCursor();
+  const toDelete=[];
+  await new Promise(resolve=>{
+    req.onsuccess=e=>{
+      const cursor=e.target.result;
+      if(cursor){if(cursor.value.blocId===blocId&&cursor.value.type===type)toDelete.push(cursor.value.key);cursor.continue();}
+      else resolve();
+    };
+  });
+  for(const k of toDelete){store.delete(k);}
+  // Ré-insérer dans l'ordre
+  imgs.forEach((img,i)=>{store.put({key:radioKey(blocId,type,i),blocId,type,idx:i,data:img.data,name:img.name,date:img.date});});
+  return new Promise(resolve=>{tx.oncomplete=resolve;});
+}
+
+// Compteur de radios stocké dans le bloc (sans les données)
+function updateRadioCount(bi){
+  getRadiosForBloc(blocs[bi].id).then(radios=>{
+    blocs[bi].radioCount={};
+    RT.forEach(t=>{blocs[bi].radioCount[t]=(radios[t]||[]).length;});
+    saveLocal();
+    renderBlocs();
+  });
+}
+
+async function renderDetRadios(bi){
   const b=blocs[bi];const el=document.getElementById('det-radios');
-  let html=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=b.radios?.[t]?.length||0;return`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t}${n>0?' ('+n+')':''}</button>`;}).join('')}</div>`;
-  const imgs=b.radios?.[curRTab]||[];
+  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Chargement...</div>';
+  const radios=await getRadiosForBloc(b.id);
+  const counts={};RT.forEach(t=>counts[t]=(radios[t]||[]).length);
+  let html=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=counts[t];return`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t}${n>0?' ('+n+')':''}</button>`;}).join('')}</div>`;
+  const imgs=radios[curRTab]||[];
   html+='<div class="radio-grid">';
-  imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioFromDet(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
-  html+=`</div><label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUploadDet(event,${bi},'${curRTab}')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
+  imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
+  html+=`</div><label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUploadIDB(event,${bi},'${curRTab}')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
   el.innerHTML=html;
 }
 function switchDetRTab(t){curRTab=t;renderDetRadios(detailBlocIdx);}
-function delRadioFromDet(bi,type,idx){blocs[bi].radios[type].splice(idx,1);saveLocal();renderDetRadios(bi);}
-function handleUploadDet(e,bi,type){
-  const files=Array.from(e.target.files);if(!files.length)return;let done=0;
-  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{if(!blocs[bi].radios)blocs[bi].radios={};if(!blocs[bi].radios[type])blocs[bi].radios[type]=[];blocs[bi].radios[type].push({data:ev.target.result,name:f.name,date:new Date().toISOString().split('T')[0]});done++;if(done===files.length){saveLocal();renderDetRadios(bi);showToast(done+' image(s) ajoutée(s)');}};r.readAsDataURL(f);});
+async function delRadioIDB(bi,type,idx){
+  const b=blocs[bi];
+  const radios=await getRadiosForBloc(b.id);
+  radios[type].splice(idx,1);
+  await reindexRadios(b.id,type,radios[type]);
+  updateRadioCount(bi);
+  renderDetRadios(bi);
+  showToast('Radio supprimée');
 }
-function openLB(bi,type,idx){lbImgs=blocs[bi].radios[type];lbIdx=idx;const img=lbImgs[idx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+type+' · '+img.date;document.getElementById('lightbox').classList.add('show');}
+async function handleUploadIDB(e,bi,type){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  const b=blocs[bi];
+  const existing=await getRadiosForBloc(b.id);
+  let startIdx=(existing[type]||[]).length;
+  let done=0;
+  files.forEach(f=>{
+    const r=new FileReader();
+    r.onload=async ev=>{
+      const idx=startIdx+done;
+      await saveRadio(b.id,type,idx,ev.target.result,f.name,new Date().toISOString().split('T')[0]);
+      done++;
+      if(done===files.length){
+        updateRadioCount(bi);
+        renderDetRadios(bi);
+        showToast(done+' image(s) ajoutée(s)');
+      }
+    };
+    r.readAsDataURL(f);
+  });
+}
+async function openLBFromDB(bi,type,idx){
+  const b=blocs[bi];
+  const radios=await getRadiosForBloc(b.id);
+  lbImgs=radios[type]||[];lbIdx=idx;
+  const img=lbImgs[idx];
+  if(!img)return;
+  document.getElementById('lb-img').src=img.data;
+  document.getElementById('lb-info').textContent=img.name+' · '+type+' · '+img.date;
+  document.getElementById('lightbox').classList.add('show');
+}
+function openLB(bi,type,idx){openLBFromDB(bi,type,idx);}
 function closeLB(){document.getElementById('lightbox').classList.remove('show');}
 function lbNav(dir){lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbImgs[lbIdx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+img.date;}
 
@@ -1072,8 +1200,7 @@ function saveBloc(){
   const selVal=document.getElementById('f-interv').value;
   const iv=sp==='Traumatologie'||selVal.startsWith('Autre')?document.getElementById('f-interv-libre').value:selVal;
   if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
-  const radios={};RT.forEach(t=>radios[t]=[]);
-  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radios});
+  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{}});
   saveLocal();showToast('Bloc enregistré');sw('blocs');
 }
 
@@ -1505,6 +1632,7 @@ function importData(e){
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+openRadioDB().catch(e=>console.warn('IndexedDB non disponible:',e));
 loadLocal();buildStars();
 
 // ── WEBAUTHN / BIOMÉTRIE ──
