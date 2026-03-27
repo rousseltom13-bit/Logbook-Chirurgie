@@ -176,10 +176,33 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .consult-date{font-size:12px;font-weight:600;color:var(--text);}
 .consult-comment{font-size:13px;color:var(--text2);line-height:1.5;}
 .consult-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px;}
+#app{display:none;}
 </style>
 </head>
 <body>
-<div id="app">
+<!-- ÉCRAN DE VERROUILLAGE -->
+<div id="lockscreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;">
+  <svg width="60" height="60" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:24px;">
+    <rect width="34" height="34" rx="8" fill="var(--accent)"/>
+    <rect x="13.5" y="24" width="7" height="5" rx="2" fill="#c8906a"/>
+    <ellipse cx="17" cy="18" rx="8.5" ry="9" fill="#e0a878"/>
+    <path d="M8.5 17.5 Q8.5 9 17 8 Q25.5 9 25.5 17.5 Q23 15.5 17 15 Q11 15.5 8.5 17.5Z" fill="#2860B0"/>
+    <ellipse cx="13.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
+    <ellipse cx="20.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
+    <circle cx="13.8" cy="18.5" r="1" fill="#2a1000"/>
+    <circle cx="20.8" cy="18.5" r="1" fill="#2a1000"/>
+  </svg>
+  <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px;">OrLog</div>
+  <div style="font-size:14px;color:var(--text3);margin-bottom:40px;">Logbook chirurgical</div>
+  <button id="unlock-btn" onclick="unlockApp()" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:20px 40px;cursor:pointer;font-family:inherit;">
+    <span style="font-size:36px;" id="biometric-icon">🔒</span>
+    <span style="font-size:14px;font-weight:600;color:var(--text);" id="unlock-label">Déverrouiller</span>
+  </button>
+  <div style="font-size:12px;color:var(--text3);margin-top:16px;text-align:center;" id="lock-hint"></div>
+  <button onclick="setupBiometric()" style="margin-top:24px;background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;text-decoration:underline;" id="setup-bio-btn" style="display:none;">Configurer Touch ID / Face ID</button>
+</div>
+
+<div id="app" style="display:none;">
   <div class="topbar">
     <div class="topbar-logo">
       <svg class="logo-icon" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
@@ -1062,8 +1085,115 @@ function importData(e){
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-loadLocal();buildStars();renderAll();
-document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+loadLocal();buildStars();
+
+// ── WEBAUTHN / BIOMÉTRIE ──
+const LS_CRED = 'orlog_cred_id';
+const LS_BIO_SET = 'orlog_bio_setup';
+
+function isBiometricSupported(){
+  return window.PublicKeyCredential !== undefined && typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
+}
+
+function b64url(buffer){
+  return btoa(String.fromCharCode(...new Uint8Array(buffer))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function fromB64url(str){
+  str = str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4) str+='=';
+  return Uint8Array.from(atob(str), c=>c.charCodeAt(0)).buffer;
+}
+
+async function setupBiometric(){
+  if(!isBiometricSupported()){showToast('Biométrie non supportée sur cet appareil');return;}
+  try{
+    const supported = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if(!supported){showToast('Touch ID / Face ID non disponible');return;}
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const cred = await navigator.credentials.create({publicKey:{
+      challenge,
+      rp:{name:'OrLog',id:location.hostname},
+      user:{id:new TextEncoder().encode('orlog-user'),name:'orlog',displayName:'OrLog'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+      timeout:60000
+    }});
+    localStorage.setItem(LS_CRED, b64url(cred.rawId));
+    localStorage.setItem(LS_BIO_SET, '1');
+    showToast('Touch ID / Face ID configuré !');
+    updateLockscreen();
+    document.getElementById('setup-bio-btn').style.display='none';
+  }catch(e){
+    if(e.name==='NotAllowedError')showToast('Annulé');
+    else showToast('Erreur : '+e.message);
+  }
+}
+
+async function unlockApp(){
+  const bioSetup = localStorage.getItem(LS_BIO_SET);
+  const credId = localStorage.getItem(LS_CRED);
+
+  // Pas encore configuré — ouvrir directement et proposer de configurer
+  if(!bioSetup || !credId){
+    showApp();
+    return;
+  }
+
+  try{
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    await navigator.credentials.get({publicKey:{
+      challenge,
+      allowCredentials:[{type:'public-key',id:fromB64url(credId),transports:['internal']}],
+      userVerification:'required',
+      timeout:60000
+    }});
+    showApp();
+  }catch(e){
+    if(e.name==='NotAllowedError'){
+      document.getElementById('lock-hint').textContent='Authentification annulée. Réessaye.';
+    } else {
+      document.getElementById('lock-hint').textContent='Erreur — réessaye.';
+    }
+  }
+}
+
+function showApp(){
+  document.getElementById('lockscreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderAll();
+  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  // Proposer de configurer la biométrie si pas encore fait
+  if(!localStorage.getItem(LS_BIO_SET) && isBiometricSupported()){
+    setTimeout(()=>{
+      if(confirm('Activer Touch ID / Face ID pour protéger OrLog ?')){setupBiometric();}
+    }, 800);
+  }
+}
+
+function updateLockscreen(){
+  const bioSetup = localStorage.getItem(LS_BIO_SET);
+  const icon = document.getElementById('biometric-icon');
+  const label = document.getElementById('unlock-label');
+  const hint = document.getElementById('lock-hint');
+  const setupBtn = document.getElementById('setup-bio-btn');
+  const isMobile = /iPhone|iPad/.test(navigator.userAgent);
+  if(bioSetup){
+    icon.textContent = isMobile ? '👤' : '👆';
+    label.textContent = isMobile ? 'Déverrouiller avec Face ID' : 'Déverrouiller avec Touch ID';
+    hint.textContent = '';
+    if(setupBtn) setupBtn.style.display='none';
+  } else {
+    icon.textContent = '🔓';
+    label.textContent = 'Accéder à OrLog';
+    hint.textContent = 'Touch ID / Face ID non configuré';
+    if(setupBtn) setupBtn.style.display='block';
+  }
+}
+
+// Initialisation — montrer l'écran de verrou
+document.getElementById('lockscreen').style.display='flex';
+updateLockscreen();
 </script>
+</div>
 </body>
 </html>
