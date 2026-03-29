@@ -26,7 +26,7 @@
   color-scheme:light;
 }
 @media(prefers-color-scheme:dark){
-  :root{
+  :root:not(.theme-light){
     --bg:#1e1e1c;--bg2:#272725;--bg3:#2f2f2c;--bg4:#383835;
     --text:#ece8e1;--text2:#a09890;--text3:#6e6860;
     --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
@@ -38,6 +38,18 @@
     --purple:#A070E0;--purple-l:#1e1630;--purple-d:#C0A0F0;
     color-scheme:dark;
   }
+}
+:root.theme-dark{
+  --bg:#1e1e1c;--bg2:#272725;--bg3:#2f2f2c;--bg4:#383835;
+  --text:#ece8e1;--text2:#a09890;--text3:#6e6860;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --accent:#C87840;--accent-l:#3A2410;
+  --blue:#4A9FD0;--blue-l:#0e2a3a;--blue-d:#A0D4F0;
+  --green:#5AAA3A;--green-l:#0e2a0e;--green-d:#A0E080;
+  --amber:#D08A30;--amber-l:#2a1e04;--amber-d:#F0C070;
+  --red:#D05050;--red-l:#2a0e0e;--red-d:#F09090;
+  --purple:#A070E0;--purple-l:#1e1630;--purple-d:#C0A0F0;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;}
@@ -260,9 +272,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </svg>
       <div><div class="topbar-title">OrLog</div><div class="topbar-sub">Logbook chirurgical</div></div>
     </div>
-    <button class="sync-btn" onclick="showSettings()" style="background:var(--accent);color:white;border-color:var(--accent);">
-      ⇅ Sync
-    </button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="sync-btn" onclick="toggleTheme()" id="theme-btn" style="padding:6px 10px;font-size:16px;">☀️</button>
+      <button class="sync-btn" onclick="showSettings()" style="background:var(--accent);color:white;border-color:var(--accent);">
+        ⇅ Sync
+      </button>
+    </div>
   </div>
 
   <div class="views">
@@ -415,16 +430,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
             <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Traumatologie</span>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-          <div class="stat-section" style="margin-bottom:0;">
-            <div class="stat-section-title">Rôle</div>
+        <div class="stat-section">
+          <div class="stat-section-title">Rôle</div>
+          <div style="display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center;">
             <div style="position:relative;height:110px;"><canvas id="chart-role"></canvas></div>
-            <div style="display:flex;gap:6px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="role-legend"></div>
-          </div>
-          <div class="stat-section" style="margin-bottom:0;">
-            <div class="stat-section-title">Spécialités</div>
-            <div style="position:relative;height:110px;"><canvas id="chart-spec"></canvas></div>
-            <div style="display:flex;gap:6px;margin-top:8px;font-size:10px;color:var(--text2);flex-wrap:wrap;" id="spec-legend"></div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);" id="role-legend"></div>
           </div>
         </div>
       </div>
@@ -691,7 +701,7 @@ const CC={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amb
 let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
-let chartActivity=null,chartLearning=null,chartRole=null,chartSpec=null;
+let chartActivity=null,chartLearning=null,chartRole=null;
 let detailBlocIdx=-1,curDetTab='info';
 
 // ── PERSISTENCE ──
@@ -1267,7 +1277,7 @@ function switchStatsTab(tab,btn){
   btn.classList.add('active');
   document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+tab).classList.add('active');
-  if(tab==='activite'){renderActivityChart();renderRoleChart();renderSpecChart();}
+  if(tab==='activite'){renderActivityChart();renderRoleChart();}
   else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
   else if(tab==='trauma'){renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
   else if(tab==='top'){renderTopInterventions();}
@@ -1323,23 +1333,6 @@ function renderRoleChart(){
   document.getElementById('role-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent};display:inline-block;"></span>Principal ${pPct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent2};display:inline-block;"></span>Aide ${100-pPct}%</span>`;
 }
 
-function renderSpecChart(){
-  const genou=blocs.filter(b=>b.spec==='Genou').length;
-  const hanche=blocs.filter(b=>b.spec==='Hanche').length;
-  const trauma=blocs.filter(b=>b.spec==='Traumatologie').length;
-  const total=blocs.length||1;
-  if(chartSpec){chartSpec.destroy();}
-  chartSpec=new Chart(document.getElementById('chart-spec'),{
-    type:'doughnut',
-    data:{labels:['Genou','Hanche','Trauma'],datasets:[{data:[genou,hanche,trauma],backgroundColor:[CC.blue,CC.purple,CC.amber],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}
-  });
-  const gPct=Math.round(genou/total*100),hPct=Math.round(hanche/total*100),tPct=Math.round(trauma/total*100);
-  document.getElementById('spec-legend').innerHTML=
-    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.blue};display:inline-block;"></span>Genou ${gPct}%</span>`+
-    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.purple};display:inline-block;"></span>Hanche ${hPct}%</span>`+
-    `<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.amber};display:inline-block;"></span>Trauma ${tPct}%</span>`;
-}
 
 function setLearning(type,btn){
   statLearning=type;
@@ -1828,9 +1821,36 @@ function importData(e){
   reader.readAsText(file,'UTF-8');
 }
 
+// ── THEME MANUEL ──
+function toggleTheme(){
+  const root=document.documentElement;
+  const sysDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const forcedDark=root.classList.contains('theme-dark');
+  const forcedLight=root.classList.contains('theme-light');
+  // État actuel effectif
+  const currentlyDark=forcedDark||(sysDark&&!forcedLight);
+  root.classList.remove('theme-dark','theme-light');
+  if(currentlyDark){root.classList.add('theme-light');localStorage.setItem('orlog_theme','light');}
+  else{root.classList.add('theme-dark');localStorage.setItem('orlog_theme','dark');}
+  updateThemeBtn();
+}
+function updateThemeBtn(){
+  const root=document.documentElement;
+  const sysDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const currentlyDark=root.classList.contains('theme-dark')||(sysDark&&!root.classList.contains('theme-light'));
+  const btn=document.getElementById('theme-btn');
+  if(btn)btn.textContent=currentlyDark?'☀️':'🌙';
+}
+function initTheme(){
+  const saved=localStorage.getItem('orlog_theme');
+  if(saved==='dark')document.documentElement.classList.add('theme-dark');
+  else if(saved==='light')document.documentElement.classList.add('theme-light');
+  updateThemeBtn();
+}
+
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 openRadioDB().catch(e=>console.warn('IndexedDB non disponible:',e));
-loadLocal();buildStars();
+loadLocal();buildStars();initTheme();
 
 // ── WEBAUTHN / BIOMÉTRIE ──
 const LS_CRED = 'orlog_cred_id';
