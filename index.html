@@ -619,7 +619,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
     <div style="display:flex;gap:10px;margin-bottom:12px;">
       <button class="btn-primary" style="flex:1;margin-top:0;" onclick="exportData()">⬇ Exporter JSON</button>
-      <label style="flex:1;text-align:center;padding:14px 16px;font-size:15px;font-weight:600;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius-lg);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;">⬆ Importer & fusionner<input type="file" accept=".json" style="display:none;" onchange="importData(event)"></label>
+      <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
+      <button class="btn-secondary" style="flex:1;padding:14px 16px;font-size:15px;font-weight:600;border-radius:var(--radius-lg);" onclick="document.getElementById('import-file-input').click()">⬆ Importer & fusionner</button>
     </div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6;">L'import fusionne intelligemment — les blocs des deux appareils sont conservés, sans doublon.</div>
     <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
@@ -1780,7 +1781,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function exportData(){
   if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-  const payload={version:'orlog-v12',exported_at:new Date().toISOString(),blocs_count:blocs.length,blocs};
+  const payload={version:'orlog-v13',exported_at:new Date().toISOString(),blocs_count:blocs.length,planned_count:(planned||[]).length,blocs,planned:planned||[]};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='orlog_backup_'+ts+'.json';a.click();
   URL.revokeObjectURL(a.href);showToast(blocs.length+' blocs exportés');
@@ -1790,16 +1791,41 @@ function importData(e){
   const reader=new FileReader();
   reader.onload=ev=>{
     try{
-      const parsed=JSON.parse(ev.target.result);const imported=parsed.blocs||parsed;
-      if(!Array.isArray(imported))throw new Error('Format invalide');
-      if(!confirm('Importer '+imported.length+' blocs ? Les données actuelles ('+blocs.length+' blocs) seront remplacées.'))return;
-      blocs=imported;saveLocal();renderAll();
-      const st=document.getElementById('import-status');st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';st.textContent=imported.length+' blocs importés.';
-      setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},3000);
-    }catch(err){const st=document.getElementById('import-status');st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';st.textContent='Erreur : fichier JSON invalide.';}
+      const parsed=JSON.parse(ev.target.result);
+      const importedBlocs=parsed.blocs||parsed;
+      const importedPlanned=parsed.planned||[];
+      if(!Array.isArray(importedBlocs))throw new Error('Format invalide');
+      // Merge blocs par ID
+      const existing=new Map(blocs.map(b=>[b.id,b]));
+      let added=0,updated=0;
+      importedBlocs.forEach(b=>{
+        if(!b.id)return;
+        if(!existing.has(b.id)){existing.set(b.id,b);added++;}
+        else{// Garder le plus récent : comparer par date de modif ou nb consultations
+          const cur=existing.get(b.id);
+          const curC=(cur.consultations||[]).length,impC=(b.consultations||[]).length;
+          if(impC>curC||(impC===curC&&(b.statut||'')!==(cur.statut||''))){existing.set(b.id,b);updated++;}}
+      });
+      blocs=Array.from(existing.values()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+      // Merge planned par ID
+      if(importedPlanned.length>0){
+        const existingP=new Map((planned||[]).map(p=>[p.id,p]));
+        importedPlanned.forEach(p=>{if(p.id&&!existingP.has(p.id))existingP.set(p.id,p);});
+        planned=Array.from(existingP.values());
+      }
+      saveLocal();renderAll();
+      const st=document.getElementById('import-status');
+      st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
+      st.textContent=`Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total.`;
+      setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},4000);
+    }catch(err){
+      const st=document.getElementById('import-status');
+      st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';
+      st.textContent='Erreur : '+err.message;
+    }
     e.target.value='';
   };
-  reader.readAsText(file);
+  reader.readAsText(file,'UTF-8');
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
