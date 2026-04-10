@@ -712,10 +712,16 @@ function loadLocal(){
 function saveLocal(){
   try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}
   try{localStorage.setItem('orlog_planned',JSON.stringify(planned));}catch(e){}
+  // Résumé léger pour SurgeonOS (lecture cross-tab, même domaine)
+  try{
+    const summary=planned.map(p=>({date:p.date,interv:p.interv||'',spec:p.spec||'',patient:p.patient||'',side:p.side||'',comment:p.comment||'',done:false}))
+      .concat(blocs.filter(b=>b.date).map(b=>({date:b.date,interv:b.interv||'',spec:b.spec||'',patient:b.patient||'',side:b.side||'',comment:'',done:true,statut:b.statut||'gris'})));
+    localStorage.setItem('orlog_blocs_summary',JSON.stringify(summary));
+  }catch(e){}
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v12';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v13';
   openModal('settings-modal');
 }
 
@@ -1464,11 +1470,12 @@ let calCurrentMonth = new Date();
 let dayModalDate = null;
 let plannedEditIdx = null;
 
-function todayStr(){return new Date().toISOString().split('T')[0];}
-function dateStr(d){return d.toISOString().split('T')[0];}
+function todayStr(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function diffDays(dateStr){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  const today=new Date();today.setHours(0,0,0,0);
+  const[_y,_m,_d]=dateStr.split('-').map(Number);
+  const target=new Date(_y,_m-1,_d);target.setHours(0,0,0,0);
   return Math.round((target-today)/(1000*60*60*24));
 }
 function countdown(ds){
@@ -1643,7 +1650,8 @@ function renderCalMonth(){
 // ── MODAL JOUR ──
 function openDayModal(ds){
   dayModalDate=ds;
-  const d=new Date(ds);
+  const[_y,_m,_d]=ds.split('-').map(Number);
+  const d=new Date(_y,_m-1,_d);
   document.getElementById('day-modal-title').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   renderDayBlocs(ds);
   openModal('day-modal');
