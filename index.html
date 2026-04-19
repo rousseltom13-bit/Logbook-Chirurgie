@@ -1874,19 +1874,26 @@ async function exportData(){
   const json=JSON.stringify(payload,null,2);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
   const blob=new Blob([json],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  // iOS PWA : window.open ouvre dans Safari sans quitter la PWA
-  // Sur desktop : fallback sur le lien de téléchargement classique
+  const filename='orlog_backup_'+ts+'.json';
   const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
-  if(isIOS){
-    window.open(url,'_blank');
-    setTimeout(()=>URL.revokeObjectURL(url),30000);
-  } else {
-    const a=document.createElement('a');
-    a.href=url;a.download='orlog_backup_'+ts+'.json';
-    a.style.display='none';document.body.appendChild(a);a.click();
-    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
+  if(isIOS&&navigator.share&&navigator.canShare){
+    const file=new File([blob],filename,{type:'application/json'});
+    if(navigator.canShare({files:[file]})){
+      try{
+        await navigator.share({files:[file],title:'OrLog Backup',text:'Export OrLog — '+blocs.length+' blocs'});
+        showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
+      }catch(e){
+        if(e.name!=='AbortError')showToast('Erreur partage : '+e.message);
+      }
+      return;
+    }
   }
+  // Fallback desktop
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;
+  a.style.display='none';document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
   showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
 }
 function importData(e){
