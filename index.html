@@ -1874,8 +1874,19 @@ async function exportData(){
   const json=JSON.stringify(payload,null,2);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
   const blob=new Blob([json],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='orlog_backup_'+ts+'.json';a.click();
-  URL.revokeObjectURL(a.href);
+  const url=URL.createObjectURL(blob);
+  // iOS PWA : window.open ouvre dans Safari sans quitter la PWA
+  // Sur desktop : fallback sur le lien de téléchargement classique
+  const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
+  if(isIOS){
+    window.open(url,'_blank');
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+  } else {
+    const a=document.createElement('a');
+    a.href=url;a.download='orlog_backup_'+ts+'.json';
+    a.style.display='none';document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
+  }
   showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
 }
 function importData(e){
