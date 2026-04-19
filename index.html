@@ -654,6 +654,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   </div>
 </div>
 
+<!-- MODAL EXPORT iOS -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('export-modal')">×</button>
+    <div class="modal-title">Exporter les données</div>
+    <div id="export-modal-info" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></div>
+    <button class="btn-primary" style="margin-bottom:10px;" onclick="copyExportData()">📋 Copier le JSON</button>
+    <div id="export-copy-status" style="display:none;padding:8px 12px;border-radius:var(--radius);font-size:12px;margin-bottom:10px;"></div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:12px;">
+      Colle le contenu dans <strong>Notes</strong> ou <strong>Mail</strong>, puis sauvegarde ou envoie-le vers ton Mac.
+    </div>
+    <div style="position:relative;">
+      <textarea id="export-json-area" readonly style="width:100%;height:120px;font-size:10px;font-family:monospace;padding:8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text3);resize:none;"></textarea>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITION -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal">
@@ -1831,10 +1849,10 @@ function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},o
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+let _exportPayloadJson=null;
 async function exportData(){
   if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
   showToast('Export en cours…');
-  // Récupérer toutes les radios depuis IndexedDB
   let allRadios=[];
   try{
     const db=await openRadioDB();
@@ -1845,7 +1863,6 @@ async function exportData(){
       req.onerror=reject;
     });
   }catch(e){console.warn('Radios non exportées:',e);}
-  // Convertir les blobs en base64
   const radiosB64=await Promise.all(allRadios.map(async r=>{
     let dataB64=null;
     try{
@@ -1873,28 +1890,40 @@ async function exportData(){
   };
   const json=JSON.stringify(payload,null,2);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
-  const blob=new Blob([json],{type:'application/json'});
-  const filename='orlog_backup_'+ts+'.json';
+  const nRadios=radiosB64.filter(r=>r.data).length;
   const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
-  if(isIOS&&navigator.share&&navigator.canShare){
-    const file=new File([blob],filename,{type:'application/json'});
-    if(navigator.canShare({files:[file]})){
-      try{
-        await navigator.share({files:[file],title:'OrLog Backup',text:'Export OrLog — '+blocs.length+' blocs'});
-        showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
-      }catch(e){
-        if(e.name!=='AbortError')showToast('Erreur partage : '+e.message);
-      }
-      return;
-    }
+  if(isIOS){
+    _exportPayloadJson=json;
+    document.getElementById('export-modal-info').textContent=blocs.length+' blocs · '+nRadios+' radio(s) · '+sizeMb+' Mo';
+    document.getElementById('export-json-area').value=json.substring(0,500)+'…';
+    document.getElementById('export-copy-status').style.display='none';
+    closeModal('settings-modal');
+    openModal('export-modal');
+  } else {
+    const blob=new Blob([json],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='orlog_backup_'+ts+'.json';
+    a.style.display='none';document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
+    showToast('Export OK — '+blocs.length+' blocs, '+nRadios+' radios ('+sizeMb+' Mo)');
   }
-  // Fallback desktop
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;
-  a.style.display='none';document.body.appendChild(a);a.click();
-  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
-  showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
+}
+async function copyExportData(){
+  if(!_exportPayloadJson){showToast('Aucune donnée à copier');return;}
+  try{
+    await navigator.clipboard.writeText(_exportPayloadJson);
+    const st=document.getElementById('export-copy-status');
+    st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
+    st.textContent='✓ Copié — colle dans Notes ou Mail pour sauvegarder';
+  }catch(e){
+    const area=document.getElementById('export-json-area');
+    area.value=_exportPayloadJson;
+    area.select();
+    const st=document.getElementById('export-copy-status');
+    st.style.display='block';st.style.background='var(--amber-l)';st.style.color='var(--amber-d)';
+    st.textContent='Sélectionne tout le texte ci-dessous et copie manuellement';
+  }
 }
 function importData(e){
   const file=e.target.files[0];if(!file)return;
