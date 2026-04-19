@@ -111,7 +111,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .chip-btn.red{background:var(--red-l);color:var(--red-d);}
 .form-group{margin-bottom:14px;}
 .form-group label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;font-size:15px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;font-size:16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);}
 .form-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -123,13 +123,15 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .tag-wrap{display:flex;flex-wrap:wrap;gap:5px;padding:8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);cursor:text;min-height:44px;}
 .tag{background:var(--blue-l);color:var(--blue-d);padding:3px 8px;border-radius:99px;font-size:12px;display:flex;align-items:center;gap:5px;}
 .tag-rm{cursor:pointer;opacity:0.6;font-size:14px;}
-.tag-field{border:none;outline:none;background:transparent;font-size:15px;color:var(--text);min-width:80px;flex:1;font-family:inherit;}
+.tag-field{border:none;outline:none;background:transparent;font-size:16px;color:var(--text);min-width:80px;flex:1;font-family:inherit;}
 .btn-primary{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--accent);color:white;border:none;border-radius:var(--radius-lg);cursor:pointer;font-family:inherit;margin-top:8px;}
 .btn-primary:active{opacity:0.85;}
 .btn-secondary{padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;}
-.bloc-item{display:flex;flex-direction:column;gap:5px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s;}
+.bloc-item{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s;background:var(--bg);}
 .bloc-item:last-child{border-bottom:none;}
 .bloc-item:active{background:var(--bg2);}
+.bloc-month-header{padding:10px 14px 6px;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.bloc-month-section{background:var(--bg);border-radius:var(--radius-lg);border:0.5px solid var(--border);overflow:hidden;margin-bottom:10px;}
 .bloc-date{font-size:11px;color:var(--text3);}
 .bloc-meta{font-size:12px;color:var(--text2);}
 .compl-overview{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
@@ -322,27 +324,38 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- MES BLOCS -->
     <div class="view" id="view-blocs">
+      <!-- Recherche -->
       <div style="position:relative;margin-bottom:10px;">
-        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, implant, tag..." oninput="renderBlocs()"
-          style="width:100%;padding:11px 36px 11px 12px;font-size:14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;">
+        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()"
+          style="width:100%;padding:10px 36px 10px 14px;font-size:16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;">
         <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);">×</span>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;" id="bloc-filters">
+      <!-- Filtres spécialité -->
+      <div style="display:flex;gap:5px;margin-bottom:5px;" id="bloc-filters">
         <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
         <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
         <button class="rtab" onclick="filterB(this,'Hanche')">Hanche</button>
         <button class="rtab" onclick="filterB(this,'Traumatologie')">Trauma</button>
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;" id="role-filters">
+      <!-- Filtres rôle -->
+      <div style="display:flex;gap:5px;margin-bottom:10px;" id="role-filters">
         <button class="rtab active" onclick="filterRole(this,'all')">Tous rôles</button>
         <button class="rtab" onclick="filterRole(this,'Principal')">Principal</button>
         <button class="rtab" onclick="filterRole(this,'Aide')">Aide</button>
+        <!-- Bouton tags collapse -->
+        <button id="tags-toggle-btn" onclick="toggleTagsPanel()" style="margin-left:auto;padding:4px 10px;font-size:11px;border-radius:99px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">
+          <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon">▾</span>
+        </button>
       </div>
-      <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;"></div>
+      <!-- Panel tags collapsible -->
+      <div id="tags-panel" style="display:none;margin-bottom:10px;">
+        <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;padding:10px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border);"></div>
+      </div>
+      <!-- Compteur résultats -->
       <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="search-count"></div>
-      <div class="section"><div id="bloc-list"></div></div>
+      <!-- Liste blocs -->
+      <div id="bloc-list"></div>
     </div>
-
     <!-- DETAIL BLOC -->
     <div class="view" id="view-detail">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
@@ -712,16 +725,10 @@ function loadLocal(){
 function saveLocal(){
   try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}
   try{localStorage.setItem('orlog_planned',JSON.stringify(planned));}catch(e){}
-  // Résumé léger pour SurgeonOS (lecture cross-tab, même domaine)
-  try{
-    const summary=planned.map(p=>({date:p.date,interv:p.interv||'',spec:p.spec||'',patient:p.patient||'',side:p.side||'',comment:p.comment||'',done:false}))
-      .concat(blocs.filter(b=>b.date).map(b=>({date:b.date,interv:b.interv||'',spec:b.spec||'',patient:b.patient||'',side:b.side||'',comment:'',done:true,statut:b.statut||'gris'})));
-    localStorage.setItem('orlog_blocs_summary',JSON.stringify(summary));
-  }catch(e){}
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v13';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v12';
   openModal('settings-modal');
 }
 
@@ -779,17 +786,44 @@ function filterB(btn,spec){document.querySelectorAll('#bloc-filters .rtab').forE
 function filterRole(btn,role){document.querySelectorAll('#role-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRoleFilter=role;renderBlocs();}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
 function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
+let tagsOpen=false;
+function toggleTagsPanel(){
+  tagsOpen=!tagsOpen;
+  document.getElementById('tags-panel').style.display=tagsOpen?'block':'none';
+  document.getElementById('tags-toggle-icon').textContent=tagsOpen?'▴':'▾';
+  renderTagFilters();
+}
+function normalizeTag(t){return t.trim().charAt(0).toUpperCase()+t.trim().slice(1).toLowerCase();}
 function renderTagFilters(){
-  const allTags=new Set();blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(t)));
-  const el=document.getElementById('tag-filters');if(!allTags.size){el.innerHTML='';return;}
-  el.innerHTML=Array.from(allTags).sort().map(t=>{const active=activeTagFilters.has(t);return`<button onclick="toggleTagFilter('${t}')" style="padding:4px 10px;font-size:11px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'none'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;}).join('');
+  const allTags=new Set();
+  blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(normalizeTag(t))));
+  const btn=document.getElementById('tags-toggle-btn');
+  const lbl=document.getElementById('tags-toggle-label');
+  if(activeTagFilters.size>0&&btn){btn.style.background='var(--accent)';btn.style.color='white';btn.style.borderColor='var(--accent)';if(lbl)lbl.textContent='Tags ('+activeTagFilters.size+')';}
+  else if(btn){btn.style.background='none';btn.style.color='var(--text3)';btn.style.borderColor='var(--border2)';if(lbl)lbl.textContent='Tags';}
+  const el=document.getElementById('tag-filters');if(!el)return;
+  if(!allTags.size){el.innerHTML='<span style="font-size:12px;color:var(--text3);">Aucun tag enregistré</span>';return;}
+  el.innerHTML=Array.from(allTags).sort().map(t=>{
+    const active=activeTagFilters.has(t)||activeTagFilters.has(t.toLowerCase())||activeTagFilters.has(t.toUpperCase());
+    return`<button onclick="toggleTagFilter('${t}')" style="padding:5px 11px;font-size:12px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'var(--bg)'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;
+  }).join('');
+}
+function toggleTagFilter(tag){
+  // Normaliser — supprimer toutes les variantes de casse du même tag
+  const norm=normalizeTag(tag);
+  const toRemove=[...activeTagFilters].filter(t=>normalizeTag(t)===norm);
+  if(toRemove.length>0){toRemove.forEach(t=>activeTagFilters.delete(t));}
+  else{activeTagFilters.add(norm);}
+  // Ouvrir le panel si on active un tag
+  if(activeTagFilters.size>0&&!tagsOpen){tagsOpen=true;document.getElementById('tags-panel').style.display='block';document.getElementById('tags-toggle-icon').textContent='▴';}
+  renderTagFilters();renderBlocs();
 }
 function renderBlocs(){
   const searchRaw=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
   const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'block':'none';
   let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
-  if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(t)));
+  if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
   if(searchRaw)filtered=filtered.filter(b=>[b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[])].join(' ').toLowerCase().includes(searchRaw));
   const el=document.getElementById('bloc-list');
   renderTagFilters();
@@ -797,37 +831,53 @@ function renderBlocs(){
   if(countEl)countEl.textContent=(searchRaw||activeTagFilters.size>0)?filtered.length+' résultat'+(filtered.length>1?'s':'')+' sur '+blocs.length+' blocs':'';
   if(!filtered.length){el.innerHTML=searchRaw||activeTagFilters.size>0?'<div class="empty"><div class="empty-icon">🔍</div>Aucun résultat</div>':'<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';return;}
   const sorted=filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  el.innerHTML=sorted.map(b=>{
-    const bi=blocs.indexOf(b);
-    const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
-    const rc=b.role==='Principal'?'bp':'ba';
-    const{dc,tc,sl}=statusClasses(b.statut);
-    const nc=(b.complications||[]).length;
-    const nr=b.radioCount?Object.values(b.radioCount).reduce((a,r)=>a+r,0):0;
-    const ncs=(b.consultations||[]).length;
-    let pTxt=b.patient||'—';
-    if(searchRaw&&pTxt.toLowerCase().includes(searchRaw)){const idx=pTxt.toLowerCase().indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}
-    const implantsTxt=b.implants?`<div style="font-size:12px;color:var(--text2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.implants}</div>`:'';
-    const astucesTxt=b.astuces?`<div style="font-size:11px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💡 ${b.astuces.substring(0,60)}${b.astuces.length>60?'…':''}</div>`:'';
-    const tagsTxt=(b.tags||[]).length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${(b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:99px;background:${activeTagFilters.has(t)?'var(--accent)':'var(--blue-l)'};color:${activeTagFilters.has(t)?'white':'var(--blue-d)'};">${t}</span>`).join('')}</div>`:'';
-    // Opérateur visible dans la liste si aide
-    const operateurTxt=b.role==='Aide'&&b.operateur?`<div style="font-size:12px;color:var(--text2);margin-top:2px;">Aide à ${b.operateur}</div>`:'';
-    return`<div class="bloc-item" onclick="openBlocDetail(${bi})">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span class="badge ${bc}">${(b.interv||'').substring(0,20)}</span>
-          <span class="badge ${rc}">${b.role}</span>
-          ${nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">${nc} compl.</span>`:''}
-          ${nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">${nr} radio(s)</span>`:''}
-          ${ncs>0?`<span class="badge" style="background:var(--blue-l);color:var(--blue-d);">${ncs} suivi(s)</span>`:''}
+  // Grouper par mois
+  const groups={};
+  sorted.forEach(b=>{
+    const mk=b.date?getMonthKey(b.date):'—';
+    if(!groups[mk])groups[mk]=[];
+    groups[mk].push(b);
+  });
+  const monthKeys=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  el.innerHTML=monthKeys.map(mk=>{
+    const label=mk==='—'?'Date inconnue':new Date(mk+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+    const count=groups[mk].length;
+    const items=groups[mk].map(b=>{
+      const bi=blocs.indexOf(b);
+      const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
+      const rc=b.role==='Principal'?'bp':'ba';
+      const{dc,tc,sl}=statusClasses(b.statut);
+      const nc=(b.complications||[]).length;
+      const nr=b.radioCount?Object.values(b.radioCount).reduce((a,r)=>a+r,0):0;
+      // Highlight recherche sur patient
+      let pTxt=b.patient||'—';
+      if(searchRaw&&pTxt.toLowerCase().includes(searchRaw)){const idx=pTxt.toLowerCase().indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}
+      // Badges secondaires compacts
+      const badges=[
+        nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">⚠ ${nc}</span>`:'',
+        nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">📷 ${nr}</span>`:'',
+      ].filter(Boolean).join('');
+      // Ligne 2 : patient · durée · opérateur si aide
+      const opTxt=b.role==='Aide'&&b.operateur?` · ${b.operateur}`:'';
+      const dureeTxt=b.duree?` · ${b.duree} min`:'';
+      return`<div class="bloc-item" onclick="openBlocDetail(${bi})">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+          <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
+            <span class="badge ${bc}" style="flex-shrink:0;">${(b.interv||'').substring(0,22)}</span>
+            <span class="badge ${rc}" style="flex-shrink:0;">${b.role}</span>
+            ${badges}
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+            <span style="font-size:11px;color:var(--text3);">${fmtDate(b.date)}</span>
+            <span class="sdot ${dc}"></span>
+          </div>
         </div>
-        <div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-        <span class="bloc-date">${fmtDate(b.date)}</span>
-        <span class="bloc-meta">${pTxt} · ${b.duree?b.duree+' min':'—'}</span>
-      </div>
-      ${operateurTxt}${implantsTxt}${astucesTxt}${tagsTxt}
+        <div style="font-size:12px;color:var(--text2);padding-left:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pTxt}${dureeTxt}${opTxt}</div>
+      </div>`;
+    }).join('');
+    return`<div class="bloc-month-section">
+      <div class="bloc-month-header"><span>${label}</span><span style="font-weight:400;">${count} bloc${count>1?'s':''}</span></div>
+      ${items}
     </div>`;
   }).join('');
 }
@@ -1299,8 +1349,12 @@ function renderStats(){
   const moy6=Math.round(total6/6*10)/10;
   document.getElementById('st-ce-mois').textContent=ceMois;
   document.getElementById('st-moy-mois').textContent=moy6;
-  // Render onglet actif
-  switchStatsTab(curStatsTab, document.querySelector('#stats-tabs .dash-tab.active'));
+  // Toujours démarrer sur l'onglet Activité
+  curStatsTab='activite';
+  document.querySelectorAll('#stats-tabs .dash-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sp-activite').classList.add('active');
+  renderActivityChart();renderRoleChart();
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -1470,12 +1524,11 @@ let calCurrentMonth = new Date();
 let dayModalDate = null;
 let plannedEditIdx = null;
 
-function todayStr(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
-function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function todayStr(){return new Date().toISOString().split('T')[0];}
+function dateStr(d){return d.toISOString().split('T')[0];}
 function diffDays(dateStr){
-  const today=new Date();today.setHours(0,0,0,0);
-  const[_y,_m,_d]=dateStr.split('-').map(Number);
-  const target=new Date(_y,_m-1,_d);target.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
   return Math.round((target-today)/(1000*60*60*24));
 }
 function countdown(ds){
@@ -1650,8 +1703,7 @@ function renderCalMonth(){
 // ── MODAL JOUR ──
 function openDayModal(ds){
   dayModalDate=ds;
-  const[_y,_m,_d]=ds.split('-').map(Number);
-  const d=new Date(_y,_m-1,_d);
+  const d=new Date(ds);
   document.getElementById('day-modal-title').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   renderDayBlocs(ds);
   openModal('day-modal');
@@ -1779,22 +1831,62 @@ function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},o
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
-function exportData(){
+async function exportData(){
   if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
+  showToast('Export en cours…');
+  // Récupérer toutes les radios depuis IndexedDB
+  let allRadios=[];
+  try{
+    const db=await openRadioDB();
+    allRadios=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('radios','readonly');
+      const req=tx.objectStore('radios').getAll();
+      req.onsuccess=e=>resolve(e.target.result||[]);
+      req.onerror=reject;
+    });
+  }catch(e){console.warn('Radios non exportées:',e);}
+  // Convertir les blobs en base64
+  const radiosB64=await Promise.all(allRadios.map(async r=>{
+    let dataB64=null;
+    try{
+      if(r.data instanceof Blob){
+        dataB64=await new Promise((res,rej)=>{
+          const rd=new FileReader();
+          rd.onload=ev=>res(ev.target.result);
+          rd.onerror=rej;
+          rd.readAsDataURL(r.data);
+        });
+      } else if(typeof r.data==='string'){dataB64=r.data;}
+    }catch(e){}
+    return{key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,name:r.name,date:r.date,data:dataB64};
+  }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-  const payload={version:'orlog-v13',exported_at:new Date().toISOString(),blocs_count:blocs.length,planned_count:(planned||[]).length,blocs,planned:planned||[]};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const payload={
+    version:'orlog-v13',
+    exported_at:new Date().toISOString(),
+    blocs_count:blocs.length,
+    planned_count:(planned||[]).length,
+    radios_count:radiosB64.filter(r=>r.data).length,
+    blocs,
+    planned:planned||[],
+    radios:radiosB64
+  };
+  const json=JSON.stringify(payload,null,2);
+  const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
+  const blob=new Blob([json],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='orlog_backup_'+ts+'.json';a.click();
-  URL.revokeObjectURL(a.href);showToast(blocs.length+' blocs exportés');
+  URL.revokeObjectURL(a.href);
+  showToast(`Export OK — ${blocs.length} blocs, ${radiosB64.filter(r=>r.data).length} radios (${sizeMb} Mo)`);
 }
 function importData(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=ev=>{
+  reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
       const importedBlocs=parsed.blocs||parsed;
       const importedPlanned=parsed.planned||[];
+      const importedRadios=parsed.radios||[];
       if(!Array.isArray(importedBlocs))throw new Error('Format invalide');
       // Merge blocs par ID
       const existing=new Map(blocs.map(b=>[b.id,b]));
@@ -1802,7 +1894,7 @@ function importData(e){
       importedBlocs.forEach(b=>{
         if(!b.id)return;
         if(!existing.has(b.id)){existing.set(b.id,b);added++;}
-        else{// Garder le plus récent : comparer par date de modif ou nb consultations
+        else{
           const cur=existing.get(b.id);
           const curC=(cur.consultations||[]).length,impC=(b.consultations||[]).length;
           if(impC>curC||(impC===curC&&(b.statut||'')!==(cur.statut||''))){existing.set(b.id,b);updated++;}}
@@ -1815,9 +1907,40 @@ function importData(e){
         planned=Array.from(existingP.values());
       }
       saveLocal();renderAll();
+      // Restaurer les radios dans IndexedDB
+      let radiosRestored=0;
+      if(importedRadios.length>0){
+        try{
+          const db=await openRadioDB();
+          for(const r of importedRadios){
+            if(!r.data||!r.key)continue;
+            // Vérifier si déjà présente
+            const already=await new Promise(res=>{
+              const tx=db.transaction('radios','readonly');
+              const req=tx.objectStore('radios').get(r.key);
+              req.onsuccess=e=>res(!!e.target.result);
+              req.onerror=()=>res(false);
+            });
+            if(already)continue;
+            // Convertir dataURL base64 → Blob
+            let blob=null;
+            try{
+              const res=await fetch(r.data);
+              blob=await res.blob();
+            }catch(e){continue;}
+            await new Promise((res,rej)=>{
+              const tx=db.transaction('radios','readwrite');
+              tx.objectStore('radios').put({key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,data:blob,name:r.name,date:r.date});
+              tx.oncomplete=()=>{radiosRestored++;res();};
+              tx.onerror=rej;
+            });
+          }
+        }catch(e){console.warn('Erreur restauration radios:',e);}
+      }
       const st=document.getElementById('import-status');
       st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
-      st.textContent=`Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total.`;
+      const radioMsg=importedRadios.length>0?` · ${radiosRestored} radio(s) restaurée(s)`:'';
+      st.textContent=`Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
       setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},4000);
     }catch(err){
       const st=document.getElementById('import-status');
