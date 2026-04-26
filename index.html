@@ -647,6 +647,27 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6;">L'import fusionne intelligemment — les blocs des deux appareils sont conservés, sans doublon.</div>
     <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+
+    <!-- v13-rescue : exports & compression -->
+    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Sauvegarde sécurisée (v13-rescue)</div>
+      <div style="background:var(--amber-l);color:var(--amber-d);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;">
+        <strong>Si l'export complet plante sur iPhone</strong>, utilise ces 3 boutons dans l'ordre.
+      </div>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportLight()">
+        <div style="font-size:13px;font-weight:600;">1. Export léger (sans radios)</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Fichier de quelques Ko — ne plante jamais</div>
+      </button>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportRadiosBatch()">
+        <div style="font-size:13px;font-weight:600;">2. Export radios par paquets</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Plusieurs petits fichiers (5 radios/fichier)</div>
+      </button>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;border-color:var(--accent);color:var(--accent);" onclick="compressAllRadiosInPlace()">
+        <div style="font-size:13px;font-weight:600;">3. Compresser radios existantes</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">1600px / JPEG 85% — réduit le volume ×5 à ×10</div>
+      </button>
+    </div>
+
     <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Statistiques</div>
       <div style="font-size:13px;color:var(--text2);" id="settings-stats"></div>
@@ -746,7 +767,7 @@ function saveLocal(){
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v13';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v13-rescue';
   openModal('settings-modal');
 }
 
@@ -786,8 +807,13 @@ function renderDash(){
   if(document.getElementById('dp-planning')&&document.getElementById('dp-planning').classList.contains('active')){renderInlineCalendar();renderMonthPlannedList();}
   const recent=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,4);
   const rel=document.getElementById('d-recents');
-  if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
-  rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${b.patient||'—'}</div><div class="recent-interv">${(b.interv||'').substring(0,20)}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
+  // v13-rescue : garde — l'élément 'd-recents' n'existe pas dans le HTML actuel
+  if(rel){
+    if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';}
+    else{
+      rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${b.patient||'—'}</div><div class="recent-interv">${(b.interv||'').substring(0,20)}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
+    }
+  }
 }
 function renderComplications(){
   const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push({...c,patient:b.patient,interv:b.interv})));
@@ -1152,25 +1178,40 @@ async function delRadioIDB(bi,type,idx){
   showToast('Radio supprimée');
 }
 async function handleUploadIDB(e,bi,type){
+  // v13-rescue : compression à l'upload (1600px max, JPEG q0.85)
   const files=Array.from(e.target.files);if(!files.length)return;
   const b=blocs[bi];
   const existing=await getRadiosForBloc(b.id);
   let startIdx=(existing[type]||[]).length;
-  let done=0;
-  files.forEach(f=>{
-    const r=new FileReader();
-    r.onload=async ev=>{
-      const idx=startIdx+done;
-      await saveRadio(b.id,type,idx,ev.target.result,f.name,new Date().toISOString().split('T')[0]);
+  let done=0, totalBefore=0, totalAfter=0;
+  showToast('Import & compression de '+files.length+' image(s)…');
+  for(const f of files){
+    try{
+      const dataURL = await new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=ev=>res(ev.target.result);
+        r.onerror=rej;
+        r.readAsDataURL(f);
+      });
+      const sizeBefore = dataURLByteSize(dataURL);
+      let finalData = dataURL;
+      try{
+        const compressed = await compressImageDataURL(dataURL, 1600, 0.85);
+        if(compressed && compressed.length < dataURL.length * 0.95){
+          finalData = compressed;
+        }
+      }catch(err){console.warn('Compression upload échouée, dataURL brute conservée:',err);}
+      const sizeAfter = dataURLByteSize(finalData);
+      totalBefore += sizeBefore; totalAfter += sizeAfter;
+      const idx = startIdx + done;
+      await saveRadio(b.id, type, idx, finalData, f.name, new Date().toISOString().split('T')[0]);
       done++;
-      if(done===files.length){
-        updateRadioCount(bi);
-        renderDetRadios(bi);
-        showToast(done+' image(s) ajoutée(s)');
-      }
-    };
-    r.readAsDataURL(f);
-  });
+    }catch(err){console.warn('Upload échec',f.name,err);}
+  }
+  updateRadioCount(bi);
+  renderDetRadios(bi);
+  const reduc = totalBefore>0 ? Math.round((1-totalAfter/totalBefore)*100) : 0;
+  showToast(done+' image(s) ajoutée(s) — '+fmtBytes(totalAfter)+(reduc>0?' (-'+reduc+'%)':''));
 }
 async function openLBFromDB(bi,type,idx){
   const b=blocs[bi];
@@ -1268,9 +1309,26 @@ function renderEditTags(){
   editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeEditTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=editTags.length?'':'Ajouter un tag...';
 }
-function confirmDelete(){
+async function confirmDelete(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
-  if(!confirm('Supprimer définitivement le bloc de '+(b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible.'))return;
+  if(!confirm('Supprimer définitivement le bloc de '+(b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible (bloc + radios associées).'))return;
+  // v13-rescue : purger d'abord les radios IDB associées au blocId
+  try{
+    const db = await openRadioDB();
+    await new Promise((resolve, reject)=>{
+      const tx = db.transaction('radios','readwrite');
+      const store = tx.objectStore('radios');
+      const req = store.openCursor();
+      req.onsuccess = e=>{
+        const c = e.target.result;
+        if(c){
+          if(c.value.blocId === b.id) c.delete();
+          c.continue();
+        } else resolve();
+      };
+      req.onerror = reject;
+    });
+  }catch(e){ console.warn('Purge radios IDB échouée:', e); }
   blocs.splice(detailBlocIdx,1);saveLocal();renderAll();showToast('Bloc supprimé');sw('blocs');
 }
 
@@ -1931,10 +1989,26 @@ function importData(e){
   reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
-      const importedBlocs=parsed.blocs||parsed;
-      const importedPlanned=parsed.planned||[];
-      const importedRadios=parsed.radios||[];
-      if(!Array.isArray(importedBlocs))throw new Error('Format invalide');
+      // v13-rescue : support des formats partiels (light + radios-batch)
+      const fmt = parsed.version || '';
+      const isLight = fmt === 'orlog-v13-light' || parsed.radios_excluded === true;
+      const isRadiosBatch = fmt === 'orlog-v13-radios-batch';
+      console.info('[OrLog import] version=', fmt, 'isLight=', isLight, 'isRadiosBatch=', isRadiosBatch, 'keys=', Object.keys(parsed));
+      let importedBlocs, importedPlanned, importedRadios;
+      if(isRadiosBatch){
+        importedBlocs = [];
+        importedPlanned = [];
+        importedRadios = parsed.radios || [];
+      } else if(isLight){
+        importedBlocs = parsed.blocs || [];
+        importedPlanned = parsed.planned || [];
+        importedRadios = [];
+      } else {
+        importedBlocs = parsed.blocs || parsed;
+        importedPlanned = parsed.planned || [];
+        importedRadios = parsed.radios || [];
+      }
+      if(!Array.isArray(importedBlocs)) throw new Error('Format invalide');
       // Merge blocs par ID
       const existing=new Map(blocs.map(b=>[b.id,b]));
       let added=0,updated=0;
@@ -1955,12 +2029,17 @@ function importData(e){
       }
       saveLocal();renderAll();
       // Restaurer les radios dans IndexedDB
-      let radiosRestored=0;
+      let radiosRestored=0, radiosSkipped=0, radiosFailed=0;
       if(importedRadios.length>0){
         try{
           const db=await openRadioDB();
+          console.info('[OrLog import] Restauration', importedRadios.length, 'radio(s)…');
           for(const r of importedRadios){
-            if(!r.data||!r.key)continue;
+            if(!r.data||!r.key){
+              console.warn('[OrLog import] radio sans data ou key:', r);
+              radiosSkipped++;
+              continue;
+            }
             // Vérifier si déjà présente
             const already=await new Promise(res=>{
               const tx=db.transaction('radios','readonly');
@@ -1969,15 +2048,16 @@ function importData(e){
               req.onerror=()=>res(false);
             });
             if(already)continue;
-            // Convertir dataURL base64 → Blob
-            let blob=null;
-            try{
-              const res=await fetch(r.data);
-              blob=await res.blob();
-            }catch(e){continue;}
+            // v13-rescue : on stocke la dataURL string directement (compatible avec renderDetRadios qui fait <img src=...>)
+            // L'ancien code la convertissait en Blob, ce qui cassait l'affichage <img src=[object Blob]>.
+            if(typeof r.data !== 'string' || !r.data.startsWith('data:')){
+              console.warn('[OrLog import] dataURL invalide pour', r.key, '(type=', typeof r.data, ')');
+              radiosFailed++;
+              continue;
+            }
             await new Promise((res,rej)=>{
               const tx=db.transaction('radios','readwrite');
-              tx.objectStore('radios').put({key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,data:blob,name:r.name,date:r.date});
+              tx.objectStore('radios').put({key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,data:r.data,name:r.name,date:r.date});
               tx.oncomplete=()=>{radiosRestored++;res();};
               tx.onerror=rej;
             });
@@ -1987,12 +2067,21 @@ function importData(e){
       const st=document.getElementById('import-status');
       st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
       const radioMsg=importedRadios.length>0?` · ${radiosRestored} radio(s) restaurée(s)`:'';
-      st.textContent=`Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
+      let summary;
+      if(isRadiosBatch){
+        summary = `Paquet radios importé — ${radiosRestored} radio(s) restaurée(s) sur ${importedRadios.length}.`;
+      } else if(isLight){
+        summary = `Fusion légère OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs (radios non incluses).`;
+      } else {
+        summary = `Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
+      }
+      st.textContent = summary;
       setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},4000);
     }catch(err){
+      console.error('[OrLog import] Stack:', err);
       const st=document.getElementById('import-status');
       st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';
-      st.textContent='Erreur : '+err.message;
+      st.textContent='Erreur : '+err.message+' (voir Console pour la stack complète)';
     }
     e.target.value='';
   };
@@ -2131,6 +2220,300 @@ function updateLockscreen(){
     hint.textContent = 'Touch ID / Face ID non configuré';
     if(setupBtn) setupBtn.style.display='block';
   }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// v13-rescue : COMPRESSION & EXPORT MEMOIRE-FRIENDLY
+// Ne dépend d'aucune fonction modifiée. Ajouts purs.
+// ═══════════════════════════════════════════════════════════
+
+function dataURLByteSize(dataURL){
+  if(!dataURL || typeof dataURL!=='string') return 0;
+  const c = dataURL.indexOf(',');
+  const b64 = c>=0 ? dataURL.slice(c+1) : dataURL;
+  // taille décodée approximative (3 octets pour 4 caractères base64)
+  return Math.floor(b64.length * 0.75);
+}
+
+function fmtBytes(n){
+  if(!n || n<0) return '0 B';
+  if(n < 1024) return n+' B';
+  if(n < 1024*1024) return (n/1024).toFixed(1)+' Ko';
+  return (n/1024/1024).toFixed(1)+' Mo';
+}
+
+async function compressImageDataURL(dataURL, maxDim, quality){
+  maxDim = maxDim || 1600;
+  quality = (quality===undefined) ? 0.85 : quality;
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      try{
+        let w = img.width, h = img.height;
+        if(!w || !h){ reject(new Error('image sans dimensions')); return; }
+        if(w > maxDim || h > maxDim){
+          if(w >= h){ h = Math.round(h * maxDim / w); w = maxDim; }
+          else      { w = Math.round(w * maxDim / h); h = maxDim; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const out = canvas.toDataURL('image/jpeg', quality);
+        // Libère le canvas pour aider le GC sur iPhone
+        canvas.width = 0; canvas.height = 0;
+        resolve(out);
+      }catch(e){ reject(e); }
+    };
+    img.onerror = ()=> reject(new Error('image illisible'));
+    img.src = dataURL;
+  });
+}
+
+async function shareOrDownload(blob, filename){
+  // Web Share API (iOS 15+) > download <a> > clipboard fallback
+  try{
+    if(navigator.canShare){
+      const file = new File([blob], filename, {type: blob.type});
+      if(navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({files:[file], title: filename});
+          return 'shared';
+        }catch(e){
+          if(e.name==='AbortError') return 'aborted';
+          console.warn('share() a échoué, fallback download:', e);
+        }
+      }
+    }
+  }catch(e){console.warn('canShare check error:', e);}
+  // Fallback download via <a>
+  try{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{
+      try{document.body.removeChild(a);}catch(e){}
+      URL.revokeObjectURL(url);
+    }, 5000);
+    return 'downloaded';
+  }catch(e){
+    console.warn('download échec:', e);
+    return 'failed';
+  }
+}
+
+async function exportLight(){
+  if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
+  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+  const payload = {
+    version: 'orlog-v13-light',
+    exported_at: new Date().toISOString(),
+    blocs_count: blocs.length,
+    planned_count: (planned||[]).length,
+    radios_excluded: true,
+    blocs,
+    planned: planned||[]
+  };
+  const json = JSON.stringify(payload);
+  const blob = new Blob([json], {type:'application/json'});
+  const filename = 'orlog_LIGHT_'+ts+'.json';
+  const result = await shareOrDownload(blob, filename);
+  if(result === 'aborted'){ showToast('Export annulé'); return; }
+  if(result === 'failed'){ showToast('Échec export — voir console'); return; }
+  showToast('Export léger : '+blocs.length+' blocs ('+fmtBytes(blob.size)+')');
+}
+
+async function _listAllRadioKeys(){
+  const db = await openRadioDB();
+  const keys = [];
+  await new Promise((resolve, reject)=>{
+    const tx = db.transaction('radios','readonly');
+    const req = tx.objectStore('radios').openCursor();
+    req.onsuccess = e=>{
+      const c = e.target.result;
+      if(c){ keys.push(c.value.key); c.continue(); }
+      else resolve();
+    };
+    req.onerror = reject;
+  });
+  return keys;
+}
+
+async function _getRadioByKey(key){
+  const db = await openRadioDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction('radios','readonly');
+    const req = tx.objectStore('radios').get(key);
+    req.onsuccess = e=>resolve(e.target.result);
+    req.onerror = reject;
+  });
+}
+
+async function _putRadio(rec){
+  const db = await openRadioDB();
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction('radios','readwrite');
+    tx.objectStore('radios').put(rec);
+    tx.oncomplete = resolve;
+    tx.onerror = reject;
+  });
+}
+
+async function _radioToDataURL(r){
+  if(!r || !r.data) return null;
+  if(typeof r.data === 'string') return r.data;
+  if(r.data instanceof Blob){
+    return new Promise((res, rej)=>{
+      const rd = new FileReader();
+      rd.onload = ev=>res(ev.target.result);
+      rd.onerror = rej;
+      rd.readAsDataURL(r.data);
+    });
+  }
+  return null;
+}
+
+const RESCUE_BATCH_SIZE = 5;
+
+async function exportRadiosBatch(){
+  const keys = await _listAllRadioKeys();
+  if(keys.length === 0){showToast('Aucune radio à exporter');return;}
+  const total = keys.length;
+  const batchSize = RESCUE_BATCH_SIZE;
+  const nBatches = Math.ceil(total / batchSize);
+  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+  if(!confirm(total+' radio(s) à exporter en '+nBatches+' fichier(s) de '+batchSize+' max.\n\nÀ chaque paquet, choisis "Enregistrer dans Fichiers" ou AirDrop.\n\nContinuer ?')) return;
+
+  for(let i=0; i<nBatches; i++){
+    const startIdx = i * batchSize;
+    const endIdx = Math.min(startIdx + batchSize, total);
+    const slice = keys.slice(startIdx, endIdx);
+    showToast('Paquet '+(i+1)+'/'+nBatches+' — préparation…');
+    const radios = [];
+    for(const key of slice){
+      try{
+        const r = await _getRadioByKey(key);
+        if(!r) continue;
+        const dataB64 = await _radioToDataURL(r);
+        radios.push({key:r.key, blocId:r.blocId, type:r.type, idx:r.idx, name:r.name, date:r.date, data:dataB64});
+      }catch(e){console.warn('lecture radio échouée', key, e);}
+    }
+    const payload = {
+      version: 'orlog-v13-radios-batch',
+      exported_at: new Date().toISOString(),
+      batch: i+1,
+      total_batches: nBatches,
+      radios_in_batch: radios.length,
+      radios
+    };
+    const json = JSON.stringify(payload);
+    const blob = new Blob([json], {type:'application/json'});
+    const filename = 'orlog_RADIOS_'+ts+'_p'+String(i+1).padStart(2,'0')+'-of-'+String(nBatches).padStart(2,'0')+'.json';
+    const result = await shareOrDownload(blob, filename);
+    if(result === 'aborted'){
+      if(!confirm('Paquet '+(i+1)+' annulé. Continuer avec les suivants ?')){
+        showToast('Export interrompu à '+(i+1)+'/'+nBatches);
+        return;
+      }
+    }
+    if(result === 'failed'){
+      alert('Échec sur le paquet '+(i+1)+'. Vérifie l\'espace disque et réessaye.');
+      return;
+    }
+    // Yield + petit délai pour laisser respirer la mémoire iOS
+    await new Promise(r=>setTimeout(r, 600));
+  }
+  showToast('✓ Export radios terminé : '+nBatches+' fichier(s)');
+}
+
+async function compressAllRadiosInPlace(){
+  const keys = await _listAllRadioKeys();
+  if(keys.length === 0){showToast('Aucune radio à compresser');return;}
+  const msg = 'Compresser '+keys.length+' radio(s) ?\n\n• Limite à 1600 px (côté long)\n• JPEG qualité 85%\n• Modifie en place dans la base\n\nIRRÉVERSIBLE — fais d\'abord les exports 1 et 2.';
+  if(!confirm(msg)) return;
+
+  // Modal de progression
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML = '<div style="background:var(--bg);padding:24px;border-radius:var(--radius-lg);max-width:340px;width:100%;text-align:center;">'
+    + '<div style="font-size:14px;font-weight:600;margin-bottom:6px;">Compression en cours…</div>'
+    + '<div id="rescue-progress" style="font-size:12px;color:var(--text2);margin-bottom:10px;">0 / '+keys.length+'</div>'
+    + '<div style="height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:10px;">'
+    + '<div id="rescue-bar" style="height:100%;background:var(--accent);width:0%;transition:width 0.2s;"></div></div>'
+    + '<div id="rescue-bytes" style="font-size:11px;color:var(--text3);"></div>'
+    + '</div>';
+  document.body.appendChild(overlay);
+
+  let processed=0, failed=0, skipped=0;
+  let totalBefore=0, totalAfter=0;
+
+  for(let i=0; i<keys.length; i++){
+    const key = keys[i];
+    try{
+      const r = await _getRadioByKey(key);
+      if(!r){ failed++; }
+      else{
+        const src = await _radioToDataURL(r);
+        if(!src){ failed++; }
+        else{
+          const sizeBefore = dataURLByteSize(src);
+          totalBefore += sizeBefore;
+          let kept = src;
+          try{
+            const out = await compressImageDataURL(src, 1600, 0.85);
+            const sizeAfter = dataURLByteSize(out);
+            if(sizeAfter < sizeBefore * 0.9){
+              await _putRadio({...r, data: out});
+              kept = out;
+              totalAfter += sizeAfter;
+            } else {
+              // Pas de gain significatif : on garde l'original
+              skipped++;
+              totalAfter += sizeBefore;
+            }
+          }catch(e){
+            console.warn('compression échouée', key, e);
+            failed++;
+            totalAfter += sizeBefore;
+          }
+        }
+      }
+      processed++;
+    }catch(e){
+      console.warn('item échoué', key, e);
+      failed++;
+    }
+    const prog = document.getElementById('rescue-progress');
+    const bar  = document.getElementById('rescue-bar');
+    const byt  = document.getElementById('rescue-bytes');
+    if(prog) prog.textContent = (i+1)+' / '+keys.length+(failed?' ('+failed+' échec(s))':'');
+    if(bar)  bar.style.width = ((i+1)/keys.length*100)+'%';
+    if(byt)  byt.textContent = fmtBytes(totalBefore)+' → '+fmtBytes(totalAfter);
+    // Yield pour ne pas bloquer le thread (responsive UI + GC)
+    await new Promise(r=>setTimeout(r, 0));
+  }
+
+  try{document.body.removeChild(overlay);}catch(e){}
+  const reduction = totalBefore>0 ? Math.round((1 - totalAfter/totalBefore)*100) : 0;
+  const compressedCount = processed - skipped - failed;
+  let report = 'Compression terminée.\n\n';
+  report += compressedCount+' radio(s) compressée(s)';
+  if(skipped>0){
+    report += '\n'+skipped+' déjà optimale(s) — non re-encodée(s)';
+    report += '\n(déjà ≤ taille cible, recompresser dégraderait la qualité)';
+  }
+  if(failed>0) report += '\n'+failed+' échec(s)';
+  report += '\n\nAvant : '+fmtBytes(totalBefore);
+  report += '\nAprès : '+fmtBytes(totalAfter);
+  report += '\nGain : '+reduction+'%';
+  if(compressedCount===0 && skipped===processed){
+    report += '\n\nC\'est normal si tes radios ont déjà été ajoutées avec la version v13 (compressées à l\'upload).';
+  }
+  alert(report);
 }
 
 // Initialisation — montrer l'écran de verrou
