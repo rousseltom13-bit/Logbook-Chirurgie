@@ -171,6 +171,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .lb-nav{display:flex;gap:12px;margin-top:16px;}
 .lb-nav button{background:rgba(255,255,255,0.15);color:white;border:none;border-radius:var(--radius);padding:8px 18px;font-size:14px;cursor:pointer;font-family:inherit;}
 .lb-info{color:rgba(255,255,255,0.5);font-size:12px;margin-top:8px;text-align:center;}
+/* v13-rescue : mode saisie rapide */
+#view-saisie.quick-mode .form-quick-hide{display:none;}
+.quick-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:14px;}
+.quick-toggle-label{font-size:13px;font-weight:500;color:var(--text);}
+.quick-toggle-hint{font-size:11px;color:var(--text3);margin-top:2px;}
+.quick-switch{width:42px;height:24px;background:var(--bg3);border-radius:99px;position:relative;cursor:pointer;border:none;flex-shrink:0;transition:background 0.2s;}
+.quick-switch::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.quick-switch.on{background:var(--accent);}
+.quick-switch.on::after{left:21px;}
+.bloc-todo{background:var(--amber);color:white;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;letter-spacing:0.04em;}
 .toast{position:fixed;bottom:calc(80px + var(--safe-bot) + 10px);left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:13px;white-space:nowrap;z-index:400;display:none;font-weight:500;}
 .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;}
 .empty-icon{font-size:32px;margin-bottom:8px;}
@@ -326,7 +336,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     <div class="view" id="view-blocs">
       <!-- Recherche -->
       <div style="position:relative;margin-bottom:10px;">
-        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()"
+        <input type="text" id="search-input" placeholder="Rechercher patient, interv, implant, astuces, suivi…" oninput="renderBlocs()"
           style="width:100%;padding:10px 36px 10px 14px;font-size:16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;">
         <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);">×</span>
       </div>
@@ -378,39 +388,47 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- SAISIE -->
     <div class="view" id="view-saisie">
+      <!-- v13-rescue : toggle saisie rapide -->
+      <div class="quick-toggle">
+        <div>
+          <div class="quick-toggle-label">Saisie rapide</div>
+          <div class="quick-toggle-hint">4 champs essentiels — à compléter plus tard</div>
+        </div>
+        <button class="quick-switch" id="quick-switch" onclick="toggleQuickMode()" aria-label="Activer la saisie rapide"></button>
+      </div>
       <div class="form-group"><label>Date du bloc</label><input type="date" id="f-date"></div>
       <div class="form-row">
         <div class="form-group"><label>Spécialité</label><select id="f-spec" onchange="upInterv()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
-        <div class="form-group"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+        <div class="form-group form-quick-hide"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
       </div>
       <div class="form-group"><label>Intervention</label>
         <select id="f-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
         <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Rôle</label><select id="f-role" onchange="toggleOperateur('f')"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
-        <div class="form-group"><label>Durée (min)</label><input type="number" id="f-duree" placeholder="ex. 95" inputmode="numeric"></div>
+        <div class="form-group form-quick-hide"><label>Rôle</label><select id="f-role" onchange="toggleOperateur('f')"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
+        <div class="form-group form-quick-hide"><label>Durée (min)</label><input type="number" id="f-duree" placeholder="ex. 95" inputmode="numeric"></div>
       </div>
-      <div id="f-operateur-row" style="display:none;" class="form-group">
+      <div id="f-operateur-row" style="display:none;" class="form-group form-quick-hide">
         <label>Opérateur aidé</label>
-        <input type="text" id="f-operateur" placeholder="ex. Dr Martin, Dr Dupont..." autocomplete="off">
+        <input type="text" id="f-operateur" placeholder="ex. Dr Martin, Dr Dupont..." autocomplete="off" list="dl-operateurs">
       </div>
       <div class="form-section">Patient</div>
       <div class="form-row">
-        <div class="form-group"><label>Initiales / ID</label><input type="text" id="f-patient" placeholder="ex. J.D." autocomplete="off"></div>
-        <div class="form-group"><label>Âge</label><input type="number" id="f-age" placeholder="ex. 72" inputmode="numeric"></div>
+        <div class="form-group"><label>Initiales / ID</label><input type="text" id="f-patient" placeholder="ex. J.D." autocomplete="off" list="dl-patients"></div>
+        <div class="form-group form-quick-hide"><label>Âge</label><input type="number" id="f-age" placeholder="ex. 72" inputmode="numeric"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>IMC</label><input type="number" id="f-imc" placeholder="ex. 28" step="0.1" inputmode="decimal"></div>
+        <div class="form-group form-quick-hide"><label>IMC</label><input type="number" id="f-imc" placeholder="ex. 28" step="0.1" inputmode="decimal"></div>
         <div class="form-group"></div>
       </div>
       <div class="form-section">Implants & technique</div>
-      <div class="form-group"><label>Implants utilisés</label><input type="text" id="f-implants" placeholder="ex. Nexgen Legacy PS, fémur D3, tibia 4..."></div>
-      <div class="form-group"><label>Voie d'abord</label><select id="f-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
-      <div class="form-group"><label>Difficulté technique</label><div class="stars-row" style="margin-top:4px;" id="stars-row"></div></div>
-      <div class="form-group"><label>Difficultés / astuces</label><textarea id="f-astuces" placeholder="Points techniques, difficultés, astuces opératoires..."></textarea></div>
-      <div class="form-group"><label>Remarques libres</label><textarea id="f-remarques" placeholder="Observations, questions, points à retravailler..."></textarea></div>
-      <div class="form-group"><label>Tags</label><div class="tag-wrap" id="tag-wrap" onclick="document.getElementById('tf').focus()"><input class="tag-field" id="tf" placeholder="Ajouter un tag..." onkeydown="handleTag(event)"></div></div>
+      <div class="form-group form-quick-hide"><label>Implants utilisés</label><input type="text" id="f-implants" placeholder="ex. Nexgen Legacy PS, fémur D3, tibia 4..." list="dl-implants"></div>
+      <div class="form-group form-quick-hide"><label>Voie d'abord</label><select id="f-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
+      <div class="form-group form-quick-hide"><label>Difficulté technique</label><div class="stars-row" style="margin-top:4px;" id="stars-row"></div></div>
+      <div class="form-group form-quick-hide"><label>Difficultés / astuces</label><textarea id="f-astuces" placeholder="Points techniques, difficultés, astuces opératoires..."></textarea></div>
+      <div class="form-group form-quick-hide"><label>Remarques libres</label><textarea id="f-remarques" placeholder="Observations, questions, points à retravailler..."></textarea></div>
+      <div class="form-group form-quick-hide"><label>Tags</label><div class="tag-wrap" id="tag-wrap" onclick="document.getElementById('tf').focus()"><input class="tag-field" id="tf" placeholder="Ajouter un tag..." onkeydown="handleTag(event)" list="dl-tags"></div></div>
       <button class="btn-primary" onclick="saveBloc()">Enregistrer le bloc</button>
     </div>
 
@@ -578,7 +596,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <select id="p-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
       <input type="text" id="p-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
     </div>
-    <div class="form-group"><label>Patient (initiales)</label><input type="text" id="p-patient" placeholder="ex. J.D." autocomplete="off"></div>
+    <div class="form-group"><label>Patient (initiales)</label><input type="text" id="p-patient" placeholder="ex. J.D." autocomplete="off" list="dl-patients"></div>
     <div class="form-group"><label>Commentaire / matériel à commander</label><textarea id="p-comment" placeholder="ex. Commander implant X, vérifier taille fémur..." style="min-height:80px;"></textarea></div>
     <button class="btn-primary" id="planned-save-btn" onclick="savePlanned()">Enregistrer</button>
   </div>
@@ -658,6 +676,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div style="font-size:13px;font-weight:600;">1. Export léger (sans radios)</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px;">Fichier de quelques Ko — ne plante jamais</div>
       </button>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportCSV()">
+        <div style="font-size:13px;font-weight:600;">📊 Export CSV (Excel / e-portfolio)</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Une ligne par bloc, à ouvrir dans Excel ou Numbers</div>
+      </button>
       <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportRadiosBatch()">
         <div style="font-size:13px;font-weight:600;">2. Export radios par paquets</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px;">Plusieurs petits fichiers (5 radios/fichier)</div>
@@ -714,19 +736,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
     <div id="e-operateur-row" class="form-group" style="display:none;">
       <label>Opérateur aidé</label>
-      <input type="text" id="e-operateur" placeholder="ex. Dr Martin..." autocomplete="off">
+      <input type="text" id="e-operateur" placeholder="ex. Dr Martin..." autocomplete="off" list="dl-operateurs">
     </div>
-    <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off"></div>
+    <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off" list="dl-patients"></div>
     <div class="form-row">
       <div class="form-group"><label>Âge</label><input type="number" id="e-age" inputmode="numeric"></div>
       <div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div>
     </div>
-    <div class="form-group"><label>Implants utilisés</label><input type="text" id="e-implants"></div>
-    <div class="form-group"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
-    <div class="form-group"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
-    <div class="form-group"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
+    <div class="form-group form-quick-hide"><label>Implants utilisés</label><input type="text" id="e-implants" list="dl-implants"></div>
+    <div class="form-group form-quick-hide"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
+    <div class="form-group form-quick-hide"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
+    <div class="form-group form-quick-hide"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
     <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Bon résultat</option><option value="orange">Vigilance</option><option value="rouge">Complication</option><option value="pdv">Perdu de vue</option><option value="deces">Décès</option></select></div>
-    <div class="form-group"><label>Tags</label><div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()"><input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)"></div></div>
+    <div class="form-group"><label>Tags</label><div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()"><input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags"></div></div>
     <button class="btn-primary" onclick="saveEdit()">Enregistrer les modifications</button>
   </div>
 </div>
@@ -738,6 +760,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <div class="lb-nav"><button onclick="lbNav(-1)">← Préc.</button><button onclick="lbNav(1)">Suiv. →</button></div>
 </div>
 <div class="toast" id="toast"></div>
+<!-- v13-rescue : datalists d'autocomplete -->
+<datalist id="dl-implants"></datalist>
+<datalist id="dl-operateurs"></datalist>
+<datalist id="dl-patients"></datalist>
+<datalist id="dl-tags"></datalist>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -764,6 +791,26 @@ function loadLocal(){
 function saveLocal(){
   try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}
   try{localStorage.setItem('orlog_planned',JSON.stringify(planned));}catch(e){}
+  try{refreshDatalists();}catch(e){}
+}
+// v13-rescue : autocomplete depuis l'historique
+function refreshDatalists(){
+  const setOf = (arr) => Array.from(new Set(arr.filter(Boolean).map(s=>String(s).trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
+  // Implants : on splitte aussi par virgule pour proposer des composants individuels (PTG souvent = "Nexgen Legacy PS, fémur D3, tibia 4")
+  const implRaw = blocs.flatMap(b => (b.implants||'').split(/[,;]/));
+  const impl = setOf(implRaw);
+  const opers = setOf(blocs.map(b=>b.operateur));
+  const patients = setOf([...blocs.map(b=>b.patient), ...(planned||[]).map(p=>p.patient)]);
+  const tags = setOf(blocs.flatMap(b=>(b.tags||[])));
+  const fill = (id, items) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = items.map(v=>`<option value="${esc(v)}">`).join('');
+  };
+  fill('dl-implants', impl);
+  fill('dl-operateurs', opers);
+  fill('dl-patients', patients);
+  fill('dl-tags', tags);
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
@@ -811,7 +858,7 @@ function renderDash(){
   if(rel){
     if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';}
     else{
-      rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${b.patient||'—'}</div><div class="recent-interv">${(b.interv||'').substring(0,20)}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
+      rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${esc(b.patient)||'—'}</div><div class="recent-interv">${esc((b.interv||'').substring(0,20))}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
     }
   }
 }
@@ -822,7 +869,7 @@ function renderComplications(){
   const el=document.getElementById('compl-overview');
   if(!types.length){el.innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✓</div>Aucune complication</div>';}
   else{const maxC=Math.max(...types.map(t=>counts[t]),1);el.innerHTML=types.map(t=>`<div class="compl-card"><div class="compl-name">${t}</div><div class="compl-count">${counts[t]}</div><div class="compl-pct">${Math.round(counts[t]/total*100)}% des blocs</div><div class="compl-bar-wrap"><div class="compl-bar" style="width:${Math.round(counts[t]/maxC*100)}%;"></div></div></div>`).join('');}
-  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${c.patient||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${(c.interv||'').substring(0,18)}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${c.type}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${clav}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${c.detail}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
+  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${esc(c.patient)||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${esc((c.interv||'').substring(0,18))}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(clav)}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${escNl(c.detail)}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
 }
 
 // ── MES BLOCS ──
@@ -868,7 +915,7 @@ function renderBlocs(){
   let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
-  if(searchRaw)filtered=filtered.filter(b=>[b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[])].join(' ').toLowerCase().includes(searchRaw));
+  if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');const compls=(b.complications||[]).map(c=>(c.type||'')+' '+(c.detail||'')).join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults,compls].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
   renderTagFilters();
   const countEl=document.getElementById('search-count');
@@ -894,20 +941,21 @@ function renderBlocs(){
       const nc=(b.complications||[]).length;
       const nr=b.radioCount?Object.values(b.radioCount).reduce((a,r)=>a+r,0):0;
       // Highlight recherche sur patient
-      let pTxt=b.patient||'—';
-      if(searchRaw&&pTxt.toLowerCase().includes(searchRaw)){const idx=pTxt.toLowerCase().indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}
+      let pTxt=esc(b.patient)||'—';
+      if(searchRaw){const lower=pTxt.toLowerCase();if(lower.includes(searchRaw)){const idx=lower.indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}}
       // Badges secondaires compacts
       const badges=[
+        b.toComplete?'<span class="bloc-todo">À COMPLÉTER</span>':'',
         nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">⚠ ${nc}</span>`:'',
         nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">📷 ${nr}</span>`:'',
       ].filter(Boolean).join('');
       // Ligne 2 : patient · durée · opérateur si aide
-      const opTxt=b.role==='Aide'&&b.operateur?` · ${b.operateur}`:'';
+      const opTxt=b.role==='Aide'&&b.operateur?` · ${esc(b.operateur)}`:'';
       const dureeTxt=b.duree?` · ${b.duree} min`:'';
       return`<div class="bloc-item" onclick="openBlocDetail(${bi})">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
           <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
-            <span class="badge ${bc}" style="flex-shrink:0;">${(b.interv||'').substring(0,22)}</span>
+            <span class="badge ${bc}" style="flex-shrink:0;">${esc((b.interv||'').substring(0,22))}</span>
             <span class="badge ${rc}" style="flex-shrink:0;">${b.role}</span>
             ${badges}
           </div>
@@ -941,9 +989,9 @@ function openBlocDetail(bi){
   const rc=b.role==='Principal'?'bp':'ba';
   const{dc,tc,sl}=statusClasses(b.statut);
   const stars=b.diff?'★'.repeat(b.diff)+'☆'.repeat(5-b.diff):'—';
-  const tags=(b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${t}</span>`).join('');
+  const tags=(b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${esc(t)}</span>`).join('');
   const nc=(b.complications||[]).length;
-  const complList=(b.complications||[]).map(c=>`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span class="compl-tag">${c.type}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${c.clavien.split('—')[0].trim()}</span>`:''}</div>${c.detail?`<div style="color:var(--text2);">${c.detail}</div>`:''}</div>`).join('');
+  const complList=(b.complications||[]).map(c=>`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(c.clavien.split('—')[0].trim())}</span>`:''}</div>${c.detail?`<div style="color:var(--text2);">${escNl(c.detail)}</div>`:''}</div>`).join('');
   document.getElementById('det-title').textContent=(b.patient||'—')+' — '+(b.interv||'');
   document.getElementById('det-info').innerHTML=`
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
@@ -953,22 +1001,22 @@ function openBlocDetail(bi){
     </div>
     <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${b.interv||'—'}</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${esc(b.interv)||'—'}</div>
       <div style="font-size:13px;color:var(--text2);">${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}</div>
     </div></div>
     <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Implants</div>
-      <div style="font-size:14px;color:var(--text);">${b.implants||'Non renseigné'}</div>
+      <div style="font-size:14px;color:var(--text);">${esc(b.implants)||'Non renseigné'}</div>
     </div></div>
-    ${b.astuces?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Difficultés & astuces</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.astuces}</div></div></div>`:''}
-    ${b.remarques?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Remarques</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${b.remarques}</div></div></div>`:''}
+    ${b.astuces?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Difficultés & astuces</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${escNl(b.astuces)}</div></div></div>`:''}
+    ${b.remarques?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Remarques</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${escNl(b.remarques)}</div></div></div>`:''}
     <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${b.patient||'—'}</div></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${esc(b.patient)||'—'}</div></div>
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Âge</div><div style="font-size:14px;font-weight:600;">${b.age?b.age+' ans':'—'}</div></div>
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
-        ${b.role==='Aide'&&b.operateur?`<div style="grid-column:1/-1;"><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Opérateur aidé</div><div style="font-size:14px;font-weight:600;">${b.operateur}</div></div>`:''}
+        ${b.role==='Aide'&&b.operateur?`<div style="grid-column:1/-1;"><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Opérateur aidé</div><div style="font-size:14px;font-weight:600;">${esc(b.operateur)}</div></div>`:''}
         <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
       </div>
       ${tags?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">${tags}</div>`:''}
@@ -1007,7 +1055,7 @@ function renderDetSuivi(bi){
           </div>
           <button class="consult-del" onclick="deleteConsult(${bi},${i})" title="Supprimer">×</button>
         </div>
-        ${c.comment?`<div class="consult-comment">${c.comment}</div>`:''}
+        ${c.comment?`<div class="consult-comment">${escNl(c.comment)}</div>`:''}
       </div>`;
     }).join('');
   }
@@ -1284,6 +1332,7 @@ function saveEdit(){
   b.statut=document.getElementById('e-statut').value;
   b.operateur=document.getElementById('e-operateur').value;
   b.tags=[...editTags];
+  if(b)b.toComplete=false;
   saveLocal();closeModal('edit-modal');openBlocDetail(detailBlocIdx);showToast('Bloc modifié');
 }
 function toggleOperateur(prefix){
@@ -1351,6 +1400,28 @@ function saveComplication(){
 }
 
 // ── SAISIE ──
+
+
+// v13-rescue : mode saisie rapide
+function toggleQuickMode(){
+  const view = document.getElementById('view-saisie');
+  const sw = document.getElementById('quick-switch');
+  const isOn = view.classList.toggle('quick-mode');
+  if(sw) sw.classList.toggle('on', isOn);
+  try{ localStorage.setItem('orlog_quickmode', isOn ? '1' : '0'); }catch(e){}
+}
+function applyQuickModePref(){
+  try{
+    const saved = localStorage.getItem('orlog_quickmode');
+    if(saved === '1'){
+      const view = document.getElementById('view-saisie');
+      const sw = document.getElementById('quick-switch');
+      view.classList.add('quick-mode');
+      if(sw) sw.classList.add('on');
+    }
+  }catch(e){}
+}
+
 function initForm(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
@@ -1395,8 +1466,10 @@ function saveBloc(){
   const selVal=document.getElementById('f-interv').value;
   const iv=sp==='Traumatologie'||selVal.startsWith('Autre')?document.getElementById('f-interv-libre').value:selVal;
   if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
-  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{}});
-  saveLocal();showToast('Bloc enregistré');sw('blocs');
+  // v13-rescue : flag "à compléter" si saisi en mode rapide
+  const isQuick = document.getElementById('view-saisie').classList.contains('quick-mode');
+  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick});
+  saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');sw('blocs');
 }
 
 // ── STATS ──
@@ -1662,13 +1735,13 @@ function renderUpcoming(){
     return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span class="badge ${bc}">${(p.interv||'—').substring(0,20)}</span>
-          ${p.patient?`<span style="font-size:12px;color:var(--text2);">${p.patient}</span>`:''}
+          <span class="badge ${bc}">${esc((p.interv||'—').substring(0,20))}</span>
+          ${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}
         </div>
         ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
       </div>
       <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
-      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📋 ${p.comment}</div>`:''}
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📋 ${esc(p.comment)}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -1727,11 +1800,11 @@ function renderMonthPlannedList(){
     const idx=planned.indexOf(p);const bc=bc_map[p.spec]||'';const cd=countdown(p.date);
     return`<div class="planned-item" onclick="openPlannedDetail(${idx})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:6px;"><span class="badge ${bc}">${(p.interv||'—').substring(0,20)}</span>${p.patient?`<span style="font-size:12px;color:var(--text2);">${p.patient}</span>`:''}</div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="badge ${bc}">${esc((p.interv||'—').substring(0,20))}</span>${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}</div>
         ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
       </div>
       <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
-      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;">📋 ${p.comment}</div>`:''}
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;">📋 ${esc(p.comment)}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -1798,10 +1871,10 @@ function renderDayBlocs(ds){
     return`<div style="padding:10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;" onclick="closeModal('day-modal');openPlannedDetail(${idx});">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
         <span class="badge ${bc}">${p.spec}</span>
-        <span style="font-size:13px;font-weight:600;">${p.interv||'—'}</span>
+        <span style="font-size:13px;font-weight:600;">${esc(p.interv)||'—'}</span>
       </div>
-      ${p.patient?`<div style="font-size:12px;color:var(--text2);">${p.patient}${p.side?' · '+p.side:''}</div>`:''}
-      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:4px;">📋 ${p.comment}</div>`:''}
+      ${p.patient?`<div style="font-size:12px;color:var(--text2);">${esc(p.patient)}${p.side?' · '+p.side:''}</div>`:''}
+      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:4px;">📋 ${esc(p.comment)}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -1856,10 +1929,10 @@ function openPlannedDetail(idx){
       <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(p.date)}</span>
       ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
     </div>
-    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${p.interv||'—'}</div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${esc(p.interv)||'—'}</div>
     ${p.side?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px;">${p.side}</div>`:''}
-    ${p.patient?`<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Patient : ${p.patient}</div>`:''}
-    ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:13px;color:var(--amber-d);line-height:1.5;">📋 ${p.comment}</div>`:''}
+    ${p.patient?`<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Patient : ${esc(p.patient)}</div>`:''}
+    ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:13px;color:var(--amber-d);line-height:1.5;">📋 ${escNl(p.comment)}</div>`:''}
     <button onclick="editPlanned(${idx})" style="width:100%;margin-top:14px;padding:10px;font-size:13px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;color:var(--text);">Modifier</button>
   `;
   openModal('planned-detail-modal');
@@ -1903,6 +1976,9 @@ function convertPlanned(){
 
 // ── UTILS ──
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+// v13-rescue : escape XSS pour innerHTML
+function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function escNl(s){return esc(s).replace(/\n/g,'<br>');}
 function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
@@ -2182,6 +2258,8 @@ async function unlockApp(){
 function showApp(){
   document.getElementById('lockscreen').style.display='none';
   document.getElementById('app').style.display='flex';
+  try{refreshDatalists();}catch(e){}
+  try{applyQuickModePref();}catch(e){}
   renderAll();
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   // Proposer de configurer la biométrie si pas encore fait
@@ -2315,6 +2393,64 @@ async function exportLight(){
   if(result === 'aborted'){ showToast('Export annulé'); return; }
   if(result === 'failed'){ showToast('Échec export — voir console'); return; }
   showToast('Export léger : '+blocs.length+' blocs ('+fmtBytes(blob.size)+')');
+}
+
+
+
+async function exportCSV(){
+  if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
+  // Échappement champ CSV (RFC 4180 : encadrer + doubler les guillemets)
+  const csv = (v) => {
+    if(v===null||v===undefined) return '';
+    const s = String(v);
+    if(/[",;\n\r]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+    return s;
+  };
+  const headers = [
+    'date','specialite','intervention','cote','role','operateur','duree_min',
+    'patient','age','imc','implants','voie_abord','difficulte_etoiles',
+    'astuces','remarques','statut',
+    'tags','nb_complications','types_complications','nb_consultations','nb_radios'
+  ];
+  const lines = [headers.join(';')];
+  blocs.forEach(b => {
+    const compls = (b.complications||[]);
+    const consults = (b.consultations||[]);
+    const radios = b.radioCount ? Object.values(b.radioCount).reduce((a,n)=>a+n,0) : 0;
+    const row = [
+      b.date||'',
+      b.spec||'',
+      b.interv||'',
+      b.side||'',
+      b.role||'',
+      b.operateur||'',
+      b.duree||'',
+      b.patient||'',
+      b.age||'',
+      b.imc||'',
+      b.implants||'',
+      b.abord||'',
+      b.diff||'',
+      (b.astuces||'').replace(/\n/g,' '),
+      (b.remarques||'').replace(/\n/g,' '),
+      b.statut||'',
+      (b.tags||[]).join('|'),
+      compls.length,
+      compls.map(c=>c.type).filter(Boolean).join('|'),
+      consults.length,
+      radios
+    ];
+    lines.push(row.map(csv).join(';'));
+  });
+  // BOM UTF-8 pour qu'Excel ouvre proprement en français
+  const content = '\uFEFF' + lines.join('\n');
+  const blob = new Blob([content], {type:'text/csv;charset=utf-8'});
+  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+  const filename = 'orlog_blocs_'+ts+'.csv';
+  const result = await shareOrDownload(blob, filename);
+  if(result === 'aborted'){ showToast('Export annulé'); return; }
+  if(result === 'failed'){ showToast('Échec export CSV'); return; }
+  showToast('Export CSV OK — '+blocs.length+' lignes ('+(blob.size/1024).toFixed(1)+' Ko)');
 }
 
 async function _listAllRadioKeys(){
