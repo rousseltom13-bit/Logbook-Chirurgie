@@ -1946,26 +1946,16 @@ async function exportData(){
     planned:planned||[],
     radios:radiosB64
   };
-  const json=JSON.stringify(payload,null,2);
-  const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
-  const nRadios=radiosB64.filter(r=>r.data).length;
-  const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
-  if(isIOS){
-    _exportPayloadJson=json;
-    document.getElementById('export-modal-info').textContent=blocs.length+' blocs · '+nRadios+' radio(s) · '+sizeMb+' Mo';
-    document.getElementById('export-json-area').value=json.substring(0,500)+'…';
-    document.getElementById('export-copy-status').style.display='none';
-    closeModal('settings-modal');
-    openModal('export-modal');
-  } else {
-    const blob=new Blob([json],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='orlog_backup_'+ts+'.json';
-    a.style.display='none';document.body.appendChild(a);a.click();
-    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},5000);
-    showToast('Export OK — '+blocs.length+' blocs, '+nRadios+' radios ('+sizeMb+' Mo)');
-  }
+  // v13-rescue : on stringifie sans pretty-print pour économiser la RAM
+  const json = JSON.stringify(payload);
+  const sizeMb = (new Blob([json]).size/1024/1024).toFixed(1);
+  const nRadios = radiosB64.filter(r=>r.data).length;
+  const blob = new Blob([json], {type:'application/json'});
+  const filename = 'orlog_backup_'+ts+'.json';
+  const result = await shareOrDownload(blob, filename);
+  if(result === 'aborted'){ showToast('Export annulé'); return; }
+  if(result === 'failed'){ showToast('Échec export — voir Console'); return; }
+  showToast('Export OK — '+blocs.length+' blocs, '+nRadios+' radios ('+sizeMb+' Mo)');
 }
 async function copyExportData(){
   if(!_exportPayloadJson){showToast('Aucune donnée à copier');return;}
