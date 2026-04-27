@@ -242,7 +242,84 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .countdown.urgent{background:var(--red-l);color:var(--red-d);}
 .countdown.soon{background:var(--amber-l);color:var(--amber-d);}
 
-/* === Atlas v14 — UI overrides éditoriales === */
+/* === Atlas v14 — Mes blocs === */
+.atlas-blocs-head{position:relative;padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.atlas-search{width:100%;padding:10px 36px 10px 14px;font-size:16px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;outline:none;}
+.atlas-search:focus{border-color:var(--accent);}
+.atlas-filter-row{display:flex;gap:5px;padding:8px 16px;border-bottom:1px solid var(--border);}
+.atlas-pill{padding:5px 12px;font-size:12px;font-weight:500;border-radius:99px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;}
+.atlas-pill.active{background:var(--accent);color:white;border-color:var(--accent);}
+.atlas-pill-tags.active{background:var(--accent);color:white;border-color:var(--accent);}
+.bloc-month-section{border-bottom:1px solid var(--border);}
+.bloc-month-header{display:flex;justify-content:space-between;align-items:baseline;padding:12px 16px 6px;background:var(--bg2);}
+.bloc-month-header span:first-child{font-family:var(--serif);font-size:15px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+.bloc-month-header span:last-child{font-size:11px;color:var(--text3);}
+.bloc-item{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;background:var(--bg);}
+.bloc-item:last-child{border-bottom:none;}
+.bloc-item:active{background:var(--bg2);}
+
+/* === Atlas v14 — Détail bloc === */
+.atlas-det-topbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
+.atlas-iconbtn{width:34px;height:34px;border-radius:6px;background:transparent;border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.atlas-iconbtn svg{width:16px;height:16px;}
+.atlas-iconbtn:active{background:var(--bg2);}
+.atlas-det-hero{padding:22px 22px 18px;border-bottom:1px solid var(--border);}
+.atlas-det-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);font-weight:500;margin-bottom:6px;}
+.atlas-det-patient{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.025em;color:var(--text);line-height:1.1;margin-bottom:4px;}
+.atlas-det-interv{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--text2);font-style:italic;letter-spacing:-0.01em;margin-bottom:12px;}
+.atlas-det-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.atlas-det-role{font-size:13px;color:var(--text2);font-weight:500;}
+.atlas-det-sep{font-size:13px;color:var(--text3);}
+.atlas-det-meta-txt{font-size:13px;color:var(--text2);}
+.atlas-det-tabs{display:flex;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5;}
+.atlas-det-tab{flex:1;padding:12px 6px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;}
+.atlas-det-tab.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
+.atlas-det-tab-count{font-size:10px;font-weight:600;background:var(--bg2);color:var(--text3);padding:1px 5px;border-radius:99px;}
+.atlas-det-tab.active .atlas-det-tab-count{background:var(--accent-l);color:var(--accent);}
+/* Info cards */
+.atlas-info-card{margin:16px 16px 0;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px 16px;}
+.atlas-info-card:last-child{margin-bottom:80px;}
+.atlas-info-card-danger{background:var(--red-l);border-color:rgba(168,65,60,0.3);}
+.atlas-info-eyebrow{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:8px;}
+.atlas-info-serif{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);line-height:1.25;margin-bottom:6px;}
+.atlas-info-meta{font-size:13px;color:var(--text2);}
+.atlas-info-prose{font-family:var(--serif);font-size:14px;line-height:1.7;color:var(--text2);}
+.atlas-info-grid{display:grid;grid-template-columns:1fr 1fr;margin:16px 16px 0;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg2);}
+.atlas-info-cell{padding:12px 14px;}
+.atlas-info-cell:nth-child(odd){border-right:1px solid var(--border);}
+.atlas-info-cell:nth-child(3),.atlas-info-cell:nth-child(4){border-top:1px solid var(--border);}
+.atlas-info-cell-label{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:4px;}
+.atlas-info-cell-val{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+.atlas-tag{font-size:11px;color:var(--accent);background:var(--accent-l);padding:3px 9px;border-radius:99px;font-weight:500;}
+/* Stats overrides */
+#view-stats .dash-panel{padding:16px;}
+
+/* === Atlas v14 — Dashboard components === */
+.atlas-head{padding:28px 22px 18px;border-bottom:1px solid var(--border);}
+.atlas-head-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-weight:500;}
+.atlas-head-title{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.025em;color:var(--text);line-height:1.1;}
+.atlas-head-meta{margin-top:8px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.atlas-head-meta::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.atlas-kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);background:var(--border);margin-bottom:0;}
+.atlas-kpi{background:var(--bg);padding:18px 22px;display:flex;flex-direction:column;gap:4px;}
+.atlas-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.atlas-kpi-value{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-0.025em;line-height:1;color:var(--text);}
+.atlas-kpi-sub{font-size:12px;color:var(--text2);}
+.atlas-kpi-sub b{color:var(--warm);font-weight:600;}
+.atlas-tabs{display:flex;border-bottom:1px solid var(--border);}
+.atlas-tab{flex:1;padding:12px 6px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-family:inherit;letter-spacing:0.01em;}
+.atlas-tab.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
+.atlas-section{margin-bottom:22px;}
+.atlas-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.atlas-section-title{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+.atlas-section-link{font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+.atlas-dist{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 16px;}
+.atlas-dist-row{display:grid;grid-template-columns:72px 1fr 28px;gap:12px;align-items:center;padding:10px 0;}
+.atlas-dist-row+.atlas-dist-row{border-top:1px solid var(--border);}
+.atlas-dist-name{font-size:13px;color:var(--text2);}
+.atlas-dist-bar{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.atlas-dist-fill{height:100%;border-radius:99px;}
+.atlas-dist-count{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--text);text-align:right;}
 .stats-grid{gap:12px;margin-bottom:24px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px;}
 .stat-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:0;}
@@ -311,6 +388,41 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 #view-detail .det-tab{padding:13px 8px;font-size:13px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;border-radius:0;background:none;}
 #view-detail .det-tab.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;background:none;box-shadow:none;}
 
+
+/* Atlas v14 — saisie spec pills (visuelle au lieu du select) */
+.atlas-spec-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px;}
+.atlas-spec-pill{padding:12px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all 0.12s;}
+.atlas-spec-pill:hover{border-color:var(--border2);}
+.atlas-spec-pill .icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--text3);}
+.atlas-spec-pill .icon svg{width:24px;height:24px;}
+.atlas-spec-pill.on{border-color:var(--accent);background:var(--accent-l);color:var(--accent);font-weight:600;}
+.atlas-spec-pill.on.genou{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+.atlas-spec-pill.on.genou .icon{color:var(--accent);}
+.atlas-spec-pill.on.hanche{border-color:var(--purple);color:var(--purple);background:var(--purple-l);}
+.atlas-spec-pill.on.hanche .icon{color:var(--purple);}
+.atlas-spec-pill.on.trauma{border-color:var(--warm);color:var(--warm);background:var(--warm-l);}
+.atlas-spec-pill.on.trauma .icon{color:var(--warm);}
+/* Form-group polish */
+.form-group{margin-bottom:14px;}
+.form-group label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{background:var(--bg2);border:1px solid var(--border);border-radius:8px;}
+.form-group textarea{font-family:var(--serif);font-size:14px;line-height:1.6;}
+/* Stats sections polish */
+#view-stats .stat-section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;}
+#view-stats .stat-section-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;text-transform:none;color:var(--text);margin-bottom:12px;}
+#view-stats .period-tab{padding:5px 11px;font-size:11px;border:1px solid var(--border);background:var(--bg2);color:var(--text3);font-weight:500;}
+#view-stats .period-tab.active{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
+/* Btn primary Atlas */
+.btn-primary{background:var(--text);color:var(--bg);border-radius:8px;font-weight:600;}
+.btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-weight:500;}
+
+
+/* FAB-like pour Nouveau */
+.bnav-item[id="bn-saisie"]{position:relative;}
+.bnav-item[id="bn-saisie"] .bnav-icon{background:var(--accent);color:white;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(27,77,90,0.25);font-size:24px;font-weight:300;}
+.bnav-item[id="bn-saisie"]{color:var(--text2);}
+.bnav-item[id="bn-saisie"].active .bnav-icon{background:var(--text);}
+
 </style>
 </head>
 <body>
@@ -353,99 +465,134 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
-      <div class="atlas-greeting">
-        <div class="atlas-greeting-eyebrow" id="d-eyebrow"></div>
-        <div class="atlas-greeting-title">Bonjour Tom.</div>
-        <div class="atlas-greeting-meta" id="d-meta"></div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="d-total">0</div><div class="stat-sub" id="d-principal">0 en principal</div></div>
-        <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="d-compl-pct">0%</div><div class="stat-sub" id="d-compl-sub">0 cas</div></div>
-      </div>
-      <div class="dash-tabs">
-        <button class="dash-tab active" onclick="switchDashTab('recent',this)">Activité</button>
-        <button class="dash-tab" onclick="switchDashTab('planning',this)">Planning</button>
-        <button class="dash-tab" onclick="switchDashTab('complications',this)">Complications</button>
-      </div>
-      <div class="dash-panel active" id="dp-recent">
-        <div class="dash-row" style="margin-bottom:14px;">
-          <div class="dash-card" style="grid-column:1/-1;"><div class="dash-card-title">Répartition</div><div id="spec-bars"></div></div>
+      <!-- Header éditorial -->
+      <header class="atlas-head">
+        <div class="atlas-head-eyebrow" id="d-eyebrow"></div>
+        <h1 class="atlas-head-title">Bonjour Tom.</h1>
+        <div class="atlas-head-meta" id="d-meta"></div>
+      </header>
+
+      <!-- KPIs -->
+      <div class="atlas-kpis">
+        <div class="atlas-kpi">
+          <div class="atlas-kpi-label">Blocs</div>
+          <div class="atlas-kpi-value" id="d-total">0</div>
+          <div class="atlas-kpi-sub" id="d-principal">0 en principal</div>
         </div>
-        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Prochains blocs</div>
-        <div class="section"><div id="upcoming-list"></div></div>
+        <div class="atlas-kpi">
+          <div class="atlas-kpi-label">Complications</div>
+          <div class="atlas-kpi-value" id="d-compl-pct">0%</div>
+          <div class="atlas-kpi-sub" id="d-compl-sub">0 cas</div>
+        </div>
       </div>
+
+      <!-- Tabs -->
+      <div class="atlas-tabs" id="dash-tabs">
+        <button class="atlas-tab active" onclick="switchDashTab('recent',this)">Activité</button>
+        <button class="atlas-tab" onclick="switchDashTab('planning',this)">Planning</button>
+        <button class="atlas-tab" onclick="switchDashTab('complications',this)">Complications</button>
+      </div>
+
+      <!-- Panel Activité -->
+      <div class="dash-panel active" id="dp-recent">
+        <div class="atlas-section">
+          <div class="atlas-section-h">
+            <h2 class="atlas-section-title">Répartition</h2>
+          </div>
+          <div class="atlas-dist" id="spec-bars"></div>
+        </div>
+        <div class="atlas-section">
+          <div class="atlas-section-h">
+            <h2 class="atlas-section-title">Prochains blocs</h2>
+            <button class="atlas-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .atlas-tab')[1])">Calendrier</button>
+          </div>
+          <div id="upcoming-list"></div>
+        </div>
+      </div>
+
+      <!-- Panel Planning -->
       <div class="dash-panel" id="dp-planning">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
-          <div style="font-size:15px;font-weight:700;" id="cal-inline-title"></div>
+          <div style="font-size:15px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;" id="cal-inline-title"></div>
           <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
         </div>
         <div class="cal-month-header" id="cal-inline-header"></div>
         <div class="cal-month-grid" id="cal-inline-grid"></div>
-        <div style="margin-top:14px;">
-          <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Blocs prévus ce mois</div>
-          <div class="section"><div id="month-planned-list"></div></div>
+        <div class="atlas-section" style="margin-top:18px;">
+          <div class="atlas-section-h"><h2 class="atlas-section-title">Blocs prévus ce mois</h2></div>
+          <div id="month-planned-list"></div>
         </div>
       </div>
+
+      <!-- Panel Complications -->
       <div class="dash-panel" id="dp-complications">
         <div class="compl-overview" id="compl-overview"></div>
-        <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Détail</div>
-        <div id="compl-detail-list"></div>
+        <div class="atlas-section" style="margin-top:14px;">
+          <div class="atlas-section-h"><h2 class="atlas-section-title">Détail</h2></div>
+          <div id="compl-detail-list"></div>
+        </div>
       </div>
     </div>
 
     <!-- MES BLOCS -->
     <div class="view" id="view-blocs">
-      <!-- Recherche -->
-      <div style="position:relative;margin-bottom:10px;">
-        <input type="text" id="search-input" placeholder="Rechercher patient, interv, implant, astuces, suivi…" oninput="renderBlocs()"
-          style="width:100%;padding:10px 36px 10px 14px;font-size:16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;">
-        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;cursor:pointer;color:var(--text3);">×</span>
+      <div class="atlas-blocs-head">
+        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()"
+          class="atlas-search">
+        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:32px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;color:var(--text3);">×</span>
       </div>
-      <!-- Filtres spécialité -->
-      <div style="display:flex;gap:5px;margin-bottom:5px;" id="bloc-filters">
-        <button class="rtab active" onclick="filterB(this,'all')">Tous</button>
-        <button class="rtab" onclick="filterB(this,'Genou')">Genou</button>
-        <button class="rtab" onclick="filterB(this,'Hanche')">Hanche</button>
-        <button class="rtab" onclick="filterB(this,'Traumatologie')">Trauma</button>
+      <div class="atlas-filter-row" id="bloc-filters">
+        <button class="atlas-pill active" onclick="filterB(this,'all')">Tous</button>
+        <button class="atlas-pill" onclick="filterB(this,'Genou')">Genou</button>
+        <button class="atlas-pill" onclick="filterB(this,'Hanche')">Hanche</button>
+        <button class="atlas-pill" onclick="filterB(this,'Traumatologie')">Trauma</button>
       </div>
-      <!-- Filtres rôle -->
-      <div style="display:flex;gap:5px;margin-bottom:10px;" id="role-filters">
-        <button class="rtab active" onclick="filterRole(this,'all')">Tous rôles</button>
-        <button class="rtab" onclick="filterRole(this,'Principal')">Principal</button>
-        <button class="rtab" onclick="filterRole(this,'Aide')">Aide</button>
-        <!-- Bouton tags collapse -->
-        <button id="tags-toggle-btn" onclick="toggleTagsPanel()" style="margin-left:auto;padding:4px 10px;font-size:11px;border-radius:99px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">
-          <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon">▾</span>
+      <div class="atlas-filter-row" id="role-filters" style="margin-bottom:0;">
+        <button class="atlas-pill active" onclick="filterRole(this,'all')">Tous rôles</button>
+        <button class="atlas-pill" onclick="filterRole(this,'Principal')">Principal</button>
+        <button class="atlas-pill" onclick="filterRole(this,'Aide')">Aide</button>
+        <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="atlas-pill atlas-pill-tags" style="margin-left:auto;">
+          <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon" style="font-size:9px;margin-left:2px;">▾</span>
         </button>
       </div>
-      <!-- Panel tags collapsible -->
-      <div id="tags-panel" style="display:none;margin-bottom:10px;">
-        <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;padding:10px;background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border);"></div>
+      <div id="tags-panel" style="display:none;padding:10px 16px;border-bottom:1px solid var(--border);">
+        <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
       </div>
-      <!-- Compteur résultats -->
-      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;" id="search-count"></div>
-      <!-- Liste blocs -->
+      <div style="font-size:11px;color:var(--text3);padding:6px 16px 0;" id="search-count"></div>
       <div id="bloc-list"></div>
     </div>
     <!-- DETAIL BLOC -->
     <div class="view" id="view-detail">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-        <button onclick="sw('blocs')" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);padding:0;line-height:1;">&#8249;</button>
-        <div style="font-size:16px;font-weight:700;flex:1;" id="det-title">—</div>
+      <!-- Topbar retour -->
+      <div class="atlas-det-topbar">
+        <button onclick="sw('blocs')" class="atlas-iconbtn" aria-label="Retour">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="flex:1;"></div>
+        <button onclick="openEditModal()" class="atlas-iconbtn" aria-label="Modifier">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button onclick="confirmDelete()" class="atlas-iconbtn" aria-label="Supprimer" style="color:var(--red);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
       </div>
-      <div class="det-tabs">
-        <button class="det-tab active" onclick="switchDetTab('info',this)">Infos</button>
-        <button class="det-tab" onclick="switchDetTab('suivi',this)">Suivi</button>
-        <button class="det-tab" onclick="switchDetTab('radios',this)">Radios</button>
+      <!-- Hero éditorial -->
+      <div class="atlas-det-hero" id="det-hero">
+        <div class="atlas-det-eyebrow" id="det-eyebrow"></div>
+        <h1 class="atlas-det-patient" id="det-patient">—</h1>
+        <h2 class="atlas-det-interv" id="det-interv-hero"></h2>
+        <div class="atlas-det-meta-row" id="det-meta-row"></div>
+      </div>
+      <!-- Tabs -->
+      <div class="atlas-det-tabs" id="det-tabs-bar">
+        <button class="atlas-det-tab active" onclick="switchDetTab('info',this)">Infos</button>
+        <button class="atlas-det-tab" onclick="switchDetTab('suivi',this)">Suivi <span class="atlas-det-tab-count" id="det-suivi-count"></span></button>
+        <button class="atlas-det-tab" onclick="switchDetTab('radios',this)">Radios <span class="atlas-det-tab-count" id="det-radios-count"></span></button>
       </div>
       <div class="det-panel active" id="det-info"></div>
       <div class="det-panel" id="det-suivi"></div>
       <div class="det-panel" id="det-radios"></div>
-      <div style="display:flex;gap:10px;margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
-        <button class="btn-secondary" style="flex:1;" onclick="openEditModal()">Modifier</button>
-        <button class="btn-secondary" style="flex:1;color:var(--red-d);border-color:var(--red);" onclick="confirmDelete()">Supprimer</button>
-      </div>
     </div>
 
     <!-- SAISIE -->
@@ -460,7 +607,23 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       </div>
       <div class="form-group"><label>Date du bloc</label><input type="date" id="f-date"></div>
       <div class="form-row">
-        <div class="form-group"><label>Spécialité</label><select id="f-spec" onchange="upInterv()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
+        <div class="form-group"><label>Spécialité <span style="color:var(--warm);">*</span></label>
+        <div class="atlas-spec-pills">
+          <button type="button" class="atlas-spec-pill genou" onclick="atlasSelectSpec('Genou',this)">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg></span>
+            Genou
+          </button>
+          <button type="button" class="atlas-spec-pill hanche" onclick="atlasSelectSpec('Hanche',this)">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg></span>
+            Hanche
+          </button>
+          <button type="button" class="atlas-spec-pill trauma" onclick="atlasSelectSpec('Traumatologie',this)">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg></span>
+            Trauma
+          </button>
+        </div>
+        <select id="f-spec" onchange="upInterv()" style="display:none;"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select>
+        </div>
         <div class="form-group form-quick-hide"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
       </div>
       <div class="form-group"><label>Intervention</label>
@@ -1171,8 +1334,8 @@ function renderAll(){renderDash();renderBlocs();}
 
 // ── DASHBOARD ──
 function switchDashTab(tab,btn){
-  document.querySelectorAll('.dash-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#dash-tabs .atlas-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#view-dashboard .dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='complications')renderComplications();
   if(tab==='recent'){renderUpcoming();}
@@ -1200,7 +1363,10 @@ function renderDash(){
   document.getElementById('d-compl-pct').textContent=cPct+'%';
   document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
   const maxS=Math.max(genou,hanche,trauma,1);
-  document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>`<div class="spec-item"><div class="spec-label-row"><span>${s.n}</span><span style="font-weight:600;">${s.v}</span></div><div class="spec-bar-wrap"><div class="spec-bar" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_COLORS[s.n]};"></div></div></div>`).join('');
+  const SPEC_FILL={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'var(--warm)'};
+  document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>
+    `<div class="atlas-dist-row"><span class="atlas-dist-name">${s.n}</span><div class="atlas-dist-bar"><div class="atlas-dist-fill" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_FILL[s.n]};"></div></div><span class="atlas-dist-count">${s.v}</span></div>`
+  ).join('');
   renderPlanning();
   if(document.getElementById('dp-planning')&&document.getElementById('dp-planning').classList.contains('active')){renderInlineCalendar();renderMonthPlannedList();}
   const recent=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,4);
@@ -1224,8 +1390,8 @@ function renderComplications(){
 }
 
 // ── MES BLOCS ──
-function filterB(btn,spec){document.querySelectorAll('#bloc-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
-function filterRole(btn,role){document.querySelectorAll('#role-filters .rtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRoleFilter=role;renderBlocs();}
+function filterB(btn,spec){document.querySelectorAll('#bloc-filters .atlas-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
+function filterRole(btn,role){document.querySelectorAll('#role-filters .atlas-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRoleFilter=role;renderBlocs();}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
 function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
 let tagsOpen=false;
@@ -1327,7 +1493,7 @@ function renderBlocs(){
 
 // ── DETAIL BLOC ──
 function switchDetTab(tab,btn){
-  document.querySelectorAll('.det-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.atlas-det-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('det-'+tab).classList.add('active');
   curDetTab=tab;
@@ -1336,62 +1502,59 @@ function switchDetTab(tab,btn){
 }
 function openBlocDetail(bi){
   detailBlocIdx=bi;const b=blocs[bi];
-  const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
-  const rc=b.role==='Principal'?'bp':'ba';
   const{dc,tc,sl}=statusClasses(b.statut);
   const stars=b.diff?'★'.repeat(b.diff)+'☆'.repeat(5-b.diff):'—';
-  const tags=(b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${esc(t)}</span>`).join('');
+  const tags=(b.tags||[]).map(t=>`<span class="atlas-tag">${esc(t)}</span>`).join('');
   const nc=(b.complications||[]).length;
-  const complList=(b.complications||[]).map(c=>`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(c.clavien.split('—')[0].trim())}</span>`:''}</div>${c.detail?`<div style="color:var(--text2);">${escNl(c.detail)}</div>`:''}</div>`).join('');
-  // v14 Atlas hero
-  const detTitle=document.getElementById('det-title');
-  if(detTitle){
-    detTitle.innerHTML='<div class="det-eyebrow">'+esc(fmtDate(b.date))+(b.side?' · '+esc(b.side):'')+'</div>'
-      +'<div class="det-patient">'+esc(b.patient||'—')+'</div>'
-      +'<div class="det-interv">'+esc(displayInterv(b.interv))+'</div>';
+  const complList=(b.complications||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(c.clavien.split('—')[0].trim())}</span>`:''}</div>${c.detail?`<div style="font-size:13px;color:var(--text2);font-family:var(--serif);line-height:1.6;">${escNl(c.detail)}</div>`:''}</div>`).join('');
+  // Hero Atlas
+  const eyebrow=document.getElementById('det-eyebrow');
+  const patient=document.getElementById('det-patient');
+  const intervHero=document.getElementById('det-interv-hero');
+  const metaRow=document.getElementById('det-meta-row');
+  if(eyebrow)eyebrow.textContent=fmtDate(b.date)+(b.side?' · '+b.side:'')+(b.spec?' · '+b.spec:'');
+  if(patient)patient.textContent=b.patient||'—';
+  if(intervHero)intervHero.textContent=displayInterv(b.interv)||'—';
+  if(metaRow){
+    const roleLabel=b.role==='Principal'?'Chirurgien principal':'Aide opératoire';
+    const statusPill=`<span class="bloc-status-pill ${{vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'}[b.statut]||'attente'}">${sl}</span>`;
+    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${statusPill}`;
   }
+  // Tab counts
+  const nc2=(b.consultations||[]).length;
+  const scEl=document.getElementById('det-suivi-count');
+  const rcEl=document.getElementById('det-radios-count');
+  if(scEl)scEl.textContent=nc2||'';
+  if(rcEl){const nr=b.radioCount?Object.values(b.radioCount).reduce((a,v)=>a+v,0):0;rcEl.textContent=nr||'';}
+  // Infos panel
   document.getElementById('det-info').innerHTML=`
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-      <span class="badge ${bc}">${b.spec}</span><span class="badge ${rc}">${b.role}</span>
-      <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(b.date)}</span>
-      <span class="status-row"><span class="sdot ${dc}"></span><span class="${tc}" style="font-size:12px;">${sl}</span></span>
+    <div class="atlas-info-card">
+      <div class="atlas-info-eyebrow">Intervention</div>
+      <div class="atlas-info-serif">${esc(displayInterv(b.interv))||'—'}</div>
+      <div class="atlas-info-meta">${[b.side,b.abord,b.duree?b.duree+' min':null].filter(Boolean).join(' · ')||'—'}</div>
     </div>
-    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${esc(displayInterv(b.interv))||'—'}</div>
-      <div style="font-size:13px;color:var(--text2);">${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}</div>
-    </div></div>
-    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
-      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Implants</div>
-      <div style="font-size:14px;color:var(--text);">${esc(b.implants)||'Non renseigné'}</div>
-    </div></div>
-    ${b.astuces?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Difficultés & astuces</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${escNl(b.astuces)}</div></div></div>`:''}
-    ${b.remarques?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Remarques</div><div style="font-size:13px;color:var(--text2);line-height:1.6;">${escNl(b.remarques)}</div></div></div>`:''}
-    <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Patient</div><div style="font-size:14px;font-weight:600;">${esc(b.patient)||'—'}</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Âge</div><div style="font-size:14px;font-weight:600;">${b.age?b.age+' ans':'—'}</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">IMC</div><div style="font-size:14px;font-weight:600;">${b.imc||'—'}</div></div>
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Difficulté</div><div style="font-size:14px;color:var(--amber);">${stars}</div></div>
-        ${b.role==='Aide'&&b.operateur?`<div style="grid-column:1/-1;"><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Opérateur aidé</div><div style="font-size:14px;font-weight:600;">${esc(b.operateur)}</div></div>`:''}
-        <div><div style="font-size:11px;color:var(--text3);margin-bottom:2px;">Complications</div><div style="font-size:14px;font-weight:600;color:${nc>0?'var(--red)':'var(--text)'};">${nc>0?nc+' cas':'Aucune'}</div></div>
-      </div>
-      ${tags?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">${tags}</div>`:''}
-    </div></div>
-    ${nc>0?`<div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Complications</div>${complList}</div></div>`:''}
+    <div class="atlas-info-grid">
+      <div class="atlas-info-cell"><div class="atlas-info-cell-label">Patient</div><div class="atlas-info-cell-val">${esc(b.patient)||'—'}</div></div>
+      <div class="atlas-info-cell"><div class="atlas-info-cell-label">Âge</div><div class="atlas-info-cell-val">${b.age?b.age+' ans':'—'}</div></div>
+      <div class="atlas-info-cell"><div class="atlas-info-cell-label">IMC</div><div class="atlas-info-cell-val">${b.imc||'—'}</div></div>
+      <div class="atlas-info-cell"><div class="atlas-info-cell-label">Difficulté</div><div class="atlas-info-cell-val" style="color:var(--amber);">${stars}</div></div>
+    </div>
+    ${b.implants?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Implants</div><div class="atlas-info-prose">${esc(b.implants)}</div></div>`:''}
+    ${b.astuces?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Difficultés & astuces</div><div class="atlas-info-prose">${escNl(b.astuces)}</div></div>`:''}
+    ${b.remarques?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Remarques</div><div class="atlas-info-prose">${escNl(b.remarques)}</div></div>`:''}
+    ${nc>0?`<div class="atlas-info-card atlas-info-card-danger"><div class="atlas-info-eyebrow" style="color:var(--red-d);">Complications (${nc})</div>${complList}</div>`:''}
+    ${tags?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Tags</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${tags}</div></div>`:''}
   `;
   // Reset tabs
-  document.querySelectorAll('.det-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.atlas-det-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.det-tab')[0].classList.add('active');
+  document.querySelectorAll('.atlas-det-tab')[0].classList.add('active');
   document.getElementById('det-info').classList.add('active');
   curDetTab='info';
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-detail').classList.add('active');
-  document.getElementById('bn-blocs').classList.add('active');
 }
-
 // ── ONGLET SUIVI (dans détail) ──
 function renderDetSuivi(bi){
   const b=blocs[bi];
@@ -1803,6 +1966,14 @@ function applyQuickModePref(){
       if(sw) sw.classList.add('on');
     }
   }catch(e){}
+}
+
+
+function atlasSelectSpec(spec, btn){
+  document.querySelectorAll('.atlas-spec-pill').forEach(p=>p.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const sel=document.getElementById('f-spec');
+  if(sel){ sel.value=spec; if(typeof upInterv==='function') upInterv(); }
 }
 
 function initForm(){
