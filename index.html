@@ -5,50 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="OrLog">
-<meta name="theme-color" content="#8B4A14" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-title" content="Atlas">
+<meta name="theme-color" content="#1B4D5A" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1e1e1c" media="(prefers-color-scheme: dark)">
-<title>OrLog</title>
+<title>Atlas — Le journal du chirurgien moderne</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{
-  --bg:#F2EAD8;--bg2:#E8DEC8;--bg3:#DDD0B8;--bg4:#CFC0A0;
-  --text:#2C1F0E;--text2:#6B5030;--text3:#9A7A58;
-  --border:rgba(100,70,30,0.15);--border2:rgba(100,70,30,0.28);
-  --accent:#8B4A14;--accent-l:#F5E4D0;
-  --blue:#2A6496;--blue-l:#D8EAF5;--blue-d:#1A4066;
-  --green:#4A7A2A;--green-l:#DCF0CC;--green-d:#2A4A14;
-  --amber:#B06A10;--amber-l:#FAE8CC;--amber-d:#6A3A00;
-  --red:#B03030;--red-l:#FAD8D8;--red-d:#6A1010;
-  --purple:#7040C0;--purple-l:#EAE0F8;--purple-d:#3A2060;
+  /* Atlas v14 — palette light */
+  --bg:#FAFAF5;--bg2:#FFFFFF;--bg3:#F3F1EA;--bg4:#E2DFD5;
+  --text:#16181D;--text2:#3D434F;--text3:#7B8290;
+  --border:rgba(60,55,40,0.10);--border2:rgba(60,55,40,0.18);
+  --accent:#1B4D5A;--accent-l:#E5EDEF;
+  --blue:#1B4D5A;--blue-l:#E5EDEF;--blue-d:#0E2C36;
+  --green:#3F6B3D;--green-l:#E6EFE2;--green-d:#264020;
+  --amber:#A06A12;--amber-l:#F5E6CC;--amber-d:#6A3A00;
+  --red:#A8413C;--red-l:#F2DDDA;--red-d:#6A1010;
+  --purple:#7A5687;--purple-l:#E9DEEF;--purple-d:#3A2060;
+  --warm:#C97864;--warm-l:#F6E7E0;
   --radius:10px;--radius-lg:16px;
+  --serif:'Charter','Iowan Old Style','Source Serif Pro',Georgia,serif;
   --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
   color-scheme:light;
 }
 @media(prefers-color-scheme:dark){
   :root:not(.theme-light){
-    --bg:#1e1e1c;--bg2:#272725;--bg3:#2f2f2c;--bg4:#383835;
-    --text:#ece8e1;--text2:#a09890;--text3:#6e6860;
-    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
-    --accent:#C87840;--accent-l:#3A2410;
-    --blue:#4A9FD0;--blue-l:#0e2a3a;--blue-d:#A0D4F0;
-    --green:#5AAA3A;--green-l:#0e2a0e;--green-d:#A0E080;
-    --amber:#D08A30;--amber-l:#2a1e04;--amber-d:#F0C070;
-    --red:#D05050;--red-l:#2a0e0e;--red-d:#F09090;
-    --purple:#A070E0;--purple-l:#1e1630;--purple-d:#C0A0F0;
+    /* Atlas v14 — palette dark Linear-like */
+    --bg:#08080A;--bg2:#101013;--bg3:#17171C;--bg4:#1F1F26;
+    --text:#ECECF0;--text2:#9C9CA8;--text3:#5C5C68;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+    --accent:#5E96B8;--accent-l:rgba(94,150,184,0.14);
+    --blue:#5E96B8;--blue-l:rgba(94,150,184,0.14);--blue-d:#7BB3D5;
+    --green:#5FB875;--green-l:rgba(95,184,117,0.14);--green-d:#A0E080;
+    --amber:#D9A24F;--amber-l:rgba(217,162,79,0.14);--amber-d:#F0C070;
+    --red:#E36B65;--red-l:rgba(227,107,101,0.14);--red-d:#FFA0A0;
+    --purple:#A88AD0;--purple-l:rgba(168,138,208,0.14);--purple-d:#C0A0F0;
+    --warm:#D8866E;--warm-l:rgba(216,134,110,0.14);
     color-scheme:dark;
   }
 }
 :root.theme-dark{
-  --bg:#1e1e1c;--bg2:#272725;--bg3:#2f2f2c;--bg4:#383835;
-  --text:#ece8e1;--text2:#a09890;--text3:#6e6860;
-  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
-  --accent:#C87840;--accent-l:#3A2410;
-  --blue:#4A9FD0;--blue-l:#0e2a3a;--blue-d:#A0D4F0;
-  --green:#5AAA3A;--green-l:#0e2a0e;--green-d:#A0E080;
-  --amber:#D08A30;--amber-l:#2a1e04;--amber-d:#F0C070;
-  --red:#D05050;--red-l:#2a0e0e;--red-d:#F09090;
-  --purple:#A070E0;--purple-l:#1e1630;--purple-d:#C0A0F0;
+  --bg:#08080A;--bg2:#101013;--bg3:#17171C;--bg4:#1F1F26;
+  --text:#ECECF0;--text2:#9C9CA8;--text3:#5C5C68;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#5E96B8;--accent-l:rgba(94,150,184,0.14);
+  --blue:#5E96B8;--blue-l:rgba(94,150,184,0.14);--blue-d:#7BB3D5;
+  --green:#5FB875;--green-l:rgba(95,184,117,0.14);--green-d:#A0E080;
+  --amber:#D9A24F;--amber-l:rgba(217,162,79,0.14);--amber-d:#F0C070;
+  --red:#E36B65;--red-l:rgba(227,107,101,0.14);--red-d:#FFA0A0;
+  --purple:#A88AD0;--purple-l:rgba(168,138,208,0.14);--purple-d:#C0A0F0;
+  --warm:#D8866E;--warm-l:rgba(216,134,110,0.14);
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -57,7 +63,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;}
 .topbar-logo{display:flex;align-items:center;gap:10px;}
 .logo-icon{width:34px;height:34px;}
-.topbar-title{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
+.topbar-title{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-0.025em;}
 .topbar-sub{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
 .sync-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
 
@@ -65,12 +71,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .view{display:none;padding:16px;}.view.active{display:block;}
 .bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;font-size:10px;color:var(--text3);cursor:pointer;gap:3px;border:none;background:none;font-family:inherit;}
-.bnav-item.active{color:var(--accent);}
+.bnav-item.active{color:var(--text);}
 .bnav-icon{font-size:20px;line-height:1;}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .stat-card{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;border:0.5px solid var(--border);}
 .stat-label{font-size:11px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;}
-.stat-val{font-size:28px;font-weight:700;letter-spacing:-1px;}
+.stat-val{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.02em;}
 .stat-sub{font-size:11px;color:var(--text2);margin-top:2px;}
 .dash-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border);}
 .dash-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;text-align:center;}
@@ -89,7 +95,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .recent-interv{font-size:11px;color:var(--text2);margin-top:1px;}
 .section{border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:12px;background:var(--bg);}
 .section-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg2);cursor:pointer;}
-.section-title{font-size:14px;font-weight:600;}
+.section-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;}
 .section-sub{font-size:12px;color:var(--text2);margin-top:2px;}
 .section-body{padding:14px;display:none;}.section-body.open{display:block;}
 .badge{display:inline-flex;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:500;}
@@ -235,6 +241,76 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .countdown{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--accent-l);color:var(--accent);}
 .countdown.urgent{background:var(--red-l);color:var(--red-d);}
 .countdown.soon{background:var(--amber-l);color:var(--amber-d);}
+
+/* === Atlas v14 — UI overrides éditoriales === */
+.stats-grid{gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px;}
+.stat-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:0;}
+.stat-val{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-0.02em;line-height:1;color:var(--text);}
+.stat-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.stat-sub b,.kpi-sub b{color:var(--warm);font-weight:600;}
+.dash-tabs{background:transparent;border:none;padding:0;border-bottom:1px solid var(--border);margin-bottom:18px;border-radius:0;}
+.dash-tab{flex:1;padding:11px 4px;font-size:13px;font-weight:500;color:var(--text3);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;border-radius:0;}
+.dash-tab.active{background:none;color:var(--text);border-bottom-color:var(--accent);font-weight:600;box-shadow:none;}
+.dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;}
+.dash-card-title{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:14px;}
+.spec-item{margin-bottom:12px;}.spec-item:last-child{margin-bottom:0;}
+.spec-label-row{font-size:14px;color:var(--text);}
+.spec-label-row span:last-child{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;}
+.spec-bar-wrap{height:6px;background:var(--bg3);}
+.section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;}
+.section-hdr{background:transparent;}
+.section-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;}
+.bloc-item{padding:14px 16px;}
+.bloc-item .bloc-meta,.bloc-item .bloc-date{font-size:12px;color:var(--text2);}
+.bloc-month-section{border-radius:0;border:none;margin-bottom:0;background:transparent;}
+.bloc-month-header{background:transparent;padding:18px 16px 8px;border-bottom:none;font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;text-transform:capitalize;color:var(--text);}
+.bloc-month-header span:last-child{font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.bloc-item .badge{font-family:-apple-system,sans-serif;}
+.recent-item{padding:12px 0;}
+.recent-name{font-weight:600;color:var(--text);}
+.recent-interv{font-family:var(--serif);font-size:14px;font-weight:500;letter-spacing:-0.005em;color:var(--text);margin-top:2px;}
+/* Greeting hero du dashboard */
+.atlas-greeting{padding:8px 0 18px;}
+.atlas-greeting-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-weight:500;}
+.atlas-greeting-title{font-family:var(--serif);font-size:32px;font-weight:500;letter-spacing:-0.025em;color:var(--text);line-height:1.1;}
+.atlas-greeting-meta{margin-top:6px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.atlas-greeting-meta::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);}
+/* Détail bloc — hero éditorial */
+#view-detail .topbar{padding:14px 16px 18px;border-bottom:1px solid var(--border);}
+#det-title{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-0.015em;}
+#det-info .badge{font-family:-apple-system,sans-serif;}
+#det-info .section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;}
+.compl-card,.compl-name{font-family:-apple-system,sans-serif;}
+.compl-count{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;}
+.kpi-value,.donut-val,.dist-count{font-family:var(--serif);}
+/* Stats sections */
+.stat-section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;}
+.stat-section-title{font-size:10px;letter-spacing:0.16em;color:var(--text3);font-weight:600;}
+/* Bouton Sync — navy sobre */
+.sync-btn{background:var(--accent)!important;color:white!important;border-color:var(--accent)!important;font-weight:600;}
+
+
+/* Atlas v14 — status badges colorés (au lieu du sdot seul) */
+.bloc-item .status-row{display:none;}
+.bloc-item .bloc-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;font-family:-apple-system,sans-serif;}
+.bloc-item .bloc-status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+.bloc-status-pill.bon{background:var(--green-l);color:var(--green-d);}
+.bloc-status-pill.vigilance{background:var(--amber-l);color:var(--amber-d);}
+.bloc-status-pill.complication{background:var(--red-l);color:var(--red-d);}
+.bloc-status-pill.attente{background:var(--bg3);color:var(--text3);}
+.bloc-status-pill.pdv{background:var(--bg3);color:var(--text2);}
+.bloc-status-pill.deces{background:#2C2C2A;color:white;}
+/* Détail bloc — hero éditorial */
+#view-detail{padding:0;}
+#view-detail .topbar-detail{padding:24px 22px 20px;border-bottom:1px solid var(--border);}
+#view-detail .det-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-weight:500;}
+#view-detail .det-patient{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.02em;color:var(--text);line-height:1.15;}
+#view-detail .det-interv{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--text2);font-style:italic;letter-spacing:-0.01em;margin-top:4px;}
+#view-detail .det-tabs{padding:0 16px;}
+#view-detail .det-tab{padding:13px 8px;font-size:13px;font-weight:500;color:var(--text3);border-bottom:2px solid transparent;border-radius:0;background:none;}
+#view-detail .det-tab.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;background:none;box-shadow:none;}
+
 </style>
 </head>
 <body>
@@ -263,31 +339,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 <div id="app" style="display:none;">
   <div class="topbar">
     <div class="topbar-logo">
-      <svg class="logo-icon" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg">
-        <rect width="34" height="34" rx="8" fill="var(--accent)"/>
-        <rect x="13.5" y="24" width="7" height="5" rx="2" fill="#c8906a"/>
-        <ellipse cx="17" cy="18" rx="8.5" ry="9" fill="#e0a878"/>
-        <path d="M8.5 17.5 Q8.5 9 17 8 Q25.5 9 25.5 17.5 Q23 15.5 17 15 Q11 15.5 8.5 17.5Z" fill="#2860B0"/>
-        <path d="M8.5 17.5 Q11 16 17 15.5 Q23 16 25.5 17.5 Q23 16.5 17 16 Q11 16.5 8.5 17.5Z" fill="#1a4a90"/>
-        <ellipse cx="8.5" cy="19.5" rx="1.8" ry="2.3" fill="#c8906a"/>
-        <ellipse cx="25.5" cy="19.5" rx="1.8" ry="2.3" fill="#c8906a"/>
-        <ellipse cx="13.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
-        <ellipse cx="20.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
-        <circle cx="13.8" cy="18.5" r="1" fill="#2a1000"/>
-        <circle cx="20.8" cy="18.5" r="1" fill="#2a1000"/>
-        <path d="M9.5 20 Q9.8 19 17 18.8 Q24.2 19 24.5 20 L25 24 Q24.2 27 17 27.2 Q9.8 27 9 24Z" fill="#d8eaff"/>
-        <path d="M10 21.5 Q17 21 24 21.5" fill="none" stroke="rgba(100,130,200,0.5)" stroke-width="0.6"/>
-        <path d="M9.5 23 Q17 22.5 24.5 23" fill="none" stroke="rgba(100,130,200,0.5)" stroke-width="0.6"/>
-        <path d="M9.8 24.5 Q17 24 24.2 24.5" fill="none" stroke="rgba(100,130,200,0.5)" stroke-width="0.6"/>
-        <path d="M9.5 20 Q8.5 19 8.5 18" fill="none" stroke="#c0d4f0" stroke-width="0.8" stroke-linecap="round"/>
-        <path d="M24.5 20 Q25.5 19 25.5 18" fill="none" stroke="#c0d4f0" stroke-width="0.8" stroke-linecap="round"/>
-      </svg>
-      <div><div class="topbar-title">OrLog</div><div class="topbar-sub">Logbook chirurgical</div></div>
+      <div><div class="topbar-title" style="font-family:'Charter','Iowan Old Style',Georgia,serif;font-weight:600;letter-spacing:-0.025em;">Atlas</div><div class="topbar-sub" style="font-style:italic;">Le journal du chirurgien moderne</div></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
-      <button class="sync-btn" onclick="toggleTheme()" id="theme-btn" style="padding:6px 10px;font-size:16px;">☀️</button>
+      <button class="sync-btn" onclick="toggleTheme()" id="theme-btn" style="padding:6px 10px;display:flex;align-items:center;justify-content:center;">☀</button>
       <button class="sync-btn" onclick="showSettings()" style="background:var(--accent);color:white;border-color:var(--accent);">
-        ⇅ Sync
+        Sync
       </button>
     </div>
   </div>
@@ -296,6 +353,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
+      <div class="atlas-greeting">
+        <div class="atlas-greeting-eyebrow" id="d-eyebrow"></div>
+        <div class="atlas-greeting-title">Bonjour Tom.</div>
+        <div class="atlas-greeting-meta" id="d-meta"></div>
+      </div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Blocs total</div><div class="stat-val" id="d-total">0</div><div class="stat-sub" id="d-principal">0 en principal</div></div>
         <div class="stat-card"><div class="stat-label">Complications</div><div class="stat-val" id="d-compl-pct">0%</div><div class="stat-sub" id="d-compl-sub">0 cas</div></div>
@@ -402,6 +464,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
         <div class="form-group form-quick-hide"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
       </div>
       <div class="form-group"><label>Intervention</label>
+        <select id="f-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('f')">
+          <option value="">Choisir une région…</option>
+          <option value="Membre inférieur">Membre inférieur</option>
+          <option value="Membre supérieur">Membre supérieur</option>
+          <option value="Péri-prothétiques">Péri-prothétiques</option>
+        </select>
         <select id="f-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
         <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
       </div>
@@ -593,7 +661,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Côté</label><select id="p-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
     </div>
     <div class="form-group"><label>Intervention</label>
-      <select id="p-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
+      <select id="p-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('p')">
+          <option value="">Choisir une région…</option>
+          <option value="Membre inférieur">Membre inférieur</option>
+          <option value="Membre supérieur">Membre supérieur</option>
+          <option value="Péri-prothétiques">Péri-prothétiques</option>
+        </select>
+        <select id="p-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
       <input type="text" id="p-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
     </div>
     <div class="form-group"><label>Patient (initiales)</label><input type="text" id="p-patient" placeholder="ex. J.D." autocomplete="off" list="dl-patients"></div>
@@ -659,9 +733,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       3. Importe — les données sont fusionnées automatiquement
     </div>
     <div style="display:flex;gap:10px;margin-bottom:12px;">
-      <button class="btn-primary" style="flex:1;margin-top:0;" onclick="exportData()">⬇ Exporter JSON</button>
+      <button class="btn-primary" style="flex:1;margin-top:0;" onclick="exportData()">Exporter JSON</button>
       <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
-      <button class="btn-secondary" style="flex:1;padding:14px 16px;font-size:15px;font-weight:600;border-radius:var(--radius-lg);" onclick="document.getElementById('import-file-input').click()">⬆ Importer & fusionner</button>
+      <button class="btn-secondary" style="flex:1;padding:14px 16px;font-size:15px;font-weight:600;border-radius:var(--radius-lg);" onclick="document.getElementById('import-file-input').click()">Importer & fusionner</button>
     </div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.6;">L'import fusionne intelligemment — les blocs des deux appareils sont conservés, sans doublon.</div>
     <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
@@ -727,7 +801,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
       <div class="form-group"><label>Côté</label><select id="e-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
     </div>
     <div class="form-group"><label>Intervention</label>
-      <select id="e-interv" style="display:block;"></select>
+      <select id="e-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('e')">
+          <option value="">Choisir une région…</option>
+          <option value="Membre inférieur">Membre inférieur</option>
+          <option value="Membre supérieur">Membre supérieur</option>
+          <option value="Péri-prothétiques">Péri-prothétiques</option>
+        </select>
+        <select id="e-interv" style="display:block;"></select>
       <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
     </div>
     <div class="form-row">
@@ -768,14 +848,272 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const INTERV={
-  Genou:['PTG','PTG de révision','Ligamentoplastie LCA (DIDT)','Ligamentoplastie LCA (KJ)','Ligamentoplastie LCA (DT3+2)','Méniscectomie arthroscopique','Suture méniscale','Ostéotomie tibiale de valgisation','Prothèse unicompartimentale','Autre genou'],
-  Hanche:['PTH voie antérolatérale','PTH voie postérieure','PTH de révision','Vissage col fémoral','Prothèse intermédiaire','Autre hanche'],
-  Traumatologie:['Fracture col fémur — DHS','Fracture col fémur — clouage','Fracture tibia — enclouage','Fracture fémur — enclouage','Fracture cheville — ostéosynthèse','Fracture radius distal','Autre traumatologie']
+// v14-Atlas : nomenclature canonique
+// Trauma a une structure hiérarchique (sections) — la liste plate est générée pour rétrocompat
+const INTERV_HIER = {
+  Genou: {
+    '': ['PTG','RePTG','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Ostéotomie','TTA + MPFL','Autre']
+  },
+  Hanche: {
+    '': ['PTH voie postérieure','Ablation de matériel + PTH','PTH de révision','PTH Hueter','Autre']
+  },
+  Traumatologie: {
+    'Membre inférieur': {
+      'Bassin': '__LIBRE__',
+      'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage'],
+      'Fémur': ['Plaque','Clou'],
+      'Genou': ['Fracture de rotule'],
+      'Tibia': ['Plateau tibial','Clou','Pilon tibial'],
+      'Cheville': ['Malléole latérale','Fracture bi-malléolaire','Fracture tri-malléolaire'],
+      'Pied': '__LIBRE__',
+      'Autre': '__LIBRE__'
+    },
+    'Membre supérieur': {
+      'Épaule': ['PTEI','Plaque','Clou'],
+      'Clavicule': '__LIBRE__',
+      'Humérus': ['Plaque','Enclouage centromédullaire'],
+      'Coude': ['Palette humérale','Terrible triade','Tête radiale','Olécrane'],
+      'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire'],
+      'Poignet': ['Plaque','Kapandji'],
+      'Main': '__LIBRE__',
+      'Autre': '__LIBRE__'
+    },
+    'Péri-prothétiques': {
+      '': ['Fracture péri-PTH','Fracture péri-PTG','Fracture péri-PTE']
+    }
+  }
 };
+// v14b : génération du markup HTML du select avec optgroups pour trauma
+// Convention : value contenant "__LIBRE__" → ouvre le champ texte libre
+function buildIntervSelectHTML(spec, region){
+  let html = '<option value="">— Sélectionner —</option>';
+  if(spec === 'Traumatologie'){
+    const node = INTERV_HIER.Traumatologie;
+    if(!region){
+      // Aucune région choisie : message
+      return '<option value="">Choisir une région d\'abord…</option>';
+    }
+    const sub = node[region];
+    if(!sub) return html;
+    if(Array.isArray(sub)){
+      sub.forEach(item => {
+        const canonical = region + ' — ' + item;
+        html += `<option value="${esc(canonical)}">${esc(item)}</option>`;
+      });
+      return html;
+    }
+    if(sub && typeof sub === 'object' && '' in sub && Array.isArray(sub[''])){
+      // Péri-prothétiques avec clé vide
+      for(const item of sub['']){
+        const canonical = region + ' — ' + item;
+        html += `<option value="${esc(canonical)}">${esc(item)}</option>`;
+      }
+      return html;
+    }
+    // Mb inf / Mb sup : optgroups par sous-section
+    for(const subName of Object.keys(sub)){
+      const items = sub[subName];
+      if(items === '__LIBRE__'){
+        const canonical = region + ' — ' + subName + ' — __LIBRE__';
+        html += `<option value="${esc(canonical)}" data-libre="1">${esc(subName)}…</option>`;
+      } else if(Array.isArray(items)){
+        html += `<optgroup label="${esc(subName)}">`;
+        for(const item of items){
+          const canonical = region + ' — ' + subName + ' — ' + item;
+          html += `<option value="${esc(canonical)}">${esc(item)}</option>`;
+        }
+        html += '</optgroup>';
+      }
+    }
+  } else {
+    const items = (INTERV_HIER[spec] && INTERV_HIER[spec][''] ) || [];
+    for(const item of items){
+      if(item === 'Autre'){
+        html += '<option value="__LIBRE__" data-libre="1">Autre…</option>';
+      } else {
+        html += `<option value="${esc(item)}">${esc(item)}</option>`;
+      }
+    }
+  }
+  return html;
+}
+// Liste plate pour la migration / autocomplete (sans option vide)
+
+function onTraumaRegionChange(prefix){
+  const region = document.getElementById(prefix+'-trauma-region').value;
+  const sel = document.getElementById(prefix+'-interv');
+  const libre = document.getElementById(prefix+'-interv-libre');
+  if(!region){
+    sel.innerHTML='<option>Choisir une région d\'abord</option>';
+    if(libre) libre.style.display='none';
+    return;
+  }
+  sel.innerHTML = buildIntervSelectHTML('Traumatologie', region);
+  sel.onchange = ()=>toggleIntervLibre(prefix);
+  toggleIntervLibre(prefix);
+}
+
+function _flatList(spec){
+  const out = [];
+  if(spec === 'Traumatologie'){
+    const node = INTERV_HIER.Traumatologie;
+    for(const sectionName of Object.keys(node)){
+      const sub = node[sectionName];
+      if(sub && typeof sub === 'object' && '' in sub && Array.isArray(sub[''])){
+        for(const item of sub['']) out.push(sectionName + ' — ' + item);
+        continue;
+      }
+      for(const subName of Object.keys(sub)){
+        const items = sub[subName];
+        if(items === '__LIBRE__') continue;
+        if(Array.isArray(items)) for(const item of items) out.push(sectionName + ' — ' + subName + ' — ' + item);
+      }
+    }
+  } else {
+    const items = (INTERV_HIER[spec] && INTERV_HIER[spec][''] ) || [];
+    for(const item of items) if(item !== 'Autre') out.push(item);
+  }
+  return out;
+}
+const INTERV = {
+  Genou: _flatList('Genou'),
+  Hanche: _flatList('Hanche'),
+  Traumatologie: _flatList('Traumatologie')
+};
+
+// v14-Atlas : table de migration des anciens libellés vers le canonique (mapping fuzzy auto)
+const INTERV_MIGRATION = {
+  // Genou — anciens v12/v13 → canonique v14
+  'PTG de révision': 'RePTG',
+  'Ligamentoplastie LCA (DIDT)': 'LCA (DT3+2)',
+  'Ligamentoplastie LCA (KJ)': 'LCA (DT3+2)',
+  'Ligamentoplastie LCA (DT3+2)': 'LCA (DT3+2)',
+  'Méniscectomie arthroscopique': 'Méniscectomie',
+  'Ostéotomie tibiale de valgisation': 'Ostéotomie',
+  'Prothèse unicompartimentale': 'PTG',
+  'Autre genou': 'Autre',
+  // Hanche
+  'PTH voie antérolatérale': 'PTH Hueter',
+  'Vissage col fémoral': 'Triple vissage',
+  'Prothèse intermédiaire': 'PTH voie postérieure',
+  'Autre hanche': 'Autre',
+  // Trauma
+  'Fracture col fémur — DHS': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
+  'Fracture col fémur — clouage': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
+  'Fracture tibia — enclouage': 'Membre inférieur — Tibia — Clou',
+  'Fracture fémur — enclouage': 'Membre inférieur — Fémur — Clou',
+  'Fracture cheville — ostéosynthèse': 'Membre inférieur — Cheville — Fracture bi-malléolaire',
+  'Fracture radius distal': 'Membre supérieur — Poignet — Plaque',
+  'Autre traumatologie': 'Membre inférieur — Autre (Mb inf) (libre)'
+};
+
+function migrateInterv(label){
+  if(!label) return label;
+  // Match exact d'abord
+  if(INTERV_MIGRATION[label]) return INTERV_MIGRATION[label];
+  // Fuzzy : insensible à la casse, accents, espaces, ponctuation
+  const norm = s => String(s)
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')  // supprime accents
+    .replace(/[\s\-—,.()]+/g,'');
+  const target = norm(label);
+  for(const [old, neu] of Object.entries(INTERV_MIGRATION)){
+    if(norm(old) === target) return neu;
+  }
+  // Patterns fuzzy progressifs
+  // — Trauma cheville
+  if(target.includes('bimal')) return 'Membre inférieur — Cheville — Fracture bi-malléolaire';
+  if(target.includes('trimal')) return 'Membre inférieur — Cheville — Fracture tri-malléolaire';
+  if(target.includes('malleole') && target.includes('lat')) return 'Membre inférieur — Cheville — Malléole latérale';
+  if(target.includes('malleolelat')) return 'Membre inférieur — Cheville — Malléole latérale';
+  // — Trauma hanche
+  if(target.includes('cloug') || target.includes('clougamma')) return 'Membre inférieur — Hanche (trauma) — Clou Gamma';
+  if(target.includes('dhs')) return 'Membre inférieur — Hanche (trauma) — Clou Gamma';
+  if(target.includes('triplevissage') || target.includes('vissagecol')) return 'Membre inférieur — Hanche (trauma) — Triple vissage';
+  if(target.includes('pthcrochet')) return 'Membre inférieur — Hanche (trauma) — PTH + Crochet';
+  // — Trauma fémur / tibia
+  if(target.includes('femur')){
+    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Fémur — Clou';
+    if(target.includes('plaque')) return 'Membre inférieur — Fémur — Plaque';
+  }
+  if(target.includes('tibia')){
+    if(target.includes('plateau')) return 'Membre inférieur — Tibia — Plateau tibial';
+    if(target.includes('pilon')) return 'Membre inférieur — Tibia — Pilon tibial';
+    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Tibia — Clou';
+  }
+  // — Trauma membre supérieur
+  if(target.includes('radiusdistal') || (target.includes('radius') && target.includes('distal'))) return 'Membre supérieur — Poignet — Plaque';
+  if(target.includes('kapandji')) return 'Membre supérieur — Poignet — Kapandji';
+  if(target.includes('humerus') && target.includes('plaque')) return 'Membre supérieur — Humérus — Plaque';
+  if(target.includes('humerus') && (target.includes('clou') || target.includes('enclouage'))) return 'Membre supérieur — Humérus — Enclouage centromédullaire';
+  if(target.includes('clavicule')) return 'Membre supérieur — Clavicule (libre)';
+  if(target.includes('olecrane') || target.includes('olecrane')) return 'Membre supérieur — Coude — Olécrane';
+  if(target.includes('teteradiale') || target.includes('tetederadius')) return 'Membre supérieur — Coude — Tête radiale';
+  if(target.includes('palettehumerale')) return 'Membre supérieur — Coude — Palette humérale';
+  if(target.includes('terrible')) return 'Membre supérieur — Coude — Terrible triade';
+  if(target.includes('galeazzi')) return 'Membre supérieur — Avant bras — Galeazzi';
+  if(target.includes('monteggia')) return 'Membre supérieur — Avant bras — Monteggia';
+  if(target.includes('ptei')) return 'Membre supérieur — Épaule — PTEI';
+  // — Genou
+  if(target.includes('didt') || target.includes('dt32') || (target.includes('lca') && !target.includes('reprise'))) return 'LCA (DT3+2)';
+  if(target.includes('repriselca') || (target.includes('reprise') && target.includes('lca'))) return 'Reprise LCA';
+  if(target.includes('meniscectomie')) return 'Méniscectomie';
+  if(target.includes('sutureménisc') || target.includes('suturemenisc')) return 'Suture méniscale';
+  if(target.includes('osteotomie')) return 'Ostéotomie';
+  if(target.includes('ttampfl') || target.includes('mpfl')) return 'TTA + MPFL';
+  if(target.includes('puc') || target.includes('unicompart')) return 'PTG';
+  if(target === 'reptg' || target === 'ptgrevision') return 'RePTG';
+  // — Hanche
+  if(target.includes('hueter') || target.includes('anterolat')) return 'PTH Hueter';
+  if(target.includes('voiepost') || (target.includes('pth') && target.includes('post'))) return 'PTH voie postérieure';
+  if(target.includes('ablationmateriel')) return 'Ablation de matériel + PTH';
+  if(target.includes('intermediaire')) return 'PTH voie postérieure';
+  // — Révisions génériques
+  if(target.includes('revision')){
+    if(target.includes('pth')) return 'PTH de révision';
+    if(target.includes('ptg')) return 'RePTG';
+  }
+  // — Péri-prothétiques
+  if(target.includes('peripth') || (target.includes('peri') && target.includes('pth'))) return 'Péri-prothétiques — Fracture péri-PTH';
+  if(target.includes('periptg') || (target.includes('peri') && target.includes('ptg'))) return 'Péri-prothétiques — Fracture péri-PTG';
+  if(target.includes('rotule')) return 'Membre inférieur — Genou — Fracture de rotule';
+  if(target.includes('peripte') || (target.includes('peri') && target.includes('pte'))) return 'Péri-prothétiques — Fracture péri-PTE';
+  // Inchangé si rien ne match
+  return label;
+}
+
+// Migration en masse : lance UNE FOIS au démarrage si pas déjà fait
+function runIntervMigration(){
+  try{
+    const FLAG = 'atlas_interv_migrated_v14c';
+    if(localStorage.getItem(FLAG) === '1') return;
+    let migrated = 0;
+    blocs.forEach(b => {
+      const newLabel = migrateInterv(b.interv);
+      if(newLabel !== b.interv){
+        b._interv_original = b.interv;  // on garde l'ancien libellé pour audit
+        b.interv = newLabel;
+        migrated++;
+      }
+    });
+    (planned||[]).forEach(p => {
+      const newLabel = migrateInterv(p.interv);
+      if(newLabel !== p.interv){
+        p._interv_original = p.interv;
+        p.interv = newLabel;
+        migrated++;
+      }
+    });
+    if(migrated > 0){
+      saveLocal();
+      console.info('[Atlas v14] Migration : '+migrated+' libellé(s) d\'intervention re-mappé(s) au canonique');
+    }
+    localStorage.setItem(FLAG, '1');
+  }catch(e){ console.warn('[Atlas v14] Migration interv échouée:', e); }
+}
 const RT=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
-const SPEC_COLORS={Genou:'var(--blue)',Hanche:'var(--purple)',Traumatologie:'var(--amber)'};
-const CC={accent:'#8B4A14',accent2:'#CFC0A0',blue:'#2A6496',purple:'#7040C0',amber:'#B06A10',red:'#B03030',green:'#4A7A2A',gray:'#9A7A58'};
+const SPEC_COLORS={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'var(--warm)'};
+const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#A06A12',red:'#A8413C',green:'#3F6B3D',gray:'#7B8290',warm:'#C97864'};
 
 let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
@@ -814,7 +1152,7 @@ function refreshDatalists(){
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · App v13-rescue';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v14';
   openModal('settings-modal');
 }
 
@@ -841,6 +1179,19 @@ function switchDashTab(tab,btn){
   if(tab==='planning'){renderInlineCalendar();renderMonthPlannedList();}
 }
 function renderDash(){
+  // Atlas greeting
+  try{
+    const el_eb=document.getElementById('d-eyebrow');
+    const el_mt=document.getElementById('d-meta');
+    if(el_eb){
+      const today=new Date();
+      el_eb.textContent=today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    }
+    if(el_mt){
+      const futurs=(planned||[]).filter(p=>{const d=new Date(p.date);d.setHours(0);const t=new Date();t.setHours(0);const diff=(d-t)/86400000;return diff>=0 && diff<=7;});
+      el_mt.textContent=futurs.length?futurs.length+' bloc'+(futurs.length>1?'s':'')+' prévu'+(futurs.length>1?'s':'')+' cette semaine':'Aucun bloc prévu cette semaine';
+    }
+  }catch(e){}
   const total=blocs.length,genou=blocs.filter(b=>b.spec==='Genou').length,hanche=blocs.filter(b=>b.spec==='Hanche').length,trauma=blocs.filter(b=>b.spec==='Traumatologie').length,principal=blocs.filter(b=>b.role==='Principal').length;
   const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push(c)));
   const cPct=total>0?Math.round(allC.length/total*100):0;
@@ -858,7 +1209,7 @@ function renderDash(){
   if(rel){
     if(!recent.length){rel.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';}
     else{
-      rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${esc(b.patient)||'—'}</div><div class="recent-interv">${esc((b.interv||'').substring(0,20))}</div></div><div class="status-row"><span class="sdot ${dc}"></span><span class="${tc}">${sl}</span></div></div>`;}).join('');
+      rel.innerHTML=recent.map(b=>{const{dc,tc,sl}=statusClasses(b.statut);return`<div class="recent-item"><div><div class="recent-name">${esc(b.patient)||'—'}</div><div class="recent-interv">${esc(displayInterv(b.interv).substring(0,20))}</div></div><div class="status-row"><span class="bloc-status-pill ${({vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'})[b.statut]||'attente'}">${({vert:'Bon',orange:'Vigilance',rouge:'Compli.',gris:'En attente',pdv:'PDV',deces:'Décès'})[b.statut]||'En attente'}</span><span class="${tc}">${sl}</span></div></div>`;}).join('');
     }
   }
 }
@@ -869,7 +1220,7 @@ function renderComplications(){
   const el=document.getElementById('compl-overview');
   if(!types.length){el.innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✓</div>Aucune complication</div>';}
   else{const maxC=Math.max(...types.map(t=>counts[t]),1);el.innerHTML=types.map(t=>`<div class="compl-card"><div class="compl-name">${t}</div><div class="compl-count">${counts[t]}</div><div class="compl-pct">${Math.round(counts[t]/total*100)}% des blocs</div><div class="compl-bar-wrap"><div class="compl-bar" style="width:${Math.round(counts[t]/maxC*100)}%;"></div></div></div>`).join('');}
-  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${esc(c.patient)||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${esc((c.interv||'').substring(0,18))}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(clav)}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${escNl(c.detail)}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
+  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${esc(c.patient)||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${esc(displayInterv(c.interv).substring(0,18))}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(clav)}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${escNl(c.detail)}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
 }
 
 // ── MES BLOCS ──
@@ -955,7 +1306,7 @@ function renderBlocs(){
       return`<div class="bloc-item" onclick="openBlocDetail(${bi})">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
           <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
-            <span class="badge ${bc}" style="flex-shrink:0;">${esc((b.interv||'').substring(0,22))}</span>
+            <span class="badge ${bc}" style="flex-shrink:0;">${esc(displayInterv(b.interv).substring(0,22))}</span>
             <span class="badge ${rc}" style="flex-shrink:0;">${b.role}</span>
             ${badges}
           </div>
@@ -992,7 +1343,13 @@ function openBlocDetail(bi){
   const tags=(b.tags||[]).map(t=>`<span class="tag" style="pointer-events:none;">${esc(t)}</span>`).join('');
   const nc=(b.complications||[]).length;
   const complList=(b.complications||[]).map(c=>`<div style="padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px;"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(c.clavien.split('—')[0].trim())}</span>`:''}</div>${c.detail?`<div style="color:var(--text2);">${escNl(c.detail)}</div>`:''}</div>`).join('');
-  document.getElementById('det-title').textContent=(b.patient||'—')+' — '+(b.interv||'');
+  // v14 Atlas hero
+  const detTitle=document.getElementById('det-title');
+  if(detTitle){
+    detTitle.innerHTML='<div class="det-eyebrow">'+esc(fmtDate(b.date))+(b.side?' · '+esc(b.side):'')+'</div>'
+      +'<div class="det-patient">'+esc(b.patient||'—')+'</div>'
+      +'<div class="det-interv">'+esc(displayInterv(b.interv))+'</div>';
+  }
   document.getElementById('det-info').innerHTML=`
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
       <span class="badge ${bc}">${b.spec}</span><span class="badge ${rc}">${b.role}</span>
@@ -1001,7 +1358,7 @@ function openBlocDetail(bi){
     </div>
     <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:8px;">Intervention</div>
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${esc(b.interv)||'—'}</div>
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px;">${esc(displayInterv(b.interv))||'—'}</div>
       <div style="font-size:13px;color:var(--text2);">${b.side?b.side+' · ':''}${b.abord||''}${b.duree?' · '+b.duree+' min':''}</div>
     </div></div>
     <div class="section" style="margin-bottom:10px;"><div style="padding:12px 14px;">
@@ -1308,17 +1665,39 @@ function openEditModal(){
 }
 function upIntervEdit(){
   const sp=document.getElementById('e-spec').value;
-  const sel=document.getElementById('e-interv');const libre=document.getElementById('e-interv-libre');
-  if(!sp){sel.innerHTML='<option>—</option>';sel.style.display='block';if(libre)libre.style.display='none';return;}
-  if(sp==='Traumatologie'){sel.style.display='none';if(libre)libre.style.display='block';}
-  else{sel.style.display='block';if(libre)libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('e');toggleIntervLibre('e');}
+  const sel=document.getElementById('e-interv');
+  const libre=document.getElementById('e-interv-libre');
+  const region=document.getElementById('e-trauma-region');
+  if(!sp){sel.innerHTML='<option>—</option>';sel.style.display='block';if(libre)libre.style.display='none';if(region)region.style.display='none';return;}
+  if(sp === 'Traumatologie'){
+    if(region){ region.style.display='block'; if(!region.value) region.value=''; }
+    sel.style.display='block';
+    if(region && region.value){ sel.innerHTML = buildIntervSelectHTML(sp, region.value); }
+    else { sel.innerHTML='<option>Choisir une région d\'abord</option>'; }
+    if(libre) libre.style.display='none';
+    sel.onchange=()=>toggleIntervLibre('e');
+    toggleIntervLibre('e');
+    return;
+  }
+  if(region) region.style.display='none';
+  sel.style.display='block';
+  sel.innerHTML = buildIntervSelectHTML(sp);
+  sel.onchange=()=>toggleIntervLibre('e');
+  toggleIntervLibre('e');
 }
 function saveEdit(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
+  // v14c : résolution __LIBRE__
+  const _eSelVal = document.getElementById('e-interv').value || '';
+  const _eLibre = (document.getElementById('e-interv-libre').value||'').trim();
+  let _eIv = _eSelVal;
+  if(_eSelVal.includes('__LIBRE__')){
+    if(!_eLibre){showToast('Préciser l\'intervention');return;}
+    _eIv = _eSelVal === '__LIBRE__' ? _eLibre : _eSelVal.replace(' — __LIBRE__', ' — ' + _eLibre);
+  }
   b.date=document.getElementById('e-date').value;
   b.spec=document.getElementById('e-spec').value;
-  const eSelVal=document.getElementById('e-interv').value;
-  b.interv=b.spec==='Traumatologie'||eSelVal.startsWith('Autre')?document.getElementById('e-interv-libre').value:eSelVal;
+  b.interv = _eIv;
   b.side=document.getElementById('e-side').value;
   b.role=document.getElementById('e-role').value;
   b.duree=parseInt(document.getElementById('e-duree').value)||null;
@@ -1343,9 +1722,13 @@ function toggleOperateur(prefix){
 function toggleIntervLibre(prefix){
   const sel=document.getElementById(prefix+'-interv');const libre=document.getElementById(prefix+'-interv-libre');
   if(!sel||!libre)return;
-  const isAutre=sel.value.startsWith('Autre');
-  libre.style.display=isAutre?'block':'none';
-  if(isAutre){libre.placeholder='Préciser l\'intervention...';libre.value='';}
+  const v = sel.value || '';
+  const isLibre = v.includes('__LIBRE__') || v.startsWith('Autre');
+  libre.style.display = isLibre ? 'block' : 'none';
+  if(isLibre){
+    libre.placeholder = 'Préciser l\'intervention…';
+    if(libre.value === '') setTimeout(()=>{ try{libre.focus();}catch(e){} }, 50);
+  }
 }
 function handleEditTag(e){
   if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!editTags.includes(v)){editTags.push(v);renderEditTags();}e.target.value='';}
@@ -1435,10 +1818,28 @@ function initForm(){
 }
 function upInterv(){
   const sp=document.getElementById('f-spec').value;
-  const sel=document.getElementById('f-interv');const libre=document.getElementById('f-interv-libre');
-  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
-  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.placeholder='Décrire l\'intervention...';libre.value='';libre.focus();}
-  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');sel.onchange=()=>toggleIntervLibre('f');toggleIntervLibre('f');}
+  const sel=document.getElementById('f-interv');
+  const libre=document.getElementById('f-interv-libre');
+  const region=document.getElementById('f-trauma-region');
+  if(!sp){
+    sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
+    sel.style.display='block';
+    if(libre) libre.style.display='none';
+    if(region) region.style.display='none';
+    return;
+  }
+  if(sp === 'Traumatologie'){
+    if(region){ region.style.display='block'; region.value=''; }
+    sel.style.display='block';
+    sel.innerHTML='<option>Choisir une région d\'abord</option>';
+    if(libre) libre.style.display='none';
+    return;
+  }
+  if(region) region.style.display='none';
+  sel.style.display='block';
+  sel.innerHTML = buildIntervSelectHTML(sp);
+  sel.onchange=()=>toggleIntervLibre('f');
+  toggleIntervLibre('f');
 }
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
@@ -1464,7 +1865,15 @@ function renderTags(){
 function saveBloc(){
   const sp=document.getElementById('f-spec').value;
   const selVal=document.getElementById('f-interv').value;
-  const iv=sp==='Traumatologie'||selVal.startsWith('Autre')?document.getElementById('f-interv-libre').value:selVal;
+  // v14c : canonique = remplace __LIBRE__ par le texte du champ libre
+  const libreVal = (document.getElementById('f-interv-libre').value||'').trim();
+  let iv;
+  if(selVal.includes('__LIBRE__')){
+    if(!libreVal){showToast('Préciser l\'intervention');return;}
+    iv = selVal === '__LIBRE__' ? libreVal : selVal.replace(' — __LIBRE__', ' — ' + libreVal);
+  } else {
+    iv = selVal;
+  }
   if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
   // v13-rescue : flag "à compléter" si saisi en mode rapide
   const isQuick = document.getElementById('view-saisie').classList.contains('quick-mode');
@@ -1617,7 +2026,7 @@ function renderComplByIntervFiltered(filter){
   el.innerHTML=withCompl.map(([name,v])=>{
     const pct=Math.round(v.compl/v.total*100);
     const color=pct>=50?CC.red:pct>=25?CC.amber:CC.green;
-    return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span><span style="font-weight:600;color:${color};">${pct}% (${v.compl}/${v.total})</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div></div></div>`;
+    return`<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${esc(displayInterv(name))}</span><span style="font-weight:600;color:${color};">${pct}% (${v.compl}/${v.total})</span></div><div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div></div></div>`;
   }).join('');
 }
 
@@ -1657,7 +2066,7 @@ function renderTopInterventions(){
     const color=isH?CC.purple:isG?CC.blue:CC.amber;
     return`<div style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${name}</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">${esc(displayInterv(name))}</span>
         <span style="font-weight:600;">${v.total}</span>
       </div>
       <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:4px;">
@@ -1735,7 +2144,7 @@ function renderUpcoming(){
     return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span class="badge ${bc}">${esc((p.interv||'—').substring(0,20))}</span>
+          <span class="badge ${bc}">${esc(displayInterv(p.interv).substring(0,20))||'—'}</span>
           ${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}
         </div>
         ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
@@ -1800,7 +2209,7 @@ function renderMonthPlannedList(){
     const idx=planned.indexOf(p);const bc=bc_map[p.spec]||'';const cd=countdown(p.date);
     return`<div class="planned-item" onclick="openPlannedDetail(${idx})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:6px;"><span class="badge ${bc}">${esc((p.interv||'—').substring(0,20))}</span>${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}</div>
+        <div style="display:flex;align-items:center;gap:6px;"><span class="badge ${bc}">${esc(displayInterv(p.interv).substring(0,20))||'—'}</span>${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}</div>
         ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
       </div>
       <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
@@ -1871,7 +2280,7 @@ function renderDayBlocs(ds){
     return`<div style="padding:10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;" onclick="closeModal('day-modal');openPlannedDetail(${idx});">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
         <span class="badge ${bc}">${p.spec}</span>
-        <span style="font-size:13px;font-weight:600;">${esc(p.interv)||'—'}</span>
+        <span style="font-size:13px;font-weight:600;">${esc(displayInterv(p.interv))||'—'}</span>
       </div>
       ${p.patient?`<div style="font-size:12px;color:var(--text2);">${esc(p.patient)}${p.side?' · '+p.side:''}</div>`:''}
       ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:4px;">📋 ${esc(p.comment)}</div>`:''}
@@ -1898,10 +2307,22 @@ function openNewPlannedModal(ds){
 }
 function upIntervPlanned(){
   const sp=document.getElementById('p-spec').value;
-  const sel=document.getElementById('p-interv');const libre=document.getElementById('p-interv-libre');
-  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';libre.style.display='none';return;}
-  if(sp==='Traumatologie'){sel.style.display='none';libre.style.display='block';libre.placeholder='Décrire l\'intervention...';libre.value='';libre.focus();}
-  else{sel.style.display='block';libre.style.display='none';sel.innerHTML=INTERV[sp].map(i=>`<option>${i}</option>`).join('');}
+  const sel=document.getElementById('p-interv');
+  const libre=document.getElementById('p-interv-libre');
+  const region=document.getElementById('p-trauma-region');
+  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';if(libre)libre.style.display='none';if(region)region.style.display='none';return;}
+  if(sp === 'Traumatologie'){
+    if(region){ region.style.display='block'; region.value=''; }
+    sel.style.display='block';
+    sel.innerHTML='<option>Choisir une région d\'abord</option>';
+    if(libre) libre.style.display='none';
+    return;
+  }
+  if(region) region.style.display='none';
+  sel.style.display='block';
+  sel.innerHTML = buildIntervSelectHTML(sp);
+  sel.onchange=()=>toggleIntervLibre('p');
+  toggleIntervLibre('p');
 }
 function savePlanned(){
   const sp=document.getElementById('p-spec').value;
@@ -1929,7 +2350,7 @@ function openPlannedDetail(idx){
       <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(p.date)}</span>
       ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
     </div>
-    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${esc(p.interv)||'—'}</div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">${esc(displayInterv(p.interv))||'—'}</div>
     ${p.side?`<div style="font-size:13px;color:var(--text2);margin-bottom:8px;">${p.side}</div>`:''}
     ${p.patient?`<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Patient : ${esc(p.patient)}</div>`:''}
     ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:13px;color:var(--amber-d);line-height:1.5;">📋 ${escNl(p.comment)}</div>`:''}
@@ -2172,7 +2593,7 @@ function updateThemeBtn(){
   const sysDark=matchMedia('(prefers-color-scheme:dark)').matches;
   const currentlyDark=root.classList.contains('theme-dark')||(sysDark&&!root.classList.contains('theme-light'));
   const btn=document.getElementById('theme-btn');
-  if(btn)btn.textContent=currentlyDark?'☀️':'🌙';
+  if(btn)btn.innerHTML=currentlyDark?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 }
 function initTheme(){
   const saved=localStorage.getItem('orlog_theme');
@@ -2210,8 +2631,8 @@ async function setupBiometric(){
     const challenge = crypto.getRandomValues(new Uint8Array(32));
     const cred = await navigator.credentials.create({publicKey:{
       challenge,
-      rp:{name:'OrLog',id:location.hostname},
-      user:{id:new TextEncoder().encode('orlog-user'),name:'orlog',displayName:'OrLog'},
+      rp:{name:'Atlas',id:location.hostname},
+      user:{id:new TextEncoder().encode('orlog-user'),name:'orlog',displayName:'Atlas'},
       pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
       authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
       timeout:60000
@@ -2258,6 +2679,7 @@ async function unlockApp(){
 function showApp(){
   document.getElementById('lockscreen').style.display='none';
   document.getElementById('app').style.display='flex';
+  try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
@@ -2265,7 +2687,7 @@ function showApp(){
   // Proposer de configurer la biométrie si pas encore fait
   if(!localStorage.getItem(LS_BIO_SET) && isBiometricSupported()){
     setTimeout(()=>{
-      if(confirm('Activer Touch ID / Face ID pour protéger OrLog ?')){setupBiometric();}
+      if(confirm('Activer Touch ID / Face ID pour protéger Atlas ?')){setupBiometric();}
     }, 800);
   }
 }
@@ -2284,7 +2706,7 @@ function updateLockscreen(){
     if(setupBtn) setupBtn.style.display='none';
   } else {
     icon.textContent = '🔓';
-    label.textContent = 'Accéder à OrLog';
+    label.textContent = 'Accéder à Atlas';
     hint.textContent = 'Touch ID / Face ID non configuré';
     if(setupBtn) setupBtn.style.display='block';
   }
@@ -2302,6 +2724,16 @@ function dataURLByteSize(dataURL){
   const b64 = c>=0 ? dataURL.slice(c+1) : dataURL;
   // taille décodée approximative (3 octets pour 4 caractères base64)
   return Math.floor(b64.length * 0.75);
+}
+
+
+// v14 : raccourci d'affichage — garde la dernière partie après " — "
+function displayInterv(label){
+  if(!label) return '';
+  const parts = String(label).split(' — ');
+  let last = parts[parts.length-1].trim();
+  if(last.endsWith(' (libre)')) last = last.slice(0, -' (libre)'.length).trim();
+  return last;
 }
 
 function fmtBytes(n){
