@@ -67,8 +67,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .topbar-sub{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
 .sync-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
 
-.views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
-.view{display:none;padding:16px;}.view.active{display:block;}
+.views{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.view{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}.view.active{display:flex;}
+.view-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:80px;}
 .bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 4px 6px;font-size:10px;color:var(--text3);cursor:pointer;gap:3px;border:none;background:none;font-family:inherit;}
 .bnav-item.active{color:var(--text);}
@@ -243,10 +244,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .countdown.soon{background:var(--amber-l);color:var(--amber-d);}
 
 /* === Atlas v14 — Mes blocs === */
-.atlas-blocs-head{position:relative;padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.atlas-blocs-sticky{flex-shrink:0;border-bottom:1px solid var(--border);background:var(--bg);}
+.atlas-blocs-head{position:relative;padding:12px 16px 8px;}
 .atlas-search{width:100%;padding:10px 36px 10px 14px;font-size:16px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;outline:none;}
 .atlas-search:focus{border-color:var(--accent);}
-.atlas-filter-row{display:flex;gap:5px;padding:8px 16px;border-bottom:1px solid var(--border);}
+.atlas-filter-row{display:flex;gap:5px;padding:6px 16px;border-bottom:1px solid var(--border);}
 .atlas-pill{padding:5px 12px;font-size:12px;font-weight:500;border-radius:99px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;}
 .atlas-pill.active{background:var(--accent);color:white;border-color:var(--accent);}
 .atlas-pill-tags.active{background:var(--accent);color:white;border-color:var(--accent);}
@@ -257,6 +259,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .bloc-item{display:flex;flex-direction:column;gap:3px;padding:11px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;background:var(--bg);}
 .bloc-item:last-child{border-bottom:none;}
 .bloc-item:active{background:var(--bg2);}
+/* Détail — scroll interne */
+#view-detail{overflow:hidden;}
+#view-detail .det-panel{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+#view-detail .det-panel.active{display:block;}
+/* Stats — scroll interne */
+#view-stats .view-scroll{padding:0;}
+#view-stats .dash-panel{padding:16px;}
 
 /* === Atlas v14 — Détail bloc === */
 .atlas-det-topbar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg);}
@@ -465,14 +474,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
-      <!-- Header éditorial -->
+      <!-- Header fixe -->
       <header class="atlas-head">
         <div class="atlas-head-eyebrow" id="d-eyebrow"></div>
         <h1 class="atlas-head-title">Bonjour Tom.</h1>
         <div class="atlas-head-meta" id="d-meta"></div>
       </header>
-
-      <!-- KPIs -->
+      <!-- KPIs fixes -->
       <div class="atlas-kpis">
         <div class="atlas-kpi">
           <div class="atlas-kpi-label">Blocs</div>
@@ -485,82 +493,83 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
           <div class="atlas-kpi-sub" id="d-compl-sub">0 cas</div>
         </div>
       </div>
-
-      <!-- Tabs -->
+      <!-- Tabs fixes -->
       <div class="atlas-tabs" id="dash-tabs">
         <button class="atlas-tab active" onclick="switchDashTab('recent',this)">Activité</button>
         <button class="atlas-tab" onclick="switchDashTab('planning',this)">Planning</button>
         <button class="atlas-tab" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
-
-      <!-- Panel Activité -->
-      <div class="dash-panel active" id="dp-recent">
-        <div class="atlas-section">
-          <div class="atlas-section-h">
-            <h2 class="atlas-section-title">Répartition</h2>
+      <!-- Contenu scrollable -->
+      <div class="view-scroll">
+        <div class="dash-panel active" id="dp-recent">
+          <div class="atlas-section">
+            <div class="atlas-section-h">
+              <h2 class="atlas-section-title">Répartition</h2>
+            </div>
+            <div class="atlas-dist" id="spec-bars"></div>
           </div>
-          <div class="atlas-dist" id="spec-bars"></div>
-        </div>
-        <div class="atlas-section">
-          <div class="atlas-section-h">
-            <h2 class="atlas-section-title">Prochains blocs</h2>
-            <button class="atlas-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .atlas-tab')[1])">Calendrier</button>
+          <div class="atlas-section">
+            <div class="atlas-section-h">
+              <h2 class="atlas-section-title">Prochains blocs</h2>
+              <button class="atlas-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .atlas-tab')[1])">Calendrier</button>
+            </div>
+            <div id="upcoming-list"></div>
           </div>
-          <div id="upcoming-list"></div>
         </div>
-      </div>
-
-      <!-- Panel Planning -->
-      <div class="dash-panel" id="dp-planning">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
-          <div style="font-size:15px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;" id="cal-inline-title"></div>
-          <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+        <div class="dash-panel" id="dp-planning">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
+            <div style="font-size:15px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;" id="cal-inline-title"></div>
+            <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+          </div>
+          <div class="cal-month-header" id="cal-inline-header"></div>
+          <div class="cal-month-grid" id="cal-inline-grid"></div>
+          <div class="atlas-section" style="margin-top:18px;">
+            <div class="atlas-section-h"><h2 class="atlas-section-title">Blocs prévus ce mois</h2></div>
+            <div id="month-planned-list"></div>
+          </div>
         </div>
-        <div class="cal-month-header" id="cal-inline-header"></div>
-        <div class="cal-month-grid" id="cal-inline-grid"></div>
-        <div class="atlas-section" style="margin-top:18px;">
-          <div class="atlas-section-h"><h2 class="atlas-section-title">Blocs prévus ce mois</h2></div>
-          <div id="month-planned-list"></div>
-        </div>
-      </div>
-
-      <!-- Panel Complications -->
-      <div class="dash-panel" id="dp-complications">
-        <div class="compl-overview" id="compl-overview"></div>
-        <div class="atlas-section" style="margin-top:14px;">
-          <div class="atlas-section-h"><h2 class="atlas-section-title">Détail</h2></div>
-          <div id="compl-detail-list"></div>
+        <div class="dash-panel" id="dp-complications">
+          <div class="compl-overview" id="compl-overview"></div>
+          <div class="atlas-section" style="margin-top:14px;">
+            <div class="atlas-section-h"><h2 class="atlas-section-title">Détail</h2></div>
+            <div id="compl-detail-list"></div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- MES BLOCS -->
     <div class="view" id="view-blocs">
-      <div class="atlas-blocs-head">
-        <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()"
-          class="atlas-search">
-        <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:32px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;color:var(--text3);">×</span>
+      <!-- Header sticky : recherche + filtres -->
+      <div class="atlas-blocs-sticky">
+        <div class="atlas-blocs-head">
+          <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()" class="atlas-search">
+          <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;color:var(--text3);">×</span>
+        </div>
+        <div class="atlas-filter-row" id="bloc-filters">
+          <button class="atlas-pill active" onclick="filterB(this,'all')">Tous</button>
+          <button class="atlas-pill" onclick="filterB(this,'Genou')">Genou</button>
+          <button class="atlas-pill" onclick="filterB(this,'Hanche')">Hanche</button>
+          <button class="atlas-pill" onclick="filterB(this,'Traumatologie')">Trauma</button>
+        </div>
+        <div class="atlas-filter-row" id="role-filters" style="border-bottom:none;">
+          <button class="atlas-pill active" onclick="filterRole(this,'all')">Tous rôles</button>
+          <button class="atlas-pill" onclick="filterRole(this,'Principal')">Principal</button>
+          <button class="atlas-pill" onclick="filterRole(this,'Aide')">Aide</button>
+          <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="atlas-pill atlas-pill-tags" style="margin-left:auto;">
+            <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon" style="font-size:9px;margin-left:2px;">▾</span>
+          </button>
+        </div>
+        <div id="tags-panel" style="display:none;padding:8px 16px;border-top:1px solid var(--border);">
+          <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+        </div>
       </div>
-      <div class="atlas-filter-row" id="bloc-filters">
-        <button class="atlas-pill active" onclick="filterB(this,'all')">Tous</button>
-        <button class="atlas-pill" onclick="filterB(this,'Genou')">Genou</button>
-        <button class="atlas-pill" onclick="filterB(this,'Hanche')">Hanche</button>
-        <button class="atlas-pill" onclick="filterB(this,'Traumatologie')">Trauma</button>
+      <!-- Zone scrollable -->
+      <div class="view-scroll" style="padding:0;padding-bottom:80px;">
+        <div style="font-size:11px;color:var(--text3);padding:8px 16px 0;" id="search-count"></div>
+        <div id="bloc-list"></div>
       </div>
-      <div class="atlas-filter-row" id="role-filters" style="margin-bottom:0;">
-        <button class="atlas-pill active" onclick="filterRole(this,'all')">Tous rôles</button>
-        <button class="atlas-pill" onclick="filterRole(this,'Principal')">Principal</button>
-        <button class="atlas-pill" onclick="filterRole(this,'Aide')">Aide</button>
-        <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="atlas-pill atlas-pill-tags" style="margin-left:auto;">
-          <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon" style="font-size:9px;margin-left:2px;">▾</span>
-        </button>
-      </div>
-      <div id="tags-panel" style="display:none;padding:10px 16px;border-bottom:1px solid var(--border);">
-        <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
-      </div>
-      <div style="font-size:11px;color:var(--text3);padding:6px 16px 0;" id="search-count"></div>
-      <div id="bloc-list"></div>
     </div>
     <!-- DETAIL BLOC -->
     <div class="view" id="view-detail">
@@ -597,6 +606,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- SAISIE -->
     <div class="view" id="view-saisie">
+      <div class="view-scroll">
       <!-- v13-rescue : toggle saisie rapide -->
       <div class="quick-toggle">
         <div>
@@ -665,15 +675,16 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- STATS -->
     <div class="view" id="view-stats">
-      <!-- Onglets stats -->
-      <div class="dash-tabs" id="stats-tabs">
-        <button class="dash-tab active" onclick="switchStatsTab('activite',this)">Activité</button>
-        <button class="dash-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
-        <button class="dash-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
-        <button class="dash-tab" onclick="switchStatsTab('top',this)">Top</button>
+      <!-- Onglets stats fixes -->
+      <div class="atlas-tabs" id="stats-tabs" style="flex-shrink:0;">
+        <button class="atlas-tab active" onclick="switchStatsTab('activite',this)">Activité</button>
+        <button class="atlas-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
+        <button class="atlas-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
+        <button class="atlas-tab" onclick="switchStatsTab('top',this)">Top</button>
       </div>
 
       <!-- ① ACTIVITÉ -->
+      <div class="view-scroll" style="padding:0;">
       <div class="dash-panel active" id="sp-activite">
         <div class="stats-grid" style="margin-bottom:14px;">
           <div class="stat-card"><div class="stat-label">Ce mois</div><div class="stat-val" id="st-ce-mois">0</div><div class="stat-sub">blocs</div></div>
@@ -2058,7 +2069,7 @@ let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='
 
 function switchStatsTab(tab,btn){
   curStatsTab=tab;
-  document.querySelectorAll('#stats-tabs .dash-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#stats-tabs .atlas-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-'+tab).classList.add('active');
@@ -2080,7 +2091,7 @@ function renderStats(){
   document.getElementById('st-moy-mois').textContent=moy6;
   // Toujours démarrer sur l'onglet Activité
   curStatsTab='activite';
-  document.querySelectorAll('#stats-tabs .dash-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
+  document.querySelectorAll('#stats-tabs .atlas-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
   document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('sp-activite').classList.add('active');
   renderActivityChart();renderRoleChart();
@@ -3251,4 +3262,6 @@ updateLockscreen();
 </script>
 </div>
 </body>
-</html>
+</html>      </div>
+      </div>
+
