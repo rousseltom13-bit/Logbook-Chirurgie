@@ -67,16 +67,16 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .head-icon{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .head-icon:active{background:var(--bg2);}
 .head-icon svg{width:15px;height:15px;}
-.views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:72px;}
+.views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(72px + var(--safe-bot));}
 .view{display:none;padding:16px;}.view.active{display:block;}
 #view-dashboard{padding:0;}
 
-.bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:stretch;background:var(--bg);border-top:1px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;height:56px;}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px 4px;font-size:10px;color:var(--text3);cursor:pointer;gap:2px;border:none;background:none;font-family:inherit;letter-spacing:0.01em;min-width:0;}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:stretch;background:var(--bg);border-top:1px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px 6px;font-size:10px;color:var(--text3);cursor:pointer;gap:2px;border:none;background:none;font-family:inherit;letter-spacing:0.01em;min-width:0;min-height:50px;}
 .bnav-item.active{color:var(--accent);font-weight:600;}
 .bnav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .bnav-icon svg{width:20px;height:20px;}
-.bnav-fab{position:relative;top:-10px;flex:0 0 64px;}
+.bnav-fab{position:relative;top:-8px;flex:0 0 64px;}
 .bnav-fab .bnav-icon{width:48px;height:48px;background:var(--accent);color:white;border-radius:50%;box-shadow:0 3px 14px rgba(27,77,90,0.35);}
 .bnav-fab .bnav-icon svg{width:24px;height:24px;stroke:white;}
 .bnav-fab.active .bnav-icon{background:var(--text);}
@@ -1373,7 +1373,7 @@ const INTERV_HIER = {
     'Membre inférieur': {
       'Bassin': '__LIBRE__',
       'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage'],
-      'Fémur': ['Plaque','Clou fémur T2','Clou Gamma Long'],
+      'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long'],
       'Genou': ['Fracture de rotule'],
       'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial'],
       'Cheville': ['Malléole latérale','Fracture bi-malléolaire','Fracture tri-malléolaire'],
@@ -1381,12 +1381,12 @@ const INTERV_HIER = {
       'Autre': '__LIBRE__'
     },
     'Membre supérieur': {
-      'Épaule': ['PTEI','Plaque','Clou'],
+      'Épaule': ['PTEI','Plaque humérus proximal','Clou humérus court'],
       'Clavicule': '__LIBRE__',
-      'Humérus': ['Plaque','Clou humérus'],
+      'Humérus': ['Plaque humérus diaphyse','Clou long humérus'],
       'Coude': ['Palette humérale','Terrible triade','Tête radiale','Olécrane'],
       'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire'],
-      'Poignet': ['Plaque','Kapandji'],
+      'Poignet': ['Plaque radius distal','Plaque ulna distal','Kapandji'],
       'Main': '__LIBRE__',
       'Autre': '__LIBRE__'
     },
@@ -1515,7 +1515,7 @@ const INTERV_MIGRATION = {
   'Fracture tibia — enclouage': 'Membre inférieur — Tibia — Clou tibia',
   'Fracture fémur — enclouage': 'Membre inférieur — Fémur — Clou fémur T2',
   'Fracture cheville — ostéosynthèse': 'Membre inférieur — Cheville — Fracture bi-malléolaire',
-  'Fracture radius distal': 'Membre supérieur — Poignet — Plaque',
+  'Fracture radius distal': 'Membre supérieur — Poignet — Plaque radius distal',
   'Autre traumatologie': 'Membre inférieur — Autre (Mb inf) (libre)'
 };
 
@@ -1546,15 +1546,15 @@ function migrateInterv(label){
   // — Trauma fémur / tibia
   if(target.includes('femur')){
     if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Fémur — Clou fémur T2';
-    if(target.includes('plaque')) return 'Membre inférieur — Fémur — Plaque';
+    if(target.includes('plaque')) return 'Membre inférieur — Fémur — Plaque fémur';
   }
   if(target.includes('tibia')){
     if(target.includes('plateau')) return 'Membre inférieur — Tibia — Plateau tibial';
     if(target.includes('pilon')) return 'Membre inférieur — Tibia — Pilon tibial';
     if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Tibia — Clou tibia';
   }
-  if(target.includes('humerus') && target.includes('plaque')) return 'Membre supérieur — Humérus — Plaque';
-  if(target.includes('humerus') && (target.includes('clou') || target.includes('enclouage'))) return 'Membre supérieur — Humérus — Clou humérus';
+  if(target.includes('humerus') && target.includes('plaque')) return 'Membre supérieur — Humérus — Plaque humérus diaphyse';
+  if(target.includes('humerus') && (target.includes('clou') || target.includes('enclouage'))) return 'Membre supérieur — Humérus — Clou long humérus';
   if(target.includes('clavicule')) return 'Membre supérieur — Clavicule (libre)';
   if(target.includes('olecrane') || target.includes('olecrane')) return 'Membre supérieur — Coude — Olécrane';
   if(target.includes('teteradiale') || target.includes('tetederadius')) return 'Membre supérieur — Coude — Tête radiale';
