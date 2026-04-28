@@ -58,26 +58,29 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;}
-#app{display:flex;flex-direction:column;height:100%;padding-top:var(--safe-top);}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;}
-.topbar-logo{display:flex;align-items:center;gap:10px;}
-.logo-icon{width:34px;height:34px;}
-.topbar-title{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-0.025em;}
-.topbar-sub{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
-.sync-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:99px;background:none;cursor:pointer;color:var(--text2);font-family:inherit;}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;}
+#app{display:none;flex-direction:column;height:100%;padding-top:var(--safe-top);}
+#app.visible{display:flex;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0;}
+.head-brand{display:flex;align-items:center;gap:8px;}
+.brand-logo-svg{width:22px;height:22px;color:var(--text);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-mark{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-0.025em;color:var(--text);line-height:1.1;}
+.head-baseline{font-size:11px;color:var(--text3);letter-spacing:0.02em;font-style:italic;}
+.head-icon{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.head-icon:active{background:var(--bg2);}
+.head-icon svg{width:15px;height:15px;}
+.views{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:72px;}
+.view{display:none;padding:16px;}.view.active{display:block;}
+#view-dashboard{padding:0;}
 
-.views{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
-.view{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;}.view.active{display:flex;}
-.view-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:80px;}
-.bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:center;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;height:60px;}
-.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;font-size:10px;color:var(--text3);cursor:pointer;gap:2px;border:none;background:none;font-family:inherit;letter-spacing:0.01em;}
-.bnav-item.active{color:var(--text);font-weight:500;}
-.bnav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
-.bnav-icon svg{width:22px;height:22px;}
-.bnav-fab{position:relative;top:-14px;}
-.bnav-fab .bnav-icon{width:52px;height:52px;background:var(--accent);color:white;border-radius:50%;box-shadow:0 3px 12px rgba(27,77,90,0.3);}
-.bnav-fab .bnav-icon svg{width:26px;height:26px;stroke:white;}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:stretch;background:var(--bg);border-top:1px solid var(--border);padding-bottom:var(--safe-bot);z-index:100;height:56px;}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px 4px;font-size:10px;color:var(--text3);cursor:pointer;gap:2px;border:none;background:none;font-family:inherit;letter-spacing:0.01em;min-width:0;}
+.bnav-item.active{color:var(--accent);font-weight:600;}
+.bnav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bnav-icon svg{width:20px;height:20px;}
+.bnav-fab{position:relative;top:-10px;flex:0 0 64px;}
+.bnav-fab .bnav-icon{width:48px;height:48px;background:var(--accent);color:white;border-radius:50%;box-shadow:0 3px 14px rgba(27,77,90,0.35);}
+.bnav-fab .bnav-icon svg{width:24px;height:24px;stroke:white;}
 .bnav-fab.active .bnav-icon{background:var(--text);}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .stat-card{background:var(--bg2);border-radius:var(--radius-lg);padding:14px;border:0.5px solid var(--border);}
@@ -121,13 +124,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .chip span{font-weight:600;}
 .chip-btn{background:var(--blue-l);color:var(--blue-d);border:0.5px solid var(--border2);padding:5px 10px;border-radius:var(--radius);font-size:12px;cursor:pointer;font-family:inherit;}
 .chip-btn.red{background:var(--red-l);color:var(--red-d);}
-.form-group{margin-bottom:14px;}
-.form-group label{display:block;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 12px;font-size:16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;font-size:16px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);}
-.form-group textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:14px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.form-section{font-size:11px;font-weight:600;color:var(--text3);margin:20px 0 12px;padding-bottom:6px;border-bottom:0.5px solid var(--border);text-transform:uppercase;letter-spacing:0.05em;}
+.form-section{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin:22px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 .stars-row{display:flex;align-items:center;gap:6px;}
 .star{font-size:24px;cursor:pointer;color:var(--border2);}
 .star.on{color:var(--amber);}
@@ -136,7 +139,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .tag{background:var(--blue-l);color:var(--blue-d);padding:3px 8px;border-radius:99px;font-size:12px;display:flex;align-items:center;gap:5px;}
 .tag-rm{cursor:pointer;opacity:0.6;font-size:14px;}
 .tag-field{border:none;outline:none;background:transparent;font-size:16px;color:var(--text);min-width:80px;flex:1;font-family:inherit;}
-.btn-primary{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--accent);color:white;border:none;border-radius:var(--radius-lg);cursor:pointer;font-family:inherit;margin-top:8px;}
+.btn-primary{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit;margin-top:8px;letter-spacing:0.01em;}
 .btn-primary:active{opacity:0.85;}
 .btn-secondary{padding:10px 16px;font-size:13px;background:var(--bg2);color:var(--text);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;}
 .bloc-item{display:flex;flex-direction:column;gap:3px;padding:10px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s;background:var(--bg);}
@@ -216,7 +219,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .consult-date{font-size:12px;font-weight:600;color:var(--text);}
 .consult-comment{font-size:13px;color:var(--text2);line-height:1.5;}
 .consult-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 4px;}
-#app{display:none;}
 /* PLANNING */
 .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
 .cal-week-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:var(--radius);cursor:pointer;background:none;border:none;font-family:inherit;}
@@ -266,7 +268,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .bloc-item:active{background:var(--bg2);}
 /* Détail — scroll interne */
 #view-detail{overflow:hidden;}
-#view-detail .det-panel{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:80px;}
+#view-detail .det-panel{display:none;padding-bottom:16px;}
 #view-detail .det-panel.active{display:block;}
 /* Stats — scroll interne */
 #view-stats .view-scroll{padding:0;}
@@ -308,32 +310,61 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 /* Stats overrides */
 #view-stats .dash-panel{padding:16px;}
 
-/* === Atlas v14 — Dashboard components === */
-.atlas-head{padding:28px 22px 18px;border-bottom:1px solid var(--border);}
-.atlas-head-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;font-weight:500;}
-.atlas-head-title{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.025em;color:var(--text);line-height:1.1;}
-.atlas-head-meta{margin-top:8px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;}
-.atlas-head-meta::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);}
-.atlas-kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;border-bottom:1px solid var(--border);border-top:1px solid var(--border);background:var(--border);margin-bottom:0;}
-.atlas-kpi{background:var(--bg);padding:18px 22px;display:flex;flex-direction:column;gap:4px;}
-.atlas-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
-.atlas-kpi-value{font-family:var(--serif);font-size:36px;font-weight:500;letter-spacing:-0.025em;line-height:1;color:var(--text);}
-.atlas-kpi-sub{font-size:12px;color:var(--text2);}
-.atlas-kpi-sub b{color:var(--warm);font-weight:600;}
-.atlas-tabs{display:flex;border-bottom:1px solid var(--border);}
-.atlas-tab{flex:1;padding:12px 6px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-family:inherit;letter-spacing:0.01em;}
+/* === Atlas v14 — Dashboard (proto-fidèle) === */
+.dash-greeting{padding:18px 22px 12px;}
+.dash-greeting-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;font-weight:500;}
+.dash-greeting-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);line-height:1.1;}
+.dash-greeting-meta{margin-top:6px;font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px;}
+.dash-greeting-meta::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.dash-kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px;margin-bottom:24px;}
+.dash-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.dash-kpi-h{display:flex;align-items:center;justify-content:space-between;}
+.dash-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.dash-kpi-value{font-family:var(--serif);font-size:34px;font-weight:500;line-height:1;letter-spacing:-0.02em;color:var(--text);}
+.dash-kpi-sub{font-size:12px;color:var(--text2);}
+.dash-kpi-sub b{color:var(--warm);font-weight:600;}
+.dash-tabs-atlas{display:flex;gap:0;margin:0 22px 18px;border-bottom:1px solid var(--border);}
+.dash-tab-atlas{flex:1;padding:11px 4px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:0.01em;}
+.dash-tab-atlas.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
+.atlas-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:0 22px 18px;}
+.atlas-tab{flex:1;padding:11px 4px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;letter-spacing:0.01em;}
 .atlas-tab.active{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
-.atlas-section{margin-bottom:22px;}
-.atlas-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
-.atlas-section-title{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
-.atlas-section-link{font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
-.atlas-dist{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 16px;}
-.atlas-dist-row{display:grid;grid-template-columns:72px 1fr 28px;gap:12px;align-items:center;padding:10px 0;}
-.atlas-dist-row+.atlas-dist-row{border-top:1px solid var(--border);}
-.atlas-dist-name{font-size:13px;color:var(--text2);}
-.atlas-dist-bar{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
-.atlas-dist-fill{height:100%;border-radius:99px;}
-.atlas-dist-count{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--text);text-align:right;}
+.dash-panel{padding:0 22px;}
+.dash-panel.active{display:block;}
+.dash-panel:not(.active){display:none;}
+.dash-section{margin-bottom:26px;}
+.dash-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;}
+.dash-section-title{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+.dash-section-link{font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+/* Distribution */
+.dist-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.dist-row{display:grid;grid-template-columns:36px 1fr 90px 36px;gap:14px;align-items:center;padding:14px 16px;}
+.dist-row+.dist-row{border-top:1px solid var(--border);}
+.dist-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dist-icon.genou{background:var(--accent-l);color:var(--accent);}
+.dist-icon.hanche{background:var(--purple-l);color:var(--purple-d);}
+.dist-icon.trauma{background:var(--warm-l);color:var(--warm);}
+.dist-icon svg{width:18px;height:18px;}
+.dist-name-col{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.dist-name{font-size:14px;font-weight:600;color:var(--text);}
+.dist-detail{font-size:11px;color:var(--text3);}
+.dist-bar{height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.dist-fill{height:100%;border-radius:99px;}
+.dist-fill.genou{background:var(--accent);}
+.dist-fill.hanche{background:var(--purple-d);}
+.dist-fill.trauma{background:var(--warm);}
+.dist-count{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--text);text-align:right;letter-spacing:-0.01em;}
+/* Up next card */
+.up-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.up-item{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;}
+.up-item+.up-item{border-top:1px solid var(--border);}
+.up-item:active{background:var(--bg3);}
+.up-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.up-interv{font-size:14px;font-weight:600;color:var(--text);}
+.up-meta{font-size:12px;color:var(--text3);}
+.up-cd{font-family:-apple-system,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;background:var(--accent-l);color:var(--accent);padding:5px 9px;border-radius:99px;flex-shrink:0;}
+.up-cd.urgent{background:var(--red-l);color:var(--red-d);}
+.up-cd.soon{background:var(--amber-l);color:var(--amber-d);}
 .stats-grid{gap:12px;margin-bottom:24px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px;}
 .stat-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:0;}
@@ -357,6 +388,59 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .bloc-month-section{border-radius:0;border:none;margin-bottom:0;background:transparent;}
 .bloc-month-header{background:transparent;padding:18px 16px 8px;border-bottom:none;font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;text-transform:capitalize;color:var(--text);}
 .bloc-month-header span:last-child{font-family:-apple-system,sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+/* === PROTO-EXACT: Mes blocs === */
+.bloc-month-section{background:transparent;border:none;border-radius:0;margin-bottom:0;}
+.bloc-month-header{padding:18px 20px 4px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;background:transparent;border-bottom:none;}
+.bloc-month-header span:first-child{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);text-transform:capitalize;}
+.bloc-month-header span:last-child{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.bloc-item{padding:14px 20px;display:grid;grid-template-columns:36px 1fr auto;gap:14px;align-items:center;cursor:pointer;border-bottom:1px solid var(--border);background:var(--bg);transition:background 0.1s;display:grid;}
+.bloc-item:active{background:var(--bg2);}
+.bloc-item:last-child{border-bottom:1px solid var(--border);}
+.bloc-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.bloc-icon.genou{background:var(--accent-l);color:var(--accent);}
+.bloc-icon.hanche{background:var(--purple-l);color:var(--purple-d);}
+.bloc-icon.trauma{background:var(--warm-l);color:var(--warm);}
+.bloc-icon svg{width:18px;height:18px;}
+.bloc-mid{min-width:0;display:flex;flex-direction:column;gap:3px;}
+.bloc-line1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.bloc-interv-txt{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:-0.005em;color:var(--text);line-height:1.2;}
+.bloc-role-txt{font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.bloc-role-txt.aide{color:var(--text3);font-style:italic;}
+.bloc-line2{font-size:13px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bloc-meta-row{display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap;}
+.meta-item{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--text3);}
+.meta-item svg{width:11px;height:11px;}
+.bloc-right-col{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.bloc-date-txt{font-size:11px;color:var(--text3);letter-spacing:0.02em;}
+.bloc-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:10px;font-weight:600;letter-spacing:0.02em;white-space:nowrap;}
+.bloc-status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.bloc-status-pill.bon{background:var(--green-l);color:var(--green-d);}
+.bloc-status-pill.vigilance{background:var(--amber-l);color:var(--amber-d);}
+.bloc-status-pill.complication{background:var(--red-l);color:var(--red-d);}
+.bloc-status-pill.attente{background:var(--bg2);color:var(--text3);}
+.bloc-status-pill.pdv{background:var(--bg2);color:var(--text3);}
+.bloc-status-pill.deces{background:var(--bg3);color:var(--text2);}
+.bloc-flag{font-size:9px;font-weight:700;letter-spacing:0.06em;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px;}
+.bloc-flag.todo{background:var(--amber-l);color:var(--amber-d);}
+.bloc-flag.compli{background:var(--red-l);color:var(--red-d);}
+.bloc-flag.photos{background:var(--bg2);color:var(--text2);}
+.bloc-flag svg{width:10px;height:10px;}
+/* Search proto-exact */
+.view-blocs-head{background:var(--bg);}
+.view-blocs-title{padding:6px 20px 14px;display:flex;align-items:baseline;justify-content:space-between;}
+.view-blocs-title h1{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);}
+.view-blocs-title span{font-size:12px;color:var(--text3);font-style:italic;}
+.search-wrap{position:relative;display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:0 12px;height:42px;margin:0 20px 12px;}
+.search-wrap:focus-within{border-color:var(--accent);}
+.search-wrap svg{width:16px;height:16px;color:var(--text3);flex-shrink:0;}
+.search-wrap input{flex:1;border:none;background:none;font-family:inherit;font-size:14px;color:var(--text);padding:0 10px;outline:none;}
+.search-wrap input::placeholder{color:var(--text3);}
+.filters-row{display:flex;gap:6px;padding:0 20px 8px;overflow-x:auto;}
+.filters-row::-webkit-scrollbar{display:none;}
+.filter-pill{padding:6px 12px;font-size:12px;font-weight:500;border:1px solid var(--border);border-radius:99px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+.filter-pill.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
+.filter-pill svg{width:13px;height:13px;}
+
 .bloc-item .badge{font-family:-apple-system,sans-serif;}
 .recent-item{padding:12px 0;}
 .recent-name{font-weight:600;color:var(--text);}
@@ -417,18 +501,79 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .atlas-spec-pill.on.trauma{border-color:var(--warm);color:var(--warm);background:var(--warm-l);}
 .atlas-spec-pill.on.trauma .icon{color:var(--warm);}
 /* Form-group polish */
-.form-group{margin-bottom:14px;}
-.form-group label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
-.form-group input,.form-group select,.form-group textarea{background:var(--bg2);border:1px solid var(--border);border-radius:8px;}
-.form-group textarea{font-family:var(--serif);font-size:14px;line-height:1.6;}
+/* === PROTO-EXACT: Saisie === */
+.saisie-hero{padding:20px 22px 14px;border-bottom:1px solid var(--border);}
+.saisie-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);font-weight:500;margin-bottom:6px;}
+.saisie-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);}
+.qmode{margin:14px 22px 0;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.qmode-label{font-size:13px;font-weight:600;color:var(--text);}
+.qmode-hint{font-size:11px;color:var(--text3);font-style:italic;}
+.saisie-scroll{padding:14px 22px 100px;}
+.field-group{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 0;margin-bottom:14px;}
+.field{padding:10px 16px;display:flex;flex-direction:column;gap:6px;}
+.field+.field{border-top:1px solid var(--border);}
+.field-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.field-required{color:var(--warm);margin-left:3px;}
+.f-input,.f-select,.f-textarea{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:15px;color:var(--text);padding:0;}
+.f-input::placeholder,.f-textarea::placeholder{color:var(--text3);font-style:italic;}
+.f-select{appearance:none;-webkit-appearance:none;cursor:pointer;}
+.f-textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:14px;color:var(--text2);}
+.spec-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.spec-pill{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.spec-pill .icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.spec-pill .icon svg{width:22px;height:22px;}
+.spec-pill.on{font-weight:600;}
+.spec-pill.on.genou{border-color:var(--accent);color:var(--accent);background:var(--accent-l);}
+.spec-pill.on.hanche{border-color:var(--purple-d);color:var(--purple-d);background:var(--purple-l);}
+.spec-pill.on.trauma{border-color:var(--warm);color:var(--warm);background:var(--warm-l);}
+.interv-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.interv-pill{padding:7px 13px;font-size:13px;font-weight:500;border:1px solid var(--border);border-radius:99px;background:var(--bg);color:var(--text);cursor:pointer;font-family:inherit;}
+.interv-pill.on{background:var(--accent);color:white;border-color:var(--accent);font-weight:600;}
+.role-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.role-btn{padding:10px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+.role-btn svg{width:14px;height:14px;}
+.role-btn.on{border-color:var(--text);background:var(--text);color:var(--bg);font-weight:600;}
+.side-row{display:flex;gap:6px;}
+.side-btn{flex:1;padding:8px 4px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;font-family:inherit;}
+.side-btn.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
+.saisie-section-label{padding:14px 0 10px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.saisie-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:14px 22px calc(16px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);z-index:10;}
+.saisie-cta .btn-primary{background:var(--text);color:var(--bg);border-radius:8px;font-weight:600;}
 /* Stats sections polish */
-#view-stats .stat-section{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px;}
-#view-stats .stat-section-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;text-transform:none;color:var(--text);margin-bottom:12px;}
-#view-stats .period-tab{padding:5px 11px;font-size:11px;border:1px solid var(--border);background:var(--bg2);color:var(--text3);font-weight:500;}
-#view-stats .period-tab.active{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
-/* Btn primary Atlas */
-.btn-primary{background:var(--text);color:var(--bg);border-radius:8px;font-weight:600;}
-.btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-weight:500;}
+/* === PROTO-EXACT: Stats === */
+.stats-page-h{padding:6px 20px 14px;border-bottom:0;}
+.stats-page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);}
+.stats-tabs-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg);padding:0 20px;overflow-x:auto;}
+.stats-tabs-bar::-webkit-scrollbar{display:none;}
+.stats-tab{padding:12px 14px 11px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;}
+.stats-tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
+.stats-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px 80px;}
+.stats-panel{display:none;}.stats-panel.on{display:block;}
+.kpi-hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
+.s-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.s-kpi-h{display:flex;align-items:center;justify-content:space-between;}
+.s-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.s-kpi-value{font-family:var(--serif);font-size:30px;font-weight:500;line-height:1;letter-spacing:-0.02em;color:var(--text);}
+.s-kpi-sub{font-size:12px;color:var(--text2);}
+.s-section{margin-bottom:22px;}
+.s-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.s-section-title{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
+.s-periods{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+.s-period{padding:5px 10px;font-size:11px;font-weight:500;border:1px solid var(--border);border-radius:99px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;}
+.s-period.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;}
+.chart-legend{display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--text2);}
+.legend-item{display:inline-flex;align-items:center;gap:5px;}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.statut-list{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px;}
+.statut-row{display:flex;flex-direction:column;gap:5px;}
+.statut-name-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;}
+.statut-name-inner{display:inline-flex;align-items:center;gap:6px;color:var(--text);font-weight:500;}
+.statut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.statut-vals{font-family:var(--serif);color:var(--text);font-weight:500;}
+.statut-bar{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:2px;}
+.statut-fill{height:100%;border-radius:99px;}
+.btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-weight:500;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;}
 
 
 /* FAB-like pour Nouveau */
@@ -459,15 +604,22 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   <button onclick="setupBiometric()" style="margin-top:24px;background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;text-decoration:underline;" id="setup-bio-btn" style="display:none;">Configurer Touch ID / Face ID</button>
 </div>
 
-<div id="app" style="display:none;">
+<div id="app">
   <div class="topbar">
-    <div class="topbar-logo">
-      <div><div class="topbar-title" style="font-family:'Charter','Iowan Old Style',Georgia,serif;font-weight:600;letter-spacing:-0.025em;">Atlas</div><div class="topbar-sub" style="font-style:italic;">Le journal du chirurgien moderne</div></div>
+    <div class="head-brand">
+      <span class="brand-logo-svg"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;"><text x="50" y="74" text-anchor="middle" font-family="Charter,'Iowan Old Style',Georgia,serif" font-size="84" font-weight="500" fill="currentColor" letter-spacing="-3">A</text><circle cx="78" cy="68" r="6" fill="#C97864"/></svg></span>
+      <div>
+        <div class="brand-mark">Atlas</div>
+        <div class="head-baseline">Le journal du chirurgien moderne</div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button class="sync-btn" onclick="toggleTheme()" id="theme-btn" style="padding:6px 10px;display:flex;align-items:center;justify-content:center;">☀</button>
-      <button class="sync-btn" onclick="showSettings()" style="background:var(--accent);color:white;border-color:var(--accent);">
-        Sync
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="head-icon" onclick="toggleTheme()" id="theme-btn" aria-label="Mode nuit">
+        <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="head-icon" onclick="showSettings()" aria-label="Sync">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
     </div>
   </div>
@@ -476,102 +628,109 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
-      <!-- Header fixe -->
-      <header class="atlas-head">
-        <div class="atlas-head-eyebrow" id="d-eyebrow"></div>
-        <h1 class="atlas-head-title">Bonjour Tom.</h1>
-        <div class="atlas-head-meta" id="d-meta"></div>
-      </header>
-      <!-- KPIs fixes -->
-      <div class="atlas-kpis">
-        <div class="atlas-kpi">
-          <div class="atlas-kpi-label">Blocs</div>
-          <div class="atlas-kpi-value" id="d-total">0</div>
-          <div class="atlas-kpi-sub" id="d-principal">0 en principal</div>
+      <div class="dash-greeting">
+        <div class="dash-greeting-eyebrow" id="d-eyebrow"></div>
+        <h1 class="dash-greeting-title">Bonjour Tom.</h1>
+        <div class="dash-greeting-meta" id="d-meta"></div>
+      </div>
+      <div class="dash-kpi-row">
+        <div class="dash-kpi">
+          <div class="dash-kpi-h"><span class="dash-kpi-label">Blocs</span></div>
+          <div class="dash-kpi-value" id="d-total">0</div>
+          <div class="dash-kpi-sub" id="d-principal">0 en principal</div>
         </div>
-        <div class="atlas-kpi">
-          <div class="atlas-kpi-label">Complications</div>
-          <div class="atlas-kpi-value" id="d-compl-pct">0%</div>
-          <div class="atlas-kpi-sub" id="d-compl-sub">0 cas</div>
+        <div class="dash-kpi">
+          <div class="dash-kpi-h"><span class="dash-kpi-label">Complications</span></div>
+          <div class="dash-kpi-value" id="d-compl-pct">0%</div>
+          <div class="dash-kpi-sub" id="d-compl-sub">0 cas</div>
         </div>
       </div>
-      <!-- Tabs fixes -->
-      <div class="atlas-tabs" id="dash-tabs">
-        <button class="atlas-tab active" onclick="switchDashTab('recent',this)">Activité</button>
-        <button class="atlas-tab" onclick="switchDashTab('planning',this)">Planning</button>
-        <button class="atlas-tab" onclick="switchDashTab('complications',this)">Complications</button>
+      <div class="dash-tabs-atlas" id="dash-tabs">
+        <button class="dash-tab-atlas active" onclick="switchDashTab('recent',this)">Activité</button>
+        <button class="dash-tab-atlas" onclick="switchDashTab('planning',this)">Planning</button>
+        <button class="dash-tab-atlas" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
-      <!-- Contenu scrollable -->
-      <div class="view-scroll">
-        <div class="dash-panel active" id="dp-recent">
-          <div class="atlas-section">
-            <div class="atlas-section-h">
-              <h2 class="atlas-section-title">Répartition</h2>
-            </div>
-            <div class="atlas-dist" id="spec-bars"></div>
+      <div class="dash-panel active" id="dp-recent">
+        <div class="dash-section">
+          <div class="dash-section-h">
+            <h2 class="dash-section-title">Répartition</h2>
           </div>
-          <div class="atlas-section">
-            <div class="atlas-section-h">
-              <h2 class="atlas-section-title">Prochains blocs</h2>
-              <button class="atlas-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .atlas-tab')[1])">Calendrier</button>
-            </div>
-            <div id="upcoming-list"></div>
-          </div>
+          <div class="dist-card" id="spec-bars"></div>
         </div>
-        <div class="dash-panel" id="dp-planning">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
-            <div style="font-size:15px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;" id="cal-inline-title"></div>
-            <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+        <div class="dash-section">
+          <div class="dash-section-h">
+            <h2 class="dash-section-title">Prochains blocs</h2>
+            <button class="dash-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .dash-tab-atlas')[1])">Calendrier</button>
           </div>
-          <div class="cal-month-header" id="cal-inline-header"></div>
-          <div class="cal-month-grid" id="cal-inline-grid"></div>
-          <div class="atlas-section" style="margin-top:18px;">
-            <div class="atlas-section-h"><h2 class="atlas-section-title">Blocs prévus ce mois</h2></div>
-            <div id="month-planned-list"></div>
-          </div>
+          <div class="up-card" id="upcoming-list"></div>
         </div>
-        <div class="dash-panel" id="dp-complications">
-          <div class="compl-overview" id="compl-overview"></div>
-          <div class="atlas-section" style="margin-top:14px;">
-            <div class="atlas-section-h"><h2 class="atlas-section-title">Détail</h2></div>
-            <div id="compl-detail-list"></div>
-          </div>
+      </div>
+      <div class="dash-panel" id="dp-planning">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">‹</button>
+          <div style="font-size:16px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;" id="cal-inline-title"></div>
+          <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);padding:4px 8px;">›</button>
+        </div>
+        <div class="cal-month-header" id="cal-inline-header"></div>
+        <div class="cal-month-grid" id="cal-inline-grid"></div>
+        <div class="dash-section" style="margin-top:18px;">
+          <div class="dash-section-h"><h2 class="dash-section-title">Blocs prévus ce mois</h2></div>
+          <div id="month-planned-list"></div>
+        </div>
+      </div>
+      <div class="dash-panel" id="dp-complications">
+        <div class="compl-overview" id="compl-overview"></div>
+        <div class="dash-section" style="margin-top:14px;">
+          <div class="dash-section-h"><h2 class="dash-section-title">Détail</h2></div>
+          <div id="compl-detail-list"></div>
         </div>
       </div>
     </div>
 
     <!-- MES BLOCS -->
-    <div class="view" id="view-blocs">
-      <!-- Header sticky : recherche + filtres -->
-      <div class="atlas-blocs-sticky">
-        <div class="atlas-blocs-head">
-          <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()" class="atlas-search">
-          <span id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:20px;cursor:pointer;color:var(--text3);">×</span>
+    <div class="view" id="view-blocs" style="padding:0;">
+      <div class="view-blocs-head">
+        <div class="view-blocs-title">
+          <h1>Mes blocs</h1>
+          <span id="blocs-count-sub"></span>
         </div>
-        <div class="atlas-filter-row" id="bloc-filters">
-          <button class="atlas-pill active" onclick="filterB(this,'all')">Tous</button>
-          <button class="atlas-pill" onclick="filterB(this,'Genou')">Genou</button>
-          <button class="atlas-pill" onclick="filterB(this,'Hanche')">Hanche</button>
-          <button class="atlas-pill" onclick="filterB(this,'Traumatologie')">Trauma</button>
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()">
+          <span id="search-clear" onclick="clearSearch()" style="display:none;cursor:pointer;color:var(--text3);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </span>
         </div>
-        <div class="atlas-filter-row" id="role-filters" style="border-bottom:none;">
-          <button class="atlas-pill active" onclick="filterRole(this,'all')">Tous rôles</button>
-          <button class="atlas-pill" onclick="filterRole(this,'Principal')">Principal</button>
-          <button class="atlas-pill" onclick="filterRole(this,'Aide')">Aide</button>
-          <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="atlas-pill atlas-pill-tags" style="margin-left:auto;">
-            <span id="tags-toggle-label">Tags</span><span id="tags-toggle-icon" style="font-size:9px;margin-left:2px;">▾</span>
+        <div class="filters-row" id="bloc-filters">
+          <button class="filter-pill on" onclick="filterB(this,'all')">Tous</button>
+          <button class="filter-pill" onclick="filterB(this,'Genou')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
+            Genou
+          </button>
+          <button class="filter-pill" onclick="filterB(this,'Hanche')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg>
+            Hanche
+          </button>
+          <button class="filter-pill" onclick="filterB(this,'Traumatologie')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg>
+            Trauma
           </button>
         </div>
-        <div id="tags-panel" style="display:none;padding:8px 16px;border-top:1px solid var(--border);">
+        <div class="filters-row" id="role-filters">
+          <button class="filter-pill on" onclick="filterRole(this,'all')">Tous rôles</button>
+          <button class="filter-pill" onclick="filterRole(this,'Principal')">Principal</button>
+          <button class="filter-pill" onclick="filterRole(this,'Aide')">Aide</button>
+          <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="filter-pill" style="margin-left:auto;">
+            <span id="tags-toggle-label">Tags</span>
+            <svg id="tags-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+        <div id="tags-panel" style="display:none;padding:0 20px 10px;">
           <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
         </div>
       </div>
-      <!-- Zone scrollable -->
-      <div class="view-scroll" style="padding:0;padding-bottom:80px;">
-        <div style="font-size:11px;color:var(--text3);padding:8px 16px 0;" id="search-count"></div>
-        <div id="bloc-list"></div>
-      </div>
+      <div style="font-size:11px;color:var(--text3);padding:6px 20px 0;" id="search-count"></div>
+      <div id="bloc-list"></div>
     </div>
     <!-- DETAIL BLOC -->
     <div class="view" id="view-detail">
@@ -607,162 +766,263 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
     </div>
 
     <!-- SAISIE -->
-    <div class="view" id="view-saisie">
-      <div class="view-scroll">
-      <!-- v13-rescue : toggle saisie rapide -->
-      <div class="quick-toggle">
+    <div class="view" id="view-saisie" style="padding:0;">
+      <div class="saisie-hero">
+        <div class="saisie-eyebrow" id="saisie-eyebrow">Nouveau bloc</div>
+        <h1 class="saisie-title">Saisir un cas</h1>
+      </div>
+      <div class="qmode">
         <div>
-          <div class="quick-toggle-label">Saisie rapide</div>
-          <div class="quick-toggle-hint">4 champs essentiels — à compléter plus tard</div>
+          <div class="qmode-label">Saisie rapide</div>
+          <div class="qmode-hint">4 champs essentiels — à compléter plus tard</div>
         </div>
         <button class="quick-switch" id="quick-switch" onclick="toggleQuickMode()" aria-label="Activer la saisie rapide"></button>
       </div>
-      <div class="form-group"><label>Date du bloc</label><input type="date" id="f-date"></div>
-      <div class="form-row">
-        <div class="form-group"><label>Spécialité <span style="color:var(--warm);">*</span></label>
-        <div class="atlas-spec-pills">
-          <button type="button" class="atlas-spec-pill genou" onclick="atlasSelectSpec('Genou',this)">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg></span>
-            Genou
-          </button>
-          <button type="button" class="atlas-spec-pill hanche" onclick="atlasSelectSpec('Hanche',this)">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg></span>
-            Hanche
-          </button>
-          <button type="button" class="atlas-spec-pill trauma" onclick="atlasSelectSpec('Traumatologie',this)">
-            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg></span>
-            Trauma
-          </button>
+      <div class="saisie-scroll" id="saisie-scroll-area">
+        <div class="saisie-section-label">Essentiel</div>
+
+        <!-- Spécialité -->
+        <div class="field-group">
+          <div class="field">
+            <div class="field-label">Spécialité <span class="field-required">*</span></div>
+            <div class="spec-pills" id="spec-pills-container">
+              <button class="spec-pill genou" onclick="selectSpec(this,'Genou')">
+                <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg></span>
+                Genou
+              </button>
+              <button class="spec-pill hanche" onclick="selectSpec(this,'Hanche')">
+                <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg></span>
+                Hanche
+              </button>
+              <button class="spec-pill trauma" onclick="selectSpec(this,'Traumatologie')">
+                <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg></span>
+                Trauma
+              </button>
+            </div>
+          </div>
+          <div class="field quick-hide">
+            <div class="field-label">Côté</div>
+            <div class="side-row" id="side-row">
+              <button class="side-btn" onclick="selectSide(this,'Gauche')">Gauche</button>
+              <button class="side-btn" onclick="selectSide(this,'Droit')">Droit</button>
+              <button class="side-btn" onclick="selectSide(this,'Bilatéral')">Bilatéral</button>
+              <button class="side-btn" onclick="selectSide(this,'')">—</button>
+            </div>
+          </div>
         </div>
-        <select id="f-spec" onchange="upInterv()" style="display:none;"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select>
+
+        <!-- Intervention -->
+        <div class="field-group">
+          <div class="field">
+            <div class="field-label">Intervention <span class="field-required">*</span></div>
+            <div class="interv-pills" id="interv-pills"></div>
+            <input type="text" id="f-interv-libre" class="f-input" placeholder="Décrire l'intervention..." style="display:none;margin-top:8px;font-family:var(--serif);font-size:16px;" autocomplete="off">
+          </div>
         </div>
-        <div class="form-group form-quick-hide"><label>Côté</label><select id="f-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+
+        <!-- Rôle -->
+        <div class="field-group">
+          <div class="field">
+            <div class="field-label">Rôle <span class="field-required">*</span></div>
+            <div class="role-row">
+              <button class="role-btn" id="role-btn-principal" onclick="selectRole('Principal')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Principal
+              </button>
+              <button class="role-btn" id="role-btn-aide" onclick="selectRole('Aide')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Aide
+              </button>
+            </div>
+          </div>
+          <div class="field" id="operateur-field" style="display:none;">
+            <div class="field-label">Opérateur aidé</div>
+            <input type="text" id="f-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operators">
+          </div>
+        </div>
+
+        <!-- Patient & date -->
+        <div class="field-group">
+          <div class="field">
+            <div class="field-label">Date</div>
+            <input type="date" id="f-date" class="f-input">
+          </div>
+          <div class="field">
+            <div class="field-label">Patient</div>
+            <input type="text" id="f-patient" class="f-input" placeholder="Nom ou initiales..." autocomplete="off" list="dl-patients">
+          </div>
+        </div>
+
+        <div class="saisie-section-label quick-hide">Détails</div>
+
+        <!-- Durée & voie -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Durée (min)</div>
+            <input type="number" id="f-duree" class="f-input" placeholder="ex. 90" min="5" max="600">
+          </div>
+          <div class="field">
+            <div class="field-label">Voie d'abord</div>
+            <input type="text" id="f-abord" class="f-input" placeholder="ex. Médiale parapatellaire..." autocomplete="off">
+          </div>
+        </div>
+
+        <!-- Patient details -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Âge</div>
+            <input type="number" id="f-age" class="f-input" placeholder="ans" min="1" max="110">
+          </div>
+          <div class="field">
+            <div class="field-label">IMC</div>
+            <input type="number" id="f-imc" class="f-input" placeholder="kg/m²" step="0.1">
+          </div>
+        </div>
+
+        <!-- Difficulté -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Difficulté technique</div>
+            <div id="stars-container" class="stars-input"></div>
+          </div>
+        </div>
+
+        <!-- Implants -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Implants</div>
+            <textarea id="f-implants" class="f-textarea" placeholder="ex. Nexgen Legacy PS · Fémur D3 · Tibia 4..."></textarea>
+          </div>
+        </div>
+
+        <!-- Astuces -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Difficultés & astuces</div>
+            <textarea id="f-astuces" class="f-textarea" placeholder="Notes opératoires, points techniques importants..."></textarea>
+          </div>
+        </div>
+
+        <!-- Remarques -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Remarques</div>
+            <textarea id="f-remarques" class="f-textarea" placeholder="Suites post-op, consignes..."></textarea>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="field-group quick-hide">
+          <div class="field">
+            <div class="field-label">Tags</div>
+            <div class="tag-field-wrap" id="tag-field-wrap">
+              <input type="text" id="f-tags-input" class="f-input" placeholder="Ajouter un tag..." autocomplete="off" list="dl-tags">
+            </div>
+            <div id="f-tags-display" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+          </div>
+        </div>
+
+        <input type="hidden" id="f-spec" value="">
+        <input type="hidden" id="f-role" value="Principal">
+        <input type="hidden" id="f-side" value="">
+        <input type="hidden" id="f-interv" value="">
+        <datalist id="dl-patients"></datalist>
+        <datalist id="dl-operators"></datalist>
+        <datalist id="dl-tags"></datalist>
       </div>
-      <div class="form-group"><label>Intervention</label>
-        <select id="f-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('f')">
-          <option value="">Choisir une région…</option>
-          <option value="Membre inférieur">Membre inférieur</option>
-          <option value="Membre supérieur">Membre supérieur</option>
-          <option value="Péri-prothétiques">Péri-prothétiques</option>
-        </select>
-        <select id="f-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
-        <input type="text" id="f-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
+
+      <!-- CTA fixe -->
+      <div class="saisie-cta">
+        <button class="btn-primary" id="saisie-save-btn" onclick="saveBloc()">Enregistrer le bloc</button>
       </div>
-      <div class="form-row">
-        <div class="form-group form-quick-hide"><label>Rôle</label><select id="f-role" onchange="toggleOperateur('f')"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
-        <div class="form-group form-quick-hide"><label>Durée (min)</label><input type="number" id="f-duree" placeholder="ex. 95" inputmode="numeric"></div>
-      </div>
-      <div id="f-operateur-row" style="display:none;" class="form-group form-quick-hide">
-        <label>Opérateur aidé</label>
-        <input type="text" id="f-operateur" placeholder="ex. Dr Martin, Dr Dupont..." autocomplete="off" list="dl-operateurs">
-      </div>
-      <div class="form-section">Patient</div>
-      <div class="form-row">
-        <div class="form-group"><label>Initiales / ID</label><input type="text" id="f-patient" placeholder="ex. J.D." autocomplete="off" list="dl-patients"></div>
-        <div class="form-group form-quick-hide"><label>Âge</label><input type="number" id="f-age" placeholder="ex. 72" inputmode="numeric"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group form-quick-hide"><label>IMC</label><input type="number" id="f-imc" placeholder="ex. 28" step="0.1" inputmode="decimal"></div>
-        <div class="form-group"></div>
-      </div>
-      <div class="form-section">Implants & technique</div>
-      <div class="form-group form-quick-hide"><label>Implants utilisés</label><input type="text" id="f-implants" placeholder="ex. Nexgen Legacy PS, fémur D3, tibia 4..." list="dl-implants"></div>
-      <div class="form-group form-quick-hide"><label>Voie d'abord</label><select id="f-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
-      <div class="form-group form-quick-hide"><label>Difficulté technique</label><div class="stars-row" style="margin-top:4px;" id="stars-row"></div></div>
-      <div class="form-group form-quick-hide"><label>Difficultés / astuces</label><textarea id="f-astuces" placeholder="Points techniques, difficultés, astuces opératoires..."></textarea></div>
-      <div class="form-group form-quick-hide"><label>Remarques libres</label><textarea id="f-remarques" placeholder="Observations, questions, points à retravailler..."></textarea></div>
-      <div class="form-group form-quick-hide"><label>Tags</label><div class="tag-wrap" id="tag-wrap" onclick="document.getElementById('tf').focus()"><input class="tag-field" id="tf" placeholder="Ajouter un tag..." onkeydown="handleTag(event)" list="dl-tags"></div></div>
-      <button class="btn-primary" onclick="saveBloc()">Enregistrer le bloc</button>
     </div>
 
     <!-- STATS -->
-    <div class="view" id="view-stats">
-      <!-- Onglets stats fixes -->
-      <div class="atlas-tabs" id="stats-tabs" style="flex-shrink:0;">
-        <button class="atlas-tab active" onclick="switchStatsTab('activite',this)">Activité</button>
-        <button class="atlas-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
-        <button class="atlas-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
-        <button class="atlas-tab" onclick="switchStatsTab('top',this)">Top</button>
+    <div class="view" id="view-stats" style="padding:0;">
+      <div class="stats-page-h">
+        <h1 class="stats-page-title">Statistiques</h1>
       </div>
-
-      <!-- ① ACTIVITÉ -->
-      <div class="view-scroll" style="padding:0;">
-      <div class="dash-panel active" id="sp-activite">
-        <div class="stats-grid" style="margin-bottom:14px;">
-          <div class="stat-card"><div class="stat-label">Ce mois</div><div class="stat-val" id="st-ce-mois">0</div><div class="stat-sub">blocs</div></div>
-          <div class="stat-card"><div class="stat-label">Moy. mensuelle</div><div class="stat-val" id="st-moy-mois">0</div><div class="stat-sub">sur 6 mois</div></div>
-        </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Activité mensuelle — Ortho vs Trauma</div>
-          <div class="period-tabs" id="activity-period-tabs">
-            <button class="period-tab active" onclick="setActivityPeriod(6,this)">6 mois</button>
-            <button class="period-tab" onclick="setActivityPeriod(12,this)">1 an</button>
-            <button class="period-tab" onclick="setActivityPeriod(0,this)">Tout</button>
-          </div>
-          <div style="position:relative;height:140px;"><canvas id="chart-activity"></canvas></div>
-          <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--text2);">
-            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--blue);display:inline-block;"></span>Orthopédie</span>
-            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--amber);display:inline-block;"></span>Traumatologie</span>
-          </div>
-        </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Rôle</div>
-          <div style="display:grid;grid-template-columns:140px 1fr;gap:16px;align-items:center;">
-            <div style="position:relative;height:110px;"><canvas id="chart-role"></canvas></div>
-            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--text2);" id="role-legend"></div>
-          </div>
-        </div>
+      <div class="stats-tabs-bar" id="stats-tabs">
+        <button class="stats-tab on" onclick="switchStatsTab('activite',this)">Activité</button>
+        <button class="stats-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
+        <button class="stats-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
+        <button class="stats-tab" onclick="switchStatsTab('top',this)">Top</button>
       </div>
-
-      <!-- ② ORTHOPÉDIE -->
-      <div class="dash-panel" id="sp-ortho">
-        <div class="stat-section">
-          <div class="stat-section-title">Durée opératoire</div>
-          <div class="period-tabs" id="learning-tabs">
-            <button class="period-tab active" onclick="setLearning('PTH',this)">PTH</button>
-            <button class="period-tab" onclick="setLearning('PTG',this)">PTG</button>
-            <button class="period-tab" onclick="setLearning('LCA',this)">LCA</button>
-            <button class="period-tab" onclick="setLearning('Ménisque',this)">Ménisque</button>
-            <button class="period-tab" onclick="setLearning('Autre',this)">Autre</button>
+      <div class="stats-scroll">
+        <!-- ① ACTIVITÉ -->
+        <div class="stats-panel on" id="sp-activite">
+          <div class="kpi-hero">
+            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span></div><div class="s-kpi-value" id="st-ce-mois">0</div><div class="s-kpi-sub">blocs</div></div>
+            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Moyenne</span></div><div class="s-kpi-value" id="st-moy-mois">0</div><div class="s-kpi-sub">blocs/mois · 6 mois</div></div>
           </div>
-          <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="learning-trend"></div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Activité mensuelle</h2></div>
+            <div class="s-periods" id="activity-period-tabs">
+              <button class="s-period on" onclick="setActivityPeriod(6,this)">6 mois</button>
+              <button class="s-period" onclick="setActivityPeriod(12,this)">1 an</button>
+              <button class="s-period" onclick="setActivityPeriod(0,this)">Tout</button>
+            </div>
+            <div class="chart-card">
+              <div style="position:relative;height:140px;"><canvas id="chart-activity"></canvas></div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Orthopédie</span>
+                <span class="legend-item"><span class="legend-dot" style="background:var(--warm);"></span>Traumatologie</span>
+              </div>
+            </div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Rôle</h2></div>
+            <div class="chart-card">
+              <div style="position:relative;height:110px;"><canvas id="chart-role"></canvas></div>
+              <div id="role-legend" class="chart-legend"></div>
+            </div>
+          </div>
         </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Résultats patients — Orthopédie</div>
-          <div id="ortho-statuts"></div>
+        <!-- ② ORTHOPÉDIE -->
+        <div class="stats-panel" id="sp-ortho">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Durée opératoire</h2></div>
+            <div class="s-periods" id="learning-tabs">
+              <button class="s-period on" onclick="setLearning('PTH',this)">PTH</button>
+              <button class="s-period" onclick="setLearning('PTG',this)">PTG</button>
+              <button class="s-period" onclick="setLearning('LCA',this)">LCA</button>
+              <button class="s-period" onclick="setLearning('Ménisque',this)">Ménisque</button>
+              <button class="s-period" onclick="setLearning('Autre',this)">Autre</button>
+            </div>
+            <div class="chart-card"><div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div><div style="font-size:11px;color:var(--text3);margin-top:8px;" id="learning-trend"></div></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
+            <div class="statut-list" id="ortho-statuts"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
+            <div class="chart-card" id="compl-by-interv-ortho"></div>
+          </div>
         </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Complications par intervention — Orthopédie</div>
-          <div id="compl-by-interv-ortho"></div>
+        <!-- ③ TRAUMA -->
+        <div class="stats-panel" id="sp-trauma">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
+            <div class="statut-list" id="trauma-statuts"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
+            <div class="chart-card" id="compl-by-interv-trauma"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Top chirurgiens aidés</h2></div>
+            <div class="chart-card" id="top-chirurgiens"></div>
+          </div>
         </div>
-      </div>
-
-      <!-- ③ TRAUMATOLOGIE -->
-      <div class="dash-panel" id="sp-trauma">
-        <div class="stat-section">
-          <div class="stat-section-title">Résultats patients — Traumatologie</div>
-          <div id="trauma-statuts"></div>
-        </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Complications par intervention — Traumatologie</div>
-          <div id="compl-by-interv-trauma"></div>
-        </div>
-        <div class="stat-section">
-          <div class="stat-section-title">Top chirurgiens aidés</div>
-          <div id="top-chirurgiens"></div>
-        </div>
-      </div>
-
-      <!-- ④ TOP INTERVENTIONS -->
-      <div class="dash-panel" id="sp-top">
-        <div class="period-tabs" id="top-filter-tabs" style="margin-bottom:14px;">
-          <button class="period-tab active" onclick="setTopFilter('all',this)">Tout</button>
-          <button class="period-tab" onclick="setTopFilter('ortho',this)">Orthopédie</button>
-          <button class="period-tab" onclick="setTopFilter('trauma',this)">Traumatologie</button>
-        </div>
-        <div class="stat-section">
-          <div id="top-interventions"></div>
+        <!-- ④ TOP -->
+        <div class="stats-panel" id="sp-top">
+          <div class="s-periods" id="top-filter-tabs">
+            <button class="s-period on" onclick="setTopFilter('all',this)">Tout</button>
+            <button class="s-period" onclick="setTopFilter('ortho',this)">Orthopédie</button>
+            <button class="s-period" onclick="setTopFilter('trauma',this)">Traumatologie</button>
+          </div>
+          <div class="chart-card" id="top-interventions"></div>
         </div>
       </div>
     </div>
@@ -1364,7 +1624,7 @@ function renderAll(){renderDash();renderBlocs();}
 
 // ── DASHBOARD ──
 function switchDashTab(tab,btn){
-  document.querySelectorAll('#dash-tabs .atlas-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#dash-tabs .dash-tab-atlas').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#view-dashboard .dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='complications')renderComplications();
@@ -1393,9 +1653,13 @@ function renderDash(){
   document.getElementById('d-compl-pct').textContent=cPct+'%';
   document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
   const maxS=Math.max(genou,hanche,trauma,1);
-  const SPEC_FILL={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'var(--warm)'};
-  document.getElementById('spec-bars').innerHTML=[{n:'Genou',v:genou},{n:'Hanche',v:hanche},{n:'Traumatologie',v:trauma}].map(s=>
-    `<div class="atlas-dist-row"><span class="atlas-dist-name">${s.n}</span><div class="atlas-dist-bar"><div class="atlas-dist-fill" style="width:${Math.round(s.v/maxS*100)}%;background:${SPEC_FILL[s.n]};"></div></div><span class="atlas-dist-count">${s.v}</span></div>`
+  const SPEC_DATA=[
+    {n:'Genou',v:genou,cls:'genou',detail:'PTG · LCA · Méniscectomie',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>'},
+    {n:'Hanche',v:hanche,cls:'hanche',detail:'PTH · Vissage · Révision',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg>'},
+    {n:'Traumatologie',v:trauma,cls:'trauma',detail:'DHS · Clouage · Ostéosynthèse',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg>'}
+  ];
+  document.getElementById('spec-bars').innerHTML=SPEC_DATA.map(s=>
+    `<div class="dist-row"><div class="dist-icon ${s.cls}">${s.svg}</div><div class="dist-name-col"><span class="dist-name">${s.n}</span><span class="dist-detail">${s.detail}</span></div><div class="dist-bar"><div class="dist-fill ${s.cls}" style="width:${Math.round(s.v/maxS*100)}%;"></div></div><span class="dist-count">${s.v}</span></div>`
   ).join('');
   renderPlanning();
   if(document.getElementById('dp-planning')&&document.getElementById('dp-planning').classList.contains('active')){renderInlineCalendar();renderMonthPlannedList();}
@@ -1420,15 +1684,16 @@ function renderComplications(){
 }
 
 // ── MES BLOCS ──
-function filterB(btn,spec){document.querySelectorAll('#bloc-filters .atlas-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curFilter=spec;renderBlocs();}
-function filterRole(btn,role){document.querySelectorAll('#role-filters .atlas-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curRoleFilter=role;renderBlocs();}
+function filterB(btn,spec){document.querySelectorAll('#bloc-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curFilter=spec;renderBlocs();}
+function filterRole(btn,role){document.querySelectorAll('#role-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curRoleFilter=role;renderBlocs();}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
 function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
 let tagsOpen=false;
 function toggleTagsPanel(){
   tagsOpen=!tagsOpen;
   document.getElementById('tags-panel').style.display=tagsOpen?'block':'none';
-  document.getElementById('tags-toggle-icon').textContent=tagsOpen?'▴':'▾';
+  const icon=document.getElementById('tags-toggle-icon');
+  if(icon)icon.style.transform=tagsOpen?'rotate(180deg)':'rotate(0deg)';
   renderTagFilters();
 }
 function normalizeTag(t){return t.trim().charAt(0).toUpperCase()+t.trim().slice(1).toLowerCase();}
@@ -1437,13 +1702,13 @@ function renderTagFilters(){
   blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(normalizeTag(t))));
   const btn=document.getElementById('tags-toggle-btn');
   const lbl=document.getElementById('tags-toggle-label');
-  if(activeTagFilters.size>0&&btn){btn.style.background='var(--accent)';btn.style.color='white';btn.style.borderColor='var(--accent)';if(lbl)lbl.textContent='Tags ('+activeTagFilters.size+')';}
-  else if(btn){btn.style.background='none';btn.style.color='var(--text3)';btn.style.borderColor='var(--border2)';if(lbl)lbl.textContent='Tags';}
+  if(activeTagFilters.size>0&&btn){btn.classList.add('on');if(lbl)lbl.textContent='Tags ('+activeTagFilters.size+')';}
+  else if(btn){btn.classList.remove('on');if(lbl)lbl.textContent='Tags';}
   const el=document.getElementById('tag-filters');if(!el)return;
-  if(!allTags.size){el.innerHTML='<span style="font-size:12px;color:var(--text3);">Aucun tag enregistré</span>';return;}
+  if(!allTags.size){el.innerHTML='<span style="font-size:12px;color:var(--text3);">Aucun tag</span>';return;}
   el.innerHTML=Array.from(allTags).sort().map(t=>{
-    const active=activeTagFilters.has(t)||activeTagFilters.has(t.toLowerCase())||activeTagFilters.has(t.toUpperCase());
-    return`<button onclick="toggleTagFilter('${t}')" style="padding:5px 11px;font-size:12px;font-weight:500;border-radius:99px;border:0.5px solid ${active?'var(--accent)':'var(--border2)'};background:${active?'var(--accent)':'var(--bg)'};color:${active?'white':'var(--text2)'};cursor:pointer;font-family:inherit;">${t}</button>`;
+    const active=activeTagFilters.has(t);
+    return`<button onclick="toggleTagFilter('${t}')" class="filter-pill${active?' on':''}">${t}</button>`;
   }).join('');
 }
 function toggleTagFilter(tag){
@@ -1458,69 +1723,64 @@ function toggleTagFilter(tag){
 }
 function renderBlocs(){
   const searchRaw=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
-  const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'block':'none';
+  const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'flex':'none';
   let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
-  if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');const compls=(b.complications||[]).map(c=>(c.type||'')+' '+(c.detail||'')).join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults,compls].join(' ').toLowerCase().includes(searchRaw);});
+  if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
   renderTagFilters();
   const countEl=document.getElementById('search-count');
+  const subEl=document.getElementById('blocs-count-sub');
   if(countEl)countEl.textContent=(searchRaw||activeTagFilters.size>0)?filtered.length+' résultat'+(filtered.length>1?'s':'')+' sur '+blocs.length+' blocs':'';
-  if(!filtered.length){el.innerHTML=searchRaw||activeTagFilters.size>0?'<div class="empty"><div class="empty-icon">🔍</div>Aucun résultat</div>':'<div class="empty"><div class="empty-icon">📋</div>Aucun bloc</div>';return;}
+  if(subEl)subEl.textContent=blocs.length+' cas';
+  if(!filtered.length){el.innerHTML='<div class="empty">'+(searchRaw||activeTagFilters.size>0?'🔍 Aucun résultat':'📋 Aucun bloc enregistré')+'</div>';return;}
   const sorted=filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  // Grouper par mois
   const groups={};
-  sorted.forEach(b=>{
-    const mk=b.date?getMonthKey(b.date):'—';
-    if(!groups[mk])groups[mk]=[];
-    groups[mk].push(b);
-  });
+  sorted.forEach(b=>{const mk=b.date?getMonthKey(b.date):'—';if(!groups[mk])groups[mk]=[];groups[mk].push(b);});
   const monthKeys=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  const STATUS_PILL={vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'};
+  const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès'};
   el.innerHTML=monthKeys.map(mk=>{
-    const label=mk==='—'?'Date inconnue':new Date(mk+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+    const label=mk==='—'?'Date inconnue':new Date(mk+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
     const count=groups[mk].length;
     const items=groups[mk].map(b=>{
       const bi=blocs.indexOf(b);
-      const bc=b.spec==='Genou'?'bg':b.spec==='Hanche'?'bh':'bt';
-      const rc=b.role==='Principal'?'bp':'ba';
-      const{dc,tc,sl}=statusClasses(b.statut);
+      const specCls=b.spec==='Genou'?'genou':b.spec==='Hanche'?'hanche':'trauma';
+      const specSvg=b.spec==='Genou'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>':b.spec==='Hanche'?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="6" r="1.8"/><path d="M5.5 7L11 10.5"/><path d="M11 10.5L9.5 12.5L13.5 12.5L12 14.5"/><path d="M13 14L18.5 17.5"/><circle cx="20" cy="18.5" r="1.8"/></svg>';
       const nc=(b.complications||[]).length;
-      const nr=b.radioCount?Object.values(b.radioCount).reduce((a,r)=>a+r,0):0;
-      // Highlight recherche sur patient
-      let pTxt=esc(b.patient)||'—';
-      if(searchRaw){const lower=pTxt.toLowerCase();if(lower.includes(searchRaw)){const idx=lower.indexOf(searchRaw);pTxt=pTxt.slice(0,idx)+'<mark style="background:var(--amber-l);color:var(--amber-d);border-radius:2px;">'+pTxt.slice(idx,idx+searchRaw.length)+'</mark>'+pTxt.slice(idx+searchRaw.length);}}
-      // Badges secondaires compacts
-      const badges=[
-        b.toComplete?'<span class="bloc-todo">À COMPLÉTER</span>':'',
-        nc>0?`<span class="badge" style="background:var(--red-l);color:var(--red-d);">⚠ ${nc}</span>`:'',
-        nr>0?`<span class="badge" style="background:var(--green-l);color:var(--green-d);">📷 ${nr}</span>`:'',
+      const nr=b.radioCount?Object.values(b.radioCount).reduce((a,v)=>a+v,0):0;
+      const statusCls=STATUS_PILL[b.statut||'gris']||'attente';
+      const statusLbl=STATUS_LABEL[b.statut||'gris']||'En attente';
+      const roleCls=b.role==='Aide'?'aide':'';
+      const patientTxt=b.patient?b.patient.split(' ').map((w,i)=>i===0?w:w.charAt(0)+'.').join(' '):'—';
+      const flags=[
+        b.toComplete?'<span class="bloc-flag todo">À COMPLÉTER</span>':'',
+        nc>0?'<span class="bloc-flag compli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> '+nc+' compli.</span>':'',
+        nr>0?'<span class="bloc-flag photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> '+nr+'</span>':''
       ].filter(Boolean).join('');
-      // Ligne 2 : patient · durée · opérateur si aide
-      const opTxt=b.role==='Aide'&&b.operateur?` · ${esc(b.operateur)}`:'';
-      const dureeTxt=b.duree?` · ${b.duree} min`:'';
-      return`<div class="bloc-item" onclick="openBlocDetail(${bi})">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
-          <div style="display:flex;align-items:center;gap:5px;min-width:0;flex:1;">
-            <span class="badge ${bc}" style="flex-shrink:0;">${esc(displayInterv(b.interv).substring(0,22))}</span>
-            <span class="badge ${rc}" style="flex-shrink:0;">${b.role}</span>
-            ${badges}
+      return `<div class="bloc-item" onclick="openBlocDetail(${bi})">
+        <div class="bloc-icon ${specCls}">${specSvg}</div>
+        <div class="bloc-mid">
+          <div class="bloc-line1">
+            <span class="bloc-interv-txt">${esc(displayInterv(b.interv).substring(0,35))}</span>
+            <span class="bloc-role-txt ${roleCls}">${b.role}</span>
           </div>
-          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
-            <span style="font-size:11px;color:var(--text3);">${fmtDate(b.date)}</span>
-            <span class="sdot ${dc}"></span>
+          <div class="bloc-line2"><b>${esc(patientTxt)}</b>${b.role==='Aide'&&b.operateur?' · '+esc(b.operateur):''}</div>
+          <div class="bloc-meta-row">
+            ${b.duree?'<span class="meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> '+b.duree+' min</span>':''}
+            ${flags}
           </div>
         </div>
-        <div style="font-size:12px;color:var(--text2);padding-left:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${pTxt}${dureeTxt}${opTxt}</div>
+        <div class="bloc-right-col">
+          <span class="bloc-date-txt">${fmtDate(b.date).substring(0,5)}</span>
+          <span class="bloc-status-pill ${statusCls}">${statusLbl}</span>
+        </div>
       </div>`;
     }).join('');
-    return`<div class="bloc-month-section">
-      <div class="bloc-month-header"><span>${label}</span><span style="font-weight:400;">${count} bloc${count>1?'s':''}</span></div>
-      ${items}
-    </div>`;
+    return `<div class="bloc-month-section"><div class="bloc-month-header"><span>${label}</span><span>${count} BLOC${count>1?'S':''}</span></div>${items}</div>`;
   }).join('');
 }
-
 // ── DETAIL BLOC ──
 function switchDetTab(tab,btn){
   document.querySelectorAll('.atlas-det-tab').forEach(b=>b.classList.remove('active'));
@@ -1999,85 +2259,112 @@ function applyQuickModePref(){
 }
 
 
-function atlasSelectSpec(spec, btn){
-  document.querySelectorAll('.atlas-spec-pill').forEach(p=>p.classList.remove('on'));
+function selectSpec(btn, spec){
+  document.querySelectorAll('.spec-pill').forEach(p=>p.classList.remove('on'));
   if(btn) btn.classList.add('on');
-  const sel=document.getElementById('f-spec');
-  if(sel){ sel.value=spec; if(typeof upInterv==='function') upInterv(); }
+  const h=document.getElementById('f-spec');if(h)h.value=spec;
+  if(typeof upInterv==='function') upInterv();
 }
+function selectRole(role){
+  document.getElementById('role-btn-principal').classList.toggle('on',role==='Principal');
+  document.getElementById('role-btn-aide').classList.toggle('on',role==='Aide');
+  const h=document.getElementById('f-role');if(h)h.value=role;
+  const opField=document.getElementById('operateur-field');
+  if(opField)opField.style.display=role==='Aide'?'flex':'none';
+}
+function selectSide(btn,side){
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const h=document.getElementById('f-side');if(h)h.value=side;
+}
+function atlasSelectSpec(spec,btn){selectSpec(btn,spec);}
 
 function initForm(){
-  document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
+  const dateEl=document.getElementById('f-date');if(dateEl)dateEl.value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
-  ['f-spec','f-side','f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Reset hidden state
+  ['f-spec','f-side','f-interv'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-role').value='Principal';
-  document.getElementById('f-interv').innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
-  document.getElementById('f-interv').style.display='block';
-  document.getElementById('f-interv-libre').style.display='none';
-  document.getElementById('f-interv-libre').value='';
-  const fOpRow=document.getElementById('f-operateur-row');if(fOpRow)fOpRow.style.display='none';
+  // Reset text fields
+  ['f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Reset pills UI
+  document.querySelectorAll('.spec-pill').forEach(p=>p.classList.remove('on'));
+  document.getElementById('role-btn-principal').classList.add('on');
+  document.getElementById('role-btn-aide').classList.remove('on');
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('on'));
+  // Attach tag listener
+  const tagInput=document.getElementById('f-tags-input');
+  if(tagInput&&!tagInput._hasTagListener){tagInput.addEventListener('keydown',handleTag);tagInput._hasTagListener=true;}
 }
 function upInterv(){
   const sp=document.getElementById('f-spec').value;
-  const sel=document.getElementById('f-interv');
+  const container=document.getElementById('interv-pills');
   const libre=document.getElementById('f-interv-libre');
-  const region=document.getElementById('f-trauma-region');
-  if(!sp){
-    sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
-    sel.style.display='block';
-    if(libre) libre.style.display='none';
-    if(region) region.style.display='none';
+  const intervH=document.getElementById('f-interv');
+  if(!container)return;
+  if(!sp){container.innerHTML='<span style="font-size:13px;color:var(--text3);font-style:italic;">Sélectionner une spécialité d\'abord</span>';return;}
+  // Get intervention list
+  const INTERV={
+    Genou:['PTG','PTG révision','LCA DIDT','LCA KJ','LCA DT3+2','Méniscectomie','Suture méniscale','OTV','Unicompartimentale','Autre genou'],
+    Hanche:['PTH antérolatérale','PTH voie postérieure','PTH révision','Vissage col','Prothèse intermédiaire','Autre hanche'],
+    Traumatologie:['__LIBRE__']
+  };
+  const list=INTERV[sp]||[];
+  if(sp==='Traumatologie'){
+    container.innerHTML='';
+    if(libre){libre.style.display='block';libre.placeholder='Décrire l\'intervention...';}
+    if(intervH)intervH.value='';
     return;
   }
-  if(sp === 'Traumatologie'){
-    if(region){ region.style.display='block'; region.value=''; }
-    sel.style.display='block';
-    sel.innerHTML='<option>Choisir une région d\'abord</option>';
-    if(libre) libre.style.display='none';
-    return;
-  }
-  if(region) region.style.display='none';
-  sel.style.display='block';
-  sel.innerHTML = buildIntervSelectHTML(sp);
-  sel.onchange=()=>toggleIntervLibre('f');
-  toggleIntervLibre('f');
+  if(libre)libre.style.display='none';
+  container.innerHTML=list.map(iv=>`<button class="interv-pill${iv.startsWith('Autre')?'':''}" onclick="pickInterv(this,'${iv}')">${iv.replace('__LIBRE__','Autre…')}</button>`).join('');
+  if(intervH)intervH.value='';
+}
+function pickInterv(btn,val){
+  document.querySelectorAll('.interv-pill').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  const h=document.getElementById('f-interv');if(h)h.value=val;
+  const libre=document.getElementById('f-interv-libre');
+  if(libre)libre.style.display=val.startsWith('Autre')?'block':'none';
 }
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
   const lbls=['Non évalué','Simple','Modéré','Difficile','Très difficile','Exceptionnel'];
-  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<cStar));
+  document.querySelectorAll('.star-btn').forEach((s,i)=>s.classList.toggle('on',i<cStar));
   const lbl=document.getElementById('star-lbl');if(lbl)lbl.textContent=lbls[cStar];
 }
 function buildStars(){
-  const c=document.getElementById('stars-row');if(!c)return;c.innerHTML='';
-  for(let i=1;i<=5;i++){const s=document.createElement('span');s.className='star';s.textContent='★';const v=i;s.onclick=()=>{cStar=v;updateStars();};c.appendChild(s);}
-  const lbl=document.createElement('span');lbl.className='star-lbl';lbl.id='star-lbl';lbl.textContent='Non évalué';c.appendChild(lbl);
+  // Legacy stars-row (edit form)
+  const c=document.getElementById('stars-row');
+  if(c){c.innerHTML='';for(let i=1;i<=5;i++){const s=document.createElement('span');s.className='star';s.textContent='★';const v=i;s.onclick=()=>{cStar=v;updateStars();};c.appendChild(s);}const lbl=document.createElement('span');lbl.className='star-lbl';lbl.id='star-lbl';lbl.textContent='Non évalué';c.appendChild(lbl);}
+  // New stars-container (saisie)
+  const sc=document.getElementById('stars-container');
+  if(sc){sc.innerHTML='';for(let i=1;i<=5;i++){const s=document.createElement('button');s.type='button';s.className='star-btn';s.style.cssText='width:32px;height:32px;background:none;border:none;cursor:pointer;font-size:22px;color:var(--bg3);';s.textContent='★';const v=i;s.onclick=()=>{cStar=v;updateStars();};sc.appendChild(s);}const lbl=document.createElement('span');lbl.className='star-lbl';lbl.id='star-lbl';lbl.style.cssText='font-size:13px;color:var(--text3);font-style:italic;margin-left:6px;';lbl.textContent='Non évalué';sc.appendChild(lbl);}
 }
 function handleTag(e){
-  if(e.key==='Enter'||e.key===','){e.preventDefault();const v=e.target.value.trim().replace(/,/g,'');if(v&&!formTags.includes(v)){formTags.push(v);renderTags();}e.target.value='';}
+  if(e.key==='Enter'||e.key===','){e.preventDefault();const v=normalizeTag(e.target.value.replace(/,/g,''));if(v&&!formTags.includes(v)){formTags.push(v);renderTags();}e.target.value='';}
   else if(e.key==='Backspace'&&!e.target.value&&formTags.length){formTags.pop();renderTags();}
 }
 function removeTag(t){formTags=formTags.filter(x=>x!==t);renderTags();}
 function renderTags(){
-  const c=document.getElementById('tag-wrap');const f=document.getElementById('tf');c.innerHTML='';
+  // New saisie: f-tags-display
+  const disp=document.getElementById('f-tags-display');
+  if(disp){disp.innerHTML=formTags.map(t=>`<span style="font-size:11px;background:var(--accent-l);color:var(--accent);padding:3px 9px;border-radius:99px;font-weight:500;display:inline-flex;align-items:center;gap:4px;">${esc(t)} <span onclick="removeTag('${t}')" style="cursor:pointer;opacity:0.7;">×</span></span>`).join('');return;}
+  // Legacy tag-wrap
+  const c=document.getElementById('tag-wrap');const f=document.getElementById('tf');if(!c||!f)return;
+  c.innerHTML='';
   formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';
 }
 function saveBloc(){
   const sp=document.getElementById('f-spec').value;
-  const selVal=document.getElementById('f-interv').value;
-  // v14c : canonique = remplace __LIBRE__ par le texte du champ libre
-  const libreVal = (document.getElementById('f-interv-libre').value||'').trim();
-  let iv;
-  if(selVal.includes('__LIBRE__')){
-    if(!libreVal){showToast('Préciser l\'intervention');return;}
-    iv = selVal === '__LIBRE__' ? libreVal : selVal.replace(' — __LIBRE__', ' — ' + libreVal);
-  } else {
-    iv = selVal;
-  }
-  if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
-  // v13-rescue : flag "à compléter" si saisi en mode rapide
-  const isQuick = document.getElementById('view-saisie').classList.contains('quick-mode');
+  const intervH=document.getElementById('f-interv');
+  const libreEl=document.getElementById('f-interv-libre');
+  const libreVal=(libreEl?libreEl.value:'').trim();
+  let iv=(intervH?intervH.value:'').trim()||libreVal;
+  if(iv.startsWith('Autre')&&libreVal)iv=libreVal;
+  if(!sp||!iv){showToast('Spécialité et intervention requises');return;}
+  const isQuick=document.getElementById('view-saisie').classList.contains('quick-mode');
   blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick});
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');sw('blocs');
 }
@@ -2088,10 +2375,10 @@ let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='
 
 function switchStatsTab(tab,btn){
   curStatsTab=tab;
-  document.querySelectorAll('#stats-tabs .atlas-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('sp-'+tab).classList.add('active');
+  document.querySelectorAll('#stats-tabs .stats-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('sp-'+tab).classList.add('on');
   if(tab==='activite'){renderActivityChart();renderRoleChart();}
   else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
   else if(tab==='trauma'){renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
@@ -2099,20 +2386,18 @@ function switchStatsTab(tab,btn){
 }
 
 function renderStats(){
-  // KPIs activité
   const now=new Date();
   const thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
   const ceMois=blocs.filter(b=>b.date&&getMonthKey(b.date)===thisMonthKey).length;
   const months6=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months6.push(getMonthKey(d.toISOString()));}
   const total6=months6.reduce((s,k)=>s+blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length,0);
   const moy6=Math.round(total6/6*10)/10;
-  document.getElementById('st-ce-mois').textContent=ceMois;
-  document.getElementById('st-moy-mois').textContent=moy6;
-  // Toujours démarrer sur l'onglet Activité
+  const ceEl=document.getElementById('st-ce-mois');if(ceEl)ceEl.textContent=ceMois;
+  const moyEl=document.getElementById('st-moy-mois');if(moyEl)moyEl.textContent=moy6;
   curStatsTab='activite';
-  document.querySelectorAll('#stats-tabs .atlas-tab').forEach((b,i)=>{b.classList.toggle('active',i===0);});
-  document.querySelectorAll('#view-stats .dash-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('sp-activite').classList.add('active');
+  document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
+  document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
+  const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
   renderActivityChart();renderRoleChart();
 }
 
@@ -2120,8 +2405,8 @@ function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.get
 
 function setActivityPeriod(n,btn){
   statPeriodActivity=n;
-  document.querySelectorAll('#activity-period-tabs .period-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');renderActivityChart();
+  document.querySelectorAll('#activity-period-tabs .s-period').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderActivityChart();
 }
 // Alias pour compatibilité (ne devrait plus être appelé mais sécurité)
 function setPeriod(n,btn){setActivityPeriod(n,btn);}
@@ -2155,8 +2440,8 @@ function renderRoleChart(){
 
 function setLearning(type,btn){
   statLearning=type;
-  document.querySelectorAll('#learning-tabs .period-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');renderLearningChart();
+  document.querySelectorAll('#learning-tabs .s-period').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderLearningChart();
 }
 
 function renderLearningChart(){
@@ -2194,25 +2479,24 @@ function renderLearningChart(){
 }
 
 function renderStatuts(filter){
-  // filter = 'ortho' | 'trauma'
   const elId=filter==='ortho'?'ortho-statuts':'trauma-statuts';
-  const el=document.getElementById(elId);
+  const el=document.getElementById(elId);if(!el)return;
   const subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
   const total=subset.length;
-  if(!total){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc enregistré</div>';return;}
+  if(!total){el.innerHTML='<div style="font-size:13px;color:var(--text3);">Aucun bloc enregistré</div>';return;}
   const STATUTS=[
-    {key:'vert',label:'Bon résultat',color:CC.green},
-    {key:'orange',label:'Vigilance',color:CC.amber},
-    {key:'rouge',label:'Complication',color:CC.red},
-    {key:'gris',label:'En attente',color:CC.gray},
-    {key:'pdv',label:'Perdu de vue',color:'#6B7A8D'},
-    {key:'deces',label:'Décès',color:'#4A4A48'}
+    {key:'vert',label:'Bon résultat',dotCls:'bon',color:'var(--green-d)',fill:'var(--green-d)'},
+    {key:'orange',label:'Vigilance',dotCls:'vigilance',color:'var(--amber-d)',fill:'var(--amber-d)'},
+    {key:'rouge',label:'Complication',dotCls:'compli',color:'var(--red-d)',fill:'var(--red-d)'},
+    {key:'gris',label:'En attente',dotCls:'attente',color:'var(--text3)',fill:'var(--bg3)'},
+    {key:'pdv',label:'Perdu de vue',dotCls:'attente',color:'var(--text3)',fill:'var(--bg3)'},
+    {key:'deces',label:'Décès',dotCls:'attente',color:'var(--text2)',fill:'var(--text3)'}
   ];
   el.innerHTML=STATUTS.map(s=>{
     const n=subset.filter(b=>(b.statut||'gris')===s.key).length;
     if(!n)return'';
     const pct=Math.round(n/total*100);
-    return`<div class="statut-bar-row"><div class="statut-bar-label"><span style="color:${s.color};font-weight:500;">${s.label}</span><span style="color:var(--text2);">${n} <span style="color:var(--text3);font-weight:400;">(${pct}%)</span></span></div><div class="statut-bar-wrap"><div class="statut-bar" style="width:${pct}%;background:${s.color};"></div></div></div>`;
+    return`<div class="statut-row"><div class="statut-name-row"><span class="statut-name-inner"><span class="statut-dot" style="background:${s.fill};"></span>${s.label}</span><span class="statut-vals">${n}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span></span></div><div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${s.fill};"></div></div></div>`;
   }).join('');
 }
 
@@ -2244,8 +2528,8 @@ function renderTopChirurgiens(){
 
 function setTopFilter(filter,btn){
   statTopFilter=filter;
-  document.querySelectorAll('#top-filter-tabs .period-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');renderTopInterventions();
+  document.querySelectorAll('#top-filter-tabs .s-period').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderTopInterventions();
 }
 
 function renderTopInterventions(){
@@ -2335,23 +2619,20 @@ function renderUpcoming(){
   const el=document.getElementById('upcoming-list');if(!el)return;
   const upcoming=upcomingPlanned().slice(0,8);
   if(!upcoming.length){
-    el.innerHTML='<div class="empty" style="padding:20px;"><div class="empty-icon" style="font-size:20px;">📅</div><div style="margin-top:6px;">Aucun bloc prévu</div></div>';
+    el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Aucun bloc prévu</div>';
     return;
   }
-  const bc_map={Genou:'bg',Hanche:'bh',Traumatologie:'bt'};
-  el.innerHTML=upcoming.map((p,i)=>{
+  el.innerHTML=upcoming.map((p)=>{
     const cd=countdown(p.date);
-    const bc=bc_map[p.spec]||'';
-    return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span class="badge ${bc}">${esc(displayInterv(p.interv).substring(0,20))||'—'}</span>
-          ${p.patient?`<span style="font-size:12px;color:var(--text2);">${esc(p.patient)}</span>`:''}
-        </div>
-        ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
+    const cdCls=cd?(cd.cls==='cd-urgent'?'urgent':cd.cls==='cd-soon'?'soon':''):'';
+    const intervTxt=esc(displayInterv(p.interv))||'—';
+    const metaParts=[esc(p.patient)||'',fmtDate(p.date),p.side||''].filter(Boolean);
+    return`<div class="up-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
+      <div class="up-left">
+        <span class="up-interv">${intervTxt}</span>
+        <span class="up-meta">${metaParts.join(' · ')}</span>
       </div>
-      <div style="font-size:11px;color:var(--text3);">${fmtDate(p.date)}${p.side?' · '+p.side:''}</div>
-      ${p.comment?`<div style="font-size:11px;color:var(--amber-d);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">📋 ${esc(p.comment)}</div>`:''}
+      ${cd?`<span class="up-cd ${cdCls}">${cd.label}</span>`:''}
     </div>`;
   }).join('');
 }
@@ -2793,8 +3074,10 @@ function updateThemeBtn(){
   const root=document.documentElement;
   const sysDark=matchMedia('(prefers-color-scheme:dark)').matches;
   const currentlyDark=root.classList.contains('theme-dark')||(sysDark&&!root.classList.contains('theme-light'));
-  const btn=document.getElementById('theme-btn');
-  if(btn)btn.innerHTML=currentlyDark?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  const moon=document.getElementById('theme-icon-moon');
+  const sun=document.getElementById('theme-icon-sun');
+  if(moon)moon.style.display=currentlyDark?'none':'block';
+  if(sun)sun.style.display=currentlyDark?'block':'none';
 }
 function initTheme(){
   const saved=localStorage.getItem('orlog_theme');
@@ -2879,7 +3162,9 @@ async function unlockApp(){
 
 function showApp(){
   document.getElementById('lockscreen').style.display='none';
-  document.getElementById('app').style.display='flex';
+  const appEl=document.getElementById('app');
+  appEl.style.display='';
+  appEl.classList.add('visible');
   try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
