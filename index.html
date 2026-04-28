@@ -128,7 +128,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .form-group label{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px;}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;font-size:16px;border:1px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);font-family:inherit;-webkit-appearance:none;appearance:none;}
 .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);}
-.form-group textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:14px;}
+.form-group textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:16px;}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-section{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-0.01em;color:var(--text);margin:22px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
 .stars-row{display:flex;align-items:center;gap:6px;}
@@ -187,7 +187,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .lb-nav button{background:rgba(255,255,255,0.15);color:white;border:none;border-radius:var(--radius);padding:8px 18px;font-size:14px;cursor:pointer;font-family:inherit;}
 .lb-info{color:rgba(255,255,255,0.5);font-size:12px;margin-top:8px;text-align:center;}
 /* v13-rescue : mode saisie rapide */
-#view-saisie.quick-mode .form-quick-hide{display:none;}
+#view-saisie.quick-mode .quick-hide{display:none !important;}
 .quick-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:14px;}
 .quick-toggle-label{font-size:13px;font-weight:500;color:var(--text);}
 .quick-toggle-hint{font-size:11px;color:var(--text3);margin-top:2px;}
@@ -362,9 +362,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .up-left{display:flex;flex-direction:column;gap:3px;min-width:0;}
 .up-interv{font-size:14px;font-weight:600;color:var(--text);}
 .up-meta{font-size:12px;color:var(--text3);}
-.up-cd{font-family:-apple-system,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;background:var(--accent-l);color:var(--accent);padding:5px 9px;border-radius:99px;flex-shrink:0;}
+.up-cd{font-size:11px;font-weight:600;letter-spacing:0.04em;background:var(--accent-l);color:var(--accent);padding:5px 9px;border-radius:99px;flex-shrink:0;white-space:nowrap;}
 .up-cd.urgent{background:var(--red-l);color:var(--red-d);}
 .up-cd.soon{background:var(--amber-l);color:var(--amber-d);}
+.up-comment{font-size:11px;color:var(--amber-d);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
 .stats-grid{gap:12px;margin-bottom:24px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:6px;}
 .stat-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:0;}
@@ -433,7 +434,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .search-wrap{position:relative;display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:0 12px;height:42px;margin:0 20px 12px;}
 .search-wrap:focus-within{border-color:var(--accent);}
 .search-wrap svg{width:16px;height:16px;color:var(--text3);flex-shrink:0;}
-.search-wrap input{flex:1;border:none;background:none;font-family:inherit;font-size:14px;color:var(--text);padding:0 10px;outline:none;}
+.search-wrap input{flex:1;border:none;background:none;font-family:inherit;font-size:16px;color:var(--text);padding:0 10px;outline:none;}
 .search-wrap input::placeholder{color:var(--text3);}
 .filters-row{display:flex;gap:6px;padding:0 20px 8px;overflow-x:auto;}
 .filters-row::-webkit-scrollbar{display:none;}
@@ -514,10 +515,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .field+.field{border-top:1px solid var(--border);}
 .field-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
 .field-required{color:var(--warm);margin-left:3px;}
-.f-input,.f-select,.f-textarea{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:15px;color:var(--text);padding:0;}
+.f-input,.f-select,.f-textarea{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:16px;color:var(--text);padding:0;}
 .f-input::placeholder,.f-textarea::placeholder{color:var(--text3);font-style:italic;}
 .f-select{appearance:none;-webkit-appearance:none;cursor:pointer;}
-.f-textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:14px;color:var(--text2);}
+.f-textarea{resize:vertical;min-height:80px;line-height:1.6;font-family:var(--serif);font-size:16px;color:var(--text2);}
 .spec-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 .spec-pill{padding:10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text2);cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:5px;}
 .spec-pill .icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
@@ -724,6 +725,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
             <span id="tags-toggle-label">Tags</span>
             <svg id="tags-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
+        </div>
+        <div class="filters-row" id="status-filters" style="border-top:none;padding-top:4px;">
+          <button class="filter-pill on" onclick="filterStatus(this,'all')">Tous statuts</button>
+          <button class="filter-pill" onclick="filterStatus(this,'vert')" style="color:var(--green-d);">● Bon résultat</button>
+          <button class="filter-pill" onclick="filterStatus(this,'orange')" style="color:var(--amber-d);">● Vigilance</button>
+          <button class="filter-pill" onclick="filterStatus(this,'rouge')" style="color:var(--red-d);">● Complication</button>
+          <button class="filter-pill" onclick="filterStatus(this,'gris')">● En attente</button>
         </div>
         <div id="tags-panel" style="display:none;padding:0 20px 10px;">
           <div id="tag-filters" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
@@ -1172,6 +1180,16 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   </div>
 </div>
 
+<!-- MODAL STATUT PATIENTS -->
+<div class="modal-overlay" id="statut-patients-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('statut-patients-modal')">×</button>
+    <div class="modal-title" id="statut-patients-title"></div>
+    <div id="statut-patients-list" style="max-height:60vh;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <!-- MODAL SETTINGS -->
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
@@ -1313,9 +1331,9 @@ const INTERV_HIER = {
     'Membre inférieur': {
       'Bassin': '__LIBRE__',
       'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage'],
-      'Fémur': ['Plaque','Clou'],
+      'Fémur': ['Plaque','Clou fémur T2','Clou Gamma Long'],
       'Genou': ['Fracture de rotule'],
-      'Tibia': ['Plateau tibial','Clou','Pilon tibial'],
+      'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial'],
       'Cheville': ['Malléole latérale','Fracture bi-malléolaire','Fracture tri-malléolaire'],
       'Pied': '__LIBRE__',
       'Autre': '__LIBRE__'
@@ -1323,7 +1341,7 @@ const INTERV_HIER = {
     'Membre supérieur': {
       'Épaule': ['PTEI','Plaque','Clou'],
       'Clavicule': '__LIBRE__',
-      'Humérus': ['Plaque','Enclouage centromédullaire'],
+      'Humérus': ['Plaque','Clou humérus'],
       'Coude': ['Palette humérale','Terrible triade','Tête radiale','Olécrane'],
       'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire'],
       'Poignet': ['Plaque','Kapandji'],
@@ -1452,8 +1470,8 @@ const INTERV_MIGRATION = {
   // Trauma
   'Fracture col fémur — DHS': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
   'Fracture col fémur — clouage': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
-  'Fracture tibia — enclouage': 'Membre inférieur — Tibia — Clou',
-  'Fracture fémur — enclouage': 'Membre inférieur — Fémur — Clou',
+  'Fracture tibia — enclouage': 'Membre inférieur — Tibia — Clou tibia',
+  'Fracture fémur — enclouage': 'Membre inférieur — Fémur — Clou fémur T2',
   'Fracture cheville — ostéosynthèse': 'Membre inférieur — Cheville — Fracture bi-malléolaire',
   'Fracture radius distal': 'Membre supérieur — Poignet — Plaque',
   'Autre traumatologie': 'Membre inférieur — Autre (Mb inf) (libre)'
@@ -1485,19 +1503,16 @@ function migrateInterv(label){
   if(target.includes('pthcrochet')) return 'Membre inférieur — Hanche (trauma) — PTH + Crochet';
   // — Trauma fémur / tibia
   if(target.includes('femur')){
-    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Fémur — Clou';
+    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Fémur — Clou fémur T2';
     if(target.includes('plaque')) return 'Membre inférieur — Fémur — Plaque';
   }
   if(target.includes('tibia')){
     if(target.includes('plateau')) return 'Membre inférieur — Tibia — Plateau tibial';
     if(target.includes('pilon')) return 'Membre inférieur — Tibia — Pilon tibial';
-    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Tibia — Clou';
+    if(target.includes('clou') || target.includes('enclouage')) return 'Membre inférieur — Tibia — Clou tibia';
   }
-  // — Trauma membre supérieur
-  if(target.includes('radiusdistal') || (target.includes('radius') && target.includes('distal'))) return 'Membre supérieur — Poignet — Plaque';
-  if(target.includes('kapandji')) return 'Membre supérieur — Poignet — Kapandji';
   if(target.includes('humerus') && target.includes('plaque')) return 'Membre supérieur — Humérus — Plaque';
-  if(target.includes('humerus') && (target.includes('clou') || target.includes('enclouage'))) return 'Membre supérieur — Humérus — Enclouage centromédullaire';
+  if(target.includes('humerus') && (target.includes('clou') || target.includes('enclouage'))) return 'Membre supérieur — Humérus — Clou humérus';
   if(target.includes('clavicule')) return 'Membre supérieur — Clavicule (libre)';
   if(target.includes('olecrane') || target.includes('olecrane')) return 'Membre supérieur — Coude — Olécrane';
   if(target.includes('teteradiale') || target.includes('tetederadius')) return 'Membre supérieur — Coude — Tête radiale';
@@ -1568,7 +1583,7 @@ const SPEC_COLORS={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'v
 const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#A06A12',red:'#A8413C',green:'#3F6B3D',gray:'#7B8290',warm:'#C97864'};
 
 let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
-let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',complCtx={},consultCtx={};
+let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',curStatusFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
 let chartActivity=null,chartLearning=null,chartRole=null;
 let detailBlocIdx=-1,curDetTab='info';
@@ -1686,6 +1701,7 @@ function renderComplications(){
 // ── MES BLOCS ──
 function filterB(btn,spec){document.querySelectorAll('#bloc-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curFilter=spec;renderBlocs();}
 function filterRole(btn,role){document.querySelectorAll('#role-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curRoleFilter=role;renderBlocs();}
+function filterStatus(btn,status){document.querySelectorAll('#status-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curStatusFilter=status;renderBlocs();}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
 function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
 let tagsOpen=false;
@@ -1726,6 +1742,7 @@ function renderBlocs(){
   const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'flex':'none';
   let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
+  if(curStatusFilter!=='all')filtered=filtered.filter(b=>(b.statut||'gris')===curStatusFilter);
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
   if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
@@ -1844,6 +1861,7 @@ function openBlocDetail(bi){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-detail').classList.add('active');
+  document.getElementById('view-detail').scrollTop=0;
 }
 // ── ONGLET SUIVI (dans détail) ──
 function renderDetSuivi(bi){
@@ -2115,6 +2133,7 @@ function openEditModal(){
   if(eOpRow)eOpRow.style.display=b.role==='Aide'?'block':'none';
   editTags=[...(b.tags||[])];renderEditTags();
   openModal('edit-modal');
+  setTimeout(()=>{const m=document.querySelector('#edit-modal .modal');if(m)m.scrollTop=0;},50);
 }
 function upIntervEdit(){
   const sp=document.getElementById('e-spec').value;
@@ -2303,34 +2322,74 @@ function upInterv(){
   const intervH=document.getElementById('f-interv');
   if(!container)return;
   if(!sp){container.innerHTML='<span style="font-size:13px;color:var(--text3);font-style:italic;">Sélectionner une spécialité d\'abord</span>';return;}
-  // Get intervention list
-  const INTERV={
-    Genou:['PTG','PTG révision','LCA DIDT','LCA KJ','LCA DT3+2','Méniscectomie','Suture méniscale','OTV','Unicompartimentale','Autre genou'],
-    Hanche:['PTH antérolatérale','PTH voie postérieure','PTH révision','Vissage col','Prothèse intermédiaire','Autre hanche'],
-    Traumatologie:['__LIBRE__']
-  };
-  const list=INTERV[sp]||[];
   if(sp==='Traumatologie'){
-    container.innerHTML='';
-    if(libre){libre.style.display='block';libre.placeholder='Décrire l\'intervention...';}
+    // Afficher les régions comme pills
+    const regions=Object.keys(INTERV_HIER.Traumatologie||{});
+    container.innerHTML=regions.map(r=>`<button class="interv-pill" onclick="pickTraumaRegion('${r}')">${r}</button>`).join('');
+    if(libre){libre.style.display='none';libre.value='';}
     if(intervH)intervH.value='';
     return;
   }
   if(libre)libre.style.display='none';
-  container.innerHTML=list.map(iv=>`<button class="interv-pill${iv.startsWith('Autre')?'':''}" onclick="pickInterv(this,'${iv}')">${iv.replace('__LIBRE__','Autre…')}</button>`).join('');
+  const items=(INTERV_HIER[sp]&&INTERV_HIER[sp][''])||[];
+  container.innerHTML=items.map(iv=>{
+    const isLibre=iv==='Autre';
+    return`<button class="interv-pill${isLibre?' autre':''}" onclick="pickInterv(this,'${isLibre?'__LIBRE__':iv}')">${iv}</button>`;
+  }).join('');
   if(intervH)intervH.value='';
 }
+
+function pickTraumaRegion(region){
+  const container=document.getElementById('interv-pills');
+  const libre=document.getElementById('f-interv-libre');
+  const intervH=document.getElementById('f-interv');
+  if(intervH)intervH.value='';
+  if(libre){libre.style.display='none';libre.value='';}
+  const sub=INTERV_HIER.Traumatologie[region];
+  if(!sub){return;}
+  // Sous-sections ou liste plate
+  let html=`<div style="font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;margin-bottom:6px;width:100%;">${region}</div>`;
+  if(Array.isArray(sub)){
+    html+=sub.map(item=>{
+      const canonical=region+' — '+item;
+      return`<button class="interv-pill" onclick="pickInterv(this,'${canonical}')">${item}</button>`;
+    }).join('');
+  } else {
+    for(const subName of Object.keys(sub)){
+      const items=sub[subName];
+      html+=`<div style="font-size:10px;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin:8px 0 4px;width:100%;font-weight:600;">${subName}</div>`;
+      if(items==='__LIBRE__'){
+        const canonical=region+' — '+subName+' — __LIBRE__';
+        html+=`<button class="interv-pill autre" onclick="pickIntervLibre('${canonical}')">${subName}…</button>`;
+      } else if(Array.isArray(items)){
+        html+=items.map(item=>{
+          const canonical=region+' — '+subName+' — '+item;
+          return`<button class="interv-pill" onclick="pickInterv(this,'${canonical}')">${item}</button>`;
+        }).join('');
+      }
+    }
+  }
+  container.innerHTML=html;
+}
+
 function pickInterv(btn,val){
   document.querySelectorAll('.interv-pill').forEach(p=>p.classList.remove('on'));
   btn.classList.add('on');
   const h=document.getElementById('f-interv');if(h)h.value=val;
   const libre=document.getElementById('f-interv-libre');
-  if(libre)libre.style.display=val.startsWith('Autre')?'block':'none';
+  if(libre)libre.style.display='none';
+}
+
+function pickIntervLibre(canonical){
+  const h=document.getElementById('f-interv');if(h)h.value=canonical;
+  const libre=document.getElementById('f-interv-libre');
+  if(libre){libre.style.display='block';libre.focus();}
 }
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
   const lbls=['Non évalué','Simple','Modéré','Difficile','Très difficile','Exceptionnel'];
-  document.querySelectorAll('.star-btn').forEach((s,i)=>s.classList.toggle('on',i<cStar));
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<cStar));
+  document.querySelectorAll('.star-btn').forEach((s,i)=>{s.style.color=i<cStar?'var(--amber)':'var(--border2)';});
   const lbl=document.getElementById('star-lbl');if(lbl)lbl.textContent=lbls[cStar];
 }
 function buildStars(){
@@ -2496,8 +2555,36 @@ function renderStatuts(filter){
     const n=subset.filter(b=>(b.statut||'gris')===s.key).length;
     if(!n)return'';
     const pct=Math.round(n/total*100);
-    return`<div class="statut-row"><div class="statut-name-row"><span class="statut-name-inner"><span class="statut-dot" style="background:${s.fill};"></span>${s.label}</span><span class="statut-vals">${n}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span></span></div><div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${s.fill};"></div></div></div>`;
+    return`<div class="statut-row" onclick="showStatutPatients('${filter}','${s.key}')" style="cursor:pointer;">
+      <div class="statut-name-row">
+        <span class="statut-name-inner"><span class="statut-dot" style="background:${s.fill};"></span>${s.label}</span>
+        <span class="statut-vals">${n}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
+      </div>
+      <div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${s.fill};"></div></div>
+    </div>`;
   }).join('');
+}
+
+function showStatutPatients(filter,statusKey){
+  const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès'};
+  const subset=blocs.filter(b=>{
+    const matchSpec=filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie';
+    return matchSpec&&(b.statut||'gris')===statusKey;
+  });
+  document.getElementById('statut-patients-title').textContent=STATUS_LABEL[statusKey]||statusKey+' — '+subset.length+' patient'+(subset.length>1?'s':'');
+  document.getElementById('statut-patients-list').innerHTML=subset.length===0
+    ?'<div style="padding:16px;color:var(--text3);text-align:center;">Aucun patient</div>'
+    :subset.map((b,_)=>{
+      const bi=blocs.indexOf(b);
+      return`<div onclick="closeModal('statut-patients-modal');sw('blocs');setTimeout(()=>openBlocDetail(${bi}),100);" style="padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);">${esc(b.patient)||'—'}</div>
+          <div style="font-size:12px;color:var(--text3);">${esc(displayInterv(b.interv))} · ${fmtDate(b.date)}</div>
+        </div>
+        <span style="font-size:12px;color:var(--text3);">›</span>
+      </div>`;
+    }).join('');
+  openModal('statut-patients-modal');
 }
 
 function renderComplByIntervFiltered(filter){
@@ -2617,20 +2704,22 @@ function renderWeekStrip(){
 
 function renderUpcoming(){
   const el=document.getElementById('upcoming-list');if(!el)return;
-  const upcoming=upcomingPlanned().slice(0,8);
+  const upcoming=upcomingPlanned(); // Tous, pas slice(0,8)
   if(!upcoming.length){
     el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Aucun bloc prévu</div>';
     return;
   }
   el.innerHTML=upcoming.map((p)=>{
     const cd=countdown(p.date);
-    const cdCls=cd?(cd.cls==='cd-urgent'?'urgent':cd.cls==='cd-soon'?'soon':''):'';
+    const cdCls=cd?cd.cls:''; // 'urgent', 'soon', ou ''
     const intervTxt=esc(displayInterv(p.interv))||'—';
-    const metaParts=[esc(p.patient)||'',fmtDate(p.date),p.side||''].filter(Boolean);
+    const metaParts=[esc(p.patient)||'',fmtDate(p.date),p.side?esc(p.side):''].filter(Boolean);
+    const commentTxt=p.comment?`<span class="up-comment">📋 ${esc(p.comment)}</span>`:'';
     return`<div class="up-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
       <div class="up-left">
         <span class="up-interv">${intervTxt}</span>
         <span class="up-meta">${metaParts.join(' · ')}</span>
+        ${commentTxt}
       </div>
       ${cd?`<span class="up-cd ${cdCls}">${cd.label}</span>`:''}
     </div>`;
