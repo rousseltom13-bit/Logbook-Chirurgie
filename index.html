@@ -187,6 +187,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .lb-nav button{background:rgba(255,255,255,0.15);color:white;border:none;border-radius:var(--radius);padding:8px 18px;font-size:14px;cursor:pointer;font-family:inherit;}
 .lb-info{color:rgba(255,255,255,0.5);font-size:12px;margin-top:8px;text-align:center;}
 /* v13-rescue : mode saisie rapide */
+#view-saisie{display:none;flex-direction:column;padding:0;min-height:100%;}
+#view-saisie.active{display:flex;}
 #view-saisie.quick-mode .quick-hide{display:none !important;}
 .quick-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:14px;}
 .quick-toggle-label{font-size:13px;font-weight:500;color:var(--text);}
@@ -509,7 +511,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .qmode{margin:14px 22px 0;padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .qmode-label{font-size:13px;font-weight:600;color:var(--text);}
 .qmode-hint{font-size:11px;color:var(--text3);font-style:italic;}
-.saisie-scroll{padding:14px 22px 100px;}
+.saisie-scroll{padding:14px 22px 16px;flex:1;}
 .field-group{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 0;margin-bottom:14px;}
 .field{padding:10px 16px;display:flex;flex-direction:column;gap:6px;}
 .field+.field{border-top:1px solid var(--border);}
@@ -538,7 +540,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .side-btn{flex:1;padding:8px 4px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;font-family:inherit;}
 .side-btn.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
 .saisie-section-label{padding:14px 0 10px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
-.saisie-cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:14px 22px calc(16px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);z-index:10;}
+.saisie-cta{position:sticky;bottom:0;left:0;right:0;width:100%;padding:14px 16px calc(16px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);z-index:10;margin-top:8px;}
 .saisie-cta .btn-primary{background:var(--text);color:var(--bg);border-radius:8px;font-weight:600;}
 /* Stats sections polish */
 /* === PROTO-EXACT: Stats === */
@@ -748,6 +750,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style="flex:1;"></div>
+        <button onclick="openLinkedBlocForm()" class="atlas-iconbtn" aria-label="Ajouter un bloc lié" title="Nouveau bloc — même patient">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </button>
         <button onclick="openEditModal()" class="atlas-iconbtn" aria-label="Modifier">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
@@ -845,7 +850,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           </div>
           <div class="field" id="operateur-field" style="display:none;">
             <div class="field-label">Opérateur aidé</div>
-            <input type="text" id="f-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operators">
+            <input type="text" id="f-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs">
           </div>
         </div>
 
@@ -899,6 +904,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div class="field-group quick-hide">
           <div class="field">
             <div class="field-label">Implants</div>
+            <input type="text" id="f-implants-suggest" class="f-input" placeholder="Rechercher un implant déjà utilisé…" autocomplete="off" list="dl-implants" style="margin-bottom:6px;" oninput="onImplantSuggest(this.value)" onchange="onImplantSuggest(this.value)">
             <textarea id="f-implants" class="f-textarea" placeholder="ex. Nexgen Legacy PS · Fémur D3 · Tibia 4..."></textarea>
           </div>
         </div>
@@ -934,14 +940,17 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <input type="hidden" id="f-role" value="Principal">
         <input type="hidden" id="f-side" value="">
         <input type="hidden" id="f-interv" value="">
-        <datalist id="dl-patients"></datalist>
-        <datalist id="dl-operators"></datalist>
-        <datalist id="dl-tags"></datalist>
+        <!-- Bouton multi-intervention trauma -->
+        <div id="multi-interv-container"></div>
       </div>
 
       <!-- CTA fixe -->
       <div class="saisie-cta">
-        <button class="btn-primary" id="saisie-save-btn" onclick="saveBloc()">Enregistrer le bloc</button>
+        <div id="multi-interv-preview" style="display:none;margin-bottom:10px;"></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" id="saisie-save-btn" onclick="saveBloc()" style="flex:1;">Enregistrer le bloc</button>
+          <button type="button" onclick="addMultiInterv()" id="multi-interv-btn" title="Ajouter une 2ème intervention (même patient, même date)" style="flex-shrink:0;padding:14px 16px;background:var(--bg2);color:var(--text2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;">+2ème</button>
+        </div>
       </div>
     </div>
 
@@ -1303,6 +1312,21 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   </div>
 </div>
 
+<!-- MODAL HISTORIQUE PATIENT -->
+<div class="modal-overlay" id="patient-history-modal">
+  <div class="modal" style="max-height:80vh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:2px;">Historique patient</div>
+        <div class="modal-title" id="patient-history-name" style="margin-bottom:0;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('patient-history-modal')">×</button>
+    </div>
+    <div id="patient-history-list"></div>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox">
   <button class="lb-close" onclick="closeLB()">×</button>
   <img id="lb-img" src="" alt="">
@@ -1578,11 +1602,34 @@ function runIntervMigration(){
     localStorage.setItem(FLAG, '1');
   }catch(e){ console.warn('[Atlas v14] Migration interv échouée:', e); }
 }
+// Migration one-shot : backfill patientId sur les blocs existants
+function runPatientMigration(){
+  const FLAG = 'atlas_patient_migrated_v1';
+  if(localStorage.getItem(FLAG)) return;
+  let migrated = 0;
+  // Regrouper les blocs par nom patient (insensible à la casse)
+  const byName = {};
+  blocs.forEach(b=>{
+    if(!b.patient || !b.patient.trim()) return;
+    const key = b.patient.trim().toLowerCase();
+    if(!byName[key]) byName[key] = [];
+    byName[key].push(b);
+  });
+  // Pour chaque groupe, créer un patient et assigner l'ID
+  Object.entries(byName).forEach(([,group])=>{
+    const nom = group[0].patient.trim();
+    const age = group.find(b=>b.age)?.age || null;
+    const pid = upsertPatient(nom, age);
+    group.forEach(b=>{ if(!b.patientId){ b.patientId = pid; migrated++; } });
+  });
+  if(migrated > 0){ saveLocal(); console.info('[Atlas] Migration patients : '+migrated+' bloc(s) liés'); }
+  localStorage.setItem(FLAG, '1');
+}
 const RT=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
 const SPEC_COLORS={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'var(--warm)'};
 const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#A06A12',red:'#A8413C',green:'#3F6B3D',gray:'#7B8290',warm:'#C97864'};
 
-let blocs=[],planned=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
+let blocs=[],planned=[],patients=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',curStatusFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
 let chartActivity=null,chartLearning=null,chartRole=null;
@@ -1592,34 +1639,58 @@ let detailBlocIdx=-1,curDetTab='info';
 function loadLocal(){
   try{const d=localStorage.getItem('orlog_blocs');if(d)blocs=JSON.parse(d);}catch(e){blocs=[];}
   try{const p=localStorage.getItem('orlog_planned');if(p)planned=JSON.parse(p);}catch(e){planned=[];}
+  try{const pt=localStorage.getItem('atlas_patients');if(pt)patients=JSON.parse(pt);}catch(e){patients=[];}
 }
 function saveLocal(){
   try{localStorage.setItem('orlog_blocs',JSON.stringify(blocs));}catch(e){}
   try{localStorage.setItem('orlog_planned',JSON.stringify(planned));}catch(e){}
+  try{localStorage.setItem('atlas_patients',JSON.stringify(patients));}catch(e){}
   try{refreshDatalists();}catch(e){}
 }
 // v13-rescue : autocomplete depuis l'historique
 function refreshDatalists(){
   const setOf = (arr) => Array.from(new Set(arr.filter(Boolean).map(s=>String(s).trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'fr',{sensitivity:'base'}));
-  // Implants : on splitte aussi par virgule pour proposer des composants individuels (PTG souvent = "Nexgen Legacy PS, fémur D3, tibia 4")
-  const implRaw = blocs.flatMap(b => (b.implants||'').split(/[,;]/));
+  // Implants : on splitte aussi par virgule/point-virgule pour proposer des composants individuels
+  const implRaw = blocs.flatMap(b => (b.implants||'').split(/[,;·\n]/));
   const impl = setOf(implRaw);
   const opers = setOf(blocs.map(b=>b.operateur));
-  const patients = setOf([...blocs.map(b=>b.patient), ...(planned||[]).map(p=>p.patient)]);
+  const patientNames = setOf([
+    ...blocs.map(b=>b.patient),
+    ...(planned||[]).map(p=>p.patient),
+    ...(patients||[]).map(p=>p.nom)
+  ]);
   const tags = setOf(blocs.flatMap(b=>(b.tags||[])));
   const fill = (id, items) => {
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.innerHTML = items.map(v=>`<option value="${esc(v)}">`).join('');
+    // Remplir tous les datalists portant cet id (il peut y en avoir plusieurs dans le DOM)
+    document.querySelectorAll('datalist#'+id).forEach(el=>{
+      el.innerHTML = items.map(v=>`<option value="${esc(v)}">`).join('');
+    });
   };
   fill('dl-implants', impl);
   fill('dl-operateurs', opers);
-  fill('dl-patients', patients);
+  fill('dl-patients', patientNames);
   fill('dl-tags', tags);
+}
+// Quand on sélectionne une suggestion d'implant, on l'insère dans le textarea
+function onImplantSuggest(val){
+  if(!val) return;
+  const dl = document.getElementById('dl-implants');
+  if(!dl) return;
+  // Vérifier si la valeur correspond exactement à une option
+  const opts = Array.from(dl.options).map(o=>o.value);
+  if(opts.includes(val)){
+    const ta = document.getElementById('f-implants');
+    if(ta){
+      const cur = ta.value.trim();
+      ta.value = cur ? cur + '\n' + val : val;
+    }
+    const sg = document.getElementById('f-implants-suggest');
+    if(sg) sg.value = '';
+  }
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v14';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v30';
   openModal('settings-modal');
 }
 
@@ -1825,7 +1896,11 @@ function openBlocDetail(bi){
   if(metaRow){
     const roleLabel=b.role==='Principal'?'Chirurgien principal':'Aide opératoire';
     const statusPill=`<span class="bloc-status-pill ${{vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'}[b.statut]||'attente'}">${sl}</span>`;
-    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${statusPill}`;
+    const histLink = b.patientId ? (() => {
+      const nb = getBlocsForPatient(b.patientId).length;
+      return nb > 1 ? `<button onclick="openPatientHistory('${b.patientId}')" style="background:none;border:none;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;padding:0;text-decoration:underline;text-underline-offset:2px;">${nb} blocs</button>` : '';
+    })() : '';
+    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${statusPill}`;
   }
   // Tab counts
   const nc2=(b.consultations||[]).length;
@@ -2173,7 +2248,12 @@ function saveEdit(){
   b.side=document.getElementById('e-side').value;
   b.role=document.getElementById('e-role').value;
   b.duree=parseInt(document.getElementById('e-duree').value)||null;
-  b.patient=document.getElementById('e-patient').value;
+  const newPatientNom = document.getElementById('e-patient').value;
+  b.patient = newPatientNom;
+  // Mettre à jour ou créer le patientId si le nom a changé
+  if(newPatientNom && newPatientNom !== b._prevPatientNom){
+    b.patientId = upsertPatient(newPatientNom, b.age);
+  }
   b.age=document.getElementById('e-age').value;
   b.imc=document.getElementById('e-imc').value;
   b.implants=document.getElementById('e-implants').value;
@@ -2301,6 +2381,13 @@ function atlasSelectSpec(spec,btn){selectSpec(btn,spec);}
 function initForm(){
   const dateEl=document.getElementById('f-date');if(dateEl)dateEl.value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
+  // Reset multi-intervention
+  window._pendingMultiBlocs=[];
+  window._linkedPatientId=null;
+  renderMultiIntervPreview();
+  // Reset eyebrow
+  const eyebrow=document.getElementById('saisie-eyebrow');
+  if(eyebrow)eyebrow.textContent='Nouveau bloc';
   // Reset hidden state
   ['f-spec','f-side','f-interv'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-role').value='Principal';
@@ -2415,6 +2502,52 @@ function renderTags(){
   formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';
 }
+// ── MODÈLE PATIENT ──
+// Retourne l'ID d'un patient existant ou en crée un nouveau
+function upsertPatient(nom, age){
+  if(!nom || !nom.trim()) return null;
+  const key = nom.trim().toLowerCase();
+  let p = patients.find(pt => pt.nom.toLowerCase() === key);
+  if(!p){
+    p = {id: 'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6), nom: nom.trim(), age: age||null, createdAt: new Date().toISOString()};
+    patients.push(p);
+  } else if(age && !p.age){
+    p.age = age;
+  }
+  return p.id;
+}
+// Récupère tous les blocs d'un patientId
+function getBlocsForPatient(patientId){
+  if(!patientId) return [];
+  return blocs.filter(b=>b.patientId === patientId).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+// Ouvre la modal historique patient
+function openPatientHistory(patientId){
+  const p = patients.find(pt=>pt.id===patientId);
+  const name = p ? p.nom : '—';
+  const hist = getBlocsForPatient(patientId);
+  let html = `<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:12px;">${hist.length} bloc${hist.length>1?'s':''}</div>`;
+  if(!hist.length){
+    html += '<div style="color:var(--text3);font-size:13px;">Aucun bloc enregistré pour ce patient.</div>';
+  } else {
+    html += hist.map(b=>{
+      const bi = blocs.indexOf(b);
+      const{dc,sl}=statusClasses(b.statut);
+      return`<div onclick="closeModal('patient-history-modal');setTimeout(()=>openBlocDetail(${bi}),80);" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border);cursor:pointer;">
+        <span class="sdot ${dc}"></span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(displayInterv(b.interv))}</div>
+          <div style="font-size:11px;color:var(--text3);">${fmtDate(b.date)}${b.side?' · '+b.side:''}${b.spec?' · '+b.spec:''}</div>
+        </div>
+        <span style="font-size:11px;color:var(--text3);">${esc(sl)}</span>
+        <span style="color:var(--text3);">›</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('patient-history-name').textContent = name;
+  document.getElementById('patient-history-list').innerHTML = html;
+  openModal('patient-history-modal');
+}
 function saveBloc(){
   const sp=document.getElementById('f-spec').value;
   const intervH=document.getElementById('f-interv');
@@ -2424,11 +2557,102 @@ function saveBloc(){
   if(iv.startsWith('Autre')&&libreVal)iv=libreVal;
   if(!sp||!iv){showToast('Spécialité et intervention requises');return;}
   const isQuick=document.getElementById('view-saisie').classList.contains('quick-mode');
-  blocs.push({id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:document.getElementById('f-patient').value,age:document.getElementById('f-age').value,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick});
-  saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');sw('blocs');
+  const patientNom = document.getElementById('f-patient').value;
+  const patientAge = document.getElementById('f-age').value;
+  // Si on vient d'un bloc lié, réutiliser le patientId existant sans créer de doublon
+  const patientId = window._linkedPatientId || upsertPatient(patientNom, patientAge);
+  window._linkedPatientId = null; // reset
+  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick};
+  blocs.push(newBloc);
+  saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
+  // Multi-intervention : si des blocs supplémentaires ont été préparés
+  if(window._pendingMultiBlocs && window._pendingMultiBlocs.length > 0){
+    window._pendingMultiBlocs.forEach(pb=>{
+      pb.id = (Date.now()+Math.random()).toString();
+      pb.patientId = patientId;
+      pb.patient = patientNom;
+      blocs.push(pb);
+    });
+    window._pendingMultiBlocs = [];
+    saveLocal();
+    showToast('Blocs enregistrés (multi-interventions)');
+  }
+  sw('blocs');
 }
 
-// ── STATS ──
+// ── MULTI-INTERVENTION (trauma) ──
+window._pendingMultiBlocs = [];
+function addMultiInterv(){
+  // Capture l'état actuel du formulaire principal (intervention + spec + role + côté)
+  const sp=document.getElementById('f-spec').value;
+  const intervH=document.getElementById('f-interv');
+  const libreEl=document.getElementById('f-interv-libre');
+  const libreVal=(libreEl?libreEl.value:'').trim();
+  let iv=(intervH?intervH.value:'').trim()||libreVal;
+  if(iv.startsWith('Autre')&&libreVal)iv=libreVal;
+  if(!sp||!iv){showToast('Renseigne d\'abord la 1ère intervention');return;}
+  // Créer un objet bloc partiel (patient/date seront assignés au moment du save)
+  const pendingBloc = {
+    spec: sp, interv: iv,
+    side: document.getElementById('f-side').value,
+    role: document.getElementById('f-role').value,
+    date: document.getElementById('f-date').value,
+    duree: parseInt(document.getElementById('f-duree').value)||null,
+    age: document.getElementById('f-age').value,
+    imc: document.getElementById('f-imc').value,
+    operateur: document.getElementById('f-operateur').value,
+    implants: '', astuces: '', remarques: '',
+    tags: [], statut: 'gris', complications: [], consultations: [], radioCount: {}, toComplete: true
+  };
+  window._pendingMultiBlocs.push(pendingBloc);
+  // Afficher le résumé
+  renderMultiIntervPreview();
+  // Réinitialiser les champs intervention/spécialité pour saisir la 2ème
+  document.querySelectorAll('.spec-pill').forEach(p=>p.classList.remove('on'));
+  document.getElementById('f-spec').value='';
+  document.getElementById('f-interv').value='';
+  if(libreEl){libreEl.value='';libreEl.style.display='none';}
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('f-side').value='';
+  const container=document.getElementById('interv-pills');
+  if(container)container.innerHTML='<span style="font-size:13px;color:var(--text3);font-style:italic;">Sélectionner une spécialité d\'abord</span>';
+  showToast('1ère intervention sauvegardée — saisir la 2ème');
+}
+function renderMultiIntervPreview(){
+  const el=document.getElementById('multi-interv-preview');
+  if(!el)return;
+  if(!window._pendingMultiBlocs||!window._pendingMultiBlocs.length){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=`<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;">Interventions ajoutées</div>`
+    +window._pendingMultiBlocs.map((pb,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:4px;font-size:13px;">
+        <span>${esc(displayInterv(pb.interv))}${pb.side?' · '+pb.side:''}</span>
+        <button onclick="removePendingInterv(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 0 0 8px;">×</button>
+      </div>`).join('');
+}
+function removePendingInterv(i){
+  window._pendingMultiBlocs.splice(i,1);
+  renderMultiIntervPreview();
+}
+// Depuis le détail d'un bloc existant : ouvre le formulaire de saisie pré-rempli patient + date
+function openLinkedBlocForm(){
+  if(detailBlocIdx < 0) return;
+  const b = blocs[detailBlocIdx];
+  sw('saisie');
+  setTimeout(()=>{
+    // Pré-remplir patient et date
+    const patEl = document.getElementById('f-patient');
+    const dateEl = document.getElementById('f-date');
+    if(patEl) patEl.value = b.patient || '';
+    if(dateEl) dateEl.value = b.date || new Date().toISOString().split('T')[0];
+    // Stocker le patientId pour que saveBloc l'assigne sans recréer un doublon
+    window._linkedPatientId = b.patientId || null;
+    // Mettre à jour l'eyebrow du formulaire
+    const eyebrow = document.getElementById('saisie-eyebrow');
+    if(eyebrow && b.patient) eyebrow.textContent = 'Bloc lié — ' + b.patient;
+    showToast('Formulaire pré-rempli — même patient');
+  }, 150);
+}
 // ── STATS — onglets ──
 let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='activite';
 
@@ -3005,13 +3229,15 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'orlog-v13',
+    version:'atlas-v30',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
+    patients_count:(patients||[]).length,
     radios_count:radiosB64.filter(r=>r.data).length,
     blocs,
     planned:planned||[],
+    patients:patients||[],
     radios:radiosB64
   };
   // v13-rescue : on stringifie sans pretty-print pour économiser la RAM
@@ -3084,6 +3310,13 @@ function importData(e){
         const existingP=new Map((planned||[]).map(p=>[p.id,p]));
         importedPlanned.forEach(p=>{if(p.id&&!existingP.has(p.id))existingP.set(p.id,p);});
         planned=Array.from(existingP.values());
+      }
+      // Merge patients par ID
+      const importedPatients = parsed.patients || [];
+      if(importedPatients.length>0){
+        const existingPt=new Map((patients||[]).map(p=>[p.id,p]));
+        importedPatients.forEach(p=>{if(p.id&&!existingPt.has(p.id))existingPt.set(p.id,p);});
+        patients=Array.from(existingPt.values());
       }
       saveLocal();renderAll();
       // Restaurer les radios dans IndexedDB
@@ -3255,6 +3488,7 @@ function showApp(){
   appEl.style.display='';
   appEl.classList.add('visible');
   try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
+  try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
@@ -3385,13 +3619,15 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'orlog-v13-light',
+    version: 'atlas-v30-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
+    patients_count: (patients||[]).length,
     radios_excluded: true,
     blocs,
-    planned: planned||[]
+    planned: planned||[],
+    patients: patients||[]
   };
   const json = JSON.stringify(payload);
   const blob = new Blob([json], {type:'application/json'});
