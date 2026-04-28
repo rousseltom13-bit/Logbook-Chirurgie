@@ -1005,9 +1005,29 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
             </div>
             <div class="statut-list" id="activite-statuts"></div>
           </div>
-        </div>
+          <!-- Évolution temporelle des résultats -->
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Évolution des résultats</h2></div>
+            <div class="s-periods" id="evol-period-tabs">
+              <button class="s-period on" onclick="setEvolPeriod(12,this)">12 mois</button>
+              <button class="s-period" onclick="setEvolPeriod(24,this)">24 mois</button>
+              <button class="s-period" onclick="setEvolPeriod(0,this)">Tout</button>
+            </div>
+            <div class="chart-card">
+              <div style="position:relative;height:130px;"><canvas id="chart-evol"></canvas></div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:var(--green-d);"></span>Bons résultats</span>
+                <span class="legend-item"><span class="legend-dot" style="background:var(--red-d);"></span>Complications</span>
+              </div>
+            </div>
+          </div>
 
-        <!-- ② ORTHOPÉDIE -->
+          <!-- Complications par rôle -->
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Complications par rôle</h2></div>
+            <div class="chart-card" id="compl-by-role"></div>
+          </div>
+        </div>
         <div class="stats-panel" id="sp-ortho">
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Courbe d'apprentissage</h2></div>
@@ -1035,6 +1055,16 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
         <!-- ③ TRAUMA -->
         <div class="stats-panel" id="sp-trauma">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Courbe d'apprentissage</h2></div>
+            <div class="s-periods" id="learning-trauma-tabs">
+              <button class="s-period on" onclick="setTraumaLearning(null,this)">Auto</button>
+            </div>
+            <div class="chart-card">
+              <div style="position:relative;height:130px;"><canvas id="chart-learning-trauma"></canvas></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:8px;" id="learning-trauma-trend"></div>
+            </div>
+          </div>
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
             <div class="statut-list" id="trauma-statuts"></div>
@@ -1650,7 +1680,7 @@ const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amb
 let blocs=[],planned=[],patients=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',curStatusFilter='all',complCtx={},consultCtx={};
 let activeTagFilters=new Set();
-let chartActivity=null,chartLearning=null,chartRole=null;
+let chartActivity=null,chartLearning=null,chartRole=null,chartEvol=null,chartLearningTrauma=null;
 let detailBlocIdx=-1,curDetTab='info';
 
 // ── PERSISTENCE ──
@@ -2680,9 +2710,9 @@ function switchStatsTab(tab,btn){
   btn.classList.add('on');
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('sp-'+tab).classList.add('on');
-  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');}
+  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();}
   else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
-  else if(tab==='trauma'){renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
+  else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
   else if(tab==='top'){renderTopInterventions();}
 }
 
@@ -2699,7 +2729,7 @@ function renderStats(){
   document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
-  renderActivityChart();renderRoleChart();renderStatuts('activite');
+  renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -2956,6 +2986,134 @@ function showBlocsForInterv(name, count){
                statTopFilter==='trauma'?blocs.filter(b=>b.spec==='Traumatologie'):blocs;
   const list=subset.filter(b=>b.interv===name);
   openBlocsListModal(displayInterv(name)+' — '+count+' bloc'+(count>1?'s':''), list);
+}
+
+// ── ÉVOLUTION TEMPORELLE DES RÉSULTATS ──
+let statEvolPeriod=12;
+function setEvolPeriod(n,btn){
+  statEvolPeriod=n;
+  document.querySelectorAll('#evol-period-tabs .s-period').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');renderEvolChart();
+}
+function renderEvolChart(){
+  const now=new Date();
+  const months=statEvolPeriod>0?statEvolPeriod:Math.max(12,36);
+  const labels=[],keys=[];
+  for(let i=months-1;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    labels.push(d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'}));
+    keys.push(getMonthKey(d.toISOString()));
+  }
+  const bons=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&(b.statut||'gris')==='vert').length);
+  const compls=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&(b.statut||'gris')==='rouge').length);
+  // Ne garder que les mois où il y a eu au moins 1 bloc enregistré
+  const hasActivity=keys.map(k=>blocs.some(b=>b.date&&getMonthKey(b.date)===k));
+  const filteredLabels=labels.filter((_,i)=>hasActivity[i]);
+  const filteredBons=bons.filter((_,i)=>hasActivity[i]);
+  const filteredCompls=compls.filter((_,i)=>hasActivity[i]);
+  if(chartEvol){chartEvol.destroy();}
+  const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
+  const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+  chartEvol=new Chart(document.getElementById('chart-evol'),{
+    type:'line',
+    data:{labels:filteredLabels,datasets:[
+      {label:'Bons résultats',data:filteredBons,borderColor:CC.green,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.green,pointRadius:3,tension:0.3},
+      {label:'Complications',data:filteredCompls,borderColor:CC.red,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.red,pointRadius:3,tension:0.3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},
+      y:{grid:{color:gridColor},ticks:{color:CC.gray,font:{size:10},stepSize:1},beginAtZero:true}
+    }}
+  });
+}
+
+// ── COMPLICATIONS PAR RÔLE ──
+function renderComplByRole(){
+  const el=document.getElementById('compl-by-role');if(!el)return;
+  const roles=[{key:'Principal',label:'Chirurgien principal'},{key:'Aide',label:'Aide opératoire'}];
+  let html='';
+  roles.forEach(({key,label})=>{
+    const subset=blocs.filter(b=>b.role===key);
+    const total=subset.length;
+    if(!total){html+=`<div style="font-size:12px;color:var(--text3);margin-bottom:10px;">${label} — aucun bloc</div>`;return;}
+    const compl=subset.filter(b=>(b.complications||[]).length>0).length;
+    const pct=Math.round(compl/total*100);
+    const color=pct>=10?CC.red:pct>=5?CC.amber:CC.green;
+    html+=`<div onclick="openBlocsListModal('Complications en ${key.toLowerCase()} — ${compl} cas',blocs.filter(b=>b.role==='${key}'&&(b.complications||[]).length>0))" style="margin-bottom:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:6px;">
+        <span style="font-weight:500;">${label}</span>
+        <span style="color:var(--text3);font-size:11px;">${total} blocs · <span style="font-weight:600;color:${color};">${pct}% compl.</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
+      </div>
+      <div style="height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:4px;">
+        <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;min-width:${compl?2:0}px;"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);">${compl} complication${compl>1?'s':''} sur ${total} bloc${total>1?'s':''}</div>
+    </div>`;
+  });
+  el.innerHTML=html||'<div style="font-size:13px;color:var(--text3);">Aucune complication enregistrée</div>';
+}
+
+// ── COURBE D'APPRENTISSAGE TRAUMA ──
+let statTraumaLearning=null;
+function setTraumaLearning(interv,btn){
+  statTraumaLearning=interv;
+  document.querySelectorAll('#learning-trauma-tabs .s-period').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTraumaLearningChart();
+}
+// Construit dynamiquement les onglets trauma (gestes avec ≥5 blocs ayant une durée)
+function renderTraumaLearningTabs(){
+  const traumaWithDuree=blocs.filter(b=>b.spec==='Traumatologie'&&b.duree);
+  const counts={};
+  traumaWithDuree.forEach(b=>{const k=b.interv||'—';counts[k]=(counts[k]||0)+1;});
+  const eligible=Object.entries(counts).filter(([,n])=>n>=5).sort((a,b)=>b[1]-a[1]).map(([k])=>k);
+  const tabsEl=document.getElementById('learning-trauma-tabs');
+  if(!tabsEl)return;
+  if(!eligible.length){
+    tabsEl.innerHTML='<span style="font-size:12px;color:var(--text3);font-style:italic;">Moins de 5 blocs par geste — courbe indisponible</span>';
+    const trendEl=document.getElementById('learning-trauma-trend');
+    if(trendEl)trendEl.textContent='';
+    if(chartLearningTrauma){chartLearningTrauma.destroy();chartLearningTrauma=null;}
+    const canvas=document.getElementById('chart-learning-trauma');
+    if(canvas){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}
+    return;
+  }
+  // Sélectionner le premier geste par défaut si aucun n'est sélectionné ou si le geste actuel n'est plus éligible
+  if(!statTraumaLearning||!eligible.includes(statTraumaLearning)) statTraumaLearning=eligible[0];
+  tabsEl.innerHTML=eligible.map(interv=>{
+    const short=displayInterv(interv).replace(/Membre (inférieur|supérieur) — /,'').replace(/ — /,' · ');
+    const isOn=interv===statTraumaLearning;
+    return`<button class="s-period${isOn?' on':''}" onclick="setTraumaLearning('${interv.replace(/'/g,"\\'")}',this)" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(displayInterv(interv))}">${esc(short)}</button>`;
+  }).join('');
+  renderTraumaLearningChart();
+}
+function renderTraumaLearningChart(){
+  const el=document.getElementById('learning-trauma-trend');
+  if(!statTraumaLearning){if(el)el.textContent='';return;}
+  const relevant=blocs.filter(b=>b.spec==='Traumatologie'&&b.duree&&b.interv===statTraumaLearning)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(chartLearningTrauma){chartLearningTrauma.destroy();}
+  if(relevant.length<2){
+    chartLearningTrauma=new Chart(document.getElementById('chart-learning-trauma'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.amber,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    if(el)el.textContent='Données insuffisantes pour la tendance';
+    return;
+  }
+  const data=relevant.map(b=>b.duree);
+  const diff=data[data.length-1]-data[0];
+  const avg=Math.round(data.reduce((a,v)=>a+v,0)/data.length);
+  if(el)el.textContent=`${relevant.length} blocs · Moy. ${avg} min · Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min (↗ progression)':'↑ +'+diff+' min'}`;
+  const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
+  chartLearningTrauma=new Chart(document.getElementById('chart-learning-trauma'),{
+    type:'line',
+    data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{
+      data,borderColor:CC.amber,backgroundColor:'transparent',
+      borderWidth:2,pointBackgroundColor:CC.amber,pointRadius:3,tension:0.3
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},
+      y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}
+    }}
+  });
 }
 
 // ── PLANNING ──
