@@ -210,6 +210,31 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .statut-bar-wrap{height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;}
 .statut-bar{height:100%;border-radius:99px;}
 .det-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:var(--radius);padding:3px;border:0.5px solid var(--border);}
+/* Pills modal edit */
+.e-spec-pill,.e-side-pill,.e-statut-pill{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:1px solid var(--border2);border-radius:99px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.e-spec-pill.on,.e-side-pill.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+.e-statut-pill.on{border-color:var(--text);background:var(--text);color:var(--bg);}
+.e-statut-pill.bon.on{background:var(--green-d);border-color:var(--green-d);color:white;}
+.e-statut-pill.vigilance.on{background:var(--amber-d);border-color:var(--amber-d);color:white;}
+.e-statut-pill.compli.on{background:var(--red-d);border-color:var(--red-d);color:white;}
+.e-role-pill{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;width:100%;transition:all 0.15s;}
+.e-role-pill.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+.field-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+/* Pills type événement */
+.evt-type-pill{padding:7px 14px;border:1px solid var(--border2);border-radius:99px;background:var(--bg2);color:var(--text2);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.evt-type-pill.on{background:var(--text);color:var(--bg);border-color:var(--text);}
+.evt-type-pill[style*="red"].on{background:var(--red-d);border-color:var(--red-d);color:white;}
+.evt-type-pill[style*="amber"].on{background:var(--amber-d);border-color:var(--amber-d);color:white;}
+.evt-type-pill[style*="accent"].on{background:var(--accent);border-color:var(--accent);color:white;}
+/* Timeline suivi */
+.timeline-item{display:flex;gap:12px;padding:12px 0;position:relative;}
+.timeline-line{position:absolute;left:10px;top:28px;bottom:-12px;width:1px;background:var(--border);}
+.timeline-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;margin-top:2px;}
+.timeline-body{flex:1;min-width:0;}
+.timeline-date{font-size:11px;color:var(--text3);margin-bottom:2px;}
+.timeline-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.timeline-comment{font-size:13px;color:var(--text2);font-family:var(--serif);line-height:1.6;margin-top:4px;}
+.timeline-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;letter-spacing:0.03em;}
 .det-tab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:none;cursor:pointer;color:var(--text3);border-radius:7px;font-family:inherit;text-align:center;}
 .det-tab.active{background:var(--bg);color:var(--text);}
 .det-panel{display:none;}.det-panel.active{display:block;}
@@ -321,6 +346,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .dash-kpi-h{display:flex;align-items:center;justify-content:space-between;}
 .dash-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
 .dash-kpi-value{font-family:var(--serif);font-size:34px;font-weight:500;line-height:1;letter-spacing:-0.02em;color:var(--text);}
+.kpi-trend{font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:99px;letter-spacing:0.02em;flex-shrink:0;}
+.kpi-trend svg{width:9px;height:9px;}
+.kpi-trend.up{color:var(--green-d);background:var(--green-l);}
+.kpi-trend.down-good{color:var(--green-d);background:var(--green-l);}
+.kpi-trend.down-bad{color:var(--red-d);background:var(--red-l);}
+.kpi-trend.neutral{color:var(--text3);background:var(--bg3);}
 .dash-kpi-sub{font-size:12px;color:var(--text2);}
 .dash-kpi-sub b{color:var(--warm);font-weight:600;}
 .dash-tabs-atlas{display:flex;gap:0;margin:0 22px 18px;border-bottom:1px solid var(--border);}
@@ -632,12 +663,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       </div>
       <div class="dash-kpi-row">
         <div class="dash-kpi">
-          <div class="dash-kpi-h"><span class="dash-kpi-label">Blocs</span></div>
+          <div class="dash-kpi-h"><span class="dash-kpi-label">Blocs</span><span id="d-total-trend"></span></div>
           <div class="dash-kpi-value" id="d-total">0</div>
           <div class="dash-kpi-sub" id="d-principal">0 en principal</div>
         </div>
         <div class="dash-kpi">
-          <div class="dash-kpi-h"><span class="dash-kpi-label">Complications</span></div>
+          <div class="dash-kpi-h"><span class="dash-kpi-label">Complications</span><span id="d-compl-trend"></span></div>
           <div class="dash-kpi-value" id="d-compl-pct">0%</div>
           <div class="dash-kpi-sub" id="d-compl-sub">0 cas</div>
         </div>
@@ -858,6 +889,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
             <div class="field-label">Patient</div>
             <input type="text" id="f-patient" class="f-input" placeholder="Nom ou initiales..." autocomplete="off" list="dl-patients">
           </div>
+          <div class="field">
+            <div class="field-label">Établissement</div>
+            <input type="text" id="f-etablissement" class="f-input" placeholder="ex. CHU Lille..." autocomplete="off" list="dl-etablissements">
+          </div>
         </div>
 
         <div class="saisie-section-label quick-hide">Détails</div>
@@ -965,7 +1000,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div class="stats-panel on" id="sp-activite">
           <!-- KPI hero -->
           <div class="kpi-hero">
-            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span></div><div class="s-kpi-value" id="st-ce-mois">0</div><div class="s-kpi-sub">blocs</div></div>
+            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span><span id="st-ce-mois-trend"></span></div><div class="s-kpi-value" id="st-ce-mois">0</div><div class="s-kpi-sub">blocs</div></div>
             <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Moyenne</span></div><div class="s-kpi-value" id="st-moy-mois">0</div><div class="s-kpi-sub">blocs/mois · 6 mois</div></div>
           </div>
 
@@ -1026,6 +1061,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Complications par rôle</h2></div>
             <div class="chart-card" id="compl-by-role"></div>
+          </div>
+
+          <!-- Évolution des complications -->
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Devenir des complications</h2></div>
+            <div class="chart-card" id="compl-evolution"></div>
           </div>
         </div>
         <div class="stats-panel" id="sp-ortho">
@@ -1118,14 +1159,30 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   </nav>
 </div>
 
-<!-- MODAL CONSULTATION SUIVI -->
+<!-- MODAL ÉVÉNEMENT SUIVI -->
 <div class="modal-overlay" id="consult-modal">
   <div class="modal">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal('consult-modal')">×</button>
-    <div class="modal-title" id="consult-modal-title">Ajouter une consultation</div>
-    <div class="form-group"><label>Date de consultation</label><input type="date" id="cslt-date"></div>
-    <div class="form-group"><label>Statut</label>
+    <div class="modal-title" id="consult-modal-title">Ajouter un événement</div>
+
+    <!-- Type d'événement -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:8px;">Type</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="evt-type-pills">
+        <button type="button" class="evt-type-pill on" onclick="selectEvtType('consultation',this)">Consultation</button>
+        <button type="button" class="evt-type-pill" onclick="selectEvtType('complication',this)" style="--pill-color:var(--red-d);">Complication</button>
+        <button type="button" class="evt-type-pill" onclick="selectEvtType('reprise_chir',this)" style="--pill-color:var(--amber-d);">Reprise chir.</button>
+        <button type="button" class="evt-type-pill fin" onclick="selectEvtType('fin_suivi',this)" style="--pill-color:var(--accent);">Fin de suivi</button>
+      </div>
+      <input type="hidden" id="evt-type" value="consultation">
+    </div>
+
+    <div class="form-group"><label>Date</label><input type="date" id="cslt-date"></div>
+
+    <!-- Statut — différent selon type -->
+    <div class="form-group" id="evt-statut-row">
+      <label id="evt-statut-label">Statut</label>
       <select id="cslt-statut">
         <option value="vert">Bon résultat</option>
         <option value="orange">Vigilance</option>
@@ -1133,8 +1190,44 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <option value="gris">Neutre</option>
       </select>
     </div>
-    <div class="form-group"><label>Commentaire</label>
-      <textarea id="cslt-comment" placeholder="ex. Flexion 110°, pas de douleur au repos. Kiné 2x/sem poursuivie..." style="min-height:100px;"></textarea>
+
+    <!-- Champs spécifiques complication -->
+    <div id="evt-compl-fields" style="display:none;">
+      <div class="form-group"><label>Type de complication</label>
+        <select id="cmp-type-evt">
+          <option value="">Sélectionner...</option>
+          <option>Pseudarthrose</option><option>Infection superficielle</option><option>Infection profonde (PJI)</option>
+          <option>Luxation prothétique</option><option>Fracture péri-prothétique</option><option>Descellement aseptique</option>
+          <option>Raideur articulaire</option><option>TVP / EP</option><option>Lésion nerveuse</option>
+          <option>Hématome</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Classification Clavien-Dindo</label>
+        <select id="cmp-clavien-evt">
+          <option value="">—</option>
+          <option>I — Déviation mineure</option><option>II — Traitement médical requis</option>
+          <option>IIIa — Intervention sans AG</option><option>IIIb — Intervention sous AG</option>
+          <option>IVa — Défaillance mono-organe</option><option>IVb — Défaillance multi-organe</option><option>V — Décès</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Champs fin de suivi -->
+    <div id="evt-fin-fields" style="display:none;">
+      <div class="form-group"><label>Résultat définitif</label>
+        <select id="evt-fin-statut">
+          <option value="excellent">Excellent résultat</option>
+          <option value="vert">Bon résultat</option>
+          <option value="orange">Séquelles mineures</option>
+          <option value="rouge">Mauvais résultat</option>
+          <option value="deces">Décès</option>
+          <option value="pdv">Perdu de vue</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group"><label id="evt-comment-label">Commentaire</label>
+      <textarea id="cslt-comment" placeholder="ex. Flexion 110°, douleurs résiduelles..." style="min-height:90px;"></textarea>
     </div>
     <button class="btn-primary" onclick="saveConsult()">Enregistrer</button>
   </div>
@@ -1318,45 +1411,174 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
 <!-- MODAL EDITION -->
 <div class="modal-overlay" id="edit-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('edit-modal')">×</button>
-    <div class="modal-title">Modifier le bloc</div>
-    <div class="form-group"><label>Date du bloc</label><input type="date" id="e-date"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Spécialité</label><select id="e-spec" onchange="upIntervEdit()"><option value="">Choisir...</option><option>Genou</option><option>Hanche</option><option>Traumatologie</option></select></div>
-      <div class="form-group"><label>Côté</label><select id="e-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+  <div class="modal" style="padding:0;border-radius:20px 20px 0 0;max-height:96vh;display:flex;flex-direction:column;">
+    <!-- Header fixe -->
+    <div style="padding:16px 20px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+      <div class="modal-handle" style="margin-bottom:12px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:2px;">Modifier le bloc</div>
+          <div id="e-hero-title" style="font-family:var(--serif);font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.02em;"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('edit-modal')">×</button>
+      </div>
     </div>
-    <div class="form-group"><label>Intervention</label>
-      <select id="e-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('e')">
-          <option value="">Choisir une région…</option>
-          <option value="Membre inférieur">Membre inférieur</option>
-          <option value="Membre supérieur">Membre supérieur</option>
-          <option value="Péri-prothétiques">Péri-prothétiques</option>
-        </select>
-        <select id="e-interv" style="display:block;"></select>
-      <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
+
+    <!-- Scroll body -->
+    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:16px 20px 0;">
+
+      <!-- Spécialité pills -->
+      <div style="margin-bottom:16px;">
+        <div class="f-section-label">Spécialité</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-spec-pills">
+          <button type="button" class="e-spec-pill" onclick="selectEditSpec('Genou',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2C8 2 5 5 5 9c0 2.5 1.2 4.7 3 6.1V20a2 2 0 004 0v-4.9c1.8-1.4 3-3.6 3-6.1 0-4-3-7-3-7z"/></svg>
+            Genou
+          </button>
+          <button type="button" class="e-spec-pill" onclick="selectEditSpec('Hanche',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M6 20c0-4 2.7-7 6-7s6 3 6 7"/></svg>
+            Hanche
+          </button>
+          <button type="button" class="e-spec-pill" onclick="selectEditSpec('Traumatologie',this)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6L6 18M8 6h10v10"/></svg>
+            Trauma
+          </button>
+        </div>
+      </div>
+
+      <!-- Intervention -->
+      <div style="margin-bottom:16px;">
+        <div class="f-section-label">Intervention <span style="color:var(--warm);">*</span></div>
+        <div class="field-card">
+          <select id="e-trauma-region" style="display:none;margin-bottom:8px;width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="onTraumaRegionChange('e')">
+            <option value="">Choisir une région…</option>
+            <option value="Membre inférieur">Membre inférieur</option>
+            <option value="Membre supérieur">Membre supérieur</option>
+            <option value="Péri-prothétiques">Péri-prothétiques</option>
+          </select>
+          <select id="e-interv" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="toggleIntervLibre('e')"></select>
+          <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention…" style="display:none;width:100%;padding:10px;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Côté pills -->
+      <div style="margin-bottom:16px;">
+        <div class="f-section-label">Côté</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="e-side-pill" onclick="selectEditSide('Gauche',this)">Gauche</button>
+          <button type="button" class="e-side-pill" onclick="selectEditSide('Droit',this)">Droit</button>
+          <button type="button" class="e-side-pill" onclick="selectEditSide('Bilatéral',this)">Bilatéral</button>
+          <button type="button" class="e-side-pill" onclick="selectEditSide('',this)">—</button>
+        </div>
+      </div>
+
+      <!-- Rôle pills -->
+      <div style="margin-bottom:16px;">
+        <div class="f-section-label">Rôle <span style="color:var(--warm);">*</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <button type="button" class="e-role-pill on" id="e-role-principal" onclick="selectEditRole('Principal')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Principal
+          </button>
+          <button type="button" class="e-role-pill" id="e-role-aide" onclick="selectEditRole('Aide')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Aide
+          </button>
+        </div>
+        <input type="hidden" id="e-spec" value="">
+        <input type="hidden" id="e-side" value="">
+        <div id="e-operateur-row" style="display:none;margin-top:10px;">
+          <input type="text" id="e-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs" style="font-size:15px;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;">
+        </div>
+      </div>
+
+      <!-- Date / Patient / Établissement -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div>
+          <div class="f-section-label">Date</div>
+          <div class="field-card"><input type="date" id="e-date" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+        </div>
+        <div>
+          <div class="f-section-label">Durée (min)</div>
+          <div class="field-card"><input type="number" id="e-duree" inputmode="numeric" placeholder="90" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+        </div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Patient</div>
+        <div class="field-card"><input type="text" id="e-patient" autocomplete="off" list="dl-patients" placeholder="Nom ou initiales…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Établissement</div>
+        <div class="field-card"><input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div>
+          <div class="f-section-label">Âge</div>
+          <div class="field-card"><input type="number" id="e-age" inputmode="numeric" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+        </div>
+        <div>
+          <div class="f-section-label">IMC</div>
+          <div class="field-card"><input type="number" id="e-imc" step="0.1" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
+        </div>
+      </div>
+
+      <!-- Implants -->
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Implants</div>
+        <div class="field-card">
+          <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
+          <textarea id="e-implants" placeholder="Détail des implants…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:70px;resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <!-- Voie d'abord -->
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Voie d'abord</div>
+        <div class="field-card">
+          <select id="e-abord" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            <option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Astuces & Remarques -->
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Difficultés / astuces</div>
+        <div class="field-card"><textarea id="e-astuces" placeholder="Particularités, points techniques…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:80px;resize:vertical;font-family:var(--serif);font-size:16px;"></textarea></div>
+      </div>
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Remarques libres</div>
+        <div class="field-card"><textarea id="e-remarques" placeholder="Notes libres, contact…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:80px;resize:vertical;font-family:var(--serif);font-size:16px;"></textarea></div>
+      </div>
+
+      <!-- Statut -->
+      <div style="margin-bottom:10px;">
+        <div class="f-section-label">Statut actuel</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-statut-pills">
+          <button type="button" class="e-statut-pill" onclick="selectEditStatut('gris',this)" data-val="gris">En attente</button>
+          <button type="button" class="e-statut-pill bon" onclick="selectEditStatut('vert',this)" data-val="vert">Bon résultat</button>
+          <button type="button" class="e-statut-pill vigilance" onclick="selectEditStatut('orange',this)" data-val="orange">Vigilance</button>
+          <button type="button" class="e-statut-pill compli" onclick="selectEditStatut('rouge',this)" data-val="rouge">Complication</button>
+          <button type="button" class="e-statut-pill" onclick="selectEditStatut('pdv',this)" data-val="pdv">Perdu de vue</button>
+          <button type="button" class="e-statut-pill" onclick="selectEditStatut('deces',this)" data-val="deces">Décès</button>
+        </div>
+        <input type="hidden" id="e-statut" value="gris">
+      </div>
+
+      <!-- Tags -->
+      <div style="margin-bottom:24px;">
+        <div class="f-section-label">Tags</div>
+        <div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()">
+          <input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags">
+        </div>
+      </div>
+
     </div>
-    <div class="form-row">
-      <div class="form-group"><label>Rôle</label><select id="e-role" onchange="toggleOperateur('e')"><option value="Principal">Chirurgien principal</option><option value="Aide">Aide opératoire</option></select></div>
-      <div class="form-group"><label>Durée (min)</label><input type="number" id="e-duree" inputmode="numeric"></div>
+
+    <!-- CTA fixe -->
+    <div style="padding:14px 20px calc(16px + var(--safe-bot));border-top:0.5px solid var(--border);flex-shrink:0;background:var(--bg);">
+      <button class="btn-primary" onclick="saveEdit()" style="margin-top:0;">Enregistrer les modifications</button>
     </div>
-    <div id="e-operateur-row" class="form-group" style="display:none;">
-      <label>Opérateur aidé</label>
-      <input type="text" id="e-operateur" placeholder="ex. Dr Martin..." autocomplete="off" list="dl-operateurs">
-    </div>
-    <div class="form-group"><label>Initiales / ID</label><input type="text" id="e-patient" autocomplete="off" list="dl-patients"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Âge</label><input type="number" id="e-age" inputmode="numeric"></div>
-      <div class="form-group"><label>IMC</label><input type="number" id="e-imc" step="0.1" inputmode="decimal"></div>
-    </div>
-    <div class="form-group form-quick-hide"><label>Implants utilisés</label><input type="text" id="e-implants" list="dl-implants"></div>
-    <div class="form-group form-quick-hide"><label>Voie d'abord</label><select id="e-abord"><option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option></select></div>
-    <div class="form-group form-quick-hide"><label>Difficultés / astuces</label><textarea id="e-astuces"></textarea></div>
-    <div class="form-group form-quick-hide"><label>Remarques libres</label><textarea id="e-remarques"></textarea></div>
-    <div class="form-group"><label>Statut</label><select id="e-statut"><option value="gris">En attente</option><option value="vert">Bon résultat</option><option value="orange">Vigilance</option><option value="rouge">Complication</option><option value="pdv">Perdu de vue</option><option value="deces">Décès</option></select></div>
-    <div class="form-group"><label>Tags</label><div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()"><input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags"></div></div>
-    <button class="btn-primary" onclick="saveEdit()">Enregistrer les modifications</button>
   </div>
 </div>
 
@@ -1387,6 +1609,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 <datalist id="dl-operateurs"></datalist>
 <datalist id="dl-patients"></datalist>
 <datalist id="dl-tags"></datalist>
+<datalist id="dl-etablissements"></datalist>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -1714,10 +1937,12 @@ function refreshDatalists(){
       el.innerHTML = items.map(v=>`<option value="${esc(v)}">`).join('');
     });
   };
+  const etablissements = setOf(blocs.map(b=>b.etablissement).filter(Boolean));
   fill('dl-implants', impl);
   fill('dl-operateurs', opers);
   fill('dl-patients', patientNames);
   fill('dl-tags', tags);
+  fill('dl-etablissements', etablissements);
 }
 // Quand on sélectionne une suggestion d'implant, on l'insère dans le textarea
 function onImplantSuggest(val){
@@ -1780,12 +2005,29 @@ function renderDash(){
     }
   }catch(e){}
   const total=blocs.length,genou=blocs.filter(b=>b.spec==='Genou').length,hanche=blocs.filter(b=>b.spec==='Hanche').length,trauma=blocs.filter(b=>b.spec==='Traumatologie').length,principal=blocs.filter(b=>b.role==='Principal').length;
-  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push(c)));
+  const allC=blocs.filter(b=>getBlocHasComplication(b));
   const cPct=total>0?Math.round(allC.length/total*100):0;
+
+  // Calcul trends vs mois précédent
+  const nowD=new Date();
+  const thisKey=getMonthKey(nowD.toISOString());
+  const prevD=new Date(nowD.getFullYear(),nowD.getMonth()-1,1);
+  const prevKey=getMonthKey(prevD.toISOString());
+  const blocsThisMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===thisKey).length;
+  const blocsPrevMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===prevKey).length;
+  const complThisMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===thisKey&&getBlocHasComplication(b)).length;
+  const complPrevMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===prevKey&&getBlocHasComplication(b)).length;
+
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-principal').textContent=principal+' en principal';
   document.getElementById('d-compl-pct').textContent=cPct+'%';
   document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
+
+  // Badges trend (comparaison vs mois précédent)
+  const tTotal=document.getElementById('d-total-trend');
+  if(tTotal)tTotal.innerHTML=blocsPrevMo>0?trendBadge(blocsThisMo-blocsPrevMo,false):'';
+  const tCompl=document.getElementById('d-compl-trend');
+  if(tCompl)tCompl.innerHTML=complPrevMo>0?trendBadge(complThisMo-complPrevMo,true):'';
   const maxS=Math.max(genou,hanche,trauma,1);
   const SPEC_DATA=[
     {n:'Genou',v:genou,cls:'genou',detail:'PTG · LCA · Méniscectomie',svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>'},
@@ -1808,7 +2050,12 @@ function renderDash(){
   }
 }
 function renderComplications(){
-  const allC=[];blocs.forEach(b=>(b.complications||[]).forEach(c=>allC.push({...c,patient:b.patient,interv:b.interv})));
+  // Collecter toutes complications depuis evenements + complications legacy
+const allC=[];blocs.forEach(b=>{
+  const evts=(b.evenements||[]).filter(e=>e.type==='complication');
+  evts.forEach(e=>allC.push({type:e.complType||'Complication',date:e.date,clavien:e.clavien||'',detail:e.comment||'',patient:b.patient,interv:b.interv}));
+  if(!evts.length)(b.complications||[]).forEach(c=>allC.push({...c,patient:b.patient,interv:b.interv}));
+});
   const counts={};allC.forEach(c=>{counts[c.type]=(counts[c.type]||0)+1;});
   const total=blocs.length||1,types=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
   const el=document.getElementById('compl-overview');
@@ -1986,81 +2233,205 @@ function openBlocDetail(bi){
   document.getElementById('view-detail').classList.add('active');
   document.getElementById('view-detail').scrollTop=0;
 }
-// ── ONGLET SUIVI (dans détail) ──
+// ── HELPERS ÉVÉNEMENTS ──
+// Retourne tous les événements d'un bloc, triés chronologiquement
+// Fusionne evenements[] (nouveau) + migrations depuis consultations[] et complications[]
+function getBlocEvenements(b){
+  const evts = (b.evenements||[]).slice();
+  // Rétrocompat : injections one-shot consultations existantes (sans doublon via source)
+  (b.consultations||[]).forEach(c=>{
+    if(!evts.find(e=>e._src==='consult_'+c.date+'_'+(c.comment||'').slice(0,10))){
+      evts.push({id:'legacy_c_'+(c.date||'')+'_'+Math.random().toString(36).slice(2,5),type:'consultation',date:c.date||'',statut:c.statut||'gris',comment:c.comment||'',_src:'consult_'+c.date+'_'+(c.comment||'').slice(0,10)});
+    }
+  });
+  (b.complications||[]).forEach(c=>{
+    if(!evts.find(e=>e._src==='compl_'+c.date+'_'+(c.type||'').slice(0,10))){
+      evts.push({id:'legacy_cp_'+(c.date||'')+'_'+Math.random().toString(36).slice(2,5),type:'complication',date:c.date||'',statut:'rouge',comment:c.detail||'',complType:c.type||'',clavien:c.clavien||'',_src:'compl_'+c.date+'_'+(c.type||'').slice(0,10)});
+    }
+  });
+  return evts.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+}
+// Le bloc a-t-il une complication dans son historique (pour les stats) ?
+function getBlocHasComplication(b){
+  if((b.complications||[]).length>0) return true;
+  return (b.evenements||[]).some(e=>e.type==='complication');
+}
+// Statut final calculé = dernier événement chronologique ayant un statut
+function getBlocStatutFinal(b){
+  const evts = getBlocEvenements(b);
+  for(let i=evts.length-1;i>=0;i--){
+    const s=evts[i].statut;if(s)return s;
+  }
+  return b.statut||'gris';
+}
+// Résolution statut : statut courant affiché = statut final calculé
+function syncBlocStatutFromConsults(bi){
+  const b=blocs[bi];
+  const sf=getBlocStatutFinal(b);
+  // Mapper 'excellent' → 'vert' pour l'affichage courant
+  b.statut = sf==='excellent'?'vert':sf;
+}
+// Classification d'une complication pour les stats
+function classifyComplication(b){
+  if(!getBlocHasComplication(b)) return null;
+  const evts=getBlocEvenements(b);
+  const hasReprise=evts.some(e=>e.type==='reprise_chir');
+  const sf=getBlocStatutFinal(b);
+  if(hasReprise) return 'reprise';
+  if(sf==='vert'||sf==='excellent') return 'resolue';
+  if(sf==='orange') return 'sequelles';
+  return 'persistante'; // rouge, pdv, deces, gris
+}
+
+// ── UI SUIVI — TIMELINE ──
+const EVT_CONFIG = {
+  consultation: {label:'Consultation',   dotBg:'var(--accent-l)',   dotColor:'var(--accent)',  badgeBg:'var(--blue-l)',  badgeColor:'var(--blue-d)'},
+  complication: {label:'Complication',   dotBg:'var(--red-l)',      dotColor:'var(--red-d)',   badgeBg:'var(--red-l)',   badgeColor:'var(--red-d)'},
+  reprise_chir: {label:'Reprise chir.',  dotBg:'var(--amber-l)',    dotColor:'var(--amber-d)', badgeBg:'var(--amber-l)', badgeColor:'var(--amber-d)'},
+  fin_suivi:    {label:'Fin de suivi',   dotBg:'var(--green-l)',    dotColor:'var(--green-d)', badgeBg:'var(--green-l)', badgeColor:'var(--green-d)'}
+};
+const STATUT_LABEL_EVT = {vert:'Bon résultat',excellent:'Excellent résultat',orange:'Séquelles / Vigilance',rouge:'Complication active',gris:'Neutre',pdv:'Perdu de vue',deces:'Décès'};
+
 function renderDetSuivi(bi){
   const b=blocs[bi];
-  const consultations=(b.consultations||[]).slice().sort((a,c)=>(a.date||'').localeCompare(c.date||''));
-  const el=document.getElementById('det-suivi');
+  const evts=getBlocEvenements(b);
+  const el=document.getElementById('det-suivi');if(!el)return;
+
   let html='';
-  if(consultations.length===0){
-    html='<div class="empty" style="padding:24px 0;"><div class="empty-icon" style="font-size:24px;">📅</div><div style="margin-top:8px;">Aucune consultation enregistrée</div></div>';
+
+  if(!evts.length){
+    html='<div style="padding:24px 0;text-align:center;color:var(--text3);"><div style="font-size:22px;margin-bottom:8px;">📅</div><div style="font-size:13px;">Aucun événement enregistré</div></div>';
   } else {
-    html=consultations.map((c,i)=>{
-      const{dc,tc,sl}=statusClasses(c.statut||'gris');
-      return`<div class="consult-item">
-        <div class="consult-header">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span class="sdot ${dc}"></span>
-            <span class="consult-date">${fmtDate(c.date)}</span>
-            <span class="${tc}" style="font-size:11px;">${sl}</span>
+    // Timeline
+    html+='<div style="padding:4px 0 8px;">';
+    evts.forEach((evt,i)=>{
+      const cfg=EVT_CONFIG[evt.type]||EVT_CONFIG.consultation;
+      const{dc,sl}=statusClasses(evt.statut||'gris');
+      const isLast=i===evts.length-1;
+      const statLabel=evt.type==='fin_suivi'
+        ? (STATUT_LABEL_EVT[evt.statut]||evt.statut)
+        : sl;
+      const typeExtra=evt.complType?` — ${evt.complType}`:'';
+      const clavienBadge=evt.clavien?`<span class="timeline-badge" style="background:var(--bg3);color:var(--text3);margin-left:4px;">Clavien ${evt.clavien.split('—')[0].trim()}</span>`:'';
+      html+=`<div class="timeline-item">
+        ${!isLast?'<div class="timeline-line"></div>':''}
+        <div class="timeline-dot" style="background:${cfg.dotBg};color:${cfg.dotColor};">
+          ${evt.type==='complication'?'⚠':''}${evt.type==='reprise_chir'?'🔪':''}${evt.type==='fin_suivi'?'✓':''}${evt.type==='consultation'?'·':''}
+        </div>
+        <div class="timeline-body">
+          <div class="timeline-date">${fmtDate(evt.date)}${evt.type==='fin_suivi'?' · <strong style="color:var(--green-d);">FIN DE SUIVI</strong>':''}</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
+            <span class="timeline-badge" style="background:${cfg.badgeBg};color:${cfg.badgeColor};">${cfg.label}${typeExtra}</span>
+            ${clavienBadge}
+            ${evt.statut&&evt.statut!=='gris'?`<span class="sdot ${dc}" style="width:6px;height:6px;"></span><span style="font-size:11px;color:var(--text3);">${statLabel}</span>`:''}
           </div>
-          <button class="consult-del" onclick="deleteConsult(${bi},${i})" title="Supprimer">×</button>
+          ${evt.comment?`<div class="timeline-comment">${escNl(evt.comment)}</div>`:''}
         </div>
-        ${c.comment?`<div class="consult-comment">${escNl(c.comment)}</div>`:''}
+        <button onclick="deleteEvt(${bi},'${evt.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 0 0 8px;align-self:flex-start;margin-top:2px;" title="Supprimer">×</button>
       </div>`;
-    }).join('');
+    });
+    html+='</div>';
   }
-  // Complications rattachées
-  const complics=(b.complications||[]);
-  if(complics.length>0){
-    html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin:14px 0 8px;">Complications</div>`;
-    html+=complics.map((c,i)=>`<div class="consult-item" style="border-left:3px solid var(--red);">
-      <div class="consult-header">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="compl-tag">${c.type}</span>
-          <span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>
-        </div>
-        <button class="consult-del" onclick="deleteCompl(${bi},${i})" title="Supprimer">×</button>
-      </div>
-      ${c.detail?`<div class="consult-comment">${c.detail}</div>`:''}
-    </div>`).join('');
-  }
-  html+=`<div style="display:flex;gap:8px;margin-top:14px;">
-    <button class="chip-btn" style="flex:1;text-align:center;padding:10px;" onclick="openConsultModal(${bi})">+ Consultation</button>
-    <button class="chip-btn red" style="flex:1;text-align:center;padding:10px;" onclick="openComplModal(${bi})">+ Complication</button>
+
+  // Boutons d'action
+  html+=`<div style="display:flex;gap:8px;margin-top:12px;">
+    <button class="chip-btn" style="flex:1;text-align:center;padding:10px;" onclick="openConsultModal(${bi})">+ Événement</button>
+    <button class="chip-btn" style="flex:1;text-align:center;padding:10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-l);" onclick="openFinSuiviModal(${bi})">Fin de suivi</button>
   </div>`;
+
   el.innerHTML=html;
 }
+
+// ── MODAL ÉVÉNEMENT — HELPERS ──
+function selectEvtType(type, btn){
+  document.querySelectorAll('.evt-type-pill').forEach(p=>p.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.getElementById('evt-type').value=type;
+  // Afficher/masquer champs spécifiques
+  const isCompl=type==='complication';
+  const isFin=type==='fin_suivi';
+  const isReprise=type==='reprise_chir';
+  document.getElementById('evt-compl-fields').style.display=isCompl?'block':'none';
+  document.getElementById('evt-fin-fields').style.display=isFin?'block':'none';
+  document.getElementById('evt-statut-row').style.display=(isFin||isCompl)?'none':'block';
+  // Label commentaire
+  const lbl=document.getElementById('evt-comment-label');
+  if(lbl)lbl.textContent=isCompl?'Détails / traitement':isFin?'Commentaire final':isReprise?'Type de reprise / détails':'Commentaire';
+  // Placeholder commentaire
+  const ta=document.getElementById('cslt-comment');
+  if(ta)ta.placeholder=isCompl?'Description, traitement institué…':isFin?'Bilan final, recul, remarques…':isReprise?'Nature de la reprise, résultat obtenu…':'ex. Flexion 110°, douleurs résiduelles…';
+}
+
 function openConsultModal(bi){
   consultCtx={bi};
-  document.getElementById('consult-modal-title').textContent='Consultation — '+(blocs[bi].patient||'—');
+  document.getElementById('consult-modal-title').textContent='Suivi — '+(blocs[bi].patient||'—');
   document.getElementById('cslt-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('cslt-statut').value='vert';
   document.getElementById('cslt-comment').value='';
+  // Reset type pills → consultation
+  selectEvtType('consultation', document.querySelector('.evt-type-pill'));
   openModal('consult-modal');
 }
-function syncBlocStatutFromConsults(bi){
-  const sorted=(blocs[bi].consultations||[]).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  if(sorted.length>0&&sorted[sorted.length-1].statut){blocs[bi].statut=sorted[sorted.length-1].statut;}
+
+function openFinSuiviModal(bi){
+  consultCtx={bi};
+  document.getElementById('consult-modal-title').textContent='Fin de suivi — '+(blocs[bi].patient||'—');
+  document.getElementById('cslt-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('cslt-comment').value='';
+  // Forcer type fin_suivi
+  selectEvtType('fin_suivi', document.querySelector('.evt-type-pill.fin'));
+  openModal('consult-modal');
 }
+
 function saveConsult(){
   const bi=consultCtx.bi;
-  if(!blocs[bi].consultations)blocs[bi].consultations=[];
-  blocs[bi].consultations.push({date:document.getElementById('cslt-date').value,statut:document.getElementById('cslt-statut').value,comment:document.getElementById('cslt-comment').value});
+  if(!blocs[bi].evenements)blocs[bi].evenements=[];
+  const type=document.getElementById('evt-type').value||'consultation';
+  const date=document.getElementById('cslt-date').value;
+  const comment=document.getElementById('cslt-comment').value;
+  let statut;
+  if(type==='fin_suivi'){
+    statut=document.getElementById('evt-fin-statut').value||'vert';
+  } else if(type==='complication'){
+    statut='rouge';
+  } else if(type==='reprise_chir'){
+    statut='orange';
+  } else {
+    statut=document.getElementById('cslt-statut').value||'gris';
+  }
+  const evt={
+    id:'evt_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),
+    type, date, statut, comment
+  };
+  if(type==='complication'){
+    evt.complType=document.getElementById('cmp-type-evt').value||'';
+    evt.clavien=document.getElementById('cmp-clavien-evt').value||'';
+  }
+  blocs[bi].evenements.push(evt);
   syncBlocStatutFromConsults(bi);
-  saveLocal();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();showToast('Consultation enregistrée');
+  saveLocal();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();
+  showToast(type==='fin_suivi'?'Fin de suivi enregistrée':type==='complication'?'Complication enregistrée':'Événement enregistré');
 }
-function deleteConsult(bi,idx){
-  if(!confirm('Supprimer cette consultation ?'))return;
-  blocs[bi].consultations.splice(idx,1);
+
+function deleteEvt(bi, evtId){
+  if(!confirm('Supprimer cet événement ?'))return;
+  if(blocs[bi].evenements)blocs[bi].evenements=blocs[bi].evenements.filter(e=>e.id!==evtId);
   syncBlocStatutFromConsults(bi);
-  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Consultation supprimée');
+  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Événement supprimé');
+}
+
+function deleteConsult(bi,idx){
+  // Rétrocompat : supprimer depuis consultations[]
+  if(!confirm('Supprimer ?'))return;
+  (blocs[bi].consultations||[]).splice(idx,1);
+  syncBlocStatutFromConsults(bi);
+  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Supprimé');
 }
 function deleteCompl(bi,idx){
   if(!confirm('Supprimer cette complication ?'))return;
-  blocs[bi].complications.splice(idx,1);
-  if((blocs[bi].complications||[]).length===0&&blocs[bi].statut==='rouge')blocs[bi].statut='gris';
-  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Complication supprimée');
+  (blocs[bi].complications||[]).splice(idx,1);
+  syncBlocStatutFromConsults(bi);
+  saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Supprimé');
 }
 
 // ── RADIOS (dans détail) ──
@@ -2229,56 +2600,101 @@ function lbNav(dir){lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbIm
 // ── EDITION ──
 function openEditModal(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
-  document.getElementById('e-date').value=b.date||'';
-  document.getElementById('e-spec').value=b.spec||'';upIntervEdit();
+  // Hero title
+  const heroTitle=document.getElementById('e-hero-title');
+  if(heroTitle)heroTitle.textContent=displayInterv(b.interv)||'—';
+  // Spec pills
+  selectEditSpec(b.spec||'', null, true);
+  // Rebuild interv dropdown
+  const eInterv=document.getElementById('e-interv');
   const eLibre=document.getElementById('e-interv-libre');
-  if(b.spec==='Traumatologie'){eLibre.value=b.interv||'';}
-  else{
-    const eInterv=document.getElementById('e-interv');
-    const opts=Array.from(eInterv.options).map(o=>o.value);
-    if(opts.includes(b.interv)){eInterv.value=b.interv||'';}
-    else if(b.interv){const autreOpt=b.spec?'Autre '+b.spec.toLowerCase():'';eInterv.value=autreOpt;eLibre.value=b.interv;eLibre.style.display='block';}
-    else{eInterv.value='';}
+  const eRegion=document.getElementById('e-trauma-region');
+  if(b.spec==='Traumatologie'){
+    const parts=(b.interv||'').split(' — ');
+    if(eRegion){eRegion.style.display='block';eRegion.value=parts[0]||'';}
+    buildIntervSelectForEdit(b.spec, parts[0]||'');
+  } else {
+    if(eRegion)eRegion.style.display='none';
+    buildIntervSelectForEdit(b.spec||'','');
   }
-  document.getElementById('e-side').value=b.side||'';
-  document.getElementById('e-role').value=b.role||'Principal';
+  setTimeout(()=>{
+    if(eInterv){
+      const opts=Array.from(eInterv.options).map(o=>o.value);
+      if(opts.includes(b.interv)){eInterv.value=b.interv;}
+      else if(b.interv){if(eLibre){eLibre.style.display='block';eLibre.value=b.interv;}}
+    }
+    toggleIntervLibre('e');
+  },50);
+  // Côté pills
+  selectEditSide(b.side||'', null, true);
+  // Rôle pills
+  selectEditRole(b.role||'Principal', true);
+  document.getElementById('e-date').value=b.date||'';
   document.getElementById('e-duree').value=b.duree||'';
   document.getElementById('e-patient').value=b.patient||'';
+  b._prevPatientNom=b.patient||'';
+  document.getElementById('e-etablissement').value=b.etablissement||'';
   document.getElementById('e-age').value=b.age||'';
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
+  const eSuggest=document.getElementById('e-implants-suggest');if(eSuggest)eSuggest.value='';
   document.getElementById('e-abord').value=b.abord||'';
   document.getElementById('e-astuces').value=b.astuces||'';
   document.getElementById('e-remarques').value=b.remarques||'';
-  document.getElementById('e-statut').value=b.statut||'gris';
   document.getElementById('e-operateur').value=b.operateur||'';
-  const eOpRow=document.getElementById('e-operateur-row');
-  if(eOpRow)eOpRow.style.display=b.role==='Aide'?'block':'none';
+  // Statut pills
+  selectEditStatut(b.statut||'gris', null, true);
+  // Tags
   editTags=[...(b.tags||[])];renderEditTags();
   openModal('edit-modal');
-  setTimeout(()=>{const m=document.querySelector('#edit-modal .modal');if(m)m.scrollTop=0;},50);
+  setTimeout(()=>{const m=document.querySelector('#edit-modal>div');if(m){const scroll=m.querySelectorAll('div')[2];if(scroll)scroll.scrollTop=0;}},50);
+}
+// Helpers pills edit
+function selectEditSpec(val, btn, silent){
+  document.querySelectorAll('.e-spec-pill').forEach(p=>p.classList.remove('on'));
+  if(btn){btn.classList.add('on');}
+  else{document.querySelectorAll('.e-spec-pill').forEach(p=>{const txt=p.textContent.trim();if(txt===val||(val==='Traumatologie'&&txt==='Trauma'))p.classList.add('on');});}
+  const hidden=document.getElementById('e-spec');if(hidden)hidden.value=val;
+  if(!silent){buildIntervSelectForEdit(val,'');const region=document.getElementById('e-trauma-region');if(region)region.style.display=val==='Traumatologie'?'block':'none';}
+}
+function buildIntervSelectForEdit(spec,region){
+  const sel=document.getElementById('e-interv');const libre=document.getElementById('e-interv-libre');
+  if(!sel)return;
+  sel.innerHTML=buildIntervSelectHTML(spec,region);
+  sel.onchange=()=>toggleIntervLibre('e');
+  if(libre)libre.style.display='none';
+}
+function selectEditSide(val, btn, silent){
+  document.querySelectorAll('.e-side-pill').forEach(p=>p.classList.remove('on'));
+  if(btn){btn.classList.add('on');}
+  else{document.querySelectorAll('.e-side-pill').forEach(p=>{if(p.textContent.trim()===(val||'—'))p.classList.add('on');});}
+  const hidden=document.getElementById('e-side');if(hidden)hidden.value=val;
+}
+function selectEditRole(val, silent){
+  document.getElementById('e-role-principal').classList.toggle('on',val==='Principal');
+  document.getElementById('e-role-aide').classList.toggle('on',val==='Aide');
+  const hidden=document.getElementById('e-role');if(hidden)hidden.value=val;
+  const opRow=document.getElementById('e-operateur-row');if(opRow)opRow.style.display=val==='Aide'?'block':'none';
+}
+function selectEditStatut(val, btn, silent){
+  document.querySelectorAll('.e-statut-pill').forEach(p=>p.classList.remove('on'));
+  if(btn){btn.classList.add('on');}
+  else{document.querySelectorAll('.e-statut-pill').forEach(p=>{if(p.dataset.val===val)p.classList.add('on');});}
+  const hidden=document.getElementById('e-statut');if(hidden)hidden.value=val;
+}
+function onEditImplantSuggest(val){
+  if(!val)return;
+  const dl=document.getElementById('dl-implants');if(!dl)return;
+  const opts=Array.from(dl.options).map(o=>o.value);
+  if(opts.includes(val)){
+    const ta=document.getElementById('e-implants');
+    if(ta){const cur=ta.value.trim();ta.value=cur?cur+'\n'+val:val;}
+    const sg=document.getElementById('e-implants-suggest');if(sg)sg.value='';
+  }
 }
 function upIntervEdit(){
-  const sp=document.getElementById('e-spec').value;
-  const sel=document.getElementById('e-interv');
-  const libre=document.getElementById('e-interv-libre');
-  const region=document.getElementById('e-trauma-region');
-  if(!sp){sel.innerHTML='<option>—</option>';sel.style.display='block';if(libre)libre.style.display='none';if(region)region.style.display='none';return;}
-  if(sp === 'Traumatologie'){
-    if(region){ region.style.display='block'; if(!region.value) region.value=''; }
-    sel.style.display='block';
-    if(region && region.value){ sel.innerHTML = buildIntervSelectHTML(sp, region.value); }
-    else { sel.innerHTML='<option>Choisir une région d\'abord</option>'; }
-    if(libre) libre.style.display='none';
-    sel.onchange=()=>toggleIntervLibre('e');
-    toggleIntervLibre('e');
-    return;
-  }
-  if(region) region.style.display='none';
-  sel.style.display='block';
-  sel.innerHTML = buildIntervSelectHTML(sp);
-  sel.onchange=()=>toggleIntervLibre('e');
-  toggleIntervLibre('e');
+  // Legacy — appelé depuis onchange sur e-spec si jamais (sécurité)
+  const sp=document.getElementById('e-spec');if(sp)buildIntervSelectForEdit(sp.value,'');
 }
 function saveEdit(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
@@ -2304,6 +2720,7 @@ function saveEdit(){
   }
   b.age=document.getElementById('e-age').value;
   b.imc=document.getElementById('e-imc').value;
+  b.etablissement=document.getElementById('e-etablissement').value.trim();
   b.implants=document.getElementById('e-implants').value;
   b.abord=document.getElementById('e-abord').value;
   b.astuces=document.getElementById('e-astuces').value;
@@ -2440,7 +2857,7 @@ function initForm(){
   ['f-spec','f-side','f-interv'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-role').value='Principal';
   // Reset text fields
-  ['f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur','f-etablissement'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   // Reset pills UI
   document.querySelectorAll('.spec-pill').forEach(p=>p.classList.remove('on'));
   document.getElementById('role-btn-principal').classList.add('on');
@@ -2610,7 +3027,7 @@ function saveBloc(){
   // Si on vient d'un bloc lié, réutiliser le patientId existant sans créer de doublon
   const patientId = window._linkedPatientId || upsertPatient(patientNom, patientAge);
   window._linkedPatientId = null; // reset
-  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick};
+  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick};
   blocs.push(newBloc);
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
   // Multi-intervention : si des blocs supplémentaires ont été préparés
@@ -2701,7 +3118,31 @@ function openLinkedBlocForm(){
     showToast('Formulaire pré-rempli — même patient');
   }, 150);
 }
-// ── STATS — onglets ──
+// Migration one-shot : backfill établissement = CHU Lille sur tous les blocs existants sans établissement
+function runEtablissementMigration(){
+  const FLAG = 'atlas_etablissement_migrated_v1';
+  if(localStorage.getItem(FLAG)) return;
+  let count = 0;
+  blocs.forEach(b=>{
+    if(!b.etablissement || !b.etablissement.trim()){
+      b.etablissement = 'CHU Lille';
+      count++;
+    }
+  });
+  if(count > 0){ saveLocal(); console.info('[Atlas] Migration établissement : '+count+' bloc(s) mis à jour → CHU Lille'); }
+  localStorage.setItem(FLAG, '1');
+}
+// Helper badge trend
+function trendBadge(diff, isGoodWhenDown=false){
+  if(diff===0)return'';
+  const SVG_UP='<svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 2l4 4H7v4H5V6H2z"/></svg>';
+  const SVG_DN='<svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 10L2 6h3V2h2v4h3z"/></svg>';
+  const isUp=diff>0;const sign=isUp?'+':'';
+  let cls,svg;
+  if(isGoodWhenDown){cls=isUp?'down-bad':'down-good';svg=isUp?SVG_UP:SVG_DN;}
+  else{cls=isUp?'up':'down-bad';svg=isUp?SVG_UP:SVG_DN;}
+  return`<span class="kpi-trend ${cls}">${svg}${sign}${diff}</span>`;
+}
 let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='activite', statStatutScope='all';
 
 function switchStatsTab(tab,btn){
@@ -2710,7 +3151,7 @@ function switchStatsTab(tab,btn){
   btn.classList.add('on');
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('sp-'+tab).classList.add('on');
-  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();}
+  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();}
   else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
   else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
   else if(tab==='top'){renderTopInterventions();}
@@ -2725,11 +3166,15 @@ function renderStats(){
   const moy6=Math.round(total6/6*10)/10;
   const ceEl=document.getElementById('st-ce-mois');if(ceEl)ceEl.textContent=ceMois;
   const moyEl=document.getElementById('st-moy-mois');if(moyEl)moyEl.textContent=moy6;
+  // Badge trend Ce mois vs mois précédent
+  const prevMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===getMonthKey(new Date(now.getFullYear(),now.getMonth()-1,1).toISOString())).length;
+  const tEl=document.getElementById('st-ce-mois-trend');
+  if(tEl)tEl.innerHTML=prevMo>0?trendBadge(ceMois-prevMo,false):'';
   curStatsTab='activite';
   document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
-  renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();
+  renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -2756,13 +3201,34 @@ function renderActivityChart(){
   const trauma=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&b.spec==='Traumatologie').length);
   if(chartActivity){chartActivity.destroy();}
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
+  const gridColor=isDark?'rgba(255,255,255,0.08)':'rgba(226,223,213,0.9)';
   chartActivity=new Chart(document.getElementById('chart-activity'),{
     type:'bar',
     data:{labels,datasets:[
-      {label:'Orthopédie',data:ortho,backgroundColor:isDark?'rgba(94,150,184,0.85)':'rgba(27,77,90,0.78)',borderRadius:3,borderSkipped:false},
-      {label:'Traumatologie',data:trauma,backgroundColor:isDark?'rgba(216,134,110,0.85)':'rgba(176,90,60,0.72)',borderRadius:3,borderSkipped:false}
+      {label:'Orthopédie',data:ortho,backgroundColor:isDark?'rgba(94,150,184,0.9)':'rgba(27,77,90,0.85)',borderRadius:2,borderSkipped:false,barPercentage:0.38,categoryPercentage:0.82},
+      {label:'Traumatologie',data:trauma,backgroundColor:isDark?'rgba(216,134,110,0.9)':'rgba(201,120,100,0.85)',borderRadius:2,borderSkipped:false,barPercentage:0.38,categoryPercentage:0.82}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:CC.gray,font:{size:10},maxRotation:0}},y:{stacked:true,display:false,beginAtZero:true}}}
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{
+          stacked:false,
+          grid:{display:false},
+          border:{display:false},
+          ticks:{color:CC.gray,font:{size:10},maxRotation:0}
+        },
+        y:{
+          stacked:false,
+          display:true,
+          beginAtZero:true,
+          border:{display:false,dash:[2,3]},
+          grid:{color:gridColor,drawBorder:false,lineWidth:0.8},
+          ticks:{display:false},
+          grace:'15%'
+        }
+      }
+    }
   });
 }
 
@@ -2891,7 +3357,7 @@ function renderComplByIntervFiltered(filter){
   const el=document.getElementById(elId);if(!el)return;
   const subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
   const data={};
-  subset.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0,blocs:[]};data[k].total++;if((b.complications||[]).length>0){data[k].compl++;data[k].blocs.push(b);}});
+  subset.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0,blocs:[]};data[k].total++;if(getBlocHasComplication(b)){data[k].compl++;data[k].blocs.push(b);}});
   const withCompl=Object.entries(data).filter(([,v])=>v.compl>0).sort((a,b)=>b[1].compl/b[1].total-a[1].compl/a[1].total);
   if(!withCompl.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';return;}
   // Stocker pour accès au clic
@@ -2913,7 +3379,7 @@ function renderComplByIntervFiltered(filter){
 
 function showComplBlocsForInterv(filter, intervName, elId){
   const subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
-  const withCompl=subset.filter(b=>b.interv===intervName&&(b.complications||[]).length>0);
+  const withCompl=subset.filter(b=>b.interv===intervName&&getBlocHasComplication(b));
   openBlocsListModal('Complications — '+displayInterv(intervName), withCompl);
 }
 
@@ -3036,10 +3502,10 @@ function renderComplByRole(){
     const subset=blocs.filter(b=>b.role===key);
     const total=subset.length;
     if(!total){html+=`<div style="font-size:12px;color:var(--text3);margin-bottom:10px;">${label} — aucun bloc</div>`;return;}
-    const compl=subset.filter(b=>(b.complications||[]).length>0).length;
+    const compl=subset.filter(b=>getBlocHasComplication(b)).length;
     const pct=Math.round(compl/total*100);
     const color=pct>=10?CC.red:pct>=5?CC.amber:CC.green;
-    html+=`<div onclick="openBlocsListModal('Complications en ${key.toLowerCase()} — ${compl} cas',blocs.filter(b=>b.role==='${key}'&&(b.complications||[]).length>0))" style="margin-bottom:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
+    html+=`<div onclick="openBlocsListModal('Complications en ${key.toLowerCase()} — ${compl} cas',blocs.filter(b=>b.role==='${key}'&&getBlocHasComplication(b)))" style="margin-bottom:16px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
       <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:6px;">
         <span style="font-weight:500;">${label}</span>
         <span style="color:var(--text3);font-size:11px;">${total} blocs · <span style="font-weight:600;color:${color};">${pct}% compl.</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
@@ -3053,7 +3519,51 @@ function renderComplByRole(){
   el.innerHTML=html||'<div style="font-size:13px;color:var(--text3);">Aucune complication enregistrée</div>';
 }
 
-// ── COURBE D'APPRENTISSAGE TRAUMA ──
+// ── DEVENIR DES COMPLICATIONS ──
+function renderComplEvolution(){
+  const el=document.getElementById('compl-evolution');if(!el)return;
+  const withCompl=blocs.filter(b=>getBlocHasComplication(b));
+  if(!withCompl.length){
+    el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';
+    return;
+  }
+  const cats={
+    resolue:  {label:'Résolution favorable', color:CC.green,  blocs:[]},
+    sequelles:{label:'Séquelles',             color:CC.amber,  blocs:[]},
+    reprise:  {label:'Reprise chirurgicale',  color:CC.red,    blocs:[]},
+    persistante:{label:'Évolution défavorable',color:'var(--text2)', blocs:[]}
+  };
+  withCompl.forEach(b=>{
+    const cat=classifyComplication(b)||'persistante';
+    cats[cat].blocs.push(b);
+  });
+  const total=withCompl.length;
+  el.innerHTML=Object.entries(cats).map(([key,cat])=>{
+    const n=cat.blocs.length;if(!n)return'';
+    const pct=Math.round(n/total*100);
+    return`<div onclick="openBlocsListModal('${cat.label} — ${n} cas',cats_${key}_blocs)" data-cat="${key}" style="margin-bottom:12px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'" onclick="showComplEvolutionBlocs('${key}')">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="font-weight:500;color:${cat.color};">${cat.label}</span>
+        <span style="font-weight:600;">${n} <span style="color:var(--text3);font-size:10px;">(${pct}%) ›</span></span>
+      </div>
+      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;">
+        <div style="height:100%;width:${pct}%;background:${cat.color};border-radius:99px;"></div>
+      </div>
+    </div>`;
+  }).join('');
+  // Attacher les événements clic proprement
+  el.querySelectorAll('[data-cat]').forEach(row=>{
+    row.onclick=()=>showComplEvolutionBlocs(row.dataset.cat,cats);
+  });
+  // Stocker cats pour accès dans onclick
+  el._cats=cats;
+}
+function showComplEvolutionBlocs(catKey, cats){
+  const el=document.getElementById('compl-evolution');
+  const c=(cats||el._cats||{})[catKey];
+  if(!c)return;
+  openBlocsListModal(c.label+' — '+c.blocs.length+' cas', c.blocs);
+}
 let statTraumaLearning=null;
 function setTraumaLearning(interv,btn){
   statTraumaLearning=interv;
@@ -3133,7 +3643,8 @@ function countdown(ds){
   if(d<0)return null;
   if(d===0)return{label:"Aujourd'hui",cls:'urgent'};
   if(d===1)return{label:'Demain',cls:'urgent'};
-  if(d<=3)return{label:'J-'+d,cls:'soon'};
+  if(d<7)return{label:'J-'+d,cls:'urgent'};
+  if(d<30)return{label:'J-'+d,cls:'soon'};
   return{label:'J-'+d,cls:''};
 }
 function plannedForDate(ds){return planned.filter(p=>p.date===ds);}
@@ -3732,6 +4243,7 @@ function showApp(){
   appEl.classList.add('visible');
   try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
   try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
+  try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
