@@ -2109,7 +2109,11 @@ function renderBlocs(){
   const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'flex':'none';
   let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
   if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
-  if(curStatusFilter!=='all')filtered=filtered.filter(b=>(b.statut||'gris')===curStatusFilter);
+  if(curStatusFilter!=='all')filtered=filtered.filter(b=>
+    curStatusFilter==='rouge'
+      ? ((b.statut||'gris')==='rouge' || getBlocHasComplication(b))
+      : (b.statut||'gris')===curStatusFilter
+  );
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
   if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
@@ -2136,6 +2140,12 @@ function renderBlocs(){
       const nr=b.radioCount?Object.values(b.radioCount).reduce((a,v)=>a+v,0):0;
       const statusCls=STATUS_PILL[b.statut||'gris']||'attente';
       const statusLbl=STATUS_LABEL[b.statut||'gris']||'En attente';
+      // Badge complication historique : visible si complication passée mais statut courant ≠ rouge
+      const hasHistCompl=getBlocHasComplication(b);
+      const showComplBadge=hasHistCompl&&(b.statut||'gris')!=='rouge';
+      const complHistBadge=showComplBadge
+        ?'<span class="bloc-status-pill complication" style="opacity:0.75;font-size:9px;padding:2px 6px;">⚠ Compl.</span>'
+        :'';
       const roleCls=b.role==='Aide'?'aide':'';
       const patientTxt=b.patient?b.patient.split(' ').map((w,i)=>i===0?w:w.charAt(0)+'.').join(' '):'—';
       const flags=[
@@ -2158,6 +2168,7 @@ function renderBlocs(){
         </div>
         <div class="bloc-right-col">
           <span class="bloc-date-txt">${fmtDate(b.date).substring(0,5)}</span>
+          ${complHistBadge}
           <span class="bloc-status-pill ${statusCls}">${statusLbl}</span>
         </div>
       </div>`;
@@ -2192,11 +2203,16 @@ function openBlocDetail(bi){
   if(metaRow){
     const roleLabel=b.role==='Principal'?'Chirurgien principal':'Aide opératoire';
     const statusPill=`<span class="bloc-status-pill ${{vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'}[b.statut]||'attente'}">${sl}</span>`;
+    // Badge complication historique : si complication dans le passé mais statut courant ≠ rouge
+    const showHistCompl=getBlocHasComplication(b)&&(b.statut||'gris')!=='rouge';
+    const histComplPill=showHistCompl
+      ?`<span class="bloc-status-pill complication" style="opacity:0.8;font-size:10px;">⚠ Complication antérieure</span>`
+      :'';
     const histLink = b.patientId ? (() => {
       const nb = getBlocsForPatient(b.patientId).length;
       return nb > 1 ? `<button onclick="openPatientHistory('${b.patientId}')" style="background:none;border:none;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;padding:0;text-decoration:underline;text-underline-offset:2px;">${nb} blocs</button>` : '';
     })() : '';
-    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${statusPill}`;
+    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${histComplPill}${statusPill}`;
   }
   // Tab counts
   const nc2=(b.consultations||[]).length;
@@ -2348,17 +2364,21 @@ function selectEvtType(type, btn){
   document.querySelectorAll('.evt-type-pill').forEach(p=>p.classList.remove('on'));
   if(btn)btn.classList.add('on');
   document.getElementById('evt-type').value=type;
-  // Afficher/masquer champs spécifiques
   const isCompl=type==='complication';
   const isFin=type==='fin_suivi';
   const isReprise=type==='reprise_chir';
   document.getElementById('evt-compl-fields').style.display=isCompl?'block':'none';
   document.getElementById('evt-fin-fields').style.display=isFin?'block':'none';
+  // statut visible pour consultation ET reprise_chir, masqué pour complication (forcé rouge) et fin_suivi (champ dédié)
   document.getElementById('evt-statut-row').style.display=(isFin||isCompl)?'none':'block';
-  // Label commentaire
+  // Pré-sélectionner un statut cohérent selon le type
+  const statutSel=document.getElementById('cslt-statut');
+  if(statutSel){
+    if(isReprise) statutSel.value='orange';
+    else if(type==='consultation') statutSel.value='vert';
+  }
   const lbl=document.getElementById('evt-comment-label');
   if(lbl)lbl.textContent=isCompl?'Détails / traitement':isFin?'Commentaire final':isReprise?'Type de reprise / détails':'Commentaire';
-  // Placeholder commentaire
   const ta=document.getElementById('cslt-comment');
   if(ta)ta.placeholder=isCompl?'Description, traitement institué…':isFin?'Bilan final, recul, remarques…':isReprise?'Nature de la reprise, résultat obtenu…':'ex. Flexion 110°, douleurs résiduelles…';
 }
@@ -2395,9 +2415,8 @@ function saveConsult(){
     statut=document.getElementById('evt-fin-statut').value||'vert';
   } else if(type==='complication'){
     statut='rouge';
-  } else if(type==='reprise_chir'){
-    statut='orange';
   } else {
+    // consultation ET reprise_chir lisent le select (valeur pré-remplie par selectEvtType)
     statut=document.getElementById('cslt-statut').value||'gris';
   }
   const evt={
@@ -3309,7 +3328,11 @@ function renderStatuts(filter){
     ? (statStatutScope==='ortho'?'ortho':statStatutScope==='trauma'?'trauma':'all')
     : filter;
   el.innerHTML=STATUTS.map(s=>{
-    const n=subset.filter(b=>(b.statut||'gris')===s.key).length;
+    // Pour "Complication" : flag historique permanent (getBlocHasComplication)
+    // Pour les autres statuts : statut courant du bloc
+    const n = s.key==='rouge'
+      ? subset.filter(b=>getBlocHasComplication(b)).length
+      : subset.filter(b=>(b.statut||'gris')===s.key).length;
     if(!n)return'';
     const pct=Math.round(n/total*100);
     return`<div class="statut-row" onclick="showStatutPatients('${modalFilter}','${s.key}')" style="cursor:pointer;">
@@ -3348,7 +3371,10 @@ function showStatutPatients(filter,statusKey){
   if(filter==='all') subset=[...blocs];
   else if(filter==='ortho') subset=blocs.filter(b=>b.spec==='Genou'||b.spec==='Hanche');
   else subset=blocs.filter(b=>b.spec==='Traumatologie');
-  const filtered=subset.filter(b=>(b.statut||'gris')===statusKey);
+  // Pour "Complication" : flag historique permanent, indépendant du statut courant
+  const filtered = statusKey==='rouge'
+    ? subset.filter(b=>getBlocHasComplication(b))
+    : subset.filter(b=>(b.statut||'gris')===statusKey);
   const title=STATUS_LABEL[statusKey]+' — '+filtered.length+' patient'+(filtered.length>1?'s':'');
   openBlocsListModal(title, filtered);
 }
@@ -3472,7 +3498,7 @@ function renderEvolChart(){
     keys.push(getMonthKey(d.toISOString()));
   }
   const bons=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&(b.statut||'gris')==='vert').length);
-  const compls=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&(b.statut||'gris')==='rouge').length);
+  const compls=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&getBlocHasComplication(b)).length);
   // Ne garder que les mois où il y a eu au moins 1 bloc enregistré
   const hasActivity=keys.map(k=>blocs.some(b=>b.date&&getMonthKey(b.date)===k));
   const filteredLabels=labels.filter((_,i)=>hasActivity[i]);
