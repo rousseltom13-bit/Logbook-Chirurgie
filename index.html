@@ -247,15 +247,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 /* PLANNING */
 .cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px;}
 .cal-week-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:var(--radius);cursor:pointer;background:none;border:none;font-family:inherit;}
-.cal-week-day.today{background:var(--accent);color:white;}
 .cal-week-day.has-bloc{position:relative;}
 .cal-week-name{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;}
-.cal-week-day.today .cal-week-name{color:rgba(255,255,255,0.8);}
+.cal-week-day.today .cal-week-name{color:var(--accent);font-weight:700;}
 .cal-week-num{font-size:15px;font-weight:600;}
-.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);margin-top:1px;}
-.cal-week-day.today .cal-dot{background:white;}
-.cal-badge{font-size:9px;font-weight:700;background:var(--accent);color:white;border-radius:99px;padding:1px 5px;margin-top:1px;}
-.cal-week-day.today .cal-badge{background:white;color:var(--accent);}
+.cal-week-day.today .cal-week-num{background:var(--accent);color:white;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;}
+.cal-dot{display:none;}
+.cal-badge{font-size:9px;font-weight:700;background:var(--warm);color:white;border-radius:99px;padding:1px 5px;margin-top:1px;min-width:16px;text-align:center;}
+.cal-week-day.today .cal-badge{background:var(--warm);color:white;}
 /* Calendrier mensuel */
 .cal-month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
 .cal-month-header{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px;}
@@ -507,7 +506,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .bloc-status-pill.complication{background:var(--red-l);color:var(--red-d);}
 .bloc-status-pill.attente{background:var(--bg3);color:var(--text3);}
 .bloc-status-pill.pdv{background:var(--bg3);color:var(--text2);}
-.bloc-status-pill.deces{background:#2C2C2A;color:white;}
+.bloc-flag.cloture{background:var(--green-l);color:var(--green-d);border-color:var(--green-l);}
+.bloc-status-pill.excellent{background:var(--green-l);color:var(--green-d);}
+.bloc-status-pill.excellent::before{background:var(--green-d);}
 /* Détail bloc — hero éditorial */
 #view-detail{padding:0;}
 #view-detail .topbar-detail{padding:24px 22px 20px;border-bottom:1px solid var(--border);}
@@ -676,7 +677,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       <div class="dash-tabs-atlas" id="dash-tabs">
         <button class="dash-tab-atlas active" onclick="switchDashTab('recent',this)">Activité</button>
         <button class="dash-tab-atlas" onclick="switchDashTab('planning',this)">Planning</button>
-        <button class="dash-tab-atlas" onclick="switchDashTab('complications',this)">Complications</button>
       </div>
       <div class="dash-panel active" id="dp-recent">
         <div class="dash-section">
@@ -704,13 +704,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div class="dash-section" style="margin-top:18px;">
           <div class="dash-section-h"><h2 class="dash-section-title">Blocs prévus ce mois</h2></div>
           <div id="month-planned-list"></div>
-        </div>
-      </div>
-      <div class="dash-panel" id="dp-complications">
-        <div class="compl-overview" id="compl-overview"></div>
-        <div class="dash-section" style="margin-top:14px;">
-          <div class="dash-section-h"><h2 class="dash-section-title">Détail</h2></div>
-          <div id="compl-detail-list"></div>
         </div>
       </div>
     </div>
@@ -993,6 +986,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <button class="stats-tab" onclick="switchStatsTab('ortho',this)">Orthopédie</button>
         <button class="stats-tab" onclick="switchStatsTab('trauma',this)">Trauma</button>
         <button class="stats-tab" onclick="switchStatsTab('top',this)">Top</button>
+        <button class="stats-tab" onclick="switchStatsTab('complications',this)">Complications</button>
       </div>
       <div class="stats-scroll">
 
@@ -1130,6 +1124,18 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <div class="chart-card" id="top-interventions"></div>
         </div>
 
+        <!-- ⑤ COMPLICATIONS -->
+        <div class="stats-panel" id="sp-complications">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Vue d'ensemble</h2></div>
+            <div id="compl-overview" class="chart-card"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Détail</h2></div>
+            <div id="compl-detail-list"></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1196,20 +1202,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       <div class="form-group"><label>Type de complication</label>
         <select id="cmp-type-evt">
           <option value="">Sélectionner...</option>
-          <option>Pseudarthrose</option><option>Infection superficielle</option><option>Infection profonde (PJI)</option>
+          <option>Pseudarthrose</option><option>Infection du site opératoire</option>
           <option>Luxation prothétique</option><option>Fracture péri-prothétique</option><option>Descellement aseptique</option>
           <option>Raideur articulaire</option><option>TVP / EP</option><option>Lésion nerveuse</option>
           <option>Hématome</option><option>Autre</option>
         </select>
       </div>
-      <div class="form-group"><label>Classification Clavien-Dindo</label>
-        <select id="cmp-clavien-evt">
-          <option value="">—</option>
-          <option>I — Déviation mineure</option><option>II — Traitement médical requis</option>
-          <option>IIIa — Intervention sans AG</option><option>IIIb — Intervention sous AG</option>
-          <option>IVa — Défaillance mono-organe</option><option>IVb — Défaillance multi-organe</option><option>V — Décès</option>
-        </select>
-      </div>
+
     </div>
 
     <!-- Champs fin de suivi -->
@@ -1310,21 +1309,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     <div class="form-group"><label>Type de complication</label>
       <select id="cmp-type">
         <option value="">Sélectionner...</option>
-        <option>Pseudarthrose</option><option>Infection superficielle</option><option>Infection profonde (PJI)</option>
+        <option>Pseudarthrose</option><option>Infection du site opératoire</option>
         <option>Luxation prothétique</option><option>Fracture péri-prothétique</option><option>Descellement aseptique</option>
         <option>Raideur articulaire</option><option>TVP / EP</option><option>Lésion nerveuse</option>
         <option>Hématome</option><option>Autre</option>
       </select>
     </div>
     <div class="form-group"><label>Date de survenue</label><input type="date" id="cmp-date"></div>
-    <div class="form-group"><label>Classification Clavien-Dindo</label>
-      <select id="cmp-clavien">
-        <option value="">—</option>
-        <option>I — Déviation mineure</option><option>II — Traitement médical requis</option>
-        <option>IIIa — Intervention sans AG</option><option>IIIb — Intervention sous AG</option>
-        <option>IVa — Défaillance mono-organe</option><option>IVb — Défaillance multi-organe</option><option>V — Décès</option>
-      </select>
-    </div>
     <div class="form-group"><label>Détails / traitement</label><textarea id="cmp-detail" placeholder="Description, traitement, évolution..."></textarea></div>
     <button class="btn-primary" onclick="saveComplication()">Enregistrer</button>
   </div>
@@ -1987,7 +1978,6 @@ function switchDashTab(tab,btn){
   document.querySelectorAll('#dash-tabs .dash-tab-atlas').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#view-dashboard .dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
-  if(tab==='complications')renderComplications();
   if(tab==='recent'){renderUpcoming();}
   if(tab==='planning'){renderInlineCalendar();renderMonthPlannedList();}
 }
@@ -2062,7 +2052,7 @@ const allC=[];blocs.forEach(b=>{
   const el=document.getElementById('compl-overview');
   if(!types.length){el.innerHTML='<div class="empty" style="grid-column:1/-1;"><div class="empty-icon">✓</div>Aucune complication</div>';}
   else{const maxC=Math.max(...types.map(t=>counts[t]),1);el.innerHTML=types.map(t=>`<div class="compl-card"><div class="compl-name">${t}</div><div class="compl-count">${counts[t]}</div><div class="compl-pct">${Math.round(counts[t]/total*100)}% des blocs</div><div class="compl-bar-wrap"><div class="compl-bar" style="width:${Math.round(counts[t]/maxC*100)}%;"></div></div></div>`).join('');}
-  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav=c.clavien?c.clavien.split('—')[0].trim():'';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${esc(c.patient)||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${esc(displayInterv(c.interv).substring(0,18))}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span>${clav?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(clav)}</span>`:''}</div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${escNl(c.detail)}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
+  document.getElementById('compl-detail-list').innerHTML=allC.length?allC.slice().reverse().map(c=>{const clav='';return`<div class="compl-row"><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${esc(c.patient)||'—'} <span style="font-size:11px;font-weight:400;color:var(--text2);">— ${esc(displayInterv(c.interv).substring(0,18))}</span></div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span></div>${c.detail?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${escNl(c.detail)}</div>`:''}</div><div style="font-size:11px;color:var(--text3);white-space:nowrap;margin-left:8px;">${fmtDate(c.date)}</div></div>`;}).join(''):'';
 }
 
 // ── MES BLOCS ──
@@ -2127,8 +2117,8 @@ function renderBlocs(){
   const groups={};
   sorted.forEach(b=>{const mk=b.date?getMonthKey(b.date):'—';if(!groups[mk])groups[mk]=[];groups[mk].push(b);});
   const monthKeys=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-  const STATUS_PILL={vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'};
-  const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès'};
+  const STATUS_PILL={vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces',excellent:'excellent'};
+  const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès',excellent:'Excellent résultat'};
   el.innerHTML=monthKeys.map(mk=>{
     const label=mk==='—'?'Date inconnue':new Date(mk+'-01').toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
     const count=groups[mk].length;
@@ -2140,15 +2130,17 @@ function renderBlocs(){
       const nr=b.radioCount?Object.values(b.radioCount).reduce((a,v)=>a+v,0):0;
       const statusCls=STATUS_PILL[b.statut||'gris']||'attente';
       const statusLbl=STATUS_LABEL[b.statut||'gris']||'En attente';
-      // Badge complication historique : visible si complication passée mais statut courant ≠ rouge
       const hasHistCompl=getBlocHasComplication(b);
       const showComplBadge=hasHistCompl&&(b.statut||'gris')!=='rouge';
       const complHistBadge=showComplBadge
         ?'<span class="bloc-status-pill complication" style="opacity:0.75;font-size:9px;padding:2px 6px;">⚠ Compl.</span>'
         :'';
+      const isCloture=!!getBlocFinSuivi(b);
       const roleCls=b.role==='Aide'?'aide':'';
       const patientTxt=b.patient?b.patient.split(' ').map((w,i)=>i===0?w:w.charAt(0)+'.').join(' '):'—';
+      const isClotured=!!getBlocFinSuivi(b);
       const flags=[
+        isClotured?'<span class="bloc-flag cloture">✓ Clôturé</span>':'',
         b.toComplete?'<span class="bloc-flag todo">À COMPLÉTER</span>':'',
         nc>0?'<span class="bloc-flag compli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> '+nc+' compli.</span>':'',
         nr>0?'<span class="bloc-flag photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> '+nr+'</span>':''
@@ -2191,7 +2183,7 @@ function openBlocDetail(bi){
   const stars=b.diff?'★'.repeat(b.diff)+'☆'.repeat(5-b.diff):'—';
   const tags=(b.tags||[]).map(t=>`<span class="atlas-tag">${esc(t)}</span>`).join('');
   const nc=(b.complications||[]).length;
-  const complList=(b.complications||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span>${c.clavien?`<span style="font-size:10px;color:var(--text3);">Clavien ${esc(c.clavien.split('—')[0].trim())}</span>`:''}</div>${c.detail?`<div style="font-size:13px;color:var(--text2);font-family:var(--serif);line-height:1.6;">${escNl(c.detail)}</div>`:''}</div>`).join('');
+  const complList=(b.complications||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:11px;color:var(--text3);">${fmtDate(c.date)}</span></div>${c.detail?`<div style="font-size:13px;color:var(--text2);font-family:var(--serif);line-height:1.6;">${escNl(c.detail)}</div>`:''}</div>`).join('');
   // Hero Atlas
   const eyebrow=document.getElementById('det-eyebrow');
   const patient=document.getElementById('det-patient');
@@ -2202,8 +2194,9 @@ function openBlocDetail(bi){
   if(intervHero)intervHero.textContent=displayInterv(b.interv)||'—';
   if(metaRow){
     const roleLabel=b.role==='Principal'?'Chirurgien principal':'Aide opératoire';
-    const statusPill=`<span class="bloc-status-pill ${{vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces'}[b.statut]||'attente'}">${sl}</span>`;
-    // Badge complication historique : si complication dans le passé mais statut courant ≠ rouge
+    const statusPill=`<span class="bloc-status-pill ${{vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces',excellent:'excellent'}[b.statut]||'attente'}">${sl}</span>`;
+    const isCloture=!!getBlocFinSuivi(b);
+    const cloturePill=isCloture?`<span class="bloc-status-pill" style="background:var(--green-l);color:var(--green-d);font-size:10px;">✓ Clôturé</span>`:'';
     const showHistCompl=getBlocHasComplication(b)&&(b.statut||'gris')!=='rouge';
     const histComplPill=showHistCompl
       ?`<span class="bloc-status-pill complication" style="opacity:0.8;font-size:10px;">⚠ Complication antérieure</span>`
@@ -2212,7 +2205,7 @@ function openBlocDetail(bi){
       const nb = getBlocsForPatient(b.patientId).length;
       return nb > 1 ? `<button onclick="openPatientHistory('${b.patientId}')" style="background:none;border:none;font-size:11px;color:var(--accent);cursor:pointer;font-family:inherit;padding:0;text-decoration:underline;text-underline-offset:2px;">${nb} blocs</button>` : '';
     })() : '';
-    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${histComplPill}${statusPill}`;
+    metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${cloturePill}${histComplPill}${statusPill}`;
   }
   // Tab counts
   const nc2=(b.consultations||[]).length;
@@ -2285,8 +2278,8 @@ function getBlocStatutFinal(b){
 function syncBlocStatutFromConsults(bi){
   const b=blocs[bi];
   const sf=getBlocStatutFinal(b);
-  // Mapper 'excellent' → 'vert' pour l'affichage courant
-  b.statut = sf==='excellent'?'vert':sf;
+  // Conserver 'excellent' comme statut propre (ne plus écraser vers 'vert')
+  b.statut = sf||'gris';
 }
 // Classification d'une complication pour les stats
 function classifyComplication(b){
@@ -2329,7 +2322,7 @@ function renderDetSuivi(bi){
         ? (STATUT_LABEL_EVT[evt.statut]||evt.statut)
         : sl;
       const typeExtra=evt.complType?` — ${evt.complType}`:'';
-      const clavienBadge=evt.clavien?`<span class="timeline-badge" style="background:var(--bg3);color:var(--text3);margin-left:4px;">Clavien ${evt.clavien.split('—')[0].trim()}</span>`:'';
+      const clavienBadge='';
       html+=`<div class="timeline-item">
         ${!isLast?'<div class="timeline-line"></div>':''}
         <div class="timeline-dot" style="background:${cfg.dotBg};color:${cfg.dotColor};">
@@ -2425,7 +2418,6 @@ function saveConsult(){
   };
   if(type==='complication'){
     evt.complType=document.getElementById('cmp-type-evt').value||'';
-    evt.clavien=document.getElementById('cmp-clavien-evt').value||'';
   }
   blocs[bi].evenements.push(evt);
   syncBlocStatutFromConsults(bi);
@@ -2806,7 +2798,7 @@ function openComplModal(bi){
   complCtx={bi};const b=blocs[bi];
   document.getElementById('cmp-patient').value=b.patient||'—';
   document.getElementById('cmp-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('cmp-type').value='';document.getElementById('cmp-clavien').value='';document.getElementById('cmp-detail').value='';
+  document.getElementById('cmp-type').value='';document.getElementById('cmp-detail').value='';
   openModal('compl-modal');
 }
 function saveComplication(){
@@ -2814,7 +2806,7 @@ function saveComplication(){
   if(!type){showToast('Sélectionner un type');return;}
   const bi=complCtx.bi;
   if(!blocs[bi].complications)blocs[bi].complications=[];
-  blocs[bi].complications.push({type,date:document.getElementById('cmp-date').value,clavien:document.getElementById('cmp-clavien').value,detail:document.getElementById('cmp-detail').value});
+  blocs[bi].complications.push({type,date:document.getElementById('cmp-date').value,detail:document.getElementById('cmp-detail').value});
   blocs[bi].statut='rouge';saveLocal();showToast('Complication enregistrée');closeModal('compl-modal');
   renderDetSuivi(bi);renderBlocs();renderDash();
 }
@@ -3065,6 +3057,22 @@ function saveBloc(){
   sw('blocs');
 }
 
+// Migration one-shot : fusionner Infection superficielle + profonde → Infection du site opératoire
+function runInfectionMigration(){
+  const FLAG='atlas_infection_merged_v1';
+  if(localStorage.getItem(FLAG))return;
+  let count=0;
+  blocs.forEach(b=>{
+    (b.evenements||[]).forEach(e=>{
+      if(e.complType==='Infection superficielle'||e.complType==='Infection profonde (PJI)'){e.complType='Infection du site opératoire';count++;}
+    });
+    (b.complications||[]).forEach(cc=>{
+      if(cc.type==='Infection superficielle'||cc.type==='Infection profonde (PJI)'){cc.type='Infection du site opératoire';count++;}
+    });
+  });
+  if(count>0){saveLocal();console.info('[Atlas] Migration infections : '+count+' complication(s) fusionnées');}
+  localStorage.setItem(FLAG,'1');
+}
 // ── MULTI-INTERVENTION (trauma) ──
 window._pendingMultiBlocs = [];
 function addMultiInterv(){
@@ -3152,7 +3160,12 @@ function runEtablissementMigration(){
   if(count > 0){ saveLocal(); console.info('[Atlas] Migration établissement : '+count+' bloc(s) mis à jour → CHU Lille'); }
   localStorage.setItem(FLAG, '1');
 }
-// Helper badge trend
+// Helper : retourne l'événement fin_suivi d'un bloc s'il existe
+function getBlocFinSuivi(b){
+  return (b.evenements||[]).find(e=>e.type==='fin_suivi')||null;
+}
+// Helper : statut normalisé pour l'affichage (excellent → traité séparément mais mappé visuellement)
+function normalizeStatut(s){ return s||'gris'; }
 function trendBadge(diff, isGoodWhenDown=false){
   if(diff===0)return'';
   const SVG_UP='<svg viewBox="0 0 12 12" fill="currentColor"><path d="M6 2l4 4H7v4H5V6H2z"/></svg>';
@@ -3175,6 +3188,7 @@ function switchStatsTab(tab,btn){
   else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
   else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
   else if(tab==='top'){renderTopInterventions();}
+  else if(tab==='complications'){renderComplications();}
 }
 
 function renderStats(){
@@ -3299,9 +3313,8 @@ function renderLearningChart(){
   });
 }
 
-// ── STATUTS (pastilles) ──
+// ── STATUTS (pastilles) — deux sections : suivi en cours + suivi terminé ──
 function renderStatuts(filter){
-  // filter = 'ortho' | 'trauma' | 'activite' (+ scope via statStatutScope)
   let elId, subset;
   if(filter==='activite'){
     elId='activite-statuts';
@@ -3313,36 +3326,75 @@ function renderStatuts(filter){
     subset=blocs.filter(b=>filter==='ortho'?(b.spec==='Genou'||b.spec==='Hanche'):b.spec==='Traumatologie');
   }
   const el=document.getElementById(elId);if(!el)return;
-  const total=subset.length;
-  if(!total){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc enregistré</div>';return;}
-  const STATUTS=[
-    {key:'vert', label:'Bon résultat', fill:'var(--green-d)'},
-    {key:'orange',label:'Vigilance',   fill:'var(--amber-d)'},
-    {key:'rouge', label:'Complication',fill:'var(--red-d)'},
-    {key:'gris',  label:'En attente',  fill:'var(--bg4)'},
-    {key:'pdv',   label:'Perdu de vue',fill:'var(--text3)'},
-    {key:'deces', label:'Décès',       fill:'var(--text2)'}
-  ];
-  // Contexte pour la modal
-  const modalFilter = filter==='activite'
-    ? (statStatutScope==='ortho'?'ortho':statStatutScope==='trauma'?'trauma':'all')
-    : filter;
-  el.innerHTML=STATUTS.map(s=>{
-    // Pour "Complication" : flag historique permanent (getBlocHasComplication)
-    // Pour les autres statuts : statut courant du bloc
-    const n = s.key==='rouge'
-      ? subset.filter(b=>getBlocHasComplication(b)).length
-      : subset.filter(b=>(b.statut||'gris')===s.key).length;
-    if(!n)return'';
-    const pct=Math.round(n/total*100);
-    return`<div class="statut-row" onclick="showStatutPatients('${modalFilter}','${s.key}')" style="cursor:pointer;">
+  if(!subset.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc enregistré</div>';return;}
+
+  const modalFilter=filter==='activite'
+    ?(statStatutScope==='ortho'?'ortho':statStatutScope==='trauma'?'trauma':'all')
+    :filter;
+
+  // Séparer suivi en cours / suivi terminé
+  const enCours  = subset.filter(b=>!getBlocFinSuivi(b));
+  const clotures = subset.filter(b=>!!getBlocFinSuivi(b));
+
+  // Render une ligne de statut
+  const renderRow=(statusKey, label, fill, count, total, mf, isCloture=false)=>{
+    if(!count)return'';
+    const pct=Math.round(count/total*100);
+    const scopeKey=isCloture?statusKey+'_fin':statusKey;
+    return`<div class="statut-row" onclick="showStatutPatients('${mf}','${statusKey}',${isCloture})" style="cursor:pointer;">
       <div class="statut-name-row">
-        <span class="statut-name-inner"><span class="statut-dot" style="background:${s.fill};"></span>${s.label}</span>
-        <span class="statut-vals">${n}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
+        <span class="statut-name-inner"><span class="statut-dot" style="background:${fill};"></span>${label}</span>
+        <span class="statut-vals">${count}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
       </div>
-      <div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${s.fill};"></div></div>
+      <div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${fill};"></div></div>
     </div>`;
-  }).join('');
+  };
+
+  let html='';
+
+  // ── Section 1 : Suivi en cours ──
+  if(enCours.length){
+    const STATUTS_COURS=[
+      {key:'vert',   label:'Bon résultat',  fill:'var(--green-d)'},
+      {key:'orange', label:'Vigilance',     fill:'var(--amber-d)'},
+      {key:'rouge',  label:'Complication',  fill:'var(--red-d)'},
+      {key:'gris',   label:'En attente',    fill:'var(--bg4)'},
+      {key:'pdv',    label:'Perdu de vue',  fill:'var(--text3)'},
+      {key:'deces',  label:'Décès',         fill:'var(--text2)'}
+    ];
+    html+=`<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--text3);margin-bottom:8px;">Suivi en cours <span style="font-weight:400;color:var(--text3);">(${enCours.length})</span></div>`;
+    html+=STATUTS_COURS.map(s=>{
+      const n=s.key==='rouge'
+        ?enCours.filter(b=>getBlocHasComplication(b)).length
+        :enCours.filter(b=>(b.statut||'gris')===s.key).length;
+      return renderRow(s.key,s.label,s.fill,n,enCours.length,modalFilter,false);
+    }).join('');
+  }
+
+  // ── Section 2 : Suivi terminé ──
+  if(clotures.length){
+    html+=`<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--green-d);margin:${enCours.length?'18px':'0px'} 0 8px;display:flex;align-items:center;gap:6px;">
+      <span style="font-size:11px;">✓</span> Suivi terminé <span style="font-weight:400;color:var(--text3);">(${clotures.length})</span>
+    </div>`;
+    const STATUTS_FIN=[
+      {key:'excellent',label:'Excellent résultat',   fill:'var(--green-d)'},
+      {key:'vert',     label:'Bon résultat',         fill:'var(--green-d)'},
+      {key:'orange',   label:'Séquelles mineures',   fill:'var(--amber-d)'},
+      {key:'rouge',    label:'Mauvais résultat',     fill:'var(--red-d)'},
+      {key:'pdv',      label:'Perdu de vue',         fill:'var(--text3)'},
+      {key:'deces',    label:'Décès',                fill:'var(--text2)'}
+    ];
+    html+=STATUTS_FIN.map(s=>{
+      // Pour les clôturés : on lit le statut du dernier événement (= fin_suivi)
+      const n=s.key==='rouge'
+        ? clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length
+        : clotures.filter(b=>(b.statut||'gris')===s.key).length;
+      return renderRow(s.key,s.label,s.fill,n,clotures.length,modalFilter,true);
+    }).join('');
+  }
+
+  if(!html)html='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun résultat enregistré</div>';
+  el.innerHTML=html;
 }
 
 // ── MODAL GÉNÉRIQUE LISTE DE BLOCS ──
@@ -3365,17 +3417,33 @@ function openBlocsListModal(title, blocsList){
   openModal('statut-patients-modal');
 }
 
-function showStatutPatients(filter,statusKey){
-  const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès'};
+function showStatutPatients(filter,statusKey,isCloture=false){
+  const STATUS_LABEL={
+    vert:'Bon résultat',orange:isCloture?'Séquelles mineures':'Vigilance',
+    rouge:isCloture?'Mauvais résultat':'Complication',
+    gris:'En attente',pdv:'Perdu de vue',deces:'Décès',excellent:'Excellent résultat'
+  };
   let subset;
   if(filter==='all') subset=[...blocs];
   else if(filter==='ortho') subset=blocs.filter(b=>b.spec==='Genou'||b.spec==='Hanche');
   else subset=blocs.filter(b=>b.spec==='Traumatologie');
-  // Pour "Complication" : flag historique permanent, indépendant du statut courant
-  const filtered = statusKey==='rouge'
-    ? subset.filter(b=>getBlocHasComplication(b))
-    : subset.filter(b=>(b.statut||'gris')===statusKey);
-  const title=STATUS_LABEL[statusKey]+' — '+filtered.length+' patient'+(filtered.length>1?'s':'');
+
+  // Filtrer selon la section (en cours ou clôturés)
+  const pool = isCloture
+    ? subset.filter(b=>!!getBlocFinSuivi(b))
+    : subset.filter(b=>!getBlocFinSuivi(b));
+
+  let filtered;
+  if(statusKey==='rouge'){
+    filtered = isCloture
+      ? pool.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge')
+      : pool.filter(b=>getBlocHasComplication(b));
+  } else {
+    filtered = pool.filter(b=>(b.statut||'gris')===statusKey);
+  }
+
+  const sectionLabel = isCloture ? ' (suivi terminé)' : ' (suivi en cours)';
+  const title=(STATUS_LABEL[statusKey]||statusKey)+sectionLabel+' — '+filtered.length+' patient'+(filtered.length>1?'s':'');
   openBlocsListModal(title, filtered);
 }
 
@@ -3658,11 +3726,12 @@ let calCurrentMonth = new Date();
 let dayModalDate = null;
 let plannedEditIdx = null;
 
-function todayStr(){return new Date().toISOString().split('T')[0];}
-function dateStr(d){return d.toISOString().split('T')[0];}
-function diffDays(dateStr){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const target = new Date(dateStr); target.setHours(0,0,0,0);
+function todayStr(){const n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1).toString().padStart(2,'0')+'-'+n.getDate().toString().padStart(2,'0');}
+function dateStr(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+function diffDays(ds){
+  const today=new Date();today.setHours(0,0,0,0);
+  const parts=ds.split('-');
+  const target=new Date(+parts[0],+parts[1]-1,+parts[2]);
   return Math.round((target-today)/(1000*60*60*24));
 }
 function countdown(ds){
@@ -3696,7 +3765,7 @@ function renderWeekStrip(){
     const pbs=plannedForDate(ds);
     const n=pbs.length;
     let badge='';
-    if(n===1)badge=`<div class="cal-dot"></div>`;
+    if(n===1)badge=`<div class="cal-badge">1</div>`;
     else if(n>1)badge=`<div class="cal-badge">${n}</div>`;
     html+=`<button class="cal-week-day${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}')">
       <span class="cal-week-name">${days[d.getDay()]}</span>
@@ -3764,8 +3833,8 @@ function renderInlineCalendar(){
     const pbs=plannedForDate(ds);const n=pbs.length;
     const isToday=ds===todayS;
     let dots='';
-    if(n===1)dots=`<div class="cal-dot" style="background:var(--accent);"></div>`;
-    else if(n>1)dots=`<div class="cal-badge" style="background:var(--accent);color:white;">${n}</div>`;
+    if(n===1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">1</div>`;
+    else if(n>1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">${n}</div>`;
     cells+=`<div class="cal-month-cell${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}')">
       <div class="cal-month-num">${day}</div>${dots}
     </div>`;
@@ -3818,8 +3887,8 @@ function renderCalMonth(){
     const pbs=plannedForDate(ds);const n=pbs.length;
     const isToday=ds===todayS;
     let dots='';
-    if(n===1)dots=`<div class="cal-dot" style="background:var(--accent);"></div>`;
-    else if(n>1)dots=`<div class="cal-badge" style="background:var(--accent);color:white;">${n}</div>`;
+    if(n===1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">1</div>`;
+    else if(n>1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">${n}</div>`;
     cells+=`<div class="cal-month-cell${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}');closeModal('cal-modal');">
       <div class="cal-month-num">${day}</div>
       ${dots}
@@ -3837,7 +3906,9 @@ function renderCalMonth(){
 // ── MODAL JOUR ──
 function openDayModal(ds){
   dayModalDate=ds;
-  const d=new Date(ds);
+  // Parser sans UTC : new Date(y, m-1, d) pour éviter le décalage timezone
+  const parts=ds.split('-');
+  const d=new Date(+parts[0],+parts[1]-1,+parts[2]);
   document.getElementById('day-modal-title').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
   renderDayBlocs(ds);
   openModal('day-modal');
@@ -3972,11 +4043,16 @@ function convertPlanned(){
 }
 
 // ── UTILS ──
-function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function fmtDate(d){
+  if(!d)return'—';
+  const p=d.split('-');
+  if(p.length===3)return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+}
 // v13-rescue : escape XSS pour innerHTML
 function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function escNl(s){return esc(s).replace(/\n/g,'<br>');}
-function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
+function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},excellent:{dc:'sv',tc:'tv',sl:'Excellent résultat'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
@@ -4271,6 +4347,7 @@ function showApp(){
   try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
   try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
   try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
+  try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
