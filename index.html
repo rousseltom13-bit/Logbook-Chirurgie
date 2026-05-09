@@ -30,34 +30,35 @@
 }
 @media(prefers-color-scheme:dark){
   :root:not(.theme-light){
-    /* Atlas v14 — palette dark Linear-like */
-    --bg:#08080A;--bg2:#101013;--bg3:#17171C;--bg4:#1F1F26;
-    --text:#ECECF0;--text2:#9C9CA8;--text3:#5C5C68;
-    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-    --accent:#5E96B8;--accent-l:rgba(94,150,184,0.14);
-    --blue:#5E96B8;--blue-l:rgba(94,150,184,0.14);--blue-d:#7BB3D5;
-    --green:#5FB875;--green-l:rgba(95,184,117,0.14);--green-d:#A0E080;
-    --amber:#D9A24F;--amber-l:rgba(217,162,79,0.14);--amber-d:#F0C070;
-    --red:#E36B65;--red-l:rgba(227,107,101,0.14);--red-d:#FFA0A0;
-    --purple:#A88AD0;--purple-l:rgba(168,138,208,0.14);--purple-d:#C0A0F0;
-    --warm:#D8866E;--warm-l:rgba(216,134,110,0.14);
+    /* Atlas — palette dark premium (tons lockscreen : teal-nuit profond) */
+    --bg:#080C0E;--bg2:#0D1518;--bg3:#121C20;--bg4:#1A2730;
+    --text:#E8ECED;--text2:#8FA8B2;--text3:#4A6470;
+    --border:rgba(94,150,184,0.10);--border2:rgba(94,150,184,0.18);
+    --accent:#6BAED4;--accent-l:rgba(107,174,212,0.14);
+    --blue:#6BAED4;--blue-l:rgba(107,174,212,0.14);--blue-d:#90C8E8;
+    --green:#5EC490;--green-l:rgba(94,196,144,0.14);--green-d:#88DDB0;
+    --amber:#E0AA56;--amber-l:rgba(224,170,86,0.14);--amber-d:#F4C878;
+    --red:#E87070;--red-l:rgba(232,112,112,0.14);--red-d:#FFAAAA;
+    --purple:#B090D8;--purple-l:rgba(176,144,216,0.14);--purple-d:#CCAAF4;
+    --warm:#E09070;--warm-l:rgba(224,144,112,0.14);
     color-scheme:dark;
   }
 }
 :root.theme-dark{
-  --bg:#08080A;--bg2:#101013;--bg3:#17171C;--bg4:#1F1F26;
-  --text:#ECECF0;--text2:#9C9CA8;--text3:#5C5C68;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --accent:#5E96B8;--accent-l:rgba(94,150,184,0.14);
-  --blue:#5E96B8;--blue-l:rgba(94,150,184,0.14);--blue-d:#7BB3D5;
-  --green:#5FB875;--green-l:rgba(95,184,117,0.14);--green-d:#A0E080;
-  --amber:#D9A24F;--amber-l:rgba(217,162,79,0.14);--amber-d:#F0C070;
-  --red:#E36B65;--red-l:rgba(227,107,101,0.14);--red-d:#FFA0A0;
-  --purple:#A88AD0;--purple-l:rgba(168,138,208,0.14);--purple-d:#C0A0F0;
-  --warm:#D8866E;--warm-l:rgba(216,134,110,0.14);
+  /* Atlas — palette dark premium (tons lockscreen : teal-nuit profond) */
+  --bg:#080C0E;--bg2:#0D1518;--bg3:#121C20;--bg4:#1A2730;
+  --text:#E8ECED;--text2:#8FA8B2;--text3:#4A6470;
+  --border:rgba(94,150,184,0.10);--border2:rgba(94,150,184,0.18);
+  --accent:#6BAED4;--accent-l:rgba(107,174,212,0.14);
+  --blue:#6BAED4;--blue-l:rgba(107,174,212,0.14);--blue-d:#90C8E8;
+  --green:#5EC490;--green-l:rgba(94,196,144,0.14);--green-d:#88DDB0;
+  --amber:#E0AA56;--amber-l:rgba(224,170,86,0.14);--amber-d:#F4C878;
+  --red:#E87070;--red-l:rgba(232,112,112,0.14);--red-d:#FFAAAA;
+  --purple:#B090D8;--purple-l:rgba(176,144,216,0.14);--purple-d:#CCAAF4;
+  --warm:#E09070;--warm-l:rgba(224,144,112,0.14);
   color-scheme:dark;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+
 html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--text);font-family:-apple-system,'Helvetica Neue',sans-serif;}
 #app{display:none;flex-direction:column;height:100%;padding-top:var(--safe-top);}
 #app.visible{display:flex;}
@@ -622,14 +623,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 /* FAB-like pour Nouveau */
 
 
-</style>
-</head>
-<body>
-<!-- ÉCRAN DE VERROUILLAGE -->
-<div id="lockscreen" style="display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 60px) 32px calc(var(--safe-bot) + 56px);">
-  <!-- Fond dégradé sombre -->
-  <style>
-    #lockscreen{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
+
+
+
+/* Lock screen */
+/* Lock screen */
+
+    #lockscreen{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);}
+    #lockscreen.visible{display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
     .lock-monogram{width:88px;height:88px;border-radius:24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
     .lock-monogram svg{width:56px;height:56px;color:white;filter:drop-shadow(0 2px 12px rgba(201,120,100,0.3));}
     .lock-title{font-family:'Charter','Iowan Old Style',Georgia,serif;font-size:38px;font-weight:500;letter-spacing:-0.04em;color:#ECECF0;line-height:1;}
@@ -645,7 +646,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     .lock-hint-msg{font-size:12px;color:rgba(236,236,240,0.4);text-align:center;min-height:18px;}
     @keyframes lockPulse{0%{box-shadow:0 0 0 0 rgba(94,150,184,0.35);}70%{box-shadow:0 0 0 12px rgba(94,150,184,0);}100%{box-shadow:0 0 0 0 rgba(94,150,184,0);}}
     .lock-unlock-btn.pulsing{animation:lockPulse 1.2s ease-out;}
-  </style>
+</style>
+</head>
+<body>
+<!-- ÉCRAN DE VERROUILLAGE -->
+<div id="lockscreen" style="display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 60px) 32px calc(var(--safe-bot) + 56px);">
+  <!-- Fond dégradé sombre -->
+  
 
   <!-- Zone du haut : logo + titre -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:28px;margin-top:20px;">
@@ -1462,10 +1469,6 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportLight()">
         <div style="font-size:13px;font-weight:600;">1. Export léger (sans radios)</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px;">Fichier de quelques Ko — ne plante jamais</div>
-      </button>
-      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="openExportPDFModal()">
-        <div style="font-size:13px;font-weight:600;">📄 Export PDF — Logbook qualification</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Tableau paginé par spécialité, période et rôle</div>
       </button>
       <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportCSV()">
         <div style="font-size:13px;font-weight:600;">📊 Export CSV (Excel / e-portfolio)</div>
@@ -4670,6 +4673,7 @@ async function unlockApp(){
 }
 
 function showApp(){
+  document.getElementById('lockscreen').classList.remove('visible');
   document.getElementById('lockscreen').style.display='none';
   const appEl=document.getElementById('app');
   appEl.style.display='';
@@ -5196,11 +5200,10 @@ async function compressAllRadiosInPlace(){
 }
 
 // Initialisation — montrer l'écran de verrou
+document.getElementById('lockscreen').classList.add('visible');
 document.getElementById('lockscreen').style.display='flex';
 updateLockscreen();
 </script>
 </div>
 </body>
-</html>      </div>
-      </div>
-
+</html>
