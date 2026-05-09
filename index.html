@@ -1728,10 +1728,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     <button class="btn-primary" onclick="exportPDF()">Générer le PDF</button>
   </div>
 </div>
+<div class="lightbox" id="lightbox" onclick="closeLB()">
   <button class="lb-close" onclick="closeLB()">×</button>
-  <img id="lb-img" src="" alt="">
+  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
   <div class="lb-info" id="lb-info"></div>
-  <div class="lb-nav"><button onclick="lbNav(-1)">← Préc.</button><button onclick="lbNav(1)">Suiv. →</button></div>
+  <div class="lb-nav" onclick="event.stopPropagation()"><button onclick="lbNav(-1)">← Préc.</button><button onclick="lbNav(1)">Suiv. →</button></div>
 </div>
 <div class="toast" id="toast"></div>
 <!-- v13-rescue : datalists d'autocomplete -->
@@ -2026,7 +2027,9 @@ function runPatientMigration(){
   if(migrated > 0){ saveLocal(); console.info('[Atlas] Migration patients : '+migrated+' bloc(s) liés'); }
   localStorage.setItem(FLAG, '1');
 }
-const RT=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
+// Slots legacy conservés pour rétrocompat lecture
+const RT_LEGACY=['Préopératoire','Postopératoire','Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
+const RT=RT_LEGACY; // alias pour les anciens appels
 const SPEC_COLORS={Genou:'var(--accent)',Hanche:'var(--purple)',Traumatologie:'var(--warm)'};
 const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#A06A12',red:'#A8413C',green:'#3F6B3D',gray:'#7B8290',warm:'#C97864'};
 
@@ -2699,88 +2702,151 @@ function updateRadioCount(bi){
   });
 }
 
+// ── Helpers délai post-op ──
+function calcDelayLabel(blocDate, imgDate){
+  if(!blocDate||!imgDate) return '';
+  const p1=blocDate.split('-'), p2=imgDate.split('-');
+  const d1=new Date(+p1[0],+p1[1]-1,+p1[2]);
+  const d2=new Date(+p2[0],+p2[1]-1,+p2[2]);
+  const days=Math.round((d2-d1)/(1000*60*60*24));
+  if(days<0) return 'Préop '+Math.abs(days)+'j avant';
+  if(days===0) return 'J0';
+  if(days<7) return 'J+'+days;
+  if(days<60) return 'J+'+days+' (~'+Math.round(days/7)+'sem)';
+  if(days<400) return '~'+Math.round(days/30)+'mois';
+  return '~'+Math.round(days/365)+'an';
+}
+
+// Onglets radio : 'preop' | 'postop' | 'suivi'
+let curRadioTab='preop';
+
 async function renderDetRadios(bi){
-  const b=blocs[bi];const el=document.getElementById('det-radios');
+  const b=blocs[bi]; const el=document.getElementById('det-radios');
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Chargement...</div>';
   const radios=await getRadiosForBloc(b.id);
 
-  // Collecter toutes les radios : legacy (clés RT fixes) + nouvelles (clé 'free')
-  const allImgs=[];
-  // Legacy : radios dans les slots fixes
-  RT.forEach(slotName=>{
-    (radios[slotName]||[]).forEach((img,i)=>{
-      allImgs.push({img, slotName, idx:i, isLegacy:true});
-    });
+  // Mapper les slots legacy vers les onglets
+  const preSlots=['Préopératoire'];
+  const postSlots=['Postopératoire'];
+  const suiviLegacySlots=['Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
+
+  const preImgs=[]; const postImgs=[]; const suiviImgs=[];
+
+  // Legacy préop
+  preSlots.forEach(s=>{ (radios[s]||[]).forEach((img,i)=>preImgs.push({img,slot:s,idx:i,isLegacy:true})); });
+  // Legacy postop
+  postSlots.forEach(s=>{ (radios[s]||[]).forEach((img,i)=>postImgs.push({img,slot:s,idx:i,isLegacy:true})); });
+  // Legacy suivi
+  suiviLegacySlots.forEach(s=>{ (radios[s]||[]).forEach((img,i)=>suiviImgs.push({img,slot:s,idx:i,isLegacy:true,label:s})); });
+  // Nouvelles radios 'free' → onglet Suivi
+  (radios['free']||[]).forEach((img,i)=>{ suiviImgs.push({img,slot:'free',idx:i,isLegacy:false}); });
+  // Trier suivi par date
+  suiviImgs.sort((a,bx)=>(a.img.date||'').localeCompare(bx.img.date||''));
+
+  const counts={preop:preImgs.length, postop:postImgs.length, suivi:suiviImgs.length};
+
+  // ── Barre d'onglets ──
+  const tabs=[{k:'preop',label:'Préopératoire'},{k:'postop',label:'Postopératoire'},{k:'suivi',label:'Suivi'}];
+  let html=`<div class="radio-tabs" style="margin-bottom:14px;">`;
+  tabs.forEach(t=>{
+    const n=counts[t.k];
+    html+=`<button class="rtab${curRadioTab===t.k?' active':''}" onclick="switchRadioTab('${t.k}',${bi})">${t.label}${n?` <span style="font-size:10px;opacity:0.7">(${n})</span>`:''}</button>`;
   });
-  // Nouvelles radios avec date libre
-  (radios['free']||[]).forEach((img,i)=>{
-    allImgs.push({img, slotName:'free', idx:i, isLegacy:false});
-  });
-  // Trier par date
-  allImgs.sort((a,b2)=>{
-    const da=a.img.date||'';const db2=b2.img.date||'';
-    return da.localeCompare(db2);
-  });
+  html+=`</div>`;
 
-  let html='';
-
-  // Section legacy groupée par slot si présentes
-  const legacySlots=RT.filter(t=>(radios[t]||[]).length>0);
-  if(legacySlots.length>0){
-    html+=`<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:8px;">Radios importées</div>`;
-    html+=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=(radios[t]||[]).length;return n>0?`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t} (${n})</button>`:''}).join('')}</div>`;
-    const imgs=radios[curRTab]||[];
-    html+='<div class="radio-grid">';
-    imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
-    html+=`</div>`;
+  // ── Contenu selon onglet actif ──
+  if(curRadioTab==='preop'){
+    html+=renderRadioGrid(bi, preImgs, 'Préopératoire', false);
+    html+=renderRadioUploadFixed(bi, 'Préopératoire', 'Ajouter une radio préopératoire');
+  } else if(curRadioTab==='postop'){
+    html+=renderRadioGrid(bi, postImgs, 'Postopératoire', false);
+    html+=renderRadioUploadFixed(bi, 'Postopératoire', 'Ajouter une radio postopératoire');
+  } else {
+    // Onglet Suivi
+    if(suiviImgs.length===0){
+      html+='<div style="padding:16px 0 8px;text-align:center;color:var(--text3);font-size:13px;">Aucune radio de suivi</div>';
+    } else {
+      html+='<div class="radio-grid">';
+      suiviImgs.forEach((entry,i)=>{
+        const {img, slot, idx, isLegacy, label} = entry;
+        let lbl='';
+        if(isLegacy){ lbl=label||slot; }
+        else { lbl=calcDelayLabel(b.date,img.date)||img.date||img.name.substring(0,10); }
+        const onClick=isLegacy
+          ? `openLBFromDB(${bi},'${slot}',${idx})`
+          : `openLBFreeByGlobalIdx(${bi},${i})`;
+        const onDel=isLegacy
+          ? `event.stopPropagation();delRadioIDB(${bi},'${slot}',${idx})`
+          : `event.stopPropagation();delRadioFree(${bi},${idx})`;
+        html+=`<div class="radio-thumb" onclick="${onClick}"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="${onDel}">×</button><div class="radio-lbl" title="${img.date||img.name}">${lbl}</div></div>`;
+      });
+      html+=`</div>`;
+    }
+    // Upload daté
+    html+=`<div style="margin-top:14px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;">Ajouter une radio de suivi</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;">
+        <input type="date" id="radio-upload-date" class="f-input" style="flex:1;font-size:16px;padding:8px 10px;" value="${new Date().toLocaleDateString('fr-CA')}">
+        <label style="flex-shrink:0;cursor:pointer;background:var(--accent);color:white;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;">
+          + Photo
+          <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadFree(event,${bi})">
+        </label>
+      </div>
+      <div style="font-size:11px;color:var(--text3);">Le délai post-op sera calculé automatiquement.</div>
+    </div>`;
   }
-
-  // Section nouvelles radios datées en timeline
-  const freeImgs=radios['free']||[];
-  if(freeImgs.length>0){
-    html+=`<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin:${legacySlots.length?'16px 0 8px':'0 0 8px'};">Radios datées</div>`;
-    html+='<div class="radio-grid">';
-    freeImgs.forEach((img,i)=>{
-      // Calculer le délai depuis la date opératoire
-      let delayLabel='';
-      if(b.date&&img.date){
-        const p1=b.date.split('-'),p2=img.date.split('-');
-        const d1=new Date(+p1[0],+p1[1]-1,+p1[2]);
-        const d2=new Date(+p2[0],+p2[1]-1,+p2[2]);
-        const days=Math.round((d2-d1)/(1000*60*60*24));
-        if(days>=0){
-          if(days<7)delayLabel='J+'+days;
-          else if(days<60)delayLabel='J+'+days+' (~'+Math.round(days/7)+'sem)';
-          else if(days<400)delayLabel='~'+Math.round(days/30)+'mois';
-          else delayLabel='~'+Math.round(days/365)+'an';
-        }
-      }
-      const lbl=delayLabel||img.date||img.name.substring(0,10);
-      html+=`<div class="radio-thumb" onclick="openLBFree(${bi},${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioFree(${bi},${i})">×</button><div class="radio-lbl" title="${img.date||''}">${lbl}</div></div>`;
-    });
-    html+=`</div>`;
-  }
-
-  if(!legacySlots.length&&!freeImgs.length){
-    html='<div style="padding:20px 0 8px;text-align:center;color:var(--text3);font-size:13px;">Aucune radio enregistrée</div>';
-  }
-
-  // Zone d'upload avec saisie de date
-  html+=`<div style="margin-top:12px;">
-    <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;">Ajouter des radios</div>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-      <input type="date" id="radio-upload-date" class="f-input" style="flex:1;font-size:13px;padding:8px 10px;" value="${new Date().toISOString().split('T')[0]}">
-      <label style="flex-shrink:0;cursor:pointer;background:var(--accent);color:white;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;">
-        + Photo
-        <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadFree(event,${bi})">
-      </label>
-    </div>
-    <div style="font-size:11px;color:var(--text3);">La date sera utilisée pour calculer le délai post-op automatiquement.</div>
-  </div>`;
 
   el.innerHTML=html;
+
+  // Reconstruire lbImgs pour navigation lightbox selon onglet
+  _rebuildLbCtx(bi, radios, suiviImgs);
 }
-function switchDetRTab(t){curRTab=t;renderDetRadios(detailBlocIdx);}
+
+function renderRadioGrid(bi, entries, slot, isDated){
+  if(!entries.length) return '';
+  let html='<div class="radio-grid">';
+  entries.forEach((entry,i)=>{
+    const {img,idx} = entry;
+    const lbl=img.name.substring(0,14);
+    html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${slot}',${idx})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${slot}',${idx})">×</button><div class="radio-lbl">${lbl}</div></div>`;
+  });
+  html+='</div>';
+  return html;
+}
+
+function renderRadioUploadFixed(bi, slot, labelTxt){
+  return `<div style="margin-top:14px;">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;">${labelTxt}</div>
+    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;">
+      + Photo
+      <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadIDB(event,${bi},'${slot}')">
+    </label>
+  </div>`;
+}
+
+function switchRadioTab(tab,bi){ curRadioTab=tab; renderDetRadios(bi); }
+// Alias legacy
+function switchDetRTab(t){ curRTab=t; renderDetRadios(detailBlocIdx); }
+
+// Contexte lightbox pour les radios free dans l'onglet suivi
+let _lbSuiviImgs=[];
+function _rebuildLbCtx(bi,radios,suiviImgs){
+  _lbSuiviImgs=suiviImgs.map(e=>e.img);
+}
+async function openLBFreeByGlobalIdx(bi,globalIdx){
+  const b=blocs[bi];
+  const radios=await getRadiosForBloc(b.id);
+  const suiviLegacySlots=['Suivi J45','Suivi 3 mois','Suivi 6 mois','Suivi 1 an'];
+  const suiviImgs=[];
+  suiviLegacySlots.forEach(s=>{ (radios[s]||[]).forEach(img=>suiviImgs.push(img)); });
+  (radios['free']||[]).forEach(img=>suiviImgs.push(img));
+  suiviImgs.sort((a,bx)=>(a.date||'').localeCompare(bx.date||''));
+  lbImgs=suiviImgs; lbIdx=globalIdx;
+  const img=lbImgs[lbIdx]; if(!img)return;
+  document.getElementById('lb-img').src=img.data;
+  document.getElementById('lb-info').textContent=(img.date?calcDelayLabel(blocs[bi].date,img.date)+' · ':'')+img.name;
+  document.getElementById('lightbox').classList.add('show');
+}
 async function delRadioIDB(bi,type,idx){
   const b=blocs[bi];
   const radios=await getRadiosForBloc(b.id);
@@ -2860,7 +2926,8 @@ async function openLBFree(bi,idx){
   lbImgs=radios['free']||[];lbIdx=idx;
   const img=lbImgs[idx];if(!img)return;
   document.getElementById('lb-img').src=img.data;
-  document.getElementById('lb-info').textContent=img.name+' · '+img.date;
+  const delay=calcDelayLabel(b.date,img.date);
+  document.getElementById('lb-info').textContent=(delay?delay+' · ':'')+img.name;
   document.getElementById('lightbox').classList.add('show');
 }
 async function openLBFromDB(bi,type,idx){
@@ -4419,7 +4486,7 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v30',
+    version:'atlas-v33',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -4832,7 +4899,7 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'atlas-v30-light',
+    version: 'atlas-v33-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
