@@ -509,6 +509,15 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .bloc-flag.cloture{background:var(--green-l);color:var(--green-d);border-color:var(--green-l);}
 .bloc-status-pill.excellent{background:var(--green-l);color:var(--green-d);}
 .bloc-status-pill.excellent::before{background:var(--green-d);}
+/* Mode compact */
+.bloc-compact-item{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;gap:10px;min-height:44px;}
+.bloc-compact-item:active{background:var(--bg2);}
+.bloc-compact-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.bloc-compact-date{font-size:11px;color:var(--text3);flex-shrink:0;width:36px;}
+.bloc-compact-main{display:flex;flex-direction:column;min-width:0;}
+.bloc-compact-interv{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bloc-compact-pat{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bloc-compact-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 /* Détail bloc — hero éditorial */
 #view-detail{padding:0;}
 #view-detail .topbar-detail{padding:24px 22px 20px;border-bottom:1px solid var(--border);}
@@ -571,7 +580,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .side-btn.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
 .saisie-section-label{padding:14px 0 10px;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
 .saisie-cta{position:sticky;bottom:0;left:0;right:0;width:100%;padding:14px 16px calc(16px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);z-index:10;margin-top:8px;}
-.saisie-cta .btn-primary{background:var(--text);color:var(--bg);border-radius:8px;font-weight:600;}
+.f-toggle-btn{padding:8px 14px;border:1px solid var(--border2);border-radius:99px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.f-toggle-btn.on{background:var(--text);color:var(--bg);border-color:var(--text);}
 /* Stats sections polish */
 /* === PROTO-EXACT: Stats === */
 .stats-page-h{padding:6px 20px 14px;border-bottom:0;}
@@ -616,25 +626,62 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 </head>
 <body>
 <!-- ÉCRAN DE VERROUILLAGE -->
-<div id="lockscreen" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;">
-  <svg width="60" height="60" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:24px;">
-    <rect width="34" height="34" rx="8" fill="var(--accent)"/>
-    <rect x="13.5" y="24" width="7" height="5" rx="2" fill="#c8906a"/>
-    <ellipse cx="17" cy="18" rx="8.5" ry="9" fill="#e0a878"/>
-    <path d="M8.5 17.5 Q8.5 9 17 8 Q25.5 9 25.5 17.5 Q23 15.5 17 15 Q11 15.5 8.5 17.5Z" fill="#2860B0"/>
-    <ellipse cx="13.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
-    <ellipse cx="20.5" cy="18.5" rx="1.8" ry="1.3" fill="white"/>
-    <circle cx="13.8" cy="18.5" r="1" fill="#2a1000"/>
-    <circle cx="20.8" cy="18.5" r="1" fill="#2a1000"/>
-  </svg>
-  <div style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:8px;">OrLog</div>
-  <div style="font-size:14px;color:var(--text3);margin-bottom:40px;">Logbook chirurgical</div>
-  <button id="unlock-btn" onclick="unlockApp()" style="display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:20px 40px;cursor:pointer;font-family:inherit;">
-    <span style="font-size:36px;" id="biometric-icon">🔒</span>
-    <span style="font-size:14px;font-weight:600;color:var(--text);" id="unlock-label">Déverrouiller</span>
-  </button>
-  <div style="font-size:12px;color:var(--text3);margin-top:16px;text-align:center;" id="lock-hint"></div>
-  <button onclick="setupBiometric()" style="margin-top:24px;background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit;text-decoration:underline;" id="setup-bio-btn" style="display:none;">Configurer Touch ID / Face ID</button>
+<div id="lockscreen" style="display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 60px) 32px calc(var(--safe-bot) + 56px);">
+  <!-- Fond dégradé sombre -->
+  <style>
+    #lockscreen{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
+    .lock-monogram{width:88px;height:88px;border-radius:24px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+    .lock-monogram svg{width:56px;height:56px;color:white;filter:drop-shadow(0 2px 12px rgba(201,120,100,0.3));}
+    .lock-title{font-family:'Charter','Iowan Old Style',Georgia,serif;font-size:38px;font-weight:500;letter-spacing:-0.04em;color:#ECECF0;line-height:1;}
+    .lock-sub{font-size:13px;color:rgba(236,236,240,0.38);letter-spacing:0.12em;text-transform:uppercase;font-weight:500;margin-top:10px;}
+    .lock-unlock-btn{width:100%;max-width:320px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:22px 24px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:background 0.2s,border-color 0.2s;}
+    .lock-unlock-btn:active{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);}
+    .lock-bio-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .lock-bio-icon svg{width:24px;height:24px;color:rgba(236,236,240,0.85);}
+    .lock-btn-text{text-align:left;}
+    .lock-btn-title{font-size:15px;font-weight:600;color:#ECECF0;letter-spacing:-0.01em;}
+    .lock-btn-hint{font-size:12px;color:rgba(236,236,240,0.45);margin-top:2px;}
+    .lock-setup-link{font-size:12px;color:rgba(236,236,240,0.3);cursor:pointer;background:none;border:none;font-family:inherit;text-decoration:none;padding:8px;}
+    .lock-hint-msg{font-size:12px;color:rgba(236,236,240,0.4);text-align:center;min-height:18px;}
+    @keyframes lockPulse{0%{box-shadow:0 0 0 0 rgba(94,150,184,0.35);}70%{box-shadow:0 0 0 12px rgba(94,150,184,0);}100%{box-shadow:0 0 0 0 rgba(94,150,184,0);}}
+    .lock-unlock-btn.pulsing{animation:lockPulse 1.2s ease-out;}
+  </style>
+
+  <!-- Zone du haut : logo + titre -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:28px;margin-top:20px;">
+    <!-- Monogramme A -->
+    <div class="lock-monogram">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="50" y="74" text-anchor="middle" font-family="Charter,'Iowan Old Style',Georgia,serif" font-size="84" font-weight="500" fill="currentColor" letter-spacing="-3">A</text>
+        <circle cx="78" cy="68" r="6" fill="#C97864"/>
+      </svg>
+    </div>
+    <div style="text-align:center;">
+      <div class="lock-title">Atlas</div>
+      <div class="lock-sub">Le journal du chirurgien</div>
+    </div>
+  </div>
+
+  <!-- Zone du bas : bouton + hint -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;">
+    <div class="lock-hint-msg" id="lock-hint"></div>
+    <button id="unlock-btn" onclick="unlockApp()" class="lock-unlock-btn">
+      <div class="lock-bio-icon" id="biometric-icon">
+        <!-- Face ID par défaut, remplacé par JS -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M9 2H7a2 2 0 0 0-2 2v2M15 2h2a2 2 0 0 1 2 2v2M9 22H7a2 2 0 0 1-2-2v-2M15 22h2a2 2 0 0 0 2-2v-2"/>
+          <path d="M9 10v.01M15 10v.01M9 15c.83.83 2.17 1 3 1s2.17-.17 3-1"/>
+          <line x1="12" y1="8" x2="12" y2="10"/>
+        </svg>
+      </div>
+      <div class="lock-btn-text">
+        <div class="lock-btn-title" id="unlock-label">Déverrouiller</div>
+        <div class="lock-btn-hint" id="unlock-hint">Face ID · Touch ID</div>
+      </div>
+      <svg style="margin-left:auto;color:rgba(236,236,240,0.3);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <button onclick="setupBiometric()" class="lock-setup-link" id="setup-bio-btn" style="display:none;">Configurer l'authentification →</button>
+  </div>
 </div>
 
 <div id="app">
@@ -715,12 +762,17 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <h1>Mes blocs</h1>
           <span id="blocs-count-sub"></span>
         </div>
-        <div class="search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()">
-          <span id="search-clear" onclick="clearSearch()" style="display:none;cursor:pointer;color:var(--text3);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </span>
+        <div style="display:flex;align-items:center;gap:8px;padding:0 16px;">
+          <div class="search-wrap" style="flex:1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="search-input" placeholder="Rechercher patient, intervention, tag…" oninput="renderBlocs()">
+            <span id="search-clear" onclick="clearSearch()" style="display:none;cursor:pointer;color:var(--text3);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </span>
+          </div>
+          <button id="compact-toggle-btn" onclick="toggleCompact()" title="Mode compact" style="flex-shrink:0;background:none;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--text2);display:flex;align-items:center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" width="15" height="15"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+          </button>
         </div>
         <div class="filters-row" id="bloc-filters">
           <button class="filter-pill on" onclick="filterB(this,'all')">Tous</button>
@@ -885,6 +937,56 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <div class="field">
             <div class="field-label">Établissement</div>
             <input type="text" id="f-etablissement" class="f-input" placeholder="ex. CHU Lille..." autocomplete="off" list="dl-etablissements">
+          </div>
+        </div>
+
+        <!-- Champs PTG contextuel (apparaît si intervention = PTG) -->
+        <div class="field-group" id="ptg-fields" style="display:none;">
+          <div class="field">
+            <div class="field-label">Indication</div>
+            <select id="f-ptg-indication" class="f-input">
+              <option value="">—</option>
+              <option>Gonarthrose primitive</option>
+              <option>Gonarthrose post-traumatique</option>
+              <option>Révision</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="field-label">Déformation</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <select id="f-ptg-deformation" class="f-input" style="flex:1;">
+                <option value="">—</option>
+                <option>Varus</option>
+                <option>Valgus</option>
+                <option>Neutre</option>
+              </select>
+              <input type="number" id="f-ptg-degres" class="f-input" placeholder="°" min="0" max="45" style="width:64px;">
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Technique</div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="f-toggle-btn on" id="f-ptg-tech-meca" onclick="setPTGTech('Mécanique')">Mécanique</button>
+              <button type="button" class="f-toggle-btn" id="f-ptg-tech-robot" onclick="setPTGTech('Robotique')">Robotique</button>
+            </div>
+            <input type="hidden" id="f-ptg-technique" value="Mécanique">
+          </div>
+        </div>
+
+        <!-- Hospit / Ambu (ortho uniquement) -->
+        <div class="field-group" id="hospit-fields" style="display:none;">
+          <div class="field">
+            <div class="field-label">Mode prise en charge</div>
+            <div style="display:flex;gap:8px;">
+              <button type="button" class="f-toggle-btn" id="f-hospit-ambu" onclick="setHospit('Ambulatoire')">Ambulatoire</button>
+              <button type="button" class="f-toggle-btn on" id="f-hospit-hospit" onclick="setHospit('Hospitalisation')">Hospitalisation</button>
+            </div>
+            <input type="hidden" id="f-hospit-mode" value="Hospitalisation">
+          </div>
+          <div class="field" id="f-hospit-duree-field">
+            <div class="field-label">Durée (jours)</div>
+            <input type="number" id="f-hospit-duree" class="f-input" placeholder="ex. 3" min="0" max="30">
           </div>
         </div>
 
@@ -1361,6 +1463,10 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div style="font-size:13px;font-weight:600;">1. Export léger (sans radios)</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px;">Fichier de quelques Ko — ne plante jamais</div>
       </button>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="openExportPDFModal()">
+        <div style="font-size:13px;font-weight:600;">📄 Export PDF — Logbook qualification</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Tableau paginé par spécialité, période et rôle</div>
+      </button>
       <button class="btn-secondary" style="width:100%;margin-bottom:8px;text-align:left;padding:12px 14px;" onclick="exportCSV()">
         <div style="font-size:13px;font-weight:600;">📊 Export CSV (Excel / e-portfolio)</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px;">Une ligne par bloc, à ouvrir dans Excel ou Numbers</div>
@@ -1589,7 +1695,36 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   </div>
 </div>
 
-<div class="lightbox" id="lightbox">
+<!-- MODAL EXPORT PDF -->
+<div class="modal-overlay" id="export-pdf-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('export-pdf-modal')">×</button>
+    <div class="modal-title">Export PDF — Logbook</div>
+    <div class="form-group">
+      <label>Spécialité</label>
+      <select id="pdf-spec-filter">
+        <option value="all">Tout (ortho + trauma)</option>
+        <option value="ortho">Orthopédie uniquement</option>
+        <option value="trauma">Traumatologie uniquement</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Rôle</label>
+      <select id="pdf-role-filter">
+        <option value="all">Tous</option>
+        <option value="Principal">Principal uniquement</option>
+        <option value="Aide">Aide uniquement</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Depuis</label><input type="date" id="pdf-date-from"></div>
+      <div class="form-group"><label>Jusqu'au</label><input type="date" id="pdf-date-to"></div>
+    </div>
+    <div id="pdf-count-preview" style="font-size:13px;color:var(--text3);margin-bottom:14px;text-align:center;"></div>
+    <button class="btn-primary" onclick="exportPDF()">Générer le PDF</button>
+  </div>
+</div>
   <button class="lb-close" onclick="closeLB()">×</button>
   <img id="lb-img" src="" alt="">
   <div class="lb-info" id="lb-info"></div>
@@ -2056,6 +2191,15 @@ const allC=[];blocs.forEach(b=>{
 }
 
 // ── MES BLOCS ──
+let compactMode=localStorage.getItem('atlas_compact')==='1';
+function toggleCompact(){
+  compactMode=!compactMode;
+  localStorage.setItem('atlas_compact',compactMode?'1':'0');
+  const btn=document.getElementById('compact-toggle-btn');
+  if(btn)btn.style.background=compactMode?'var(--accent)':' ';
+  if(btn)btn.style.color=compactMode?'white':'var(--text2)';
+  renderBlocs();
+}
 function filterB(btn,spec){document.querySelectorAll('#bloc-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curFilter=spec;renderBlocs();}
 function filterRole(btn,role){document.querySelectorAll('#role-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curRoleFilter=role;renderBlocs();}
 function filterStatus(btn,status){document.querySelectorAll('#status-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curStatusFilter=status;renderBlocs();}
@@ -2145,6 +2289,21 @@ function renderBlocs(){
         nc>0?'<span class="bloc-flag compli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> '+nc+' compli.</span>':'',
         nr>0?'<span class="bloc-flag photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> '+nr+'</span>':''
       ].filter(Boolean).join('');
+      if(compactMode){
+        return `<div class="bloc-compact-item" onclick="openBlocDetail(${bi})">
+          <div class="bloc-compact-left">
+            <span class="bloc-compact-date">${fmtDate(b.date).substring(0,5)}</span>
+            <div class="bloc-compact-main">
+              <span class="bloc-compact-interv">${esc(displayInterv(b.interv).substring(0,36))}</span>
+              <span class="bloc-compact-pat">${esc(b.patient)||'—'}${b.role==='Aide'?' · Aide':''}</span>
+            </div>
+          </div>
+          <div class="bloc-compact-right">
+            ${showComplBadge?'<span class="sdot sr" style="width:6px;height:6px;flex-shrink:0;"></span>':''}
+            <span class="bloc-status-pill ${statusCls}" style="font-size:9px;padding:2px 7px;">${statusLbl}</span>
+          </div>
+        </div>`;
+      }
       return `<div class="bloc-item" onclick="openBlocDetail(${bi})">
         <div class="bloc-icon ${specCls}">${specSvg}</div>
         <div class="bloc-mid">
@@ -2541,12 +2700,81 @@ async function renderDetRadios(bi){
   const b=blocs[bi];const el=document.getElementById('det-radios');
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">Chargement...</div>';
   const radios=await getRadiosForBloc(b.id);
-  const counts={};RT.forEach(t=>counts[t]=(radios[t]||[]).length);
-  let html=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=counts[t];return`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t}${n>0?' ('+n+')':''}</button>`;}).join('')}</div>`;
-  const imgs=radios[curRTab]||[];
-  html+='<div class="radio-grid">';
-  imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
-  html+=`</div><label class="upload-zone"><input type="file" accept="image/*" multiple capture="environment" onchange="handleUploadIDB(event,${bi},'${curRTab}')"><div style="font-size:28px;color:var(--border2);">+</div><div>Ajouter des radios</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">Photo, galerie — JPG, PNG</div></label>`;
+
+  // Collecter toutes les radios : legacy (clés RT fixes) + nouvelles (clé 'free')
+  const allImgs=[];
+  // Legacy : radios dans les slots fixes
+  RT.forEach(slotName=>{
+    (radios[slotName]||[]).forEach((img,i)=>{
+      allImgs.push({img, slotName, idx:i, isLegacy:true});
+    });
+  });
+  // Nouvelles radios avec date libre
+  (radios['free']||[]).forEach((img,i)=>{
+    allImgs.push({img, slotName:'free', idx:i, isLegacy:false});
+  });
+  // Trier par date
+  allImgs.sort((a,b2)=>{
+    const da=a.img.date||'';const db2=b2.img.date||'';
+    return da.localeCompare(db2);
+  });
+
+  let html='';
+
+  // Section legacy groupée par slot si présentes
+  const legacySlots=RT.filter(t=>(radios[t]||[]).length>0);
+  if(legacySlots.length>0){
+    html+=`<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:8px;">Radios importées</div>`;
+    html+=`<div class="radio-tabs" id="det-rtabs">${RT.map(t=>{const n=(radios[t]||[]).length;return n>0?`<button class="rtab${t===curRTab?' active':''}" onclick="switchDetRTab('${t}')">${t} (${n})</button>`:''}).join('')}</div>`;
+    const imgs=radios[curRTab]||[];
+    html+='<div class="radio-grid">';
+    imgs.forEach((img,i)=>{html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${curRTab}',${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${curRTab}',${i})">×</button><div class="radio-lbl">${img.name.substring(0,12)}</div></div>`;});
+    html+=`</div>`;
+  }
+
+  // Section nouvelles radios datées en timeline
+  const freeImgs=radios['free']||[];
+  if(freeImgs.length>0){
+    html+=`<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin:${legacySlots.length?'16px 0 8px':'0 0 8px'};">Radios datées</div>`;
+    html+='<div class="radio-grid">';
+    freeImgs.forEach((img,i)=>{
+      // Calculer le délai depuis la date opératoire
+      let delayLabel='';
+      if(b.date&&img.date){
+        const p1=b.date.split('-'),p2=img.date.split('-');
+        const d1=new Date(+p1[0],+p1[1]-1,+p1[2]);
+        const d2=new Date(+p2[0],+p2[1]-1,+p2[2]);
+        const days=Math.round((d2-d1)/(1000*60*60*24));
+        if(days>=0){
+          if(days<7)delayLabel='J+'+days;
+          else if(days<60)delayLabel='J+'+days+' (~'+Math.round(days/7)+'sem)';
+          else if(days<400)delayLabel='~'+Math.round(days/30)+'mois';
+          else delayLabel='~'+Math.round(days/365)+'an';
+        }
+      }
+      const lbl=delayLabel||img.date||img.name.substring(0,10);
+      html+=`<div class="radio-thumb" onclick="openLBFree(${bi},${i})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioFree(${bi},${i})">×</button><div class="radio-lbl" title="${img.date||''}">${lbl}</div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  if(!legacySlots.length&&!freeImgs.length){
+    html='<div style="padding:20px 0 8px;text-align:center;color:var(--text3);font-size:13px;">Aucune radio enregistrée</div>';
+  }
+
+  // Zone d'upload avec saisie de date
+  html+=`<div style="margin-top:12px;">
+    <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;">Ajouter des radios</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+      <input type="date" id="radio-upload-date" class="f-input" style="flex:1;font-size:13px;padding:8px 10px;" value="${new Date().toISOString().split('T')[0]}">
+      <label style="flex-shrink:0;cursor:pointer;background:var(--accent);color:white;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;">
+        + Photo
+        <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadFree(event,${bi})">
+      </label>
+    </div>
+    <div style="font-size:11px;color:var(--text3);">La date sera utilisée pour calculer le délai post-op automatiquement.</div>
+  </div>`;
+
   el.innerHTML=html;
 }
 function switchDetRTab(t){curRTab=t;renderDetRadios(detailBlocIdx);}
@@ -2594,6 +2822,43 @@ async function handleUploadIDB(e,bi,type){
   renderDetRadios(bi);
   const reduc = totalBefore>0 ? Math.round((1-totalAfter/totalBefore)*100) : 0;
   showToast(done+' image(s) ajoutée(s) — '+fmtBytes(totalAfter)+(reduc>0?' (-'+reduc+'%)':''));
+}
+async function handleUploadFree(e,bi){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  const b=blocs[bi];
+  const dateEl=document.getElementById('radio-upload-date');
+  const uploadDate=dateEl?dateEl.value:new Date().toISOString().split('T')[0];
+  const existing=await getRadiosForBloc(b.id);
+  let startIdx=(existing['free']||[]).length;
+  showToast('Import '+files.length+' image(s)…');
+  let done=0;
+  for(const f of files){
+    try{
+      const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>res(ev.target.result);r.onerror=rej;r.readAsDataURL(f);});
+      let finalData=dataURL;
+      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c&&c.length<dataURL.length*0.95)finalData=c;}catch(err){}
+      await saveRadio(b.id,'free',startIdx+done,finalData,f.name,uploadDate);
+      done++;
+    }catch(err){console.warn('Upload free échec',f.name,err);}
+  }
+  updateRadioCount(bi);renderDetRadios(bi);
+  showToast(done+' image(s) ajoutée(s)');
+}
+async function delRadioFree(bi,idx){
+  const b=blocs[bi];
+  const radios=await getRadiosForBloc(b.id);
+  (radios['free']||[]).splice(idx,1);
+  await reindexRadios(b.id,'free',radios['free']||[]);
+  updateRadioCount(bi);renderDetRadios(bi);showToast('Radio supprimée');
+}
+async function openLBFree(bi,idx){
+  const b=blocs[bi];
+  const radios=await getRadiosForBloc(b.id);
+  lbImgs=radios['free']||[];lbIdx=idx;
+  const img=lbImgs[idx];if(!img)return;
+  document.getElementById('lb-img').src=img.data;
+  document.getElementById('lb-info').textContent=img.name+' · '+img.date;
+  document.getElementById('lightbox').classList.add('show');
 }
 async function openLBFromDB(bi,type,idx){
   const b=blocs[bi];
@@ -2840,6 +3105,7 @@ function selectSpec(btn, spec){
   if(btn) btn.classList.add('on');
   const h=document.getElementById('f-spec');if(h)h.value=spec;
   if(typeof upInterv==='function') upInterv();
+  onSpecChange(spec);
 }
 function selectRole(role){
   document.getElementById('role-btn-principal').classList.toggle('on',role==='Principal');
@@ -2870,6 +3136,14 @@ function initForm(){
   document.getElementById('f-role').value='Principal';
   // Reset text fields
   ['f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur','f-etablissement'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Reset PTG fields
+  const ptgFields=document.getElementById('ptg-fields');if(ptgFields)ptgFields.style.display='none';
+  ['f-ptg-indication','f-ptg-deformation','f-ptg-degres'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  setPTGTech('Mécanique');
+  // Reset hospit fields
+  const hospFields=document.getElementById('hospit-fields');if(hospFields)hospFields.style.display='none';
+  setHospit('Hospitalisation');
+  const durEl=document.getElementById('f-hospit-duree');if(durEl)durEl.value='';
   // Reset pills UI
   document.querySelectorAll('.spec-pill').forEach(p=>p.classList.remove('on'));
   document.getElementById('role-btn-principal').classList.add('on');
@@ -2942,12 +3216,14 @@ function pickInterv(btn,val){
   const h=document.getElementById('f-interv');if(h)h.value=val;
   const libre=document.getElementById('f-interv-libre');
   if(libre)libre.style.display='none';
+  onIntervChange(val);
 }
 
 function pickIntervLibre(canonical){
   const h=document.getElementById('f-interv');if(h)h.value=canonical;
   const libre=document.getElementById('f-interv-libre');
   if(libre){libre.style.display='block';libre.focus();}
+  onIntervChange(canonical);
 }
 function setStar(n){cStar=n;updateStars();}
 function updateStars(){
@@ -2979,7 +3255,49 @@ function renderTags(){
   formTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
   c.appendChild(f);f.placeholder=formTags.length?'':'Ajouter un tag...';
 }
-// ── MODÈLE PATIENT ──
+// Migration one-shot : hospitMode = 'Hospitalisation' pour tous les blocs ortho sans hospitMode
+function runHospitMigration(){
+  const FLAG='atlas_hospit_migrated_v1';
+  if(localStorage.getItem(FLAG))return;
+  let count=0;
+  blocs.forEach(b=>{
+    if((b.spec==='Genou'||b.spec==='Hanche')&&!b.hospitMode){
+      b.hospitMode='Hospitalisation';b.hospitDuree=null;count++;
+    }
+  });
+  if(count>0){saveLocal();console.info('[Atlas] Migration hospit : '+count+' bloc(s) mis à jour');}
+  localStorage.setItem(FLAG,'1');
+}
+// ── PTG / HOSPIT helpers ──
+function setPTGTech(val){
+  document.getElementById('f-ptg-tech-meca').classList.toggle('on',val==='Mécanique');
+  document.getElementById('f-ptg-tech-robot').classList.toggle('on',val==='Robotique');
+  document.getElementById('f-ptg-technique').value=val;
+}
+function setHospit(val){
+  document.getElementById('f-hospit-ambu').classList.toggle('on',val==='Ambulatoire');
+  document.getElementById('f-hospit-hospit').classList.toggle('on',val==='Hospitalisation');
+  document.getElementById('f-hospit-mode').value=val;
+  const durField=document.getElementById('f-hospit-duree-field');
+  if(durField)durField.style.display=val==='Ambulatoire'?'none':'block';
+}
+// Appelée quand l'intervention change dans le formulaire saisie
+function onIntervChange(iv){
+  const isPTG=iv&&(/PTG|proth.se totale.*genou/i.test(iv));
+  const isOrtho=document.getElementById('f-spec').value==='Genou'||document.getElementById('f-spec').value==='Hanche';
+  const ptgFields=document.getElementById('ptg-fields');
+  const hospFields=document.getElementById('hospit-fields');
+  if(ptgFields)ptgFields.style.display=isPTG?'block':'none';
+  if(hospFields)hospFields.style.display=isOrtho?'block':'none';
+}
+function onSpecChange(spec){
+  const isOrtho=spec==='Genou'||spec==='Hanche';
+  const hospFields=document.getElementById('hospit-fields');
+  if(hospFields)hospFields.style.display=isOrtho?'block':'none';
+  // Reset PTG fields si on change de spécialité
+  const ptgFields=document.getElementById('ptg-fields');
+  if(ptgFields)ptgFields.style.display='none';
+}
 // Retourne l'ID d'un patient existant ou en crée un nouveau
 function upsertPatient(nom, age){
   if(!nom || !nom.trim()) return null;
@@ -3039,7 +3357,19 @@ function saveBloc(){
   // Si on vient d'un bloc lié, réutiliser le patientId existant sans créer de doublon
   const patientId = window._linkedPatientId || upsertPatient(patientNom, patientAge);
   window._linkedPatientId = null; // reset
-  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick};
+  const isPTG=iv&&(/PTG|proth.se totale.*genou/i.test(iv));
+  const isOrtho=sp==='Genou'||sp==='Hanche';
+  const ptgData=isPTG?{
+    ptgIndication:document.getElementById('f-ptg-indication').value,
+    ptgDeformation:document.getElementById('f-ptg-deformation').value,
+    ptgDegres:document.getElementById('f-ptg-degres').value,
+    ptgTechnique:document.getElementById('f-ptg-technique').value
+  }:{};
+  const hospData=isOrtho?{
+    hospitMode:document.getElementById('f-hospit-mode').value||'Hospitalisation',
+    hospitDuree:document.getElementById('f-hospit-duree').value||null
+  }:{};
+  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
   blocs.push(newBloc);
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
   // Multi-intervention : si des blocs supplémentaires ont été préparés
@@ -4348,6 +4678,7 @@ function showApp(){
   try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
   try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
   try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
+  try{runHospitMigration();}catch(e){console.warn('migration hospit échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
@@ -4362,20 +4693,39 @@ function showApp(){
 
 function updateLockscreen(){
   const bioSetup = localStorage.getItem(LS_BIO_SET);
-  const icon = document.getElementById('biometric-icon');
+  const iconEl = document.getElementById('biometric-icon');
   const label = document.getElementById('unlock-label');
-  const hint = document.getElementById('lock-hint');
+  const hintEl = document.getElementById('unlock-hint');
+  const lockHint = document.getElementById('lock-hint');
   const setupBtn = document.getElementById('setup-bio-btn');
   const isMobile = /iPhone|iPad/.test(navigator.userAgent);
+
+  // SVG Face ID
+  const svgFaceID = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="24" height="24">
+    <path d="M9 2H7a2 2 0 0 0-2 2v2M15 2h2a2 2 0 0 1 2 2v2M9 22H7a2 2 0 0 1-2-2v-2M15 22h2a2 2 0 0 0 2-2v-2"/>
+    <path d="M9 10v.01M15 10v.01M9 15c.83.83 2.17 1 3 1s2.17-.17 3-1"/>
+    <line x1="12" y1="8" x2="12" y2="10"/>
+  </svg>`;
+  // SVG Touch ID
+  const svgTouchID = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="24" height="24">
+    <path d="M12 1a9 9 0 0 1 9 9c0 5-4 9-9 9a9 9 0 0 1 0-18z"/><path d="M12 6a6 6 0 0 1 6 6"/><path d="M12 11v5"/><circle cx="12" cy="10" r="1" fill="currentColor"/>
+  </svg>`;
+  // SVG lock (pas configuré)
+  const svgLock = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" width="24" height="24">
+    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>`;
+
   if(bioSetup){
-    icon.textContent = isMobile ? '👤' : '👆';
+    if(iconEl) iconEl.innerHTML = isMobile ? svgFaceID : svgTouchID;
     label.textContent = isMobile ? 'Déverrouiller avec Face ID' : 'Déverrouiller avec Touch ID';
-    hint.textContent = '';
+    if(hintEl) hintEl.textContent = isMobile ? 'Face ID' : 'Touch ID';
+    if(lockHint) lockHint.textContent = '';
     if(setupBtn) setupBtn.style.display='none';
   } else {
-    icon.textContent = '🔓';
+    if(iconEl) iconEl.innerHTML = svgLock;
     label.textContent = 'Accéder à Atlas';
-    hint.textContent = 'Touch ID / Face ID non configuré';
+    if(hintEl) hintEl.textContent = 'Authentification biométrique';
+    if(lockHint) lockHint.textContent = 'Touch ID / Face ID non configuré';
     if(setupBtn) setupBtn.style.display='block';
   }
 }
@@ -4499,6 +4849,107 @@ async function exportLight(){
 
 
 
+function openExportPDFModal(){
+  // Mettre à jour le preview count à chaque changement
+  const update=()=>{
+    const f=getPDFFilteredBlocs();
+    const el=document.getElementById('pdf-count-preview');
+    if(el)el.textContent=f.length+' bloc'+(f.length>1?'s':'')+' sélectionné'+(f.length>1?'s':'');
+  };
+  ['pdf-spec-filter','pdf-role-filter','pdf-date-from','pdf-date-to'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.onchange=update;el.oninput=update;}
+  });
+  document.getElementById('pdf-date-from').value='';
+  document.getElementById('pdf-date-to').value='';
+  document.getElementById('pdf-spec-filter').value='all';
+  document.getElementById('pdf-role-filter').value='all';
+  update();
+  openModal('export-pdf-modal');
+}
+function getPDFFilteredBlocs(){
+  const spec=document.getElementById('pdf-spec-filter').value;
+  const role=document.getElementById('pdf-role-filter').value;
+  const from=document.getElementById('pdf-date-from').value;
+  const to=document.getElementById('pdf-date-to').value;
+  return blocs.filter(b=>{
+    if(spec==='ortho'&&b.spec==='Traumatologie')return false;
+    if(spec==='trauma'&&b.spec!=='Traumatologie')return false;
+    if(role!=='all'&&b.role!==role)return false;
+    if(from&&b.date<from)return false;
+    if(to&&b.date>to)return false;
+    return true;
+  }).sort((a,b2)=>(a.date||'').localeCompare(b2.date||''));
+}
+async function exportPDF(){
+  const filtered=getPDFFilteredBlocs();
+  if(!filtered.length){showToast('Aucun bloc à exporter');return;}
+  showToast('Génération du PDF…');
+  closeModal('export-pdf-modal');
+  // Charger jsPDF + AutoTable dynamiquement
+  const loadScript=(src)=>new Promise((res,rej)=>{
+    if(document.querySelector('script[src="'+src+'"]')){res();return;}
+    const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  });
+  try{
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js');
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    // En-tête
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(16);
+    doc.text('Atlas — Logbook chirurgical',14,16);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    const specLabel={'all':'Ortho + Trauma','ortho':'Orthopédie','trauma':'Traumatologie'};
+    const roleLabel={'all':'Tous rôles','Principal':'Chirurgien principal','Aide':'Aide opératoire'};
+    const specF=document.getElementById('pdf-spec-filter').value;
+    const roleF=document.getElementById('pdf-role-filter').value;
+    const from=document.getElementById('pdf-date-from').value;
+    const to=document.getElementById('pdf-date-to').value;
+    const subtitle=[
+      specLabel[specF]||specF,
+      roleLabel[roleF]||roleF,
+      from||to?((from?fmtDate(from):'...')+' → '+(to?fmtDate(to):'...')):'Toute période'
+    ].join(' · ');
+    doc.text(subtitle,14,22);
+    doc.text(filtered.length+' blocs · Exporté le '+new Date().toLocaleDateString('fr-FR'),14,27);
+    // Tableau
+    const headers=[['#','Date','Établissement','Spécialité','Intervention','Côté','Rôle','Durée','Patient','Statut']];
+    const rows=filtered.map((b,i)=>[
+      i+1,
+      fmtDate(b.date),
+      b.etablissement||'—',
+      b.spec||'—',
+      displayInterv(b.interv).substring(0,40),
+      b.side||'—',
+      b.role||'—',
+      b.duree?b.duree+' min':'—',
+      b.patient||'—',
+      {vert:'Bon résultat',excellent:'Excellent',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'PDV',deces:'Décès'}[b.statut]||'—'
+    ]);
+    doc.autoTable({
+      head:headers,body:rows,startY:32,
+      styles:{fontSize:7,cellPadding:2.5,overflow:'linebreak'},
+      headStyles:{fillColor:[27,77,90],textColor:255,fontStyle:'bold',fontSize:7},
+      alternateRowStyles:{fillColor:[245,244,240]},
+      columnStyles:{0:{cellWidth:8},1:{cellWidth:18},2:{cellWidth:24},3:{cellWidth:20},4:{cellWidth:42},5:{cellWidth:14},6:{cellWidth:18},7:{cellWidth:14},8:{cellWidth:20},9:{cellWidth:22}},
+      margin:{top:32,left:14,right:14},
+      didDrawPage:(data)=>{
+        // Footer pagination
+        doc.setFontSize(7);doc.setTextColor(150);
+        doc.text('Page '+data.pageNumber,doc.internal.pageSize.getWidth()/2,doc.internal.pageSize.getHeight()-6,{align:'center'});
+        doc.setTextColor(0);
+      }
+    });
+    const filename='Atlas_Logbook_'+new Date().toISOString().split('T')[0]+'.pdf';
+    doc.save(filename);
+    showToast('PDF généré — '+filtered.length+' blocs');
+  }catch(err){
+    console.error('Export PDF échoué:',err);
+    showToast('Erreur PDF — '+err.message);
+  }
+}
 async function exportCSV(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   // Échappement champ CSV (RFC 4180 : encadrer + doubler les guillemets)
