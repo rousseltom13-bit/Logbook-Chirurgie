@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v33';
+const CACHE = 'atlas-v36';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
