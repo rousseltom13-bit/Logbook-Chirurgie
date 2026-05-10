@@ -4681,7 +4681,7 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v34',
+    version:'atlas-v35',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -5094,7 +5094,7 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'atlas-v34-light',
+    version: 'atlas-v35-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
@@ -5474,8 +5474,7 @@ const OB_LICENSE_KEY = 'atlas_license';
 // Format : "ATLAS-XXXX-XXXX-XXXX"
 // Pour révoquer : retirer la clé de ce tableau et incrémenter le SW
 const VALID_LICENSES = [
-  // Ajouter les clés ici au fur et à mesure des abonnements
-  // ex: "ATLAS-A1B2-C3D4-E5F6",
+  "ATLAS-PS6Q-012L-KHP2", // Tom Roussel
 ];
 
 // Clés d'essai : "TRIAL-XXXX-YYYYMMDD" (date d'expiration intégrée)
