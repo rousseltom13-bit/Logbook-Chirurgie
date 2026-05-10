@@ -626,8 +626,82 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
 
 
-/* Lock screen */
-/* Lock screen */
+    /* ── ONBOARDING ── */
+    #onboarding{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);position:fixed;inset:0;z-index:1100;display:none;flex-direction:column;align-items:center;overflow-y:auto;padding:calc(var(--safe-top)+48px) 28px calc(var(--safe-bot)+32px);}
+    #onboarding.visible{display:flex;}
+    .ob-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:400px;margin:0 auto;padding-top:8px;}
+    .ob-step.active{display:flex;}
+    .ob-logo{width:64px;height:64px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;flex-shrink:0;}
+    .ob-title{font-family:'Charter','Iowan Old Style',Georgia,serif;font-size:28px;font-weight:500;color:white;text-align:center;line-height:1.25;margin-bottom:12px;letter-spacing:-0.02em;}
+    .ob-sub{font-size:14px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.65;margin-bottom:36px;font-weight:300;}
+    .ob-points{width:100%;display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .ob-point{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px;}
+    .ob-point-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .ob-point-title{font-size:13px;font-weight:500;color:white;margin-bottom:3px;}
+    .ob-point-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.55;font-weight:300;}
+    .ob-btn{width:100%;background:var(--accent);color:white;border:none;border-radius:99px;padding:16px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:opacity 0.2s;margin-top:4px;}
+    .ob-btn:active{opacity:0.8;}
+    .ob-btn-ghost{width:100%;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:14px;font-size:14px;font-weight:400;font-family:inherit;cursor:pointer;margin-top:10px;}
+    .ob-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px 18px;font-size:18px;font-family:inherit;color:white;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+    .ob-input:focus{border-color:var(--accent);}
+    .ob-input::placeholder{color:rgba(255,255,255,0.25);}
+    .ob-license-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px 18px;font-size:15px;font-family:'SF Mono',monospace;color:white;outline:none;margin-bottom:8px;letter-spacing:0.05em;text-transform:uppercase;transition:border-color 0.2s;}
+    .ob-license-input:focus{border-color:var(--accent);}
+    .ob-license-input::placeholder{color:rgba(255,255,255,0.2);text-transform:none;letter-spacing:0;}
+    .ob-error{font-size:12px;color:#e07070;text-align:center;margin-bottom:12px;min-height:16px;}
+    .ob-cgu-box{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;max-height:220px;overflow-y:auto;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;}
+    .ob-cgu-box h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.65);margin:14px 0 4px;text-transform:uppercase;letter-spacing:0.06em;}
+    .ob-cgu-box h4:first-child{margin-top:0;}
+    .ob-cgu-box p{margin-bottom:8px;}
+    .ob-cgu-check{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;cursor:pointer;}
+    .ob-cgu-check input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--accent);}
+    .ob-cgu-check span{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;}
+    .ob-steps-dots{display:flex;gap:6px;margin-bottom:32px;}
+    .ob-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all 0.3s;}
+    .ob-dot.active{background:var(--accent);width:18px;border-radius:3px;}
+    .ob-license-note{font-size:12px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.6;margin-bottom:20px;}
+    .ob-license-note a{color:var(--accent);text-decoration:none;}
+
+    /* ── END ONBOARDING ── */
+    /* Lock screen */
+    /* ── ONBOARDING ── */
+    #onboarding{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);position:fixed;inset:0;z-index:1100;display:none;flex-direction:column;align-items:center;overflow-y:auto;padding:calc(var(--safe-top)+48px) 28px calc(var(--safe-bot)+32px);}
+    #onboarding.visible{display:flex;}
+    .ob-step{display:none;flex-direction:column;align-items:center;width:100%;max-width:400px;margin:0 auto;padding-top:8px;}
+    .ob-step.active{display:flex;}
+    .ob-logo{width:64px;height:64px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:32px;flex-shrink:0;}
+    .ob-title{font-family:'Charter','Iowan Old Style',Georgia,serif;font-size:28px;font-weight:500;color:white;text-align:center;line-height:1.25;margin-bottom:12px;letter-spacing:-0.02em;}
+    .ob-sub{font-size:14px;color:rgba(255,255,255,0.45);text-align:center;line-height:1.65;margin-bottom:36px;font-weight:300;}
+    .ob-points{width:100%;display:flex;flex-direction:column;gap:14px;margin-bottom:40px;}
+    .ob-point{display:flex;align-items:flex-start;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:16px;}
+    .ob-point-icon{font-size:20px;flex-shrink:0;margin-top:1px;}
+    .ob-point-title{font-size:13px;font-weight:500;color:white;margin-bottom:3px;}
+    .ob-point-desc{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.55;font-weight:300;}
+    .ob-btn{width:100%;background:var(--accent);color:white;border:none;border-radius:99px;padding:16px;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;transition:opacity 0.2s;margin-top:4px;}
+    .ob-btn:active{opacity:0.8;}
+    .ob-btn-ghost{width:100%;background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:99px;padding:14px;font-size:14px;font-weight:400;font-family:inherit;cursor:pointer;margin-top:10px;}
+    .ob-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px 18px;font-size:18px;font-family:inherit;color:white;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+    .ob-input:focus{border-color:var(--accent);}
+    .ob-input::placeholder{color:rgba(255,255,255,0.25);}
+    .ob-license-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:16px 18px;font-size:15px;font-family:'SF Mono',monospace;color:white;outline:none;margin-bottom:8px;letter-spacing:0.05em;text-transform:uppercase;transition:border-color 0.2s;}
+    .ob-license-input:focus{border-color:var(--accent);}
+    .ob-license-input::placeholder{color:rgba(255,255,255,0.2);text-transform:none;letter-spacing:0;}
+    .ob-error{font-size:12px;color:#e07070;text-align:center;margin-bottom:12px;min-height:16px;}
+    .ob-cgu-box{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;max-height:220px;overflow-y:auto;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,0.4);line-height:1.7;}
+    .ob-cgu-box h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.65);margin:14px 0 4px;text-transform:uppercase;letter-spacing:0.06em;}
+    .ob-cgu-box h4:first-child{margin-top:0;}
+    .ob-cgu-box p{margin-bottom:8px;}
+    .ob-cgu-check{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;cursor:pointer;}
+    .ob-cgu-check input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:1px;accent-color:var(--accent);}
+    .ob-cgu-check span{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;}
+    .ob-steps-dots{display:flex;gap:6px;margin-bottom:32px;}
+    .ob-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.15);transition:all 0.3s;}
+    .ob-dot.active{background:var(--accent);width:18px;border-radius:3px;}
+    .ob-license-note{font-size:12px;color:rgba(255,255,255,0.3);text-align:center;line-height:1.6;margin-bottom:20px;}
+    .ob-license-note a{color:var(--accent);text-decoration:none;}
+
+    /* ── END ONBOARDING ── */
+    /* Lock screen */
 
     #lockscreen{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);}
     #lockscreen.visible{display:flex;flex-direction:column;align-items:center;justify-content:space-between;}
@@ -650,6 +724,125 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 </head>
 <body>
 <!-- ÉCRAN DE VERROUILLAGE -->
+<div id="onboarding">
+
+  <!-- Step 1 : Bienvenue + prénom -->
+  <div class="ob-step active" id="ob-step-1">
+    <div class="ob-steps-dots">
+      <div class="ob-dot active" id="ob-dot-1"></div>
+      <div class="ob-dot" id="ob-dot-2"></div>
+      <div class="ob-dot" id="ob-dot-3"></div>
+    </div>
+    <div class="ob-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <text x="50" y="74" text-anchor="middle" font-family="Charter,'Iowan Old Style',Georgia,serif" font-size="84" font-weight="500" fill="currentColor" letter-spacing="-3">A</text>
+        <circle cx="78" cy="68" r="6" fill="#C97864"/>
+      </svg>
+    </div>
+    <div class="ob-title">Bienvenue dans Atlas</div>
+    <div class="ob-sub">Le journal chirurgical qui transforme votre expérience en données exploitables.</div>
+    <div class="ob-points">
+      <div class="ob-point">
+        <div class="ob-point-icon">📊</div>
+        <div>
+          <div class="ob-point-title">Suivez votre progression</div>
+          <div class="ob-point-desc">Statistiques d'activité, courbe d'apprentissage, analyse des complications — un tableau de bord que votre hôpital ne vous donnera jamais.</div>
+        </div>
+      </div>
+      <div class="ob-point">
+        <div class="ob-point-icon">🩺</div>
+        <div>
+          <div class="ob-point-title">Suivez vos patients</div>
+          <div class="ob-point-desc">Timeline chronologique par patient, résultats à long terme, imagerie intégrée. Un chirurgien qui mesure s'améliore — et ce sont vos patients qui en bénéficient.</div>
+        </div>
+      </div>
+      <div class="ob-point">
+        <div class="ob-point-icon">🔒</div>
+        <div>
+          <div class="ob-point-title">100% sur votre appareil</div>
+          <div class="ob-point-desc">Aucune donnée sur serveur. Stockage local chiffré, protégé par Face ID / Touch ID. Vous restez le seul maître de vos données.</div>
+        </div>
+      </div>
+    </div>
+    <div style="width:100%;">
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:10px;text-align:center;">Comment souhaitez-vous être appelé ?</div>
+      <input class="ob-input" id="ob-prenom" type="text" placeholder="Votre prénom" autocomplete="given-name" autocorrect="off" maxlength="32">
+      <button class="ob-btn" onclick="obStep1Next()">Continuer →</button>
+    </div>
+  </div>
+
+  <!-- Step 2 : CGU -->
+  <div class="ob-step" id="ob-step-2">
+    <div class="ob-steps-dots">
+      <div class="ob-dot" id="ob-dot-1b"></div>
+      <div class="ob-dot active" id="ob-dot-2b"></div>
+      <div class="ob-dot" id="ob-dot-3b"></div>
+    </div>
+    <div class="ob-title">Conditions d'utilisation</div>
+    <div class="ob-sub">Veuillez lire et accepter les CGU avant de continuer.</div>
+    <div class="ob-cgu-box" id="ob-cgu-content">
+      <h4>1. Objet</h4>
+      <p>Atlas est une application de logbook chirurgical personnel (PWA) éditée par Tom Roussel, chirurgien orthopédiste, ci-après "l'Éditeur". Les présentes Conditions Générales d'Utilisation régissent l'accès et l'utilisation de l'application Atlas.</p>
+
+      <h4>2. Accès et licence d'utilisation</h4>
+      <p>L'accès à Atlas est conditionné à la possession d'une licence valide, obtenue après souscription à un abonnement mensuel via le site atlas-surgery.com. La licence est strictement personnelle, nominative et non cessible. Tout partage de licence est interdit.</p>
+      <p>Un essai gratuit de 30 jours est proposé, avec renseignement des informations de paiement dès l'inscription. Sans résiliation avant la fin de la période d'essai, l'abonnement est automatiquement activé au tarif en vigueur.</p>
+
+      <h4>3. Données personnelles et données de santé</h4>
+      <p>Atlas fonctionne en mode local : toutes les données saisies (interventions, patients, imagerie) sont stockées exclusivement sur l'appareil de l'utilisateur. Aucune donnée n'est transmise à des serveurs tiers.</p>
+      <p>L'utilisateur est seul responsable de la sécurité et de la conformité de l'usage des données de santé qu'il saisit dans l'application, dans le respect du Règlement Général sur la Protection des Données (RGPD) et de la réglementation française applicable aux données de santé.</p>
+      <p>L'export de données (format JSON) ne doit être effectué que vers des appareils personnels de l'utilisateur. Tout partage de données avec des tiers est de la responsabilité exclusive de l'utilisateur.</p>
+
+      <h4>4. Responsabilité</h4>
+      <p>Atlas est un outil de logbook personnel à usage professionnel. Il ne constitue pas un dispositif médical au sens de la réglementation européenne MDR 2017/745. L'Éditeur ne saurait être tenu responsable des décisions médicales prises sur la base des données enregistrées dans l'application.</p>
+      <p>En cas de perte de données liée à une réinitialisation de l'appareil, une mise à jour du système ou toute autre cause indépendante de la volonté de l'Éditeur, la responsabilité de ce dernier ne saurait être engagée. L'utilisateur est invité à effectuer des exports réguliers de ses données.</p>
+
+      <h4>5. Abonnement et résiliation</h4>
+      <p>L'abonnement est sans engagement, résiliable à tout moment depuis la page de gestion de l'abonnement sur atlas-surgery.com. La résiliation prend effet à la fin de la période de facturation en cours. Aucun remboursement partiel n'est accordé.</p>
+      <p>En cas de non-paiement, la licence est désactivée et l'accès à l'application est suspendu. Les données restent stockées localement sur l'appareil et restent accessibles si la licence est réactivée.</p>
+
+      <h4>6. Propriété intellectuelle</h4>
+      <p>L'application Atlas, son code source, son design et ses contenus sont la propriété exclusive de l'Éditeur et sont protégés par le droit de la propriété intellectuelle. Toute reproduction, modification ou distribution non autorisée est interdite.</p>
+
+      <h4>7. Droit applicable</h4>
+      <p>Les présentes CGU sont soumises au droit français. Tout litige relatif à leur interprétation ou leur exécution relève de la compétence exclusive des tribunaux français.</p>
+
+      <h4>8. Contact</h4>
+      <p>Pour toute question : contact@atlas-surgery.com</p>
+    </div>
+    <label class="ob-cgu-check">
+      <input type="checkbox" id="ob-cgu-cb" onchange="obCguCheck()">
+      <span>J'ai lu et j'accepte les Conditions Générales d'Utilisation d'Atlas.</span>
+    </label>
+    <button class="ob-btn" id="ob-cgu-btn" onclick="obStep2Next()" disabled style="opacity:0.4;">Accepter et continuer →</button>
+    <button class="ob-btn-ghost" onclick="obBack(1)">← Retour</button>
+  </div>
+
+  <!-- Step 3 : Clé de licence -->
+  <div class="ob-step" id="ob-step-3">
+    <div class="ob-steps-dots">
+      <div class="ob-dot" id="ob-dot-1c"></div>
+      <div class="ob-dot" id="ob-dot-2c"></div>
+      <div class="ob-dot active" id="ob-dot-3c"></div>
+    </div>
+    <div class="ob-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="width:32px;height:32px;">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+      </svg>
+    </div>
+    <div class="ob-title">Votre clé de licence</div>
+    <div class="ob-sub">Saisissez la clé reçue par email après votre inscription, ou démarrez avec votre essai gratuit.</div>
+    <input class="ob-license-input" id="ob-license-key" type="text" placeholder="ATLAS-XXXX-XXXX-XXXX" maxlength="19" oninput="obFormatLicenseKey(this)" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="ob-error" id="ob-license-error"></div>
+    <div class="ob-license-note">
+      Pas encore de clé ? <a href="https://atlas-surgery.com/#pricing" target="_blank">Démarrez votre essai gratuit 30 jours →</a>
+    </div>
+    <button class="ob-btn" onclick="obStep3Validate()">Activer Atlas →</button>
+    <button class="ob-btn-ghost" onclick="obBack(2)">← Retour</button>
+  </div>
+
+</div>
+
 <div id="lockscreen" style="display:none;position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(var(--safe-top) + 60px) 32px calc(var(--safe-bot) + 56px);">
   <!-- Fond dégradé sombre -->
   
@@ -2127,6 +2320,8 @@ function renderDash(){
   try{
     const el_eb=document.getElementById('d-eyebrow');
     const el_mt=document.getElementById('d-meta');
+    const el_name=document.getElementById('dash-greeting-name');
+    if(el_name){ el_name.textContent='Bonjour '+getPrenom()+'.'; }
     if(el_eb){
       const today=new Date();
       el_eb.textContent=today.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
@@ -4486,7 +4681,7 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v33',
+    version:'atlas-v34',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -4899,7 +5094,7 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'atlas-v33-light',
+    version: 'atlas-v34-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
@@ -5266,10 +5461,191 @@ async function compressAllRadiosInPlace(){
   alert(report);
 }
 
-// Initialisation — montrer l'écran de verrou
-document.getElementById('lockscreen').classList.add('visible');
-document.getElementById('lockscreen').style.display='flex';
-updateLockscreen();
+
+// ══════════════════════════════════════════
+// ONBOARDING + LICENCE
+// ══════════════════════════════════════════
+const OB_DONE_KEY    = 'atlas_ob_done';
+const OB_PRENOM_KEY  = 'atlas_prenom';
+const OB_CGU_KEY     = 'atlas_cgu_accepted';
+const OB_LICENSE_KEY = 'atlas_license';
+
+// Clés valides — liste maintenue localement
+// Format : "ATLAS-XXXX-XXXX-XXXX"
+// Pour révoquer : retirer la clé de ce tableau et incrémenter le SW
+const VALID_LICENSES = [
+  // Ajouter les clés ici au fur et à mesure des abonnements
+  // ex: "ATLAS-A1B2-C3D4-E5F6",
+];
+
+// Clés d'essai : "TRIAL-XXXX-YYYYMMDD" (date d'expiration intégrée)
+function isTrialKey(key) {
+  return /^TRIAL-[A-Z0-9]{4}-\d{8}$/.test(key);
+}
+function isTrialValid(key) {
+  const dateStr = key.slice(-8);
+  const exp = new Date(+dateStr.slice(0,4), +dateStr.slice(4,6)-1, +dateStr.slice(6,8));
+  return new Date() <= exp;
+}
+function isPermanentKey(key) {
+  return VALID_LICENSES.includes(key);
+}
+function isLicenseValid(key) {
+  if(!key) return false;
+  if(isPermanentKey(key)) return true;
+  if(isTrialKey(key) && isTrialValid(key)) return true;
+  return false;
+}
+
+function obInit() {
+  const done    = localStorage.getItem(OB_DONE_KEY);
+  const prenom  = localStorage.getItem(OB_PRENOM_KEY);
+  const license = localStorage.getItem(OB_LICENSE_KEY);
+
+  // Si onboarding complété ET licence valide → lockscreen normal
+  if(done && prenom && license && isLicenseValid(license)) {
+    document.getElementById('onboarding').style.display = 'none';
+    return;
+  }
+
+  // Sinon → afficher onboarding
+  const ob = document.getElementById('onboarding');
+  ob.classList.add('visible');
+
+  // Si prénom déjà connu mais licence manquante/expirée → aller direct step 3
+  if(done && prenom && (!license || !isLicenseValid(license))) {
+    obGoStep(3);
+  }
+}
+
+function obGoStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('ob-step-'+i).classList.toggle('active', i===n);
+  });
+}
+
+function obBack(n) { obGoStep(n); }
+
+function obStep1Next() {
+  const prenom = document.getElementById('ob-prenom').value.trim();
+  if(!prenom) {
+    document.getElementById('ob-prenom').focus();
+    document.getElementById('ob-prenom').style.borderColor = '#e07070';
+    return;
+  }
+  document.getElementById('ob-prenom').style.borderColor = '';
+  localStorage.setItem(OB_PRENOM_KEY, prenom);
+  obGoStep(2);
+}
+
+function obCguCheck() {
+  const cb  = document.getElementById('ob-cgu-cb');
+  const btn = document.getElementById('ob-cgu-btn');
+  btn.disabled = !cb.checked;
+  btn.style.opacity = cb.checked ? '1' : '0.4';
+}
+
+function obStep2Next() {
+  if(!document.getElementById('ob-cgu-cb').checked) return;
+  localStorage.setItem(OB_CGU_KEY, new Date().toISOString());
+  obGoStep(3);
+}
+
+function obFormatLicenseKey(el) {
+  let v = el.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  // Format ATLAS-XXXX-XXXX-XXXX ou TRIAL-XXXX-XXXXXXXX
+  if(v.startsWith('ATLAS')) {
+    v = v.replace(/^(ATLAS)([A-Z0-9]{0,4})([A-Z0-9]{0,4})([A-Z0-9]{0,4}).*/, (m,a,b,c,d) => {
+      let r = a;
+      if(b) r += '-'+b;
+      if(c) r += '-'+c;
+      if(d) r += '-'+d;
+      return r;
+    });
+  } else if(v.startsWith('TRIAL')) {
+    v = v.replace(/^(TRIAL)([A-Z0-9]{0,4})(\d{0,8}).*/, (m,a,b,c) => {
+      let r = a;
+      if(b) r += '-'+b;
+      if(c) r += '-'+c;
+      return r;
+    });
+  }
+  el.value = v;
+}
+
+function obStep3Validate() {
+  const rawKey = document.getElementById('ob-license-key').value.trim().toUpperCase();
+  const errEl  = document.getElementById('ob-license-error');
+  errEl.textContent = '';
+
+  if(!rawKey) {
+    errEl.textContent = 'Veuillez saisir votre clé de licence.';
+    return;
+  }
+
+  if(isPermanentKey(rawKey)) {
+    obActivate(rawKey, 'permanent');
+  } else if(isTrialKey(rawKey)) {
+    if(isTrialValid(rawKey)) {
+      obActivate(rawKey, 'trial');
+    } else {
+      errEl.textContent = "Votre période d'essai a expiré. Rendez-vous sur atlas-surgery.com pour activer votre abonnement.";
+    }
+  } else {
+    errEl.textContent = 'Clé invalide. Vérifiez votre email ou contactez contact@atlas-surgery.com';
+  }
+}
+
+function obActivate(key, type) {
+  localStorage.setItem(OB_LICENSE_KEY, key);
+  localStorage.setItem(OB_DONE_KEY, '1');
+  const prenom = localStorage.getItem(OB_PRENOM_KEY) || '';
+  // Cacher onboarding, montrer lockscreen
+  document.getElementById('onboarding').classList.remove('visible');
+  document.getElementById('onboarding').style.display = 'none';
+  document.getElementById('lockscreen').classList.add('visible');
+  document.getElementById('lockscreen').style.display = 'flex';
+  updateLockscreen();
+}
+
+// ── Prénom dans le dashboard ──
+function getPrenom() {
+  return localStorage.getItem(OB_PRENOM_KEY) || 'Chirurgien';
+}
+
+// ── Vérification licence au démarrage de l'app ──
+function checkLicenseOnStart() {
+  const license = localStorage.getItem(OB_LICENSE_KEY);
+  if(!license || !isLicenseValid(license)) {
+    // Licence expirée ou absente → retour onboarding step 3
+    const ob = document.getElementById('onboarding');
+    ob.classList.add('visible');
+    document.getElementById('lockscreen').classList.remove('visible');
+    document.getElementById('lockscreen').style.display = 'none';
+    obGoStep(3);
+    // Message d'expiration
+    const errEl = document.getElementById('ob-license-error');
+    if(license && isTrialKey(license) && !isTrialValid(license)) {
+      errEl.textContent = "Votre période d'essai a expiré. Abonnez-vous sur atlas-surgery.com pour continuer.";
+    } else if(license && !isLicenseValid(license)) {
+      errEl.textContent = "Votre licence n'est plus active. Contactez contact@atlas-surgery.com";
+    }
+    return false;
+  }
+  return true;
+}
+
+
+// Initialisation
+obInit();
+// Montrer le lockscreen seulement si onboarding terminé et licence valide
+const _obDone = localStorage.getItem('atlas_ob_done');
+const _obLic  = localStorage.getItem('atlas_license');
+if(_obDone && _obLic && isLicenseValid(_obLic)) {
+  document.getElementById('lockscreen').classList.add('visible');
+  document.getElementById('lockscreen').style.display='flex';
+  updateLockscreen();
+}
 </script>
 </div>
 </body>
