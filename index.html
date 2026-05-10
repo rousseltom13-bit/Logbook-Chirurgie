@@ -832,7 +832,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     </div>
     <div class="ob-title">Votre clé de licence</div>
     <div class="ob-sub">Saisissez la clé reçue par email après votre inscription, ou démarrez avec votre essai gratuit.</div>
-    <input class="ob-license-input" id="ob-license-key" type="text" placeholder="ATLAS-XXXX-XXXX-XXXX" maxlength="19" oninput="obFormatLicenseKey(this)" autocomplete="off" autocorrect="off" spellcheck="false">
+    <input class="ob-license-input" id="ob-license-key" type="text" placeholder="ATLAS-XXXX-XXXX-XXXX" maxlength="20" oninput="obFormatLicenseKey(this)" autocomplete="off" autocorrect="off" spellcheck="false">
     <div class="ob-error" id="ob-license-error"></div>
     <div class="ob-license-note">
       Pas encore de clé ? <a href="https://atlas-surgery.com/#pricing" target="_blank">Démarrez votre essai gratuit 30 jours →</a>
@@ -4681,7 +4681,7 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v36',
+    version:'atlas-v37',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -5094,7 +5094,7 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'atlas-v36-light',
+    version: 'atlas-v37-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
