@@ -782,6 +782,49 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     .lock-hint-msg{font-size:12px;color:rgba(236,236,240,0.4);text-align:center;min-height:18px;}
     @keyframes lockPulse{0%{box-shadow:0 0 0 0 rgba(94,150,184,0.35);}70%{box-shadow:0 0 0 12px rgba(94,150,184,0);}100%{box-shadow:0 0 0 0 rgba(94,150,184,0);}}
     .lock-unlock-btn.pulsing{animation:lockPulse 1.2s ease-out;}
+
+/* ── COURRIERS MODULE ── */
+#view-courriers{padding:0;}
+.courr-hero{padding:20px 22px 14px;border-bottom:1px solid var(--border);}
+.courr-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);font-weight:500;margin-bottom:6px;}
+.courr-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);}
+.courr-scroll{padding:16px 22px 100px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.courr-interv-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;}
+.courr-interv-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all 0.12s;}
+.courr-interv-card:active{background:var(--bg3);}
+.courr-interv-card.selected{border-color:var(--accent);background:var(--accent-l);}
+.courr-interv-card.selected.hanche{border-color:var(--purple);background:var(--purple-l);}
+.courr-interv-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--text3);}
+.courr-interv-card.selected .courr-interv-icon{color:var(--accent);}
+.courr-interv-card.selected.hanche .courr-interv-icon{color:var(--purple);}
+.courr-interv-label{font-size:13px;font-weight:600;color:var(--text);}
+.courr-interv-sub{font-size:10px;color:var(--text3);text-align:center;line-height:1.4;}
+.courr-section-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:18px 0 10px;}
+.courr-field-group{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 0;margin-bottom:14px;}
+.courr-field{padding:10px 16px;display:flex;flex-direction:column;gap:6px;}
+.courr-field+.courr-field{border-top:1px solid var(--border);}
+.courr-field-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.courr-field-required{color:var(--warm);margin-left:3px;}
+.courr-input{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:16px;color:var(--text);padding:0;}
+.courr-input::placeholder{color:var(--text3);font-style:italic;}
+.courr-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+.courr-pill{padding:7px 13px;font-size:13px;font-weight:500;border:1px solid var(--border);border-radius:99px;background:var(--bg);color:var(--text2);cursor:pointer;font-family:inherit;transition:all 0.12s;}
+.courr-pill.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
+.courr-doc-row{display:flex;gap:8px;margin-bottom:20px;}
+.courr-doc-btn{flex:1;padding:12px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.12s;}
+.courr-doc-btn.on{border-color:var(--accent);background:var(--accent-l);color:var(--accent);}
+.courr-doc-btn svg{width:18px;height:18px;}
+.courr-cta{position:sticky;bottom:0;left:0;right:0;padding:14px 22px calc(14px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);display:flex;gap:8px;}
+.courr-btn-gen{flex:1;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;}
+.courr-btn-gen:disabled{opacity:0.4;cursor:not-allowed;}
+.courr-btn-gen.hanche{background:var(--purple);}
+.courr-from-bloc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.courr-from-bloc-info{font-size:13px;color:var(--text2);}
+.courr-from-bloc-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.courr-from-bloc-clear{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px;}
+.courr-num-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.courr-num-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+/* ── END COURRIERS MODULE ── */
 </style>
 </head>
 <body>
@@ -1084,6 +1127,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div style="flex:1;"></div>
         <button onclick="openLinkedBlocForm()" class="atlas-iconbtn" aria-label="Ajouter un bloc lié" title="Nouveau bloc — même patient">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </button>
+        <button onclick="courrOpenFromDetail()" class="atlas-iconbtn" aria-label="Générer CRO/CRH" title="Générer CRO / CRH" style="color:var(--accent);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </button>
         <button onclick="openEditModal()" class="atlas-iconbtn" aria-label="Modifier">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1503,6 +1549,73 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       </div>
     </div>
 
+    <!-- COURRIERS -->
+    <div class="view" id="view-courriers" style="padding:0;display:none;flex-direction:column;height:100%;">
+      <div class="courr-hero">
+        <div class="courr-eyebrow">Documents</div>
+        <h1 class="courr-title">Courriers</h1>
+      </div>
+      <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+        <div class="courr-scroll">
+
+          <!-- Pré-remplissage depuis un bloc -->
+          <div id="courr-from-bloc-banner" style="display:none;">
+            <div class="courr-section-label">Pré-rempli depuis</div>
+            <div class="courr-from-bloc">
+              <div>
+                <div class="courr-from-bloc-name" id="courr-bloc-name">—</div>
+                <div class="courr-from-bloc-info" id="courr-bloc-info">—</div>
+              </div>
+              <button class="courr-from-bloc-clear" onclick="courrClearBloc()" title="Effacer">×</button>
+            </div>
+          </div>
+
+          <!-- Sélection intervention -->
+          <div class="courr-section-label">Intervention</div>
+          <div class="courr-interv-grid" id="courr-interv-grid">
+            <button class="courr-interv-card" onclick="courrSelectInterv('PTG',this)">
+              <span class="courr-interv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3v6"/><path d="M15 3v6"/><circle cx="12" cy="12" r="3"/><path d="M9 15v6"/><path d="M15 15v6"/></svg></span>
+              <span class="courr-interv-label">PTG</span>
+              <span class="courr-interv-sub">Prothèse totale de genou</span>
+            </button>
+            <button class="courr-interv-card hanche" onclick="courrSelectInterv('PTH',this)">
+              <span class="courr-interv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 10a6 6 0 0 1 12 0"/><circle cx="11" cy="10" r="2.5" fill="currentColor"/><path d="M12.5 12L18 21"/></svg></span>
+              <span class="courr-interv-label">PTH</span>
+              <span class="courr-interv-sub">Prothèse totale de hanche</span>
+            </button>
+            <button class="courr-interv-card" onclick="courrSelectInterv('LCA',this)">
+              <span class="courr-interv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v10"/><path d="M7 7l5 5 5-5"/><path d="M5 17a7 7 0 0 0 14 0"/></svg></span>
+              <span class="courr-interv-label">LCA</span>
+              <span class="courr-interv-sub">Reconstruction DT3+2</span>
+            </button>
+          </div>
+
+          <!-- Type de document -->
+          <div class="courr-section-label">Type de document</div>
+          <div class="courr-doc-row" id="courr-doc-row">
+            <button class="courr-doc-btn on" id="courr-doc-cro" onclick="courrToggleDoc('CRO',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>
+              CRO
+            </button>
+            <button class="courr-doc-btn" id="courr-doc-crh" onclick="courrToggleDoc('CRH',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              CRH
+            </button>
+          </div>
+
+          <!-- Formulaire dynamique -->
+          <div id="courr-form-area"></div>
+
+        </div>
+      </div>
+      <!-- CTA sticky -->
+      <div class="courr-cta">
+        <button class="courr-btn-gen" id="courr-btn-gen" onclick="courrGenerate()" disabled>
+          Générer le document
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <nav class="bottomnav">
@@ -1522,9 +1635,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></span>
       <span>Stats</span>
     </button>
-    <button class="bnav-item" onclick="sw('blocs');setTimeout(()=>{const s=document.getElementById('search-input');if(s)s.focus();},100);" id="bn-recherche">
-      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <span>Recherche</span>
+    <button class="bnav-item" onclick="sw('courriers')" id="bn-courriers">
+      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+      <span>Courriers</span>
     </button>
   </nav>
 </div>
@@ -6007,6 +6120,975 @@ if(_obDone && _obLic && isLicenseValid(_obLic)) {
 function _triggerDashTutoOnUnlock(){
   setTimeout(()=>tutoShowScreen('dashboard'), 800);
 }
+
+// ════════════════════════════════════════════════════════════
+// MODULE COURRIERS — Atlas v30
+// ════════════════════════════════════════════════════════════
+
+// ── État du module ──
+let courrState = {
+  interv: null,      // 'PTG' | 'PTH' | 'LCA'
+  cro: true,         // générer le CRO
+  crh: false,        // générer le CRH
+  blocIdx: null,     // index dans blocs[] si pré-rempli depuis fiche
+};
+
+// ── Initialisation de la vue ──
+function initCourriers(){
+  courrRenderForm();
+  courrUpdateBtn();
+}
+
+// ── Sélection intervention ──
+function courrSelectInterv(interv, btn){
+  courrState.interv = interv;
+  document.querySelectorAll('.courr-interv-card').forEach(c=>c.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Couleur du bouton générer selon spécialité
+  const genBtn = document.getElementById('courr-btn-gen');
+  genBtn.className = 'courr-btn-gen' + (interv==='PTH'?' hanche':'');
+  courrRenderForm();
+  courrUpdateBtn();
+}
+
+// ── Toggle type de document (indépendants) ──
+function courrToggleDoc(doc, btn){
+  if(doc==='CRO') courrState.cro = !courrState.cro;
+  if(doc==='CRH') courrState.crh = !courrState.crh;
+  btn.classList.toggle('on');
+  // Toujours au moins un actif
+  if(!courrState.cro && !courrState.crh){
+    courrState.cro = true;
+    document.getElementById('courr-doc-cro').classList.add('on');
+  }
+  courrRenderForm();
+  courrUpdateBtn();
+}
+
+// ── Pré-remplissage depuis une fiche bloc ──
+function courrFromBloc(bi){
+  const b = blocs[bi];
+  if(!b) return;
+  courrState.blocIdx = bi;
+
+  // Mapper l'intervention du bloc vers PTG/PTH/LCA
+  const il = (b.interv||'').toUpperCase();
+  let mapped = null;
+  if(il.includes('PTG') || il.includes('PROTHÈSE TOTALE DE GENOU') || il.includes('GENOU')) mapped='PTG';
+  else if(il.includes('PTH') || il.includes('PROTHÈSE TOTALE DE HANCHE') || il.includes('HANCHE')) mapped='PTH';
+  else if(il.includes('LCA')) mapped='LCA';
+
+  if(mapped){
+    courrState.interv = mapped;
+    document.querySelectorAll('.courr-interv-card').forEach(c=>c.classList.remove('selected'));
+    document.querySelectorAll('.courr-interv-card').forEach(c=>{
+      if(c.textContent.includes(mapped)) c.classList.add('selected');
+    });
+    const genBtn = document.getElementById('courr-btn-gen');
+    genBtn.className = 'courr-btn-gen' + (mapped==='PTH'?' hanche':'');
+  }
+
+  // Afficher le banner
+  document.getElementById('courr-from-bloc-banner').style.display='block';
+  document.getElementById('courr-bloc-name').textContent = b.patient||'—';
+  document.getElementById('courr-bloc-info').textContent = displayInterv(b.interv) + (b.date?' · '+fmtDate(b.date):'') + (b.side?' · '+b.side:'');
+
+  sw('courriers');
+  courrRenderForm();
+  courrUpdateBtn();
+}
+
+function courrClearBloc(){
+  courrState.blocIdx = null;
+  document.getElementById('courr-from-bloc-banner').style.display='none';
+  courrRenderForm();
+}
+
+// ── Valeur depuis le bloc ou depuis le formulaire ──
+function courrBloc(){
+  if(courrState.blocIdx===null) return null;
+  return blocs[courrState.blocIdx];
+}
+
+function courrBlocVal(key){
+  const b = courrBloc();
+  return b ? (b[key]||'') : '';
+}
+
+// ── Helpers formulaire ──
+function cPills(id, options, defaultVal){
+  return `<div class="courr-pills" id="${id}">`+
+    options.map(o=>`<button type="button" class="courr-pill${o===defaultVal?' on':''}" onclick="courrPillSelect('${id}',this,'${o}')">${o}</button>`).join('')+
+  `</div>`;
+}
+
+function courrPillSelect(groupId, btn, val){
+  document.querySelectorAll(`#${groupId} .courr-pill`).forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  courrUpdateBtn();
+}
+
+function courrGetPill(groupId){
+  const el = document.querySelector(`#${groupId} .courr-pill.on`);
+  return el ? el.textContent.trim() : '';
+}
+
+function courrGetInput(id){
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+// ── Rendu du formulaire dynamique ──
+function courrRenderForm(){
+  const area = document.getElementById('courr-form-area');
+  if(!area) return;
+  const {interv, cro, crh} = courrState;
+  const b = courrBloc();
+
+  if(!interv){ area.innerHTML=''; return; }
+
+  // Champs communs pré-remplis depuis Atlas
+  const patientFull = b ? (b.patient||'') : '';
+  const patParts = patientFull.trim().split(' ');
+  const patNom = patParts[0]||'';
+  const patPrenom = patParts.slice(1).join(' ')||'';
+  const dateOp = b ? (b.date||'') : '';
+  const cote = b ? (b.side||'') : '';
+  const coteDisp = cote==='Droit'?'droit':cote==='Gauche'?'gauche':cote.toLowerCase();
+
+  let html = '';
+
+  // ── Section Patient ──
+  html += `<div class="courr-section-label">Patient</div>
+  <div class="courr-field-group">
+    <div class="courr-field">
+      <div class="courr-field-label">Nom <span class="courr-field-required">*</span></div>
+      <input class="courr-input" id="c-nom" type="text" placeholder="NOM" value="${esc(patNom)}" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Prénom <span class="courr-field-required">*</span></div>
+      <input class="courr-input" id="c-prenom" type="text" placeholder="Prénom" value="${esc(patPrenom)}" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Date de naissance</div>
+      <input class="courr-input" id="c-ddn" type="date" value="" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Civilité</div>
+      ${cPills('c-civil',['M.','Mme'],'M.')}
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Côté <span class="courr-field-required">*</span></div>
+      ${cPills('c-cote',['droit','gauche'], coteDisp||'droit')}
+    </div>
+  </div>`;
+
+  // ── Section Opération ──
+  html += `<div class="courr-section-label">Opération</div>
+  <div class="courr-field-group">
+    <div class="courr-field">
+      <div class="courr-field-label">Date opératoire <span class="courr-field-required">*</span></div>
+      <input class="courr-input" id="c-dateop" type="date" value="${dateOp}" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Aides opératoires</div>
+      <input class="courr-input" id="c-aides" type="text" placeholder="ex : Florian PETELLE — interne" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Type d'anesthésie</div>
+      ${cPills('c-anesth',['rachianesthésie','anesthésie générale','ALR'],'rachianesthésie')}
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Indication</div>
+      <input class="courr-input" id="c-indication" type="text" placeholder="${interv==='PTG'?'ex : gonarthrose tricompartimentale':interv==='PTH'?'ex : coxarthrose primitive':'ex : laxité antérieure chronique'}" oninput="courrUpdateBtn()">
+    </div>
+    <div class="courr-field">
+      <div class="courr-field-label">Antécédents pertinents (optionnel)</div>
+      <input class="courr-input" id="c-atcd" type="text" placeholder="laisser vide si aucun" oninput="courrUpdateBtn()">
+    </div>
+  </div>`;
+
+  // ── Champs spécifiques par intervention ──
+  if(interv==='PTG'){
+    html += `<div class="courr-section-label">Détails PTG</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Arthrotomie</div>
+        ${cPills('c-arthro',['médiale para-patellaire','latérale para-patellaire'],'médiale para-patellaire')}
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Déformation</div>
+        ${cPills('c-deform',['varus','valgus'],'varus')}
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Degrés</div>
+        <input class="courr-input" id="c-degres" type="number" placeholder="ex : 8" min="0" max="30" oninput="courrUpdateBtn()">
+      </div>
+    </div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Implants</div>
+        <div class="courr-num-row" style="margin-top:4px;">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Fémur ACS</div>
+            <input class="courr-input" id="c-femur" type="number" placeholder="ex : 5" min="1" max="9" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Plateau ACS</div>
+            <input class="courr-input" id="c-plateau" type="number" placeholder="ex : 4" min="1" max="9" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Insert (mm)</div>
+            <input class="courr-input" id="c-insert" type="number" placeholder="ex : 125" min="50" max="200" oninput="courrUpdateBtn()">
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-num-row-2">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Bouton rotulien</div>
+            <input class="courr-input" id="c-rotule" type="number" placeholder="ex : 32" min="20" max="45" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Flexion (°)</div>
+            <input class="courr-input" id="c-flexion" type="number" placeholder="ex : 120" min="60" max="160" oninput="courrUpdateBtn()">
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if(interv==='PTH'){
+    html += `<div class="courr-section-label">Détails PTH</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Cotyle — Modèle</div>
+        <input class="courr-input" id="c-cotyle-modele" type="text" placeholder="ex : Ecofit" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Cotyle — Taille</div>
+        <input class="courr-input" id="c-cotyle-taille" type="number" placeholder="ex : 52" min="40" max="70" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Tige — Modèle</div>
+        <input class="courr-input" id="c-tige-modele" type="text" placeholder="ex : Ecofit Standard" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-num-row">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Taille tige</div>
+            <input class="courr-input" id="c-tige-taille" type="number" placeholder="ex : 7" min="1" max="20" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Taille râpe</div>
+            <input class="courr-input" id="c-rape-taille" type="number" placeholder="ex : 7" min="1" max="20" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Type tige</div>
+            ${cPills('c-tige-type',['Standard','Latéralisée'],'Standard')}
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-num-row">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Tête (mm)</div>
+            <input class="courr-input" id="c-tete-mm" type="number" placeholder="ex : 28" min="22" max="40" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Matière</div>
+            ${cPills('c-tete-mat',['inox','céramique'],'inox')}
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Col</div>
+            ${cPills('c-col',['court','standard','long'],'court')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if(interv==='LCA'){
+    html += `<div class="courr-section-label">Détails LCA</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Ressaut rotatoire pré-op</div>
+        ${cPills('c-ressaut',['présent','absent'],'présent')}
+      </div>
+      <div class="courr-field">
+        <div class="courr-num-row-2">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Ø tunnel tibial (mm)</div>
+            <input class="courr-input" id="c-tunn-tib" type="number" placeholder="ex : 9" min="7" max="12" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Ø tunnel fémoral (mm)</div>
+            <input class="courr-input" id="c-tunn-fem" type="number" placeholder="ex : 9" min="7" max="12" oninput="courrUpdateBtn()">
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-num-row-2">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Vis tibiale</div>
+            <input class="courr-input" id="c-vis-tib" type="text" placeholder="ex : 9x25" oninput="courrUpdateBtn()">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Vis fémorale</div>
+            <input class="courr-input" id="c-vis-fem" type="text" placeholder="ex : 9x25" oninput="courrUpdateBtn()">
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Retour externe</div>
+        ${cPills('c-retour-ext',['réalisé','non réalisé'],'réalisé')}
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Test de Lachman final</div>
+        ${cPills('c-lachman',['négatif','positif résiduel'],'négatif')}
+      </div>
+    </div>
+
+    <div class="courr-section-label">Exploration arthroscopique</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Compartiment fémoro-patellaire</div>
+        <input class="courr-input" id="c-expl-fp" type="text" placeholder="RAS" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Compartiment médial</div>
+        <input class="courr-input" id="c-expl-med" type="text" placeholder="RAS" oninput="courrLesionCheck('med');courrUpdateBtn()">
+      </div>
+      <div id="c-menisq-med-wrap" style="display:none;">
+        <div class="courr-field" style="background:var(--amber-l);border-top:1px solid var(--border);">
+          <div class="courr-field-label" style="color:var(--amber-d);">Geste méniscal médial</div>
+          <div class="courr-pills" id="c-menisq-med-type">
+            <button type="button" class="courr-pill on" onclick="courrPillSelect('c-menisq-med-type',this,'Méniscectomie partielle');courrMenisqTypeCheck('med')">Méniscectomie partielle</button>
+            <button type="button" class="courr-pill" onclick="courrPillSelect('c-menisq-med-type',this,'Suture par ancres');courrMenisqTypeCheck('med')">Suture par ancres</button>
+          </div>
+        </div>
+        <div class="courr-field" id="c-menisq-med-ancres-wrap" style="display:none;border-top:1px solid var(--border);">
+          <div class="courr-num-row-2">
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Marque ancres</div>
+              <input class="courr-input" id="c-menisq-med-marque" type="text" placeholder="ex : FasT-Fix" oninput="courrUpdateBtn()">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Nombre</div>
+              <input class="courr-input" id="c-menisq-med-nb" type="number" placeholder="ex : 3" min="1" max="10" oninput="courrUpdateBtn()">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Compartiment latéral</div>
+        <input class="courr-input" id="c-expl-lat" type="text" placeholder="RAS" oninput="courrLesionCheck('lat');courrUpdateBtn()">
+      </div>
+      <div id="c-menisq-lat-wrap" style="display:none;">
+        <div class="courr-field" style="background:var(--amber-l);border-top:1px solid var(--border);">
+          <div class="courr-field-label" style="color:var(--amber-d);">Geste méniscal latéral</div>
+          <div class="courr-pills" id="c-menisq-lat-type">
+            <button type="button" class="courr-pill on" onclick="courrPillSelect('c-menisq-lat-type',this,'Méniscectomie partielle');courrMenisqTypeCheck('lat')">Méniscectomie partielle</button>
+            <button type="button" class="courr-pill" onclick="courrPillSelect('c-menisq-lat-type',this,'Suture par ancres');courrMenisqTypeCheck('lat')">Suture par ancres</button>
+          </div>
+        </div>
+        <div class="courr-field" id="c-menisq-lat-ancres-wrap" style="display:none;border-top:1px solid var(--border);">
+          <div class="courr-num-row-2">
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Marque ancres</div>
+              <input class="courr-input" id="c-menisq-lat-marque" type="text" placeholder="ex : FasT-Fix" oninput="courrUpdateBtn()">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Nombre</div>
+              <input class="courr-input" id="c-menisq-lat-nb" type="number" placeholder="ex : 3" min="1" max="10" oninput="courrUpdateBtn()">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Échancrure / LCA</div>
+        <input class="courr-input" id="c-expl-ech" type="text" placeholder="LCA rompu / LCP intact" oninput="courrUpdateBtn()">
+      </div>
+    </div>`;
+  }
+
+  // ── Champs CRH uniquement ──
+  if(crh){
+    html += `<div class="courr-section-label">Informations CRH</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Date d'entrée</div>
+        <input class="courr-input" id="c-date-entree" type="date" value="${dateOp}" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Date de sortie <span class="courr-field-required">*</span></div>
+        <input class="courr-input" id="c-date-sortie" type="date" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Médecin traitant</div>
+        <input class="courr-input" id="c-medecin" type="text" placeholder="Dr Nom Prénom" oninput="courrUpdateBtn()">
+      </div>
+    </div>`;
+  }
+
+  area.innerHTML = html;
+  courrUpdateBtn();
+}
+
+// ── Validation et état du bouton ──
+function courrUpdateBtn(){
+  const {interv, cro, crh} = courrState;
+  const btn = document.getElementById('courr-btn-gen');
+  if(!btn) return;
+  const nom = courrGetInput('c-nom');
+  const dateOp = courrGetInput('c-dateop');
+  const ok = interv && nom && dateOp && (cro || crh);
+  btn.disabled = !ok;
+  // Label dynamique
+  if(cro && crh) btn.textContent = 'Générer CRO + CRH';
+  else if(crh) btn.textContent = 'Générer le CRH';
+  else btn.textContent = 'Générer le CRO';
+}
+
+// ── Génération des documents ──
+function courrGenerate(){
+  const {interv, cro, crh} = courrState;
+  if(!interv) return;
+
+  // Collecte des valeurs
+  const v = {
+    nom:       courrGetInput('c-nom').toUpperCase(),
+    prenom:    courrGetInput('c-prenom'),
+    ddn:       courrGetInput('c-ddn'),
+    civil:     courrGetPill('c-civil'),
+    cote:      courrGetPill('c-cote'),
+    dateOp:    courrGetInput('c-dateop'),
+    aides:     courrGetInput('c-aides'),
+    anesth:    courrGetPill('c-anesth'),
+    indication:courrGetInput('c-indication'),
+    atcd:      courrGetInput('c-atcd'),
+    // PTG
+    arthro:    courrGetPill('c-arthro'),
+    deform:    courrGetPill('c-deform'),
+    degres:    courrGetInput('c-degres'),
+    femur:     courrGetInput('c-femur'),
+    plateau:   courrGetInput('c-plateau'),
+    insert:    courrGetInput('c-insert'),
+    rotule:    courrGetInput('c-rotule'),
+    flexion:   courrGetInput('c-flexion'),
+    // PTH
+    cotyleModele: courrGetInput('c-cotyle-modele'),
+    cotyleTaille: courrGetInput('c-cotyle-taille'),
+    tigeModele:   courrGetInput('c-tige-modele'),
+    tigeTaille:   courrGetInput('c-tige-taille'),
+    rapeTaille:   courrGetInput('c-rape-taille'),
+    tigeType:     courrGetPill('c-tige-type'),
+    teteMm:       courrGetInput('c-tete-mm'),
+    teteMat:      courrGetPill('c-tete-mat'),
+    col:          courrGetPill('c-col'),
+    // LCA
+    ressaut:   courrGetPill('c-ressaut'),
+    tunnTib:   courrGetInput('c-tunn-tib'),
+    tunnFem:   courrGetInput('c-tunn-fem'),
+    visTib:    courrGetInput('c-vis-tib'),
+    visFem:    courrGetInput('c-vis-fem'),
+    retourExt: courrGetPill('c-retour-ext'),
+    lachman:   courrGetPill('c-lachman'),
+    // LCA — exploration arthroscopique
+    explFP:    courrGetInput('c-expl-fp'),
+    explMed:   courrGetInput('c-expl-med'),
+    explLat:   courrGetInput('c-expl-lat'),
+    explEch:   courrGetInput('c-expl-ech'),
+    // LCA — gestes méniscaux
+    menisqMedType:   courrGetPill('c-menisq-med-type'),
+    menisqMedMarque: courrGetInput('c-menisq-med-marque'),
+    menisqMedNb:     courrGetInput('c-menisq-med-nb'),
+    menisqLatType:   courrGetPill('c-menisq-lat-type'),
+    menisqLatMarque: courrGetInput('c-menisq-lat-marque'),
+    menisqLatNb:     courrGetInput('c-menisq-lat-nb'),
+    // CRH
+    dateEntree: courrGetInput('c-date-entree'),
+    dateSortie: courrGetInput('c-date-sortie'),
+    medecin:    courrGetInput('c-medecin'),
+  };
+
+  // Profil chirurgien depuis settings
+  const profil = courrGetProfil();
+
+  // Construire les textes selon les toggles actifs
+  const dateOpFmt = courrFmtDate(v.dateOp);
+  const dateEntreeFmt = courrFmtDate(v.dateEntree||v.dateOp);
+  const dateSortieFmt = courrFmtDate(v.dateSortie);
+
+  const docsToGen = [];
+
+  if(cro){
+    let texte = '';
+    if(interv==='PTG') texte = courrTextCROPTG(v, profil, dateOpFmt);
+    if(interv==='PTH') texte = courrTextCROPTH(v, profil, dateOpFmt);
+    if(interv==='LCA') texte = courrTextCROLCA(v, profil, dateOpFmt);
+    if(texte) docsToGen.push({texte, doc:'CRO'});
+  }
+
+  if(crh){
+    let texte = '';
+    if(interv==='PTG') texte = courrTextCRHPTG(v, profil, dateOpFmt, dateEntreeFmt, dateSortieFmt);
+    if(interv==='PTH') texte = courrTextCRHPTH(v, profil, dateOpFmt, dateEntreeFmt, dateSortieFmt);
+    if(interv==='LCA') texte = courrTextCRHLCA(v, profil, dateOpFmt, dateSortieFmt);
+    if(texte) docsToGen.push({texte, doc:'CRH'});
+  }
+
+  courrShareDocs(docsToGen, v, interv);
+}
+
+// ── Formatage de date ──
+function courrFmtDate(d){
+  if(!d) return '—';
+  try{
+    const [y,m,day] = d.split('-');
+    const mois=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    return parseInt(day)+' '+mois[parseInt(m)-1]+' '+y;
+  }catch(e){return d;}
+}
+
+// ── Profil chirurgien ──
+function courrGetProfil(){
+  try{
+    const p = JSON.parse(localStorage.getItem('atlas_profil_courrier')||'{}');
+    return {
+      nom:       p.nom || 'Tom ROUSSEL',
+      titre:     p.titre || 'Docteur Junior',
+      service:   p.service || 'Service de Traumatologie-Orthopédie',
+      hopital:   p.hopital || 'Hôpital Roger Salengro — CHU Lille',
+      chef:      p.chef || 'Pr C. CHANTELOT',
+      secr1:     p.secr1 || 'Coralie WALLAERT',
+      secr2:     p.secr2 || 'Alexandre DELMEIRE',
+    };
+  }catch(e){
+    return {nom:'Tom ROUSSEL',titre:'Docteur Junior',service:'Service de Traumatologie-Orthopédie',hopital:'Hôpital Roger Salengro — CHU Lille',chef:'Pr C. CHANTELOT',secr1:'Coralie WALLAERT',secr2:'Alexandre DELMEIRE'};
+  }
+}
+
+// ════════════════════════════════
+// TEXTES CRO
+// ════════════════════════════════
+
+function courrTextCROPTG(v, p, dateOpFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const arthroTxt = v.arthro||'médiale para-patellaire';
+  const isLateral = arthroTxt.includes('latérale');
+
+  const implants = [
+    v.femur   ? `Fémur ACS taille ${v.femur}` : null,
+    v.plateau ? `Plateau ACS taille ${v.plateau}` : null,
+    v.insert  ? `Insert ${v.insert} mm` : null,
+    v.rotule  ? `Bouton rotulien taille ${v.rotule}` : null,
+  ].filter(Boolean).join(' / ') || '—';
+
+  return `COMPTE-RENDU OPÉRATOIRE — PTG ${cotelng.toUpperCase()}
+
+Date opératoire : ${dateOpFmt}
+Opérateur : ${p.titre} ${p.nom}
+Aides opératoires : ${v.aides||'—'}
+
+Indication : Arthroplastie totale de genou ${cotelng} dans le cadre d'une ${v.indication||'gonarthrose'} avec déformation en ${v.deform||'varus'} de ${v.degres||'—'}°.${v.atcd?'\nAntécédents : '+v.atcd:''}
+CCAM : NFKA007
+Rappel des implants : ${implants}
+
+Installation en décubitus dorsal.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord ${arthroTxt}.
+Arthrotomie ${arthroTxt}.
+${isLateral?'Luxation latérale de la rotule.':'Éversion de la rotule.'}
+Résection des ostéophytes périphériques.
+Résection du corps adipeux de Hoffa.
+Résection du pivot central.
+
+Coupe tibiale première :
+Guide tibial extra-médullaire.
+Résection tibiale proximale selon planification.
+Contrôle de l'espace par l'hémi-espaceur.
+
+Temps fémoral :
+Guide fémoral intra-médullaire.
+Résections distale, antérieure, postérieure et chanfreins.
+Trial fémoral taille ${v.femur||'—'}.
+Ouverture espace flexion au Mehary, ablation ostéophytes postérieurs et ménisques.
+
+Temps tibial :
+Trial plateau ${v.plateau||'—'}, empreinte au ciseau, essai PE ${v.insert||'—'} mm.
+
+Resurfaçage patellaire. No thumb test positif.
+
+Bilan ligamentaire :
+Balance satisfaisante en flexion et en extension.
+Flexion à ${v.flexion||'—'}°, extension complète.
+
+Cimentation plateau ${v.plateau||'—'}/insert ${v.insert||'—'}, fémur ${v.femur||'—'}, rotule ${v.rotule||'—'}.
+Vicryl 2 + Stratafix capsulo-synovial, Vicryl 0 sous-cutané.
+Agrafes. Pansement Aquacel Duoderm.
+
+${p.titre} ${p.nom}
+${p.service}
+${p.hopital}`;
+}
+
+function courrTextCROPTH(v, p, dateOpFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const decubitus = v.cote==='gauche'?'décubitus latéral droit':'décubitus latéral gauche';
+
+  const implants = [
+    v.cotyleModele && v.cotyleTaille ? `Cotyle ${v.cotyleModele} taille ${v.cotyleTaille}` : null,
+    v.tigeModele && v.tigeTaille ? `Tige ${v.tigeModele} ${v.tigeType||'Standard'} taille ${v.tigeTaille}` : null,
+    v.teteMm && v.teteMat && v.col ? `Tête ${v.teteMm} ${v.teteMat} col ${v.col}` : null,
+  ].filter(Boolean).join(' / ') || '—';
+
+  return `COMPTE-RENDU OPÉRATOIRE — PTH ${cotelng.toUpperCase()}
+
+Date opératoire : ${dateOpFmt}
+Opérateur : ${p.titre} ${p.nom}
+Aides opératoires : ${v.aides||'—'}
+
+Indication : Arthroplastie totale de hanche ${cotelng} dans le cadre d'une ${v.indication||'coxarthrose primitive'}.${v.atcd?'\nAntécédents : '+v.atcd:''}
+CCAM : NEKA020
+Rappel des implants : ${implants}
+
+Installation en ${decubitus}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+Fraisages de tailles croissantes jusqu'à la taille ${v.cotyleTaille||'—'} pour mise en place d'un cotyle définitif taille ${v.cotyleTaille||'—'} ${v.cotyleModele||''} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.
+
+Temps fémoral :
+Exposition du fût fémoral jambe au zénith.
+Ablation du reliquat de col à l'emporte-pièce.
+Tunnelisation à la dague.
+Évidement du grand trochanter à la curette.
+On passe les râpes de tailles successives jusqu'à la râpe taille ${v.rapeTaille||v.tigeTaille||'—'}.
+Essais sur râpe en place col ${v.col||'court'}.
+La stabilité est excellente et les longueurs sont restaurées.
+Décision de mise en place d'une tige ${v.tigeModele||'Ecofit'} ${v.tigeType||'Standard'} sans ciment taille ${v.tigeTaille||'—'}.
+Nouveaux essais sur la tige définitive strictement comparables.
+Mise en place d'une tête ${v.teteMm||'28'} ${v.teteMat||'inox'} col ${v.col||'court'}.
+Réduction de la hanche.
+Nettoyage abondant.
+Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Agrafes à la peau.
+Pansement Aquacel Duoderm.
+
+${p.titre} ${p.nom}
+${p.service}
+${p.hopital}`;
+}
+
+function courrTextCROLCA(v, p, dateOpFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const dTib = v.tunnTib||'9';
+  const dFem = v.tunnFem||v.tunnTib||'9';
+
+  // Exploration arthroscopique
+  const explFP  = v.explFP  || 'RAS';
+  const explMed = v.explMed || 'RAS';
+  const explLat = v.explLat || 'RAS';
+  const explEch = v.explEch || 'LCA rompu / LCP intact';
+
+  // Gestes méniscaux — construire les paragraphes si pertinent
+  const hasMedMenisq = document.getElementById('c-menisq-med-wrap') &&
+    document.getElementById('c-menisq-med-wrap').style.display !== 'none';
+  const hasLatMenisq = document.getElementById('c-menisq-lat-wrap') &&
+    document.getElementById('c-menisq-lat-wrap').style.display !== 'none';
+
+  let gesteMedTxt = '';
+  if(hasMedMenisq){
+    if(v.menisqMedType==='Suture par ancres' && v.menisqMedMarque && v.menisqMedNb){
+      gesteMedTxt = `\nSuture du ménisque médial par ${v.menisqMedNb} ancre(s) ${v.menisqMedMarque}.`;
+    } else {
+      gesteMedTxt = `\nMéniscectomie partielle médiale.`;
+    }
+  }
+
+  let gesteLatTxt = '';
+  if(hasLatMenisq){
+    if(v.menisqLatType==='Suture par ancres' && v.menisqLatMarque && v.menisqLatNb){
+      gesteLatTxt = `\nSuture du ménisque latéral par ${v.menisqLatNb} ancre(s) ${v.menisqLatMarque}.`;
+    } else {
+      gesteLatTxt = `\nMéniscectomie partielle latérale.`;
+    }
+  }
+
+  return `COMPTE-RENDU OPÉRATOIRE — LCA ${cotelng.toUpperCase()}
+
+Date opératoire : ${dateOpFmt}
+Opérateur : ${p.titre} ${p.nom}
+Aides opératoires : ${v.aides||'—'}
+
+Indication : Reconstruction du ligament croisé antérieur du genou ${cotelng} par technique DT3+2. Ressaut rotatoire ${v.ressaut||'présent'} en pré-opératoire.${v.atcd?'\nAntécédents : '+v.atcd:''}
+CCAM : NFMC003
+
+Installation en décubitus dorsal, genou fléchi à 90°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Prélèvement du greffon :
+Incision verticale en regard de la patte d'oie.
+Prélèvement du demi-tendineux et du droit interne au stripper atraumatique après ablation des vinculas.
+Les ischio-jambiers sont laissés pédiculés au tibia, enroulés dans une compresse imbibée de Vancomycine et réintroduits dans leur gaine pendant la durée du temps arthroscopique.
+
+Gonflage du garrot pneumatique à la racine du membre à 300 mmHg.
+
+Temps arthroscopique :
+Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
+Exploration systématique du genou :
+- Compartiment fémoro-patellaire : ${explFP}
+- Compartiment médial : ${explMed}${gesteMedTxt}
+- Compartiment latéral : ${explLat}${gesteLatTxt}
+- Échancrure : ${explEch}
+Section du ligament suspenseur du Hoffa et ablation du reliquat de LCA en prenant soin de préserver son pied au niveau de son insertion tibiale.
+
+Temps tibial :
+Réalisation du tunnel tibial à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation tibiale initiale à la mèche de ${dTib} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Temps fémoral :
+Contre-abord centimétrique 1 cm proximal et postérieur à l'épicondyle latéral.
+Ouverture du fascia lata.
+Réalisation du tunnel fémoral outside-in à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation fémorale initiale à la mèche de ${dFem} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Préparation du greffon :
+On détermine la longueur du greffon à l'aide du tigerstick passé dans les tunnels.
+Faufilage au XBRAID pour préparation du greffon selon technique DT3+2.
+Calibrage définitif à ${dTib} mm au tibia et ${dFem} mm au fémur.
+
+On monte le greffon sous arthroscopie à l'aide de fils relais.
+Cyclage du genou.
+Fixation au fémur par vis d'interférence ${v.visFem||dFem+'x25'}.
+Fixation tibiale par vis d'interférence ${v.visTib||dTib+'x25'} à 30° de flexion.
+${v.retourExt==='réalisé'?`
+Retour externe :
+Abord tibial postérieur au tubercule de Gerdy.
+Réalisation d'un passage reliant le tunnel fémoral et la partie postérieure du Gerdy en passant sous le fascia lata.
+Réalisation d'un tunnel de diamètre 6 mm orienté vers la patte d'oie.
+À l'aide de fils relais, passage du retour externe dans le tunnel et fixation au tibia par endobouton RT en extension et rotation neutre.
+`:''}
+Test de Lachman ${v.lachman||'négatif'}.
+Tiroir antérieur négatif.
+Isométrie satisfaisante en fin d'intervention.
+
+Fermeture des plans sous-cutanés au Vicryl 2-0.
+Fermeture plan cutané au Vicryl 3-0 rapide.
+Pansement sec.
+
+${p.titre} ${p.nom}
+${p.service}
+${p.hopital}`;
+}
+
+// ════════════════════════════════
+// TEXTES CRH
+// ════════════════════════════════
+
+function courrTextCRHPTG(v, p, dateOpFmt, dateEntreeFmt, dateSortieFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const civil2 = v.civil==='Mme'?'elle':'il';
+  const civil3 = v.civil==='Mme'?'(e)':'';
+
+  return `${courrHeaderCRH(v, p, dateEntreeFmt, dateSortieFmt)}
+
+Cher confrère,
+
+Votre patient${civil3} ${v.civil} ${v.nom} ${v.prenom}, ${courrAge(v.ddn)} ans, a été hospitalisé${civil3} dans notre service du ${dateEntreeFmt} au ${dateSortieFmt} pour la réalisation de son arthroplastie totale de genou ${cotelng} sur ${v.indication||'gonarthrose'} avec déformation en ${v.deform||'varus'} de ${v.degres||'—'}°.${v.atcd?'\n'+v.atcd:''}
+
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${dateOpFmt} sous ${v.anesth||'rachianesthésie'}. Les radiographies de contrôle post-opératoire sont satisfaisantes.
+
+Au cours de son hospitalisation, le${civil2==='il'?'':' la'} patient${civil3} a pu bénéficier de kinésithérapie et reprendre la marche sans difficulté.
+
+Les suites ont été simples par ailleurs, la sortie du/de la patient${civil3} est donc autorisée ce jour sous couvert des consignes suivantes :
+- Soins de pansements tous les 4 jours par IDE à domicile, protocole AQUACEL + DUODERM
+- Ablation des agrafes à J15 post-opératoire
+- Kinésithérapie intensive selon le protocole remis au patient
+- Appui complet autorisé d'emblée avec 2 cannes anglaises
+- Antalgiques selon ordonnance
+- Anticoagulation préventive par INNOHEP 4500 UI 1 inj. SC par jour avec contrôle plaquettaire hebdomadaire dont les résultats sont à transmettre au médecin traitant, pendant 35 jours
+
+Pour ma part, je le/la reverrai en consultation de contrôle radio-clinique dans 6 semaines avec radiographies du genou ${cotelng} de face et profil en charge et pangonogramme.
+
+Bien cordialement.
+
+${p.chef}          ${p.titre} ${p.nom}`;
+}
+
+function courrTextCRHPTH(v, p, dateOpFmt, dateEntreeFmt, dateSortieFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const civil3 = v.civil==='Mme'?'(e)':'';
+
+  return `${courrHeaderCRH(v, p, dateEntreeFmt, dateSortieFmt)}
+
+Cher confrère,
+
+Votre patient${civil3} ${v.civil} ${v.nom} ${v.prenom}, ${courrAge(v.ddn)} ans, a été hospitalisé${civil3} dans notre service du ${dateEntreeFmt} au ${dateSortieFmt} pour la réalisation de son arthroplastie totale de hanche ${cotelng} sur ${v.indication||'coxarthrose primitive'}.${v.atcd?'\n'+v.atcd:''}
+
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${dateOpFmt} sous ${v.anesth||'rachianesthésie'}. Les radiographies de contrôle post-opératoire sont satisfaisantes.
+
+Au cours de son hospitalisation, le/la patient${civil3} a pu bénéficier de kinésithérapie et reprendre la marche sans difficulté.
+
+La sortie du/de la patient${civil3} est autorisée ce ${dateSortieFmt} sous couvert des consignes suivantes :
+- Soins de pansements tous les 4 jours par IDE à domicile, protocole AQUACEL + DUODERM
+- Ablation des agrafes à J15 post-opératoire
+- Kinésithérapie selon le protocole remis au patient
+- Appui complet autorisé d'emblée avec 2 cannes anglaises, précautions anti-luxation pendant 6 semaines
+- Antalgiques selon ordonnance
+- Anticoagulation préventive par INNOHEP 4500 UI 1 inj. SC par jour avec contrôle plaquettaire hebdomadaire dont les résultats sont à transmettre au médecin traitant, pendant 35 jours
+
+Pour ma part, je le/la reverrai en consultation de contrôle radio-clinique dans 6 semaines avec radiographies du bassin de face et de hanche ${cotelng} de face et profil.
+
+Bien cordialement.
+
+${p.chef}          ${p.titre} ${p.nom}`;
+}
+
+function courrTextCRHLCA(v, p, dateOpFmt, dateSortieFmt){
+  const cotelng = v.cote==='gauche'?'gauche':'droit';
+  const civil3 = v.civil==='Mme'?'(e)':'';
+
+  return `${courrHeaderCRH(v, p, dateOpFmt, dateSortieFmt)}
+
+Cher confrère,
+
+Votre patient${civil3} ${v.civil} ${v.nom} ${v.prenom}, ${courrAge(v.ddn)} ans, a été pris${civil3} en charge en ambulatoire dans notre service le ${dateOpFmt} pour la reconstruction du ligament croisé antérieur du genou ${cotelng} par technique DT3+2.${v.atcd?'\n'+v.atcd:''}
+
+L'intervention s'est parfaitement déroulée sous ${v.anesth||'rachianesthésie'}.
+
+Les suites ont été simples, la sortie du/de la patient${civil3} est donc autorisée le jour même sous couvert des consignes suivantes :
+- Appui complet autorisé d'emblée avec 2 cannes anglaises
+- Soins de pansements toutes les 48h par IDE à domicile
+- Ablation des agrafes à J15 post-opératoire
+- Kinésithérapie en urgence selon le protocole DT3+2 remis au patient
+- Antalgiques selon ordonnance
+- Anticoagulation préventive par INNOHEP 4500 UI 1 inj. SC par jour pendant 21 jours avec contrôle plaquettaire hebdomadaire dont les résultats sont à transmettre au médecin traitant
+
+Pour ma part, je le/la reverrai en consultation de contrôle dans 4 semaines.
+
+Bien cordialement.
+
+${p.chef}          ${p.titre} ${p.nom}`;
+}
+
+function courrHeaderCRH(v, p, dateEntreeFmt, dateSortieFmt){
+  const ddnFmt = v.ddn ? courrFmtDate(v.ddn) : '—';
+  return `${p.hopital}
+${p.service}
+
+${v.nom} ${v.prenom}
+Né(e) le ${ddnFmt}
+Hospitalisation du ${dateEntreeFmt} au ${dateSortieFmt}
+
+${p.service}
+${p.chef} — Chef de Service
+${p.titre} ${p.nom}
+
+Lettre adressée à : ${v.medecin?'Dr '+v.medecin:'—'}`;
+}
+
+function courrAge(ddn){
+  if(!ddn) return '—';
+  try{
+    const d = new Date(ddn);
+    const now = new Date();
+    let age = now.getFullYear()-d.getFullYear();
+    const m = now.getMonth()-d.getMonth();
+    if(m<0||(m===0&&now.getDate()<d.getDate())) age--;
+    return age;
+  }catch(e){return '—';}
+}
+
+// ── Partage des documents (séquentiel si les deux sont cochés) ──
+async function courrShareDocs(docs, v, interv){
+  if(!docs.length) return;
+  const dateSlug = (v.dateOp||'').replace(/-/g,'');
+
+  showToast('Génération en cours…');
+
+  for(const {texte, doc} of docs){
+    const filename = `${doc}_${interv}_${v.nom||'PATIENT'}_${dateSlug}.txt`;
+    try{
+      const blob = new Blob([texte], {type:'text/plain;charset=utf-8'});
+      const result = await shareOrDownload(blob, filename);
+      // Si l'utilisateur annule la share sheet sur le premier doc, on s'arrête
+      if(result==='aborted') return;
+    }catch(e){
+      console.error('Erreur génération '+doc+':', e);
+      showToast('Erreur lors de la génération du '+doc);
+      return;
+    }
+  }
+  showToast(docs.length===2?'CRO + CRH partagés ✓':'Document partagé ✓');
+}
+
+// ── Intégration dans sw() — ajout de la vue courriers ──
+// Patch de sw() pour supporter 'courriers'
+const _sw_orig = sw;
+window.sw = function(v){
+  _sw_orig(v);
+  if(v==='courriers'){
+    const vEl = document.getElementById('view-courriers');
+    if(vEl){ vEl.style.display='flex'; vEl.classList.add('active'); }
+    initCourriers();
+  } else {
+    const vEl = document.getElementById('view-courriers');
+    if(vEl){ vEl.style.display='none'; vEl.classList.remove('active'); }
+  }
+};
+
+// ── Bouton "Générer CRO" depuis la fiche détail ──
+function courrOpenFromDetail(){
+  if(detailBlocIdx < 0) return;
+  courrFromBloc(detailBlocIdx);
+}
+
+// ── Détection lésion méniscale et affichage conditionnel ──
+function courrLesionCheck(side){
+  const val = (document.getElementById('c-expl-'+side)||{}).value||'';
+  const hasMenisq = /ménisq|menisq|méniscal|méniscus|lésion|déchirure|anse|clivage|méniscectomie|suture/i.test(val);
+  const wrap = document.getElementById('c-menisq-'+side+'-wrap');
+  if(wrap) wrap.style.display = hasMenisq ? 'block' : 'none';
+  if(!hasMenisq) return;
+  // Afficher/masquer le sous-bloc ancres selon le type sélectionné
+  courrMenisqTypeCheck(side);
+}
+
+function courrMenisqTypeCheck(side){
+  const type = courrGetPill('c-menisq-'+side+'-type');
+  const ancresWrap = document.getElementById('c-menisq-'+side+'-ancres-wrap');
+  if(ancresWrap) ancresWrap.style.display = type==='Suture par ancres' ? 'block' : 'none';
+}
+
+// ── END MODULE COURRIERS ──
 </script>
 </div>
 </body>
