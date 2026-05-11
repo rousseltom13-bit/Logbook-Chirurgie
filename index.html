@@ -626,6 +626,27 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
 
 
+
+    /* ── TUTO CONTEXTUEL ── */
+    .tuto-overlay{position:fixed;inset:0;z-index:900;pointer-events:none;}
+    .tuto-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:901;transition:opacity 0.3s;}
+    .tuto-card{position:fixed;z-index:902;background:#1A2730;border:1px solid rgba(94,150,184,0.18);border-radius:18px;padding:20px 22px 18px;max-width:320px;width:calc(100vw - 48px);box-shadow:0 16px 48px rgba(0,0,0,0.4);pointer-events:all;}
+    .tuto-card-arrow{position:absolute;width:12px;height:12px;background:#1A2730;border:1px solid rgba(94,150,184,0.18);transform:rotate(45deg);}
+    .tuto-card-arrow.top{top:-7px;border-right:none;border-bottom:none;}
+    .tuto-card-arrow.bottom{bottom:-7px;border-left:none;border-top:none;}
+    .tuto-step-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+    .tuto-title{font-size:16px;font-weight:600;color:white;margin-bottom:6px;line-height:1.3;}
+    .tuto-points{list-style:none;padding:0;margin:0 0 16px;display:flex;flex-direction:column;gap:6px;}
+    .tuto-points li{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.55;padding-left:16px;position:relative;}
+    .tuto-points li::before{content:'·';position:absolute;left:4px;color:var(--warm);}
+    .tuto-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .tuto-btn-next{background:var(--accent);color:white;border:none;border-radius:99px;padding:10px 20px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;flex-shrink:0;}
+    .tuto-btn-skip{background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;font-family:inherit;cursor:pointer;padding:4px;}
+    .tuto-dots{display:flex;gap:5px;align-items:center;}
+    .tuto-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.2);}
+    .tuto-dot.active{background:var(--accent);width:14px;border-radius:3px;}
+    /* ── END TUTO ── */
+
     /* ── ONBOARDING ── */
     #onboarding{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);position:fixed;inset:0;z-index:1100;display:none;flex-direction:column;align-items:center;overflow-y:auto;padding:calc(var(--safe-top)+48px) 28px calc(var(--safe-bot)+32px);touch-action:manipulation;-webkit-text-size-adjust:none;}
     #onboarding.visible{display:flex;}
@@ -674,6 +695,27 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
     /* ── END ONBOARDING ── */
     /* Lock screen */
+
+    /* ── TUTO CONTEXTUEL ── */
+    .tuto-overlay{position:fixed;inset:0;z-index:900;pointer-events:none;}
+    .tuto-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:901;transition:opacity 0.3s;}
+    .tuto-card{position:fixed;z-index:902;background:#1A2730;border:1px solid rgba(94,150,184,0.18);border-radius:18px;padding:20px 22px 18px;max-width:320px;width:calc(100vw - 48px);box-shadow:0 16px 48px rgba(0,0,0,0.4);pointer-events:all;}
+    .tuto-card-arrow{position:absolute;width:12px;height:12px;background:#1A2730;border:1px solid rgba(94,150,184,0.18);transform:rotate(45deg);}
+    .tuto-card-arrow.top{top:-7px;border-right:none;border-bottom:none;}
+    .tuto-card-arrow.bottom{bottom:-7px;border-left:none;border-top:none;}
+    .tuto-step-label{font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+    .tuto-title{font-size:16px;font-weight:600;color:white;margin-bottom:6px;line-height:1.3;}
+    .tuto-points{list-style:none;padding:0;margin:0 0 16px;display:flex;flex-direction:column;gap:6px;}
+    .tuto-points li{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.55;padding-left:16px;position:relative;}
+    .tuto-points li::before{content:'·';position:absolute;left:4px;color:var(--warm);}
+    .tuto-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    .tuto-btn-next{background:var(--accent);color:white;border:none;border-radius:99px;padding:10px 20px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;flex-shrink:0;}
+    .tuto-btn-skip{background:none;border:none;color:rgba(255,255,255,0.3);font-size:12px;font-family:inherit;cursor:pointer;padding:4px;}
+    .tuto-dots{display:flex;gap:5px;align-items:center;}
+    .tuto-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.2);}
+    .tuto-dot.active{background:var(--accent);width:14px;border-radius:3px;}
+    /* ── END TUTO ── */
+
     /* ── ONBOARDING ── */
     #onboarding{background:linear-gradient(165deg,#0E2C36 0%,#08080A 55%,#0a1a10 100%);position:fixed;inset:0;z-index:1100;display:none;flex-direction:column;align-items:center;overflow-y:auto;padding:calc(var(--safe-top)+48px) 28px calc(var(--safe-bot)+32px);touch-action:manipulation;-webkit-text-size-adjust:none;}
     #onboarding.visible{display:flex;}
@@ -914,7 +956,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <button class="head-icon" onclick="showSettings()" aria-label="Sync">
+      <button class="head-icon" id="btn-reglages" onclick="showSettings();tutoShowScreen('reglages')" aria-label="Réglages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
     </div>
@@ -1700,6 +1742,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
     <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--border);">
       <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Statistiques</div>
       <div style="font-size:13px;color:var(--text2);" id="settings-stats"></div>
+      <button onclick="tutoReset();closeModal('settings-modal')" style="margin-top:12px;background:none;border:1px solid rgba(94,150,184,0.2);color:var(--text3);border-radius:99px;padding:8px 16px;font-size:12px;font-family:inherit;cursor:pointer;width:100%;">↺ Réafficher le tutoriel</button>
     </div>
   </div>
 </div>
@@ -2309,7 +2352,7 @@ function onImplantSuggest(val){
 }
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v30';
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v40';
   openModal('settings-modal');
 }
 
@@ -2319,11 +2362,11 @@ function sw(v){
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   const vEl=document.getElementById('view-'+v);const bEl=document.getElementById('bn-'+v);
   if(vEl)vEl.classList.add('active');if(bEl)bEl.classList.add('active');
-  if(v==='dashboard')renderDash();
-  if(v==='blocs')renderBlocs();
+  if(v==='dashboard'){renderDash();tutoShowScreen('dashboard');}
+  if(v==='blocs'){renderBlocs();tutoShowScreen('blocs');}
   if(v==='saisie')initForm();
-  if(v==='stats')renderStats();
-  if(v==='recherche')renderBlocs(); // recherche = vue blocs avec focus search
+  if(v==='stats'){renderStats();tutoShowScreen('stats');}
+  if(v==='recherche')renderBlocs();
 }
 function renderAll(){renderDash();renderBlocs();}
 
@@ -2333,7 +2376,7 @@ function switchDashTab(tab,btn){
   document.querySelectorAll('#view-dashboard .dash-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('dp-'+tab).classList.add('active');
   if(tab==='recent'){renderUpcoming();}
-  if(tab==='planning'){renderInlineCalendar();renderMonthPlannedList();}
+  if(tab==='planning'){renderInlineCalendar();renderMonthPlannedList();tutoShowScreen('planning');}
 }
 function renderDash(){
   // Atlas greeting
@@ -3663,8 +3706,9 @@ function saveBloc(){
     hospitMode:document.getElementById('f-hospit-mode').value||'Hospitalisation',
     hospitDuree:document.getElementById('f-hospit-duree').value||null
   }:{};
-  const newBloc = {id:Date.now().toString(),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
+  const newBloc = {id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
   blocs.push(newBloc);
+  window._plannedBlocId = null; // reset après usage
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
   // Multi-intervention : si des blocs supplémentaires ont été préparés
   if(window._pendingMultiBlocs && window._pendingMultiBlocs.length > 0){
@@ -4627,8 +4671,95 @@ function openPlannedDetail(idx){
     ${p.patient?`<div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Patient : ${esc(p.patient)}</div>`:''}
     ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:13px;color:var(--amber-d);line-height:1.5;">📋 ${escNl(p.comment)}</div>`:''}
     <button onclick="editPlanned(${idx})" style="width:100%;margin-top:14px;padding:10px;font-size:13px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;color:var(--text);">Modifier</button>
+    <div id="pdet-radios-section" style="margin-top:18px;border-top:0.5px solid var(--border2);padding-top:16px;">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;">Radios préopératoires</div>
+      <div id="pdet-radios-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:0;"></div>
+      <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;">
+        + Ajouter une radio préop
+        <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})">
+      </label>
+    </div>
   `;
   openModal('planned-detail-modal');
+  // Charger les radios existantes
+  renderPlannedRadios(idx);
+}
+
+async function renderPlannedRadios(idx){
+  const p = planned[idx];
+  if(!p) return;
+  const radios = await getRadiosForBloc(p.id);
+  const preImgs = (radios['Préopératoire'] || []);
+  const grid = document.getElementById('pdet-radios-grid');
+  if(!grid) return;
+  if(!preImgs.length){
+    grid.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0;">Aucune radio ajoutée</div>';
+    return;
+  }
+  grid.innerHTML = preImgs.map((img,i) => `
+    <div class="radio-thumb" onclick="openPlannedLB(${idx},${i})">
+      <img src="${img.data}" alt="radio" loading="lazy">
+      <button class="radio-del" onclick="event.stopPropagation();delPlannedRadio(${idx},${i})">×</button>
+      <div class="radio-lbl">${img.name ? img.name.substring(0,12) : 'Préop'}</div>
+    </div>
+  `).join('');
+}
+
+async function handlePlannedRadioUpload(e, idx){
+  const p = planned[idx];
+  if(!p) return;
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  const existing = await getRadiosForBloc(p.id);
+  let startIdx = (existing['Préopératoire'] || []).length;
+  showToast('Import ' + files.length + ' image(s)…');
+  let done = 0;
+  for(const f of files){
+    try{
+      const dataURL = await new Promise((res,rej)=>{
+        const r = new FileReader();
+        r.onload = ev => res(ev.target.result);
+        r.onerror = rej;
+        r.readAsDataURL(f);
+      });
+      let finalData = dataURL;
+      try{
+        const compressed = await compressImageDataURL(dataURL, 1600, 0.85);
+        if(compressed && compressed.length < dataURL.length * 0.95) finalData = compressed;
+      }catch(e){}
+      await saveRadio(p.id, 'Préopératoire', startIdx + done, finalData, f.name, new Date().toLocaleDateString('fr-CA'));
+      done++;
+    }catch(err){ console.warn('Upload planned radio failed', err); }
+  }
+  showToast(done + ' radio(s) ajoutée(s)');
+  renderPlannedRadios(idx);
+}
+
+async function delPlannedRadio(idx, radioIdx){
+  const p = planned[idx];
+  if(!p) return;
+  const radios = await getRadiosForBloc(p.id);
+  const imgs = (radios['Préopératoire'] || []);
+  imgs.splice(radioIdx, 1);
+  await reindexRadios(p.id, 'Préopératoire', imgs);
+  renderPlannedRadios(idx);
+  showToast('Radio supprimée');
+}
+
+let _plannedLBImgs = [], _plannedLBIdx = 0;
+async function openPlannedLB(idx, radioIdx){
+  const p = planned[idx];
+  if(!p) return;
+  const radios = await getRadiosForBloc(p.id);
+  _plannedLBImgs = radios['Préopératoire'] || [];
+  _plannedLBIdx = radioIdx;
+  const img = _plannedLBImgs[_plannedLBIdx];
+  if(!img) return;
+  lbImgs = _plannedLBImgs;
+  lbIdx = _plannedLBIdx;
+  document.getElementById('lb-img').src = img.data;
+  document.getElementById('lb-info').textContent = 'Préopératoire · ' + (img.name || '');
+  document.getElementById('lightbox').classList.add('show');
 }
 function editPlanned(idx){
   plannedEditIdx=idx;const p=planned[idx];
@@ -4651,6 +4782,8 @@ function deletePlanned(){
 function convertPlanned(){
   const p=planned[currentPlannedIdx];
   closeModal('planned-detail-modal');
+  // Stocker l'id planifié pour que saveBloc le réutilise → radios migrées automatiquement
+  window._plannedBlocId = p.id;
   // Pré-remplir le formulaire de saisie
   sw('saisie');
   setTimeout(()=>{
@@ -4663,7 +4796,7 @@ function convertPlanned(){
     document.getElementById('f-remarques').value=p.comment?'Pré-op : '+p.comment:'';
     // Supprimer le bloc prévu une fois le formulaire pré-rempli
     planned.splice(currentPlannedIdx,1);saveLocal();renderPlanning();
-    showToast('Formulaire pré-rempli — complète et valide le bloc');
+    showToast('Formulaire pré-rempli — radios préop transférées automatiquement');
   },200);
 }
 
@@ -4711,7 +4844,7 @@ async function exportData(){
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v38',
+    version:'atlas-v40',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -4971,6 +5104,8 @@ function showApp(){
   appEl.style.display='';
   appEl.classList.add('visible');
   try{runIntervMigration();}catch(e){console.warn('migration interv échouée:',e);}
+  // Tuto au premier lancement
+  setTimeout(()=>tutoShowScreen('dashboard'), 800);
   try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
   try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
   try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
@@ -5124,7 +5259,7 @@ async function exportLight(){
   if(!blocs || blocs.length===0){showToast('Aucun bloc à exporter');return;}
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload = {
-    version: 'atlas-v38-light',
+    version: 'atlas-v40-light',
     exported_at: new Date().toISOString(),
     blocs_count: blocs.length,
     planned_count: (planned||[]).length,
@@ -5492,6 +5627,202 @@ async function compressAllRadiosInPlace(){
 }
 
 
+
+// ══════════════════════════════════════════
+// TUTO CONTEXTUEL
+// ══════════════════════════════════════════
+const TUTO_KEY = 'atlas_tuto_done'; // clés par écran : atlas_tuto_dashboard, etc.
+
+const TUTO_STEPS = [
+  {
+    id: 'dashboard',
+    title: "Votre activité en un coup d'œil",
+    anchor: 'bn-dashboard',
+    position: 'top',
+    points: [
+      'Vos prochains blocs apparaissent avec un rappel de délai — rouge si < 7 jours, orange si < 30 jours',
+      'Appuyez sur un bloc planifié pour le convertir en bloc réalisé le jour J',
+      'Les KPIs (total blocs, complications) sont mis à jour en temps réel',
+    ]
+  },
+  {
+    id: 'planning',
+    title: "Organisez votre programme opératoire",
+    anchor: 'dp-planning',
+    position: 'top',
+    points: [
+      'Vue calendrier mensuelle — les jours avec blocs affichent un badge corail',
+      "Appuyez sur n'importe quel jour pour programmer un nouveau bloc",
+      'Appuyez sur un bloc existant pour le modifier ou le supprimer',
+    ]
+  },
+  {
+    id: 'blocs',
+    title: "Votre logbook complet",
+    anchor: 'bn-blocs',
+    position: 'top',
+    points: [
+      'Recherche transversale par patient, intervention ou tag',
+      'Filtrez par spécialité, rôle, statut ou tags personnalisés',
+      'Appuyez sur une fiche pour accéder au détail complet du cas',
+    ]
+  },
+  {
+    id: 'detail',
+    title: "Le dossier complet de chaque cas",
+    anchor: 'view-detail',
+    position: 'top',
+    points: [
+      "+2ème : ajoutez une seconde intervention au même patient le même jour",
+      "Suivi : enregistrez consultations, complications, reprises et fin de suivi — chaque événement est daté",
+      "Une complication reste dans vos stats même si le patient évolue favorablement",
+      "Radios : ajoutez vos imageries préop, postop et de suivi — délai post-op calculé automatiquement",
+    ]
+  },
+  {
+    id: 'stats',
+    title: "Ce que vos données disent de vous",
+    anchor: 'bn-stats',
+    position: 'top',
+    points: [
+      "Toutes les barres, pastilles et classements sont cliquables → liste des blocs concernés",
+      "Suivez votre courbe d'apprentissage par intervention et votre taux de complications par rôle",
+      "Comparez vos résultats entre orthopédie et traumatologie",
+    ]
+  },
+  {
+    id: 'reglages',
+    title: "Vos données, sous votre contrôle",
+    anchor: 'btn-reglages',
+    position: 'bottom',
+    points: [
+      "Export JSON : sauvegardez l'intégralité de votre logbook — conservez-le sur Mac ou disque externe",
+      "Import JSON : restaurez vos données sur un nouvel appareil ou après réinstallation",
+      "Via AirDrop : transfert sécurisé peer-to-peer entre vos appareils, aucun serveur",
+      "Faites un export régulier — aucune sauvegarde automatique n'existe",
+    ]
+  },
+];
+
+let _tutoActive = false;
+let _tutoCurrentStep = 0;
+let _tutoBackdrop = null;
+let _tutoCard = null;
+
+function tutoShouldShow(screenId) {
+  return !localStorage.getItem('atlas_tuto_' + screenId);
+}
+
+function tutoMarkDone(screenId) {
+  localStorage.setItem('atlas_tuto_' + screenId, '1');
+}
+
+function tutoShowScreen(screenId) {
+  if(!tutoShouldShow(screenId)) return;
+  const stepIdx = TUTO_STEPS.findIndex(s => s.id === screenId);
+  if(stepIdx === -1) return;
+  _tutoCurrentStep = stepIdx;
+  setTimeout(() => _tutoRender(), 300); // laisser la vue se rendre
+}
+
+function _tutoRender() {
+  _tutoDestroy();
+  const step = TUTO_STEPS[_tutoCurrentStep];
+  if(!step) return;
+
+  // Backdrop
+  _tutoBackdrop = document.createElement('div');
+  _tutoBackdrop.className = 'tuto-backdrop';
+  _tutoBackdrop.onclick = _tutoNext;
+  document.body.appendChild(_tutoBackdrop);
+
+  // Card
+  _tutoCard = document.createElement('div');
+  _tutoCard.className = 'tuto-card';
+
+  const totalScreens = TUTO_STEPS.length;
+  const dotsHtml = TUTO_STEPS.map((s,i) =>
+    `<div class="tuto-dot${i===_tutoCurrentStep?' active':''}"></div>`
+  ).join('');
+
+  _tutoCard.innerHTML = `
+    <div class="tuto-step-label">Découvrir Atlas · ${_tutoCurrentStep+1}/${totalScreens}</div>
+    <div class="tuto-title">${step.title}</div>
+    <ul class="tuto-points">${step.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="tuto-actions">
+      <div class="tuto-dots">${dotsHtml}</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="tuto-btn-skip" onclick="_tutoSkipAll()">Passer</button>
+        <button class="tuto-btn-next" onclick="_tutoNext()">${_tutoCurrentStep < totalScreens-1 ? 'Suivant →' : 'Terminer ✓'}</button>
+      </div>
+    </div>
+  `;
+
+  // Positionner la carte
+  document.body.appendChild(_tutoCard);
+  _tutoPosition(step);
+  _tutoActive = true;
+}
+
+function _tutoPosition(step) {
+  if(!_tutoCard) return;
+  const anchor = document.getElementById(step.anchor);
+
+  if(!anchor) {
+    // Centrer si pas d'ancre
+    _tutoCard.style.left = '50%';
+    _tutoCard.style.transform = 'translateX(-50%)';
+    _tutoCard.style.bottom = '100px';
+    return;
+  }
+
+  const rect = anchor.getBoundingClientRect();
+  const cardW = 320;
+  const cardH = _tutoCard.offsetHeight || 200;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // Position horizontale — centrer sur l'ancre, clamp dans l'écran
+  let left = rect.left + rect.width/2 - cardW/2;
+  left = Math.max(16, Math.min(left, vw - cardW - 16));
+  _tutoCard.style.left = left + 'px';
+
+  if(step.position === 'top') {
+    // Au-dessus de la bottomnav
+    _tutoCard.style.bottom = (vh - rect.top + 12) + 'px';
+    _tutoCard.style.top = 'auto';
+  } else {
+    // En dessous
+    _tutoCard.style.top = (rect.bottom + 12) + 'px';
+    _tutoCard.style.bottom = 'auto';
+  }
+}
+
+function _tutoNext() {
+  const step = TUTO_STEPS[_tutoCurrentStep];
+  if(step) tutoMarkDone(step.id);
+  _tutoDestroy();
+  // Pas d'enchaînement automatique — le tuto suivant s'affiche quand l'utilisateur navigue
+}
+
+function _tutoSkipAll() {
+  TUTO_STEPS.forEach(s => tutoMarkDone(s.id));
+  _tutoDestroy();
+  showToast('Tuto désactivé — réactivable depuis les Réglages');
+}
+
+function _tutoDestroy() {
+  if(_tutoBackdrop) { _tutoBackdrop.remove(); _tutoBackdrop = null; }
+  if(_tutoCard) { _tutoCard.remove(); _tutoCard = null; }
+  _tutoActive = false;
+}
+
+function tutoReset() {
+  TUTO_STEPS.forEach(s => localStorage.removeItem('atlas_tuto_' + s.id));
+  showToast('Tuto réinitialisé');
+}
+
+
 // ══════════════════════════════════════════
 // ONBOARDING + LICENCE
 // ══════════════════════════════════════════
@@ -5671,6 +6002,10 @@ if(_obDone && _obLic && isLicenseValid(_obLic)) {
   document.getElementById('lockscreen').classList.add('visible');
   document.getElementById('lockscreen').style.display='flex';
   updateLockscreen();
+}
+// Tuto dashboard au premier lancement après unlock
+function _triggerDashTutoOnUnlock(){
+  setTimeout(()=>tutoShowScreen('dashboard'), 800);
 }
 </script>
 </div>
