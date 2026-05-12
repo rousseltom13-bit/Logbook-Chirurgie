@@ -825,6 +825,68 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .courr-num-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .courr-num-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 /* ── END COURRIERS MODULE ── */
+
+/* ── RÉGLAGES + TEMPLATE BUILDER ── */
+#view-reglages{padding:0;display:none;flex-direction:column;height:100%;}
+.regl-hero{padding:20px 22px 14px;border-bottom:1px solid var(--border);}
+.regl-scroll{padding:16px 22px 100px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.regl-section{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:20px 0 10px;}
+.regl-section:first-child{margin-top:0;}
+.regl-group{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 0;margin-bottom:14px;}
+.regl-row{padding:10px 16px;display:flex;flex-direction:column;gap:5px;}
+.regl-row+.regl-row{border-top:1px solid var(--border);}
+.regl-label{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.regl-input{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:15px;color:var(--text);padding:0;}
+.regl-input::placeholder{color:var(--text3);font-style:italic;}
+.regl-key-row{display:flex;align-items:center;gap:8px;}
+.regl-key-toggle{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;}
+.regl-save-btn{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:4px;}
+.regl-danger-btn{width:100%;padding:11px;background:transparent;color:var(--red);border:1px solid var(--red);border-radius:8px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;}
+.tmpl-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.tmpl-card-info{flex:1;min-width:0;}
+.tmpl-card-name{font-size:15px;font-weight:600;color:var(--text);}
+.tmpl-card-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.tmpl-card-actions{display:flex;gap:6px;flex-shrink:0;}
+.tmpl-icon-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 8px;cursor:pointer;color:var(--text2);font-size:13px;}
+.tmpl-add-btn{width:100%;padding:13px;background:transparent;border:1.5px dashed var(--border);border-radius:8px;font-size:14px;font-weight:500;color:var(--text3);font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tmpl-modal{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;background:var(--bg);}
+.tmpl-modal-header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);}
+.tmpl-modal-title{flex:1;font-size:17px;font-weight:600;color:var(--text);}
+.tmpl-modal-close{background:none;border:none;color:var(--text3);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;}
+.tmpl-modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 20px;}
+.tmpl-step{display:none;}
+.tmpl-step.active{display:block;}
+.tmpl-step-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:10px;}
+.tmpl-name-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:inherit;font-size:16px;color:var(--text);outline:none;margin-bottom:12px;}
+.tmpl-name-input:focus{border-color:var(--accent);}
+.tmpl-textarea{width:100%;min-height:160px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:inherit;font-size:14px;color:var(--text);resize:vertical;outline:none;line-height:1.6;}
+.tmpl-textarea:focus{border-color:var(--accent);}
+.tmpl-hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
+.tmpl-ai-btn{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tmpl-ai-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.tmpl-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.tmpl-var-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;position:relative;}
+.tmpl-var-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.tmpl-var-badge{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-l);padding:2px 8px;border-radius:99px;}
+.tmpl-var-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:0;line-height:1;}
+.tmpl-var-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px;}
+.tmpl-var-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:14px;color:var(--text);outline:none;}
+.tmpl-var-input:focus{border-color:var(--accent);}
+.tmpl-var-select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:14px;color:var(--text);outline:none;}
+.tmpl-var-options-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;margin-top:6px;}
+.tmpl-add-var-btn{width:100%;padding:10px;background:transparent;border:1px dashed var(--border);border-radius:8px;font-size:13px;color:var(--text3);font-family:inherit;cursor:pointer;margin-top:6px;}
+.tmpl-preview{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:13px;color:var(--text2);line-height:1.7;white-space:pre-wrap;max-height:260px;overflow-y:auto;}
+.tmpl-preview mark{background:var(--accent-l);color:var(--accent);border-radius:3px;padding:0 3px;font-weight:600;}
+.tmpl-modal-footer{padding:12px 16px calc(12px + var(--safe-bot));border-top:1px solid var(--border);display:flex;gap:8px;}
+.tmpl-modal-btn{flex:1;padding:13px;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;}
+.tmpl-modal-btn.primary{background:var(--accent);color:white;}
+.tmpl-modal-btn.secondary{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.tmpl-modal-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.tmpl-doc-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.tmpl-doc-tab{flex:1;padding:9px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;font-family:inherit;text-align:center;}
+.tmpl-doc-tab.on{background:var(--accent-l);border-color:var(--accent);color:var(--accent);font-weight:600;}
+/* ── END RÉGLAGES + TEMPLATE BUILDER ── */
 </style>
 </head>
 <body>
@@ -999,8 +1061,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
-      <button class="head-icon" id="btn-reglages" onclick="showSettings();tutoShowScreen('reglages')" aria-label="Réglages">
+      <button class="head-icon" onclick="showSettings();tutoShowScreen('reglages')" aria-label="Synchronisation">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button class="head-icon" id="btn-reglages" onclick="sw('reglages')" aria-label="Réglages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
   </div>
@@ -1546,6 +1611,135 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- RÉGLAGES -->
+    <div class="view" id="view-reglages" style="display:none;flex-direction:column;height:100%;">
+      <div class="regl-hero">
+        <div class="courr-eyebrow">Configuration</div>
+        <h1 class="courr-title">Réglages</h1>
+      </div>
+      <div class="regl-scroll">
+
+        <div class="regl-section">Profil chirurgien</div>
+        <div class="regl-group">
+          <div class="regl-row">
+            <div class="regl-label">Nom complet</div>
+            <input class="regl-input" id="regl-nom" type="text" placeholder="ex : Tom ROUSSEL">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Titre</div>
+            <input class="regl-input" id="regl-titre" type="text" placeholder="ex : Docteur Junior">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Service</div>
+            <input class="regl-input" id="regl-service" type="text" placeholder="ex : Traumatologie-Orthopédie">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Hôpital</div>
+            <input class="regl-input" id="regl-hopital" type="text" placeholder="ex : CHU Lille — Hôpital Roger Salengro">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Chef de service</div>
+            <input class="regl-input" id="regl-chef" type="text" placeholder="ex : Pr C. CHANTELOT">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Secrétaire 1 — Email</div>
+            <input class="regl-input" id="regl-secr1-email" type="email" placeholder="ex : c.wallaert@chu-lille.fr">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">Secrétaire 2 — Email</div>
+            <input class="regl-input" id="regl-secr2-email" type="email" placeholder="ex : a.delmeire@chu-lille.fr">
+          </div>
+        </div>
+
+        <div class="regl-section">Intégration IA</div>
+        <div class="regl-group">
+          <div class="regl-row">
+            <div class="regl-label">Clé API Anthropic</div>
+            <div class="regl-key-row">
+              <input class="regl-input" id="regl-apikey" type="password" placeholder="sk-ant-api03-…" autocomplete="off" autocorrect="off" spellcheck="false">
+              <button class="regl-key-toggle" onclick="reglToggleKey()" id="regl-key-toggle-btn" title="Afficher/masquer">👁</button>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:18px;">
+          La clé est stockée uniquement sur cet appareil (localStorage). Elle n'est jamais transmise à un serveur tiers — uniquement à l'API Anthropic lors de la création de templates.
+        </div>
+
+        <button class="regl-save-btn" onclick="reglSave()">Enregistrer</button>
+
+        <div class="regl-section" style="margin-top:28px;">Templates personnalisés</div>
+        <div id="regl-templates-list"></div>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="tmpl-add-btn" onclick="tmplOpenBuilder(null)" style="flex:1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nouvelle intervention
+          </button>
+          <button class="tmpl-icon-btn" onclick="tmplExport()" title="Exporter tous les templates" style="padding:10px 14px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </button>
+          <button class="tmpl-icon-btn" onclick="tmplImportTrigger()" title="Importer des templates" style="padding:10px 14px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+          <input type="file" id="tmpl-import-input" accept=".json" style="display:none" onchange="tmplImport(this)">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TEMPLATE BUILDER MODAL -->
+    <div class="tmpl-modal" id="tmpl-modal" style="display:none;">
+      <div class="tmpl-modal-header">
+        <button class="tmpl-modal-close" onclick="tmplCloseBuilder()">×</button>
+        <div class="tmpl-modal-title" id="tmpl-modal-title">Nouvelle intervention</div>
+      </div>
+      <div class="tmpl-modal-body">
+
+        <!-- Étape 1 : Nom + textes -->
+        <div class="tmpl-step active" id="tmpl-step-1">
+          <div class="tmpl-step-label">1 · Nom de l'intervention</div>
+          <input class="tmpl-name-input" id="tmpl-interv-name" type="text" placeholder="ex : Ostéotomie tibiale de valgisation">
+
+          <div class="tmpl-doc-tabs">
+            <button class="tmpl-doc-tab on" id="tmpl-tab-cro" onclick="tmplSwitchTab('cro',this)">CRO</button>
+            <button class="tmpl-doc-tab" id="tmpl-tab-crh" onclick="tmplSwitchTab('crh',this)">CRH</button>
+          </div>
+
+          <div id="tmpl-cro-area">
+            <div class="tmpl-step-label">Texte du CRO type</div>
+            <textarea class="tmpl-textarea" id="tmpl-cro-text" placeholder="Colle ici ton compte-rendu opératoire type. Les éléments variables (noms, tailles d'implants, côtés…) seront détectés automatiquement par l'IA."></textarea>
+          </div>
+          <div id="tmpl-crh-area" style="display:none;">
+            <div class="tmpl-step-label">Texte du CRH type</div>
+            <textarea class="tmpl-textarea" id="tmpl-crh-text" placeholder="Colle ici ta lettre de sortie type."></textarea>
+          </div>
+          <div class="tmpl-hint">💡 Tu peux ne renseigner que le CRO, que le CRH, ou les deux.</div>
+
+          <button class="tmpl-ai-btn" id="tmpl-analyze-btn" onclick="tmplAnalyze()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            Analyser avec l'IA
+          </button>
+        </div>
+
+        <!-- Étape 2 : Validation variables -->
+        <div class="tmpl-step" id="tmpl-step-2">
+          <div class="tmpl-step-label">2 · Variables détectées — vérifie et ajuste</div>
+          <div id="tmpl-vars-list"></div>
+          <button class="tmpl-add-var-btn" onclick="tmplAddVar()">+ Ajouter une variable manuellement</button>
+
+          <div style="margin-top:16px;">
+            <div class="tmpl-step-label">Aperçu du template</div>
+            <div class="tmpl-preview" id="tmpl-preview-text"></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="tmpl-modal-footer">
+        <button class="tmpl-modal-btn secondary" id="tmpl-btn-back" onclick="tmplStep(1)" style="display:none;">Retour</button>
+        <button class="tmpl-modal-btn primary" id="tmpl-btn-next" onclick="tmplStep(2)" disabled>Suivant</button>
+        <button class="tmpl-modal-btn primary" id="tmpl-btn-save" onclick="tmplSave()" style="display:none;">Enregistrer</button>
       </div>
     </div>
 
@@ -6135,6 +6329,7 @@ let courrState = {
 
 // ── Initialisation de la vue ──
 function initCourriers(){
+  courrRebuildGrid();
   courrRenderForm();
   courrUpdateBtn();
 }
@@ -6144,9 +6339,9 @@ function courrSelectInterv(interv, btn){
   courrState.interv = interv;
   document.querySelectorAll('.courr-interv-card').forEach(c=>c.classList.remove('selected'));
   btn.classList.add('selected');
-  // Couleur du bouton générer selon spécialité
+  const isHanche = interv==='PTH' || (interv.startsWith('CUSTOM_') && (()=>{ const t=tmplGetAll()[parseInt(interv.split('_')[1])]; return t&&/hanche|PTH|cotyle/i.test(t.name); })());
   const genBtn = document.getElementById('courr-btn-gen');
-  genBtn.className = 'courr-btn-gen' + (interv==='PTH'?' hanche':'');
+  genBtn.className = 'courr-btn-gen' + (isHanche?' hanche':'');
   courrRenderForm();
   courrUpdateBtn();
 }
@@ -6246,6 +6441,17 @@ function courrRenderForm(){
   const b = courrBloc();
 
   if(!interv){ area.innerHTML=''; return; }
+
+  // ── Template custom ──
+  if(interv.startsWith('CUSTOM_')){
+    const idx = parseInt(interv.split('_')[1]);
+    const tmpl = tmplGetAll()[idx];
+    if(!tmpl){ area.innerHTML='<div style="padding:20px;color:var(--red);">Template introuvable.</div>'; return; }
+    html += courrRenderCustomForm(tmpl, b);
+    area.innerHTML = html;
+    courrUpdateBtn();
+    return;
+  }
 
   // Champs communs pré-remplis depuis Atlas
   const patientFull = b ? (b.patient||'') : '';
@@ -6614,6 +6820,14 @@ function courrGenerate(){
 
   // Profil chirurgien depuis settings
   const profil = courrGetProfil();
+
+  // ── Templates custom ──
+  if(interv.startsWith('CUSTOM_')){
+    const docs = courrGenerateCustom(v, interv, profil);
+    if(!docs.length){ showToast('Aucun document à générer pour ce template'); return; }
+    courrShareDocs(docs, v, tmplGetAll()[parseInt(interv.split('_')[1])]?.name||interv);
+    return;
+  }
 
   // Construire les textes selon les toggles actifs
   const dateOpFmt = courrFmtDate(v.dateOp);
@@ -7027,27 +7241,34 @@ function courrAge(ddn){
   }catch(e){return '—';}
 }
 
-// ── Partage des documents (séquentiel si les deux sont cochés) ──
+// ── Partage des documents — fichier unique si les deux sont cochés ──
 async function courrShareDocs(docs, v, interv){
   if(!docs.length) return;
   const dateSlug = (v.dateOp||'').replace(/-/g,'');
 
   showToast('Génération en cours…');
 
-  for(const {texte, doc} of docs){
-    const filename = `${doc}_${interv}_${v.nom||'PATIENT'}_${dateSlug}.txt`;
-    try{
-      const blob = new Blob([texte], {type:'text/plain;charset=utf-8'});
-      const result = await shareOrDownload(blob, filename);
-      // Si l'utilisateur annule la share sheet sur le premier doc, on s'arrête
-      if(result==='aborted') return;
-    }catch(e){
-      console.error('Erreur génération '+doc+':', e);
-      showToast('Erreur lors de la génération du '+doc);
-      return;
-    }
+  let texte, filename;
+
+  if(docs.length === 2){
+    // Fusionner CRO + CRH dans un seul fichier séparé par une ligne de démarcation
+    const sep = '\n\n' + '═'.repeat(60) + '\n\n';
+    texte = docs.map(d => d.texte).join(sep);
+    filename = `CRO_CRH_${interv}_${v.nom||'PATIENT'}_${dateSlug}.txt`;
+  } else {
+    texte = docs[0].texte;
+    filename = `${docs[0].doc}_${interv}_${v.nom||'PATIENT'}_${dateSlug}.txt`;
   }
-  showToast(docs.length===2?'CRO + CRH partagés ✓':'Document partagé ✓');
+
+  try{
+    const blob = new Blob([texte], {type:'text/plain;charset=utf-8'});
+    const result = await shareOrDownload(blob, filename);
+    if(result==='shared') showToast(docs.length===2?'CRO + CRH partagés ✓':'Document partagé ✓');
+    else if(result==='downloaded') showToast(docs.length===2?'CRO + CRH téléchargés ✓':'Document téléchargé ✓');
+  }catch(e){
+    console.error('Erreur génération:', e);
+    showToast('Erreur lors de la génération');
+  }
 }
 
 // ── Intégration dans sw() — ajout de la vue courriers ──
@@ -7087,6 +7308,525 @@ function courrMenisqTypeCheck(side){
   const ancresWrap = document.getElementById('c-menisq-'+side+'-ancres-wrap');
   if(ancresWrap) ancresWrap.style.display = type==='Suture par ancres' ? 'block' : 'none';
 }
+
+// ── Intégration dans sw() — ajout de la vue reglages ──
+const _sw_courr = window.sw;
+window.sw = function(v){
+  _sw_courr(v);
+  const reglEl = document.getElementById('view-reglages');
+  if(v==='reglages'){
+    if(reglEl){ reglEl.style.display='flex'; reglEl.classList.add('active'); }
+    reglLoad();
+  } else {
+    if(reglEl){ reglEl.style.display='none'; reglEl.classList.remove('active'); }
+  }
+  // Sync nav
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  const bn = document.getElementById('bn-'+v);
+  if(bn) bn.classList.add('active');
+};
+
+// ════════════════════════════════════════════════════════════
+// MODULE RÉGLAGES
+// ════════════════════════════════════════════════════════════
+
+function reglLoad(){
+  const p = courrGetProfil();
+  const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  setVal('regl-nom',          p.nom);
+  setVal('regl-titre',        p.titre);
+  setVal('regl-service',      p.service);
+  setVal('regl-hopital',      p.hopital);
+  setVal('regl-chef',         p.chef);
+  setVal('regl-secr1-email',  p.secr1email||'');
+  setVal('regl-secr2-email',  p.secr2email||'');
+  const keyEl = document.getElementById('regl-apikey');
+  if(keyEl) keyEl.value = localStorage.getItem('atlas_anthropic_key')||'';
+  reglRenderTemplates();
+}
+
+function reglSave(){
+  const getVal = id => (document.getElementById(id)||{}).value||'';
+  const profil = {
+    nom:       getVal('regl-nom'),
+    titre:     getVal('regl-titre'),
+    service:   getVal('regl-service'),
+    hopital:   getVal('regl-hopital'),
+    chef:      getVal('regl-chef'),
+    secr1email:getVal('regl-secr1-email'),
+    secr2email:getVal('regl-secr2-email'),
+  };
+  localStorage.setItem('atlas_profil_courrier', JSON.stringify(profil));
+  const key = getVal('regl-apikey').trim();
+  if(key) localStorage.setItem('atlas_anthropic_key', key);
+  else localStorage.removeItem('atlas_anthropic_key');
+  showToast('Réglages enregistrés ✓');
+}
+
+function reglToggleKey(){
+  const el = document.getElementById('regl-apikey');
+  if(!el) return;
+  el.type = el.type==='password' ? 'text' : 'password';
+}
+
+function reglRenderTemplates(){
+  const list = document.getElementById('regl-templates-list');
+  if(!list) return;
+  const templates = tmplGetAll();
+  if(!templates.length){ list.innerHTML='<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Aucun template personnalisé.</div>'; return; }
+  list.innerHTML = templates.map((t,i)=>`
+    <div class="tmpl-card">
+      <div class="tmpl-card-info">
+        <div class="tmpl-card-name">${esc(t.name)}</div>
+        <div class="tmpl-card-meta">${t.variables.length} variable${t.variables.length>1?'s':''}${t.cro&&t.crh?' · CRO + CRH':t.crh?' · CRH':' · CRO'}</div>
+      </div>
+      <div class="tmpl-card-actions">
+        <button class="tmpl-icon-btn" onclick="tmplOpenBuilder(${i})" title="Modifier">✏️</button>
+        <button class="tmpl-icon-btn" onclick="tmplDelete(${i})" title="Supprimer" style="color:var(--red);">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════════
+// MODULE TEMPLATE BUILDER
+// ════════════════════════════════════════════════════════════
+
+// ── Storage ──
+function tmplGetAll(){
+  try{ return JSON.parse(localStorage.getItem('atlas_custom_templates')||'[]'); }
+  catch(e){ return []; }
+}
+function tmplSaveAll(arr){
+  localStorage.setItem('atlas_custom_templates', JSON.stringify(arr));
+}
+
+// ── État du builder ──
+let tmplBuilderState = {
+  editIdx: null,       // null = nouveau, number = édition
+  currentTab: 'cro',  // 'cro' | 'crh'
+  vars: [],            // [{id, label, type, options?, defaultValue?}]
+  croTemplate: '',     // texte avec {{vars}}
+  crhTemplate: '',
+};
+
+function tmplOpenBuilder(idx){
+  tmplBuilderState = { editIdx: idx, currentTab: 'cro', vars: [], croTemplate: '', crhTemplate: '' };
+  const modal = document.getElementById('tmpl-modal');
+  const title = document.getElementById('tmpl-modal-title');
+  modal.style.display = 'flex';
+
+  if(idx !== null){
+    const t = tmplGetAll()[idx];
+    if(t){
+      title.textContent = 'Modifier — '+t.name;
+      document.getElementById('tmpl-interv-name').value = t.name||'';
+      document.getElementById('tmpl-cro-text').value = t.croRaw||'';
+      document.getElementById('tmpl-crh-text').value = t.crhRaw||'';
+      tmplBuilderState.vars = JSON.parse(JSON.stringify(t.variables||[]));
+      tmplBuilderState.croTemplate = t.cro||'';
+      tmplBuilderState.crhTemplate = t.crh||'';
+      // Aller directement à l'étape 2 si variables déjà configurées
+      if(t.variables && t.variables.length){
+        tmplShowStep(2);
+        tmplRenderVars();
+        tmplUpdatePreview();
+      } else {
+        tmplShowStep(1);
+      }
+    }
+  } else {
+    title.textContent = 'Nouvelle intervention';
+    document.getElementById('tmpl-interv-name').value = '';
+    document.getElementById('tmpl-cro-text').value = '';
+    document.getElementById('tmpl-crh-text').value = '';
+    tmplShowStep(1);
+  }
+  tmplUpdateNextBtn();
+}
+
+function tmplCloseBuilder(){
+  document.getElementById('tmpl-modal').style.display='none';
+}
+
+function tmplSwitchTab(tab, btn){
+  tmplBuilderState.currentTab = tab;
+  document.querySelectorAll('.tmpl-doc-tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('tmpl-cro-area').style.display = tab==='cro' ? 'block' : 'none';
+  document.getElementById('tmpl-crh-area').style.display = tab==='crh' ? 'block' : 'none';
+}
+
+function tmplShowStep(n){
+  document.querySelectorAll('.tmpl-step').forEach(s=>s.classList.remove('active'));
+  const step = document.getElementById('tmpl-step-'+n);
+  if(step) step.classList.add('active');
+  document.getElementById('tmpl-btn-back').style.display = n===2 ? 'block' : 'none';
+  document.getElementById('tmpl-btn-next').style.display = n===1 ? 'block' : 'none';
+  document.getElementById('tmpl-btn-save').style.display = n===2 ? 'block' : 'none';
+}
+
+function tmplStep(n){
+  tmplShowStep(n);
+  if(n===2){ tmplRenderVars(); tmplUpdatePreview(); }
+}
+
+function tmplUpdateNextBtn(){
+  const name = (document.getElementById('tmpl-interv-name')||{}).value||'';
+  const cro  = (document.getElementById('tmpl-cro-text')||{}).value||'';
+  const crh  = (document.getElementById('tmpl-crh-text')||{}).value||'';
+  const btn  = document.getElementById('tmpl-btn-next');
+  if(btn) btn.disabled = !name.trim() || (!cro.trim() && !crh.trim());
+}
+
+// ── Analyse IA ──
+async function tmplAnalyze(){
+  const key = localStorage.getItem('atlas_anthropic_key')||'';
+  if(!key){
+    showToast('Clé API manquante — configure-la dans Réglages');
+    return;
+  }
+  const croText = (document.getElementById('tmpl-cro-text')||{}).value||'';
+  const crhText = (document.getElementById('tmpl-crh-text')||{}).value||'';
+  if(!croText.trim() && !crhText.trim()){
+    showToast('Colle au moins un texte de CRO ou CRH');
+    return;
+  }
+
+  const btn = document.getElementById('tmpl-analyze-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="tmpl-spinner"></div> Analyse en cours…';
+
+  const combinedText = [croText ? 'CRO:\n'+croText : '', crhText ? 'CRH:\n'+crhText : ''].filter(Boolean).join('\n\n---\n\n');
+
+  const prompt = `Tu es un assistant médical qui analyse des comptes-rendus opératoires et lettres de sortie chirurgicaux.
+
+Analyse ce(s) texte(s) et identifie TOUTES les variables — c'est-à-dire les éléments qui changent d'un patient à l'autre : noms, dates, côtés, tailles d'implants, modèles, indications, valeurs numériques, etc.
+
+Texte(s) à analyser :
+${combinedText}
+
+Réponds UNIQUEMENT avec un objet JSON valide, sans markdown, sans explication, avec cette structure exacte :
+{
+  "variables": [
+    {"id": "snake_case_unique", "label": "Nom affiché", "type": "text|number|pills|date", "options": ["opt1","opt2"], "defaultValue": "valeur par défaut optionnelle"}
+  ],
+  "cro": "texte CRO complet avec {{id_variable}} aux bons endroits",
+  "crh": "texte CRH complet avec {{id_variable}} aux bons endroits ou vide si pas de CRH"
+}
+
+Règles :
+- type "pills" si la variable a des options limitées connues (ex: côté → droit/gauche, anesthésie → types courants)
+- type "number" pour les tailles, diamètres, degrés
+- type "date" pour les dates
+- type "text" pour tout le reste
+- Les variables communes (nom_patient, prenom_patient, date_op, cote) DOIVENT être incluses si présentes
+- Ne mets "options" que pour les pills
+- Le texte template doit être identique à l'original sauf que les valeurs variables sont remplacées par {{id_variable}}`;
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 4000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if(!resp.ok){
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || 'Erreur API '+resp.status);
+    }
+
+    const data = await resp.json();
+    const raw = data.content?.find(c=>c.type==='text')?.text||'';
+    // Nettoyer les éventuels backticks markdown
+    const clean = raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/```\s*$/,'').trim();
+    const parsed = JSON.parse(clean);
+
+    if(!parsed.variables || !Array.isArray(parsed.variables)) throw new Error('Format JSON inattendu');
+
+    tmplBuilderState.vars = parsed.variables;
+    tmplBuilderState.croTemplate = parsed.cro||'';
+    tmplBuilderState.crhTemplate = parsed.crh||'';
+
+    tmplShowStep(2);
+    tmplRenderVars();
+    tmplUpdatePreview();
+
+  } catch(e){
+    console.error('Erreur analyse IA:', e);
+    showToast('Erreur : '+e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg> Analyser avec l\'IA';
+  }
+}
+
+// ── Rendu des variables ──
+function tmplRenderVars(){
+  const list = document.getElementById('tmpl-vars-list');
+  if(!list) return;
+  list.innerHTML = tmplBuilderState.vars.map((v,i)=>`
+    <div class="tmpl-var-card" id="tmpl-var-${i}">
+      <div class="tmpl-var-header">
+        <span class="tmpl-var-badge">{{${esc(v.id)}}}</span>
+        <button class="tmpl-var-del" onclick="tmplDelVar(${i})" title="Supprimer">×</button>
+      </div>
+      <div class="tmpl-var-grid">
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Identifiant</div>
+          <input class="tmpl-var-input" value="${esc(v.id)}" onchange="tmplVarChange(${i},'id',this.value)" placeholder="snake_case">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Label affiché</div>
+          <input class="tmpl-var-input" value="${esc(v.label)}" onchange="tmplVarChange(${i},'label',this.value)" placeholder="ex : Taille fémur">
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Type</div>
+        <select class="tmpl-var-select" onchange="tmplVarChange(${i},'type',this.value)">
+          <option value="text" ${v.type==='text'?'selected':''}>Texte libre</option>
+          <option value="number" ${v.type==='number'?'selected':''}>Nombre</option>
+          <option value="pills" ${v.type==='pills'?'selected':''}>Choix (pills)</option>
+          <option value="date" ${v.type==='date'?'selected':''}>Date</option>
+        </select>
+      </div>
+      ${v.type==='pills'?`
+      <div style="margin-top:6px;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;">Options (séparées par des virgules)</div>
+        <input class="tmpl-var-options-input" value="${esc((v.options||[]).join(', '))}" onchange="tmplVarChange(${i},'options',this.value)" placeholder="ex : droit, gauche">
+      </div>`:''}
+    </div>`).join('');
+}
+
+function tmplVarChange(i, key, val){
+  if(key==='options') tmplBuilderState.vars[i].options = val.split(',').map(s=>s.trim()).filter(Boolean);
+  else tmplBuilderState.vars[i][key] = val;
+  if(key==='type') tmplRenderVars(); // re-render pour afficher/masquer le champ options
+  tmplUpdatePreview();
+}
+
+function tmplDelVar(i){
+  tmplBuilderState.vars.splice(i,1);
+  tmplRenderVars();
+  tmplUpdatePreview();
+}
+
+function tmplAddVar(){
+  tmplBuilderState.vars.push({id:'nouvelle_var',label:'Nouvelle variable',type:'text'});
+  tmplRenderVars();
+  tmplUpdatePreview();
+}
+
+function tmplUpdatePreview(){
+  const el = document.getElementById('tmpl-preview-text');
+  if(!el) return;
+  const tmpl = tmplBuilderState.croTemplate || tmplBuilderState.crhTemplate || '';
+  if(!tmpl){ el.innerHTML='<span style="color:var(--text3);font-style:italic;">Aucun template généré.</span>'; return; }
+  // Highlight les variables dans le texte
+  const highlighted = esc(tmpl).replace(/\{\{([^}]+)\}\}/g,'<mark>{{$1}}</mark>');
+  el.innerHTML = highlighted;
+}
+
+// ── Sauvegarde ──
+function tmplSave(){
+  const name = (document.getElementById('tmpl-interv-name')||{}).value||'';
+  if(!name.trim()){ showToast('Donne un nom à l\'intervention'); return; }
+  const croRaw = (document.getElementById('tmpl-cro-text')||{}).value||'';
+  const crhRaw = (document.getElementById('tmpl-crh-text')||{}).value||'';
+
+  const template = {
+    name: name.trim(),
+    variables: tmplBuilderState.vars,
+    cro: tmplBuilderState.croTemplate,
+    crh: tmplBuilderState.crhTemplate,
+    croRaw,
+    crhRaw,
+    createdAt: new Date().toISOString(),
+  };
+
+  const all = tmplGetAll();
+  if(tmplBuilderState.editIdx !== null) all[tmplBuilderState.editIdx] = template;
+  else all.push(template);
+  tmplSaveAll(all);
+
+  tmplCloseBuilder();
+  reglRenderTemplates();
+  courrRebuildGrid(); // Mettre à jour la grille dans Courriers
+  showToast(tmplBuilderState.editIdx!==null?'Template mis à jour ✓':'Template enregistré ✓');
+}
+
+function tmplDelete(i){
+  const all = tmplGetAll();
+  const name = all[i]?.name||'ce template';
+  if(!confirm('Supprimer "'+name+'" ?')) return;
+  all.splice(i,1);
+  tmplSaveAll(all);
+  reglRenderTemplates();
+  courrRebuildGrid();
+  showToast('Template supprimé');
+}
+
+// ── Export / Import ──
+function tmplExport(){
+  const all = tmplGetAll();
+  if(!all.length){ showToast('Aucun template à exporter'); return; }
+  const blob = new Blob([JSON.stringify(all, null, 2)], {type:'application/json'});
+  const filename = 'atlas_templates_'+new Date().toISOString().slice(0,10)+'.json';
+  shareOrDownload(blob, filename);
+}
+
+function tmplImportTrigger(){
+  document.getElementById('tmpl-import-input').click();
+}
+
+function tmplImport(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const imported = JSON.parse(e.target.result);
+      if(!Array.isArray(imported)) throw new Error('Format invalide');
+      const all = tmplGetAll();
+      let added = 0;
+      for(const t of imported){
+        if(t.name && t.variables){
+          // Éviter les doublons par nom
+          if(!all.find(x=>x.name===t.name)){ all.push(t); added++; }
+        }
+      }
+      tmplSaveAll(all);
+      reglRenderTemplates();
+      courrRebuildGrid();
+      showToast(added+' template(s) importé(s) ✓');
+    } catch(err){
+      showToast('Fichier invalide');
+    }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+// ── Formulaire dynamique pour templates custom ──
+function courrRenderCustomForm(tmpl, b){
+  const patientFull = b ? (b.patient||'') : '';
+  const patParts = patientFull.trim().split(' ');
+  const patNom = patParts[0]||'';
+  const patPrenom = patParts.slice(1).join(' ')||'';
+  const dateOp = b ? (b.date||'') : '';
+  const cote = b ? (b.side||'') : '';
+  const coteDisp = cote==='Droit'?'droit':cote==='Gauche'?'gauche':cote.toLowerCase();
+
+  let html = `<div class="courr-section-label">${esc(tmpl.name)}</div>
+  <div class="courr-field-group">`;
+
+  for(const v of tmpl.variables){
+    html += `<div class="courr-field">
+      <div class="courr-field-label">${esc(v.label)}</div>`;
+
+    // Pré-remplissage intelligent depuis Atlas pour les variables communes
+    let preVal = v.defaultValue||'';
+    if(/nom_patient|patient_nom/i.test(v.id)) preVal = patNom;
+    else if(/prenom_patient|patient_prenom/i.test(v.id)) preVal = patPrenom;
+    else if(/date_op|date_intervention/i.test(v.id)) preVal = dateOp;
+    else if(/cote|side/i.test(v.id) && v.type==='pills') preVal = coteDisp||'droit';
+
+    if(v.type==='pills' && v.options && v.options.length){
+      html += `<div class="courr-pills" id="cv-${esc(v.id)}">`;
+      html += v.options.map(o=>`<button type="button" class="courr-pill${o===preVal||(!preVal&&o===v.options[0])?' on':''}" onclick="courrPillSelect('cv-${esc(v.id)}',this,'${esc(o)}')">${esc(o)}</button>`).join('');
+      html += `</div>`;
+    } else if(v.type==='number'){
+      html += `<input class="courr-input" id="cv-${esc(v.id)}" type="number" placeholder="${esc(v.defaultValue||'')}" value="${esc(preVal)}" oninput="courrUpdateBtn()">`;
+    } else if(v.type==='date'){
+      html += `<input class="courr-input" id="cv-${esc(v.id)}" type="date" value="${esc(preVal)}" oninput="courrUpdateBtn()">`;
+    } else {
+      html += `<input class="courr-input" id="cv-${esc(v.id)}" type="text" placeholder="${esc(v.defaultValue||v.label)}" value="${esc(preVal)}" oninput="courrUpdateBtn()">`;
+    }
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+
+  // Section CRH si le template en a un
+  if(tmpl.crh && courrState.crh){
+    html += `<div class="courr-section-label">Informations CRH</div>
+    <div class="courr-field-group">
+      <div class="courr-field">
+        <div class="courr-field-label">Date de sortie</div>
+        <input class="courr-input" id="c-date-sortie" type="date" oninput="courrUpdateBtn()">
+      </div>
+      <div class="courr-field">
+        <div class="courr-field-label">Médecin traitant</div>
+        <input class="courr-input" id="c-medecin" type="text" placeholder="Dr Nom Prénom" oninput="courrUpdateBtn()">
+      </div>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ── Génération custom ──
+function courrGenerateCustom(v_collect, interv, profil){
+  const idx = parseInt(interv.split('_')[1]);
+  const tmpl = tmplGetAll()[idx];
+  if(!tmpl) return [];
+
+  const docs = [];
+
+  const substitute = (template) => {
+    if(!template) return '';
+    return template.replace(/\{\{([^}]+)\}\}/g, (match, varId) => {
+      // Essayer d'abord pills, puis input
+      const pillEl = document.querySelector(`#cv-${varId} .courr-pill.on`);
+      if(pillEl) return pillEl.textContent.trim();
+      const inputEl = document.getElementById('cv-'+varId);
+      if(inputEl) return inputEl.value.trim() || match;
+      return match;
+    });
+  };
+
+  if(courrState.cro && tmpl.cro){
+    docs.push({ texte: substitute(tmpl.cro), doc: 'CRO' });
+  }
+  if(courrState.crh && tmpl.crh){
+    docs.push({ texte: substitute(tmpl.crh), doc: 'CRH' });
+  }
+  // Fallback si pas de template IA — texte brut
+  if(!docs.length && (tmpl.croRaw || tmpl.crhRaw)){
+    if(courrState.cro && tmpl.croRaw) docs.push({ texte: tmpl.croRaw, doc: 'CRO' });
+    if(courrState.crh && tmpl.crhRaw) docs.push({ texte: tmpl.crhRaw, doc: 'CRH' });
+  }
+  return docs;
+}
+
+// ── Rebuild de la grille Courriers avec les customs ──
+function courrRebuildGrid(){
+  const grid = document.getElementById('courr-interv-grid');
+  if(!grid) return;
+  const customs = tmplGetAll();
+  // Retirer les cards custom existantes
+  grid.querySelectorAll('.courr-interv-card.custom').forEach(c=>c.remove());
+  // Ajouter les nouvelles
+  customs.forEach((t,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'courr-interv-card custom';
+    btn.innerHTML = `
+      <span class="courr-interv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg></span>
+      <span class="courr-interv-label" style="font-size:11px;">${esc(t.name)}</span>`;
+    btn.onclick = function(){ courrSelectInterv('CUSTOM_'+i, this); };
+    grid.appendChild(btn);
+  });
+}
+
+// ── END MODULE RÉGLAGES + TEMPLATE BUILDER ──
 
 // ── END MODULE COURRIERS ──
 </script>
