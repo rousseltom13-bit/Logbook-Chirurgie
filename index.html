@@ -267,6 +267,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .cal-month-cell.has-bloc{background:var(--bg2);}
 .cal-month-num{font-size:13px;font-weight:500;}
 .cal-month-cell.today .cal-month-num{background:var(--accent);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}
+/* Planning view — cellules calendrier plus grandes */
+#view-planning .cal-month-cell{min-height:60px;}
+#view-planning .cal-month-num{font-size:15px;font-weight:500;}
 /* Blocs prévus */
 .planned-item{padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;}
 .planned-item:last-child{border-bottom:none;}
@@ -1135,9 +1138,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <div class="dash-kpi-sub" id="d-compl-sub">0 cas</div>
         </div>
       </div>
-      <div class="dash-tabs-atlas" id="dash-tabs">
+      <div class="dash-tabs-atlas" id="dash-tabs" style="display:none;">
         <button class="dash-tab-atlas active" onclick="switchDashTab('recent',this)">Activité</button>
-        <button class="dash-tab-atlas" onclick="switchDashTab('planning',this)">Planning</button>
       </div>
       <div class="dash-panel active" id="dp-recent">
         <div class="dash-section">
@@ -1149,7 +1151,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div class="dash-section">
           <div class="dash-section-h">
             <h2 class="dash-section-title">Prochains blocs</h2>
-            <button class="dash-section-link" onclick="switchDashTab('planning',document.querySelectorAll('#dash-tabs .dash-tab-atlas')[1])">Calendrier</button>
+            <button class="dash-section-link" onclick="sw('planning')">Planning</button>
           </div>
           <div class="up-card" id="upcoming-list"></div>
         </div>
@@ -1165,6 +1167,29 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
         <div class="dash-section" style="margin-top:18px;">
           <div class="dash-section-h"><h2 class="dash-section-title">Blocs prévus ce mois</h2></div>
           <div id="month-planned-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="view" id="view-planning" style="padding:0;">
+      <div class="view-blocs-head">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0;">
+          <h1 style="font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);margin:0;">Planning</h1>
+          <button onclick="openNewPlannedModal()" style="background:var(--accent);color:white;border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">+ Nouveau bloc</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 8px 12px;">
+          <button onclick="calNavMonth(-1)" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);padding:4px 14px;line-height:1;">‹</button>
+          <div style="font-size:16px;font-weight:600;font-family:var(--serif);letter-spacing:-0.01em;color:var(--text);" id="cal-plan-title"></div>
+          <button onclick="calNavMonth(1)" style="background:none;border:none;font-size:26px;cursor:pointer;color:var(--text2);padding:4px 14px;line-height:1;">›</button>
+        </div>
+      </div>
+      <div class="view-scroll" style="padding:0 16px 80px;">
+        <div class="cal-month-header" id="cal-plan-header" style="margin-bottom:4px;"></div>
+        <div class="cal-month-grid" id="cal-plan-grid"></div>
+        <div style="margin-top:22px;">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:10px;">Blocs prévus ce mois</div>
+          <div id="plan-month-list"></div>
         </div>
       </div>
     </div>
@@ -1388,16 +1413,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
           <div class="field">
             <div class="field-label">Voie d'abord</div>
             <input type="hidden" id="f-abord" value="">
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;" id="abord-pills">
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Médiale parapatellaire')">Médiale parapatellaire</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Mid-vastus')">Mid-vastus</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Sub-vastus')">Sub-vastus</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Voie antéro-latérale')">Antéro-latérale</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Voie de Hardinge')">Hardinge</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Voie postérieure')">Postérieure</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Arthroscopique')">Arthroscopique</button>
-              <button type="button" class="side-btn" onclick="pickAbord(this,'Autre')">Autre</button>
-            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;" id="abord-pills"></div>
           </div>
         </div>
 
@@ -1723,23 +1739,22 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
       <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11l9-7 9 7v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2v-9z"/></svg></span>
       <span>Accueil</span>
     </button>
-    <button class="bnav-item" onclick="sw('blocs')" id="bn-blocs">
-      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
-      <span>Mes blocs</span>
+    <button class="bnav-item" onclick="sw('planning')" id="bn-planning">
+      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></span>
+      <span>Planning</span>
     </button>
     <button class="bnav-item bnav-fab" onclick="sw('saisie')" id="bn-saisie">
       <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
       <span style="opacity:0;height:0;overflow:hidden;">Nouveau</span>
     </button>
+    <button class="bnav-item" onclick="sw('blocs')" id="bn-blocs">
+      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></span>
+      <span>Mes blocs</span>
+    </button>
     <button class="bnav-item" onclick="sw('stats')" id="bn-stats">
       <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></span>
       <span>Stats</span>
     </button>
-    <button class="bnav-item" onclick="openSearch()" id="bn-recherche">
-      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <span>Recherche</span>
-    </button>
-
   </nav>
 </div>
 
@@ -2685,12 +2700,11 @@ function sw(v){
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   const vEl=document.getElementById('view-'+v);const bEl=document.getElementById('bn-'+v);
   if(vEl)vEl.classList.add('active');if(bEl)bEl.classList.add('active');
-  const viewsEl=document.querySelector('.views');if(viewsEl)viewsEl.scrollTop=0;
   if(v==='dashboard'){renderDash();tutoShowScreen('dashboard');}
   if(v==='blocs'){renderBlocs();tutoShowScreen('blocs');}
   if(v==='saisie')initForm();
   if(v==='stats'){renderStats();tutoShowScreen('stats');}
-  if(v==='recherche')renderBlocs();
+  if(v==='planning'){renderPlanningView();}
 }
 function renderAll(){renderDash();renderBlocs();}
 
@@ -3892,7 +3906,11 @@ function pickInterv(btn,val){
   btn.classList.add('on');
   const h=document.getElementById('f-interv');if(h)h.value=val;
   const libre=document.getElementById('f-interv-libre');
-  if(libre)libre.style.display='none';
+  if(val.includes('__LIBRE__')){
+    if(libre){libre.style.display='block';libre.value='';setTimeout(()=>{try{libre.focus();}catch(e){}},50);}
+  } else {
+    if(libre)libre.style.display='none';
+  }
   onIntervChange(val);
 }
 
@@ -3904,9 +3922,36 @@ function pickIntervLibre(canonical){
 }
 function setStar(n){cStar=n;updateStars();}
 
+const ABORD_MAP={
+  Genou:['Arthrotomie interne','Arthrotomie latérale','Midvastus'],
+  Hanche:['Moore','Kocher-Langenbeck','Hueter'],
+  Coude:['Voie latérale','Voie interne'],
+  Epaule:['Voie delto-pectorale','Voie latérale'],
+};
+function renderAbordPills(spec){
+  const container=document.getElementById('abord-pills');
+  if(!container)return;
+  document.getElementById('f-abord').value='';
+  const options=ABORD_MAP[spec]||[];
+  if(!options.length){
+    container.innerHTML='<input type="text" id="f-abord-libre" class="f-input" placeholder="Voie d\'abord…" style="flex:1;" autocomplete="off" oninput="document.getElementById(\'f-abord\').value=this.value">';
+    return;
+  }
+  container.innerHTML=options.map(v=>`<button type="button" class="side-btn" onclick="pickAbord(this,'${v}')">${v}</button>`).join('')+
+    '<button type="button" class="side-btn" onclick="pickAbordLibre(this)">Autre</button>';
+}
+function pickAbordLibre(btn){
+  document.querySelectorAll('#abord-pills .side-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const container=document.getElementById('abord-pills');
+  let li=document.getElementById('f-abord-libre');
+  if(!li){li=document.createElement('input');li.type='text';li.id='f-abord-libre';li.className='f-input';li.placeholder='Voie d\'abord…';li.style.cssText='flex:1 0 100%;margin-top:6px;';li.autocomplete='off';li.oninput=()=>document.getElementById('f-abord').value=li.value;container.appendChild(li);}
+  li.style.display='block';setTimeout(()=>{try{li.focus();}catch(e){}},50);
+}
 function pickAbord(btn,val){
   document.querySelectorAll('#abord-pills .side-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
+  const li=document.getElementById('f-abord-libre');if(li)li.style.display='none';
   const h=document.getElementById('f-abord');if(h)h.value=val;
 }
 function updateStars(){
@@ -3980,6 +4025,7 @@ function onSpecChange(spec){
   // Reset PTG fields si on change de spécialité
   const ptgFields=document.getElementById('ptg-fields');
   if(ptgFields)ptgFields.style.display='none';
+  renderAbordPills(spec);
 }
 // Retourne l'ID d'un patient existant ou en crée un nouveau
 function upsertPatient(nom, age){
@@ -4208,15 +4254,11 @@ function switchStatsTab(tab,btn){
   btn.classList.add('on');
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('sp-'+tab).classList.add('on');
-  setTimeout(()=>{
-    try{
-      if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();}
-      else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
-      else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
-      else if(tab==='top'){renderTopInterventions();}
-      else if(tab==='complications'){renderComplications();}
-    }catch(e){console.warn('switchStatsTab render',tab,e);}
-  }, 60);
+  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();}
+  else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
+  else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
+  else if(tab==='top'){renderTopInterventions();}
+  else if(tab==='complications'){renderComplications();}
 }
 
 function renderStats(){
@@ -4236,16 +4278,7 @@ function renderStats(){
   document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
-  const _vStats=document.getElementById('view-stats');
-  if(_vStats)_vStats.style.display='block';
-  setTimeout(()=>{
-    try{renderActivityChart();}catch(e){console.warn('renderActivityChart',e);}
-    try{renderRoleChart();}catch(e){console.warn('renderRoleChart',e);}
-    try{renderStatuts('activite');}catch(e){console.warn('renderStatuts',e);}
-    try{renderEvolChart();}catch(e){console.warn('renderEvolChart',e);}
-    try{renderComplByRole();}catch(e){console.warn('renderComplByRole',e);}
-    try{renderComplEvolution();}catch(e){console.warn('renderComplEvolution',e);}
-  }, 80);
+  renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -4264,6 +4297,22 @@ function setStatutScope(scope,btn){
   renderStatuts('activite');
 }
 
+// ── Helper : force le dimensionnement du canvas avant Chart.js (bypasse ResizeObserver) ──
+function setSafeChartCanvas(id, heightPx){
+  const canvas=document.getElementById(id);
+  if(!canvas)return null;
+  const parent=canvas.parentElement;
+  // Forcer un reflow pour que getBoundingClientRect() retourne les vraies valeurs
+  void(parent&&parent.getBoundingClientRect());
+  const w=parent?(parent.getBoundingClientRect().width||parent.offsetWidth):0;
+  const finalW=w>10?w:Math.max(window.innerWidth-64,200);
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(finalW*dpr);
+  canvas.height=Math.round(heightPx*dpr);
+  canvas.style.width=finalW+'px';
+  canvas.style.height=heightPx+'px';
+  return canvas;
+}
 function renderActivityChart(){
   const now=new Date();const months=statPeriodActivity>0?statPeriodActivity:36;
   const labels=[],keys=[];
@@ -4274,31 +4323,19 @@ function renderActivityChart(){
   {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-activity"));if(ex)ex.destroy();}
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
   const gridColor=isDark?'rgba(255,255,255,0.08)':'rgba(226,223,213,0.9)';
-  chartActivity=new Chart(document.getElementById('chart-activity'),{
+  const actCanvas=setSafeChartCanvas('chart-activity',140);if(!actCanvas)return;
+  chartActivity=new Chart(actCanvas,{
     type:'bar',
     data:{labels,datasets:[
       {label:'Orthopédie',data:ortho,backgroundColor:isDark?'rgba(94,150,184,0.9)':'rgba(27,77,90,0.85)',borderRadius:2,borderSkipped:false,barPercentage:0.38,categoryPercentage:0.82},
       {label:'Traumatologie',data:trauma,backgroundColor:isDark?'rgba(216,134,110,0.9)':'rgba(201,120,100,0.85)',borderRadius:2,borderSkipped:false,barPercentage:0.38,categoryPercentage:0.82}
     ]},
     options:{
-      responsive:true,maintainAspectRatio:false,
+      responsive:false,maintainAspectRatio:false,
       plugins:{legend:{display:false}},
       scales:{
-        x:{
-          stacked:false,
-          grid:{display:false},
-          border:{display:false},
-          ticks:{color:CC.gray,font:{size:10},maxRotation:0}
-        },
-        y:{
-          stacked:false,
-          display:true,
-          beginAtZero:true,
-          border:{display:false,dash:[2,3]},
-          grid:{color:gridColor,drawBorder:false,lineWidth:0.8},
-          ticks:{display:false},
-          grace:'15%'
-        }
+        x:{stacked:false,grid:{display:false},border:{display:false},ticks:{color:CC.gray,font:{size:10},maxRotation:0}},
+        y:{stacked:false,display:true,beginAtZero:true,border:{display:false,dash:[2,3]},grid:{color:gridColor,drawBorder:false,lineWidth:0.8},ticks:{display:false},grace:'15%'}
       }
     }
   });
@@ -4309,7 +4346,8 @@ function renderRoleChart(){
   const pPct=blocs.length?Math.round(principal/blocs.length*100):0;
   if(chartRole){chartRole.destroy();chartRole=null;}
   {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-role"));if(ex)ex.destroy();}
-  chartRole=new Chart(document.getElementById('chart-role'),{type:'doughnut',data:{labels:['Principal','Aide'],datasets:[{data:[principal,aide],backgroundColor:[CC.accent,CC.accent2],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+  const roleCanvas=setSafeChartCanvas('chart-role',110);if(!roleCanvas)return;
+  chartRole=new Chart(roleCanvas,{type:'doughnut',data:{labels:['Principal','Aide'],datasets:[{data:[principal,aide],backgroundColor:[CC.accent,CC.accent2],borderWidth:0}]},options:{responsive:false,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
   document.getElementById('role-legend').innerHTML=`<span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent};display:inline-block;"></span>Principal ${pPct}%</span><span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:${CC.accent2};display:inline-block;"></span>Aide ${100-pPct}%</span>`;
 }
 
@@ -4339,7 +4377,7 @@ function renderLearningChart(){
   {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-learning"));if(ex)ex.destroy();}
   const el=document.getElementById('learning-trend');
   if(relevant.length<2){
-    chartLearning=new Chart(document.getElementById('chart-learning'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    const lcEmpty=setSafeChartCanvas('chart-learning',130);if(lcEmpty)chartLearning=new Chart(lcEmpty,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.accent,borderWidth:2}]},options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     if(el)el.textContent=relevant.length===0?'Aucun bloc '+statLearning+' avec durée renseignée':'Un seul bloc enregistré — tendance indisponible';
     return;
   }
@@ -4347,9 +4385,10 @@ function renderLearningChart(){
   const avg=Math.round(data.reduce((a,v)=>a+v,0)/data.length);
   if(el)el.textContent=`${relevant.length} blocs · Moy. ${avg} min · Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min':'↑ +'+diff+' min'}`;
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
-  chartLearning=new Chart(document.getElementById('chart-learning'),{
+  const lcCanvas=setSafeChartCanvas('chart-learning',130);
+  if(lcCanvas)chartLearning=new Chart(lcCanvas,{
     type:'line',data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{data,borderColor:CC.accent,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.accent,pointRadius:3,tension:0.3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}}}
+    options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}}}
   });
 }
 
@@ -4616,13 +4655,14 @@ function renderEvolChart(){
   {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-evol"));if(ex)ex.destroy();}
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
   const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
-  chartEvol=new Chart(document.getElementById('chart-evol'),{
+  const evolCanvas=setSafeChartCanvas('chart-evol',130);if(!evolCanvas)return;
+  chartEvol=new Chart(evolCanvas,{
     type:'line',
     data:{labels:filteredLabels,datasets:[
       {label:'Bons résultats',data:filteredBons,borderColor:CC.green,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.green,pointRadius:3,tension:0.3},
       {label:'Complications',data:filteredCompls,borderColor:CC.red,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.red,pointRadius:3,tension:0.3}
     ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+    options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
       x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},
       y:{grid:{color:gridColor},ticks:{color:CC.gray,font:{size:10},stepSize:1},beginAtZero:true}
     }}
@@ -4740,7 +4780,7 @@ function renderTraumaLearningChart(){
     .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   if(chartLearningTrauma){chartLearningTrauma.destroy();}
   if(relevant.length<2){
-    chartLearningTrauma=new Chart(document.getElementById('chart-learning-trauma'),{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.amber,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+    const ltEmpty=setSafeChartCanvas('chart-learning-trauma',130);if(ltEmpty)chartLearningTrauma=new Chart(ltEmpty,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.amber,borderWidth:2}]},options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
     if(el)el.textContent='Données insuffisantes pour la tendance';
     return;
   }
@@ -4749,13 +4789,14 @@ function renderTraumaLearningChart(){
   const avg=Math.round(data.reduce((a,v)=>a+v,0)/data.length);
   if(el)el.textContent=`${relevant.length} blocs · Moy. ${avg} min · Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min (↗ progression)':'↑ +'+diff+' min'}`;
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
-  chartLearningTrauma=new Chart(document.getElementById('chart-learning-trauma'),{
+  const ltCanvas=setSafeChartCanvas('chart-learning-trauma',130);
+  if(ltCanvas)chartLearningTrauma=new Chart(ltCanvas,{
     type:'line',
     data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{
       data,borderColor:CC.amber,backgroundColor:'transparent',
       borderWidth:2,pointBackgroundColor:CC.amber,pointRadius:3,tension:0.3
     }]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+    options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
       x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},
       y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}
     }}
@@ -4848,12 +4889,63 @@ function openCalModal(){
 }
 function calNavMonth(dir){
   calCurrentMonth=new Date(calCurrentMonth.getFullYear(),calCurrentMonth.getMonth()+dir,1);
-  // Mettre à jour calendrier inline si l'onglet planning est actif
-  if(document.getElementById('dp-planning').classList.contains('active')){
+  const planView=document.getElementById('view-planning');
+  const dpPlan=document.getElementById('dp-planning');
+  if(planView&&planView.classList.contains('active')){
+    renderPlanningView();
+  } else if(dpPlan&&dpPlan.classList.contains('active')){
     renderInlineCalendar();renderMonthPlannedList();
   } else {
     renderCalMonth();
   }
+}
+function renderPlanningView(){
+  const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
+  const title=new Date(year,month,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  const titleEl=document.getElementById('cal-plan-title');
+  if(titleEl)titleEl.textContent=title.charAt(0).toUpperCase()+title.slice(1);
+  // Header jours — utiliser cal-month-dname comme renderInlineCalendar
+  const headerEl=document.getElementById('cal-plan-header');
+  if(headerEl)headerEl.innerHTML=['L','M','M','J','V','S','D'].map(d=>`<div class="cal-month-dname">${d}</div>`).join('');
+  // Grille — utiliser cal-month-cell + cal-month-num pour le bon style
+  const gridEl=document.getElementById('cal-plan-grid');
+  if(!gridEl)return;
+  const firstDay=new Date(year,month,1);
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const todayS=todayStr();
+  let html='';
+  // Cellules vides du mois précédent
+  for(let i=startDow-1;i>=0;i--){const d=new Date(year,month,0-i);html+=`<div class="cal-month-cell other-month" onclick="openDayModal('${dateStr(d)}')"><div class="cal-month-num">${d.getDate()}</div></div>`;}
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const pbs=plannedForDate(ds);const n=pbs.length;
+    const isToday=ds===todayS;
+    let dots='';
+    if(n===1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">1</div>`;
+    else if(n>1)dots=`<div class="cal-badge" style="background:var(--warm);color:white;">${n}</div>`;
+    html+=`<div class="cal-month-cell${isToday?' today':''}${n>0?' has-bloc':''}" onclick="openDayModal('${ds}')"><div class="cal-month-num">${d}</div>${dots}</div>`;
+  }
+  gridEl.innerHTML=html;
+  // Liste mois
+  const listEl=document.getElementById('plan-month-list');
+  if(!listEl)return;
+  const monthPlanned=planned.filter(p=>{if(!p.date)return false;const pd=new Date(p.date);return pd.getFullYear()===year&&pd.getMonth()===month;}).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  if(!monthPlanned.length){listEl.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc prévu ce mois</div>';return;}
+  listEl.innerHTML=monthPlanned.map(p=>{
+    const cd=countdown(p.date);
+    const sc=getSpecBadgeStyle(p);
+    return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">${esc(displayInterv(p.interv))||'—'}</div>
+          <div style="font-size:12px;color:var(--text3);">${[fmtDate(p.date),esc(p.patient)||'',p.side?esc(p.side):''].filter(Boolean).join(' · ')}</div>
+          ${p.comment?`<div style="font-size:11px;color:var(--text3);margin-top:3px;">📋 ${esc(p.comment)}</div>`:''}
+        </div>
+        ${cd?`<span class="up-cd ${cd.cls}" style="flex-shrink:0;">${cd.label}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 function renderInlineCalendar(){
   const year=calCurrentMonth.getFullYear(),month=calCurrentMonth.getMonth();
@@ -4982,6 +5074,7 @@ function openNewPlannedModal(ds){
   closeModal('day-modal');
   document.getElementById('planned-modal-title').textContent='Nouveau bloc prévu';
   document.getElementById('p-date').value=ds||todayStr();
+  populatePlannedSpecSelect();
   document.getElementById('p-spec').value='';
   document.getElementById('p-side').value='';
   document.getElementById('p-interv').innerHTML='<option>Sélectionner une spécialité d\'abord</option>';
@@ -5147,6 +5240,7 @@ async function openPlannedLB(idx, radioIdx){
 function editPlanned(idx){
   plannedEditIdx=idx;const p=planned[idx];
   closeModal('planned-detail-modal');
+  populatePlannedSpecSelect();
   document.getElementById('planned-modal-title').textContent='Modifier le bloc prévu';
   document.getElementById('p-date').value=p.date||'';
   document.getElementById('p-spec').value=p.spec||'';upIntervPlanned();
@@ -5203,7 +5297,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v50',
+    version:'atlas-v55',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
