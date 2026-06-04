@@ -968,6 +968,23 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .atlas-pill{border-radius:999px !important;padding:8px 14px !important;}
 .btn-primary,.courr-btn-gen{border-radius:14px !important;}
 .modal{border-radius:24px 24px 0 0 !important;}
+/* Badges spécialités (modale écrou) */
+.spec-badges-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px;}
+.spec-badge{display:flex;flex-direction:column;align-items:center;gap:9px;padding:16px 8px;background:var(--bg);border:1.5px solid var(--border2);border-radius:16px;cursor:pointer;font-family:inherit;color:var(--text3);transition:transform .12s ease,box-shadow .15s,background .15s,border-color .15s,color .15s;}
+.spec-badge:active{transform:scale(0.96);}
+.spec-badge svg{width:26px;height:26px;}
+.spec-badge span{font-size:12px;font-weight:600;text-align:center;line-height:1.15;}
+.spec-badge.on{background:var(--sc);border-color:var(--sc);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.16);}
+/* Cartes sauvegarde (modale flèches) */
+.bk-grid{display:flex;flex-direction:column;gap:10px;}
+.bk-card{display:flex;align-items:center;gap:14px;width:100%;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;transition:transform .12s ease;}
+.bk-card:active{transform:scale(0.99);}
+.bk-ic{width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--bg);border:1px solid var(--border2);border-radius:11px;}
+.bk-tx{flex:1;min-width:0;}
+.bk-t{font-size:14px;font-weight:600;color:var(--text);}
+.bk-s{font-size:12px;color:var(--text3);margin-top:2px;}
+.bk-arrow{width:18px;height:18px;color:var(--text3);flex-shrink:0;}
+.bk-sep{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:22px 0 12px;}
 /* ── Pass 3 — Accueil distribution (layout prototype) ── */
 .dist-row{display:flex !important;align-items:center;gap:14px;grid-template-columns:none !important;}
 .dist-icon{width:38px !important;height:38px !important;border-radius:12px !important;}
@@ -1246,7 +1263,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <button class="head-icon" onclick="showSettings();tutoShowScreen(&#39;reglages&#39;)" aria-label="Synchronisation">
         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
-      <button class="head-icon" id="btn-reglages" onclick="sw(&#39;reglages&#39;)" aria-label="Réglages">
+      <button class="head-icon" id="btn-reglages" onclick="showSpecModal()" aria-label="Réglages">
         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
@@ -2082,49 +2099,60 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 
 <!-- MODAL SETTINGS -->
-<div class="modal-overlay" id="settings-modal">
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal(&#39;settings-modal&#39;)">×</button>
-    <div class="modal-title">Réglages</div>
+    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    <div class="modal-title">Sauvegarde &amp; données</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement pour ne rien perdre.</div>
 
-    <!-- Données -->
-    <div style="font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:12px;">Données</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;">
-      <button onclick="exportData()" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;">
-        <span style="font-size:20px;">💾</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text);">Exporter blocs</span>
-        <span style="font-size:11px;color:var(--text3);">JSON complet</span>
+    <div class="bk-grid">
+      <button class="bk-card" onclick="exportData()">
+        <div class="bk-ic">💾</div>
+        <div class="bk-tx"><div class="bk-t">Exporter les blocs</div><div class="bk-s">Sauvegarde JSON complète</div></div>
+        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button onclick="exportRadiosBatch()" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;">
-        <span style="font-size:20px;">🗂</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text);">Exporter radios</span>
-        <span style="font-size:11px;color:var(--text3);">Packs de 150</span>
+      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
+        <div class="bk-ic">📥</div>
+        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure une sauvegarde, sans doublon</div></div>
+        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button onclick="document.getElementById(&#39;import-file-input&#39;).click()" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;">
-        <span style="font-size:20px;">📥</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text);">Importer & fusionner</span>
-        <span style="font-size:11px;color:var(--text3);">Sans doublon</span>
+      <button class="bk-card" onclick="exportCSV()">
+        <div class="bk-ic">📊</div>
+        <div class="bk-tx"><div class="bk-t">Export Excel (CSV)</div><div class="bk-s">Tableur · e-portfolio</div></div>
+        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button onclick="exportCSV()" style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;">
-        <span style="font-size:20px;">📊</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text);">Export Excel</span>
-        <span style="font-size:11px;color:var(--text3);">CSV · e-portfolio</span>
+      <button class="bk-card" onclick="exportRadiosBatch()">
+        <div class="bk-ic">🗂</div>
+        <div class="bk-tx"><div class="bk-t">Exporter les radios</div><div class="bk-s">Images, par packs de 150</div></div>
+        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
+
     <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
     <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
 
-    <!-- Spécialités -->
-    <div style="font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-top:24px;margin-bottom:12px;">Mes spécialités</div>
-    <div id="specs-config-container"></div>
+    <div class="bk-sep">Codage CCAM</div>
+    <button class="bk-card" onclick="migrateCCAM()">
+      <div class="bk-ic">⚕️</div>
+      <div class="bk-tx"><div class="bk-t">Coder mes anciens blocs</div><div class="bk-s">Attribution automatique des codes CCAM · préserve l'existant</div></div>
+      <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
 
-    <!-- Valorisation CCAM -->
-    <div style="font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-top:24px;margin-bottom:12px;">Codage CCAM</div>
-    <button onclick="migrateCCAM()" style="width:100%;padding:12px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-size:14px;font-family:inherit;font-weight:500;">Coder automatiquement mes anciens blocs</button>
-    <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.5;">Attribue un code CCAM aux blocs existants via la table de correspondance. Les blocs déjà codés sont préservés. Les libellés non reconnus restent à compléter à la main.</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.5;" id="settings-stats"></div>
+    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
+  </div>
+</div>
 
-    <div style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;" id="settings-stats"></div>
+<!-- MODAL SPÉCIALITÉS (écrou) -->
+<div class="modal-overlay" id="spec-modal" onclick="if(event.target===this)closeModal('spec-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('spec-modal')">×</button>
+    <div class="modal-title">Mes spécialités</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Choisis les spécialités affichées dans l'app. Tape un badge pour l'activer ou le désactiver.</div>
+    <div id="spec-badges-grid" class="spec-badges-grid"></div>
+    <button class="btn-primary" style="width:100%;margin-top:22px;" onclick="closeModal('spec-modal')">Terminé</button>
   </div>
 </div>
 
@@ -2813,7 +2841,10 @@ const CCAM_MAP={
  'Plaque humérus diaphyse':'MBCA011','Clou long humérus':'MBCB002','Palette humérale':'MBCA008',
  'Tête radiale':'MCCA001','Olécrane':'MCCA001','Galeazzi':'MCCA003','Monteggia':'MCCA003',
  'Diaphyse radiale':'MCCA004','Diaphyse ulnaire':'MCCA004','Plaque radius distal':'MCCA005',
- 'Plaque ulna distal':'MCCA005','Kapandji':'MCCB004'
+ 'Plaque ulna distal':'MCCA005','Kapandji':'MCCB004',
+ 'Clavicule':'MACA001','Clou humérus':'MBCB002',"Tendon d'achille":'NJMB001',
+ 'Plaque paroi post':'NACA005','Colonne postérieure + tranverse':'NACA005','Fracture bi-colonne':'NACA004',
+ 'Fracture luxation hanche native':'NEEA001','FE poignet':'MCCB002'
 };
 function migrateCCAM(){
   const total=blocs.length;
@@ -2822,7 +2853,9 @@ function migrateCCAM(){
   let done=0,skip=0,already=0;
   blocs.forEach(b=>{
     if(b.ccamCode){already++;return;}
-    const code=CCAM_MAP[b.interv];
+    const _iv=(b.interv||'').trim();
+    const _leaf=(_iv.split('—').pop()||'').trim();
+    const code=CCAM_MAP[_iv]||CCAM_MAP[_leaf];
     const c=code?CCAM_DATA.find(x=>x.code===code):null;
     if(c){b.ccamCode=c.code;b.ccamTarif=c.tarif||null;b.ccamLibelle=c.libelle;done++;}
     else skip++;
@@ -2980,10 +3013,28 @@ function openSearch(){
     const bn=document.getElementById('bn-recherche');if(bn)bn.classList.add('active');
   },60);
 }
+function showSpecModal(){renderSpecBadges();openModal('spec-modal');}
+function renderSpecBadges(){
+  const grid=document.getElementById('spec-badges-grid');if(!grid)return;
+  const active=getActiveSpecs();
+  grid.innerHTML=ALL_SPECS.map(s=>{
+    const on=active.includes(s.id);
+    return `<button type="button" class="spec-badge${on?' on':''}" style="--sc:${s.color};" onclick="toggleSpecBadge('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${s.icon}</svg><span>${s.label}</span></button>`;
+  }).join('');
+}
+function toggleSpecBadge(id){
+  let active=getActiveSpecs();
+  if(active.includes(id)){active=active.filter(x=>x!==id);if(!active.length)active=[id];}
+  else active.push(id);
+  setActiveSpecs(active);
+  renderSpecBadges();
+  try{renderSpecPills();}catch(e){}
+  try{renderBlocFilters();}catch(e){}
+  try{renderDash();}catch(e){}
+}
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement · Atlas v41';
-  renderSpecsConfig();
+  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement sur cet appareil';
   openModal('settings-modal');
 }
 
@@ -5635,7 +5686,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v57',
+    version:'atlas-v59',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
