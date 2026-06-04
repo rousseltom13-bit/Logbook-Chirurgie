@@ -23,6 +23,7 @@
   --red:#B23B34;--red-l:#F2DDDA;--red-d:#8E2F2A;
   --purple:#7A5687;--purple-l:#E9DEEF;--purple-d:#3A2060;
   --warm:#C97864;--warm-l:#F6E7E0;
+  --st-wait:#A8A294;--st-pdv:#8C8678;--st-deces:#5A5650;
   --radius:10px;--radius-lg:16px;
   --serif:'Charter','Iowan Old Style','Source Serif Pro',Georgia,serif;
   --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
@@ -30,32 +31,34 @@
 }
 @media(prefers-color-scheme:dark){
   :root:not(.theme-light){
-    /* Atlas — palette dark premium (tons lockscreen : teal-nuit profond) */
-    --bg:#080C0E;--bg2:#0D1518;--bg3:#121C20;--bg4:#1A2730;
-    --text:#E8ECED;--text2:#8FA8B2;--text3:#4A6470;
-    --border:rgba(94,150,184,0.10);--border2:rgba(94,150,184,0.18);
-    --accent:#6BAED4;--accent-l:rgba(107,174,212,0.14);
-    --blue:#6BAED4;--blue-l:rgba(107,174,212,0.14);--blue-d:#90C8E8;
-    --green:#5EC490;--green-l:rgba(94,196,144,0.14);--green-d:#88DDB0;
-    --amber:#E0AA56;--amber-l:rgba(224,170,86,0.14);--amber-d:#F4C878;
-    --red:#E87070;--red-l:rgba(232,112,112,0.14);--red-d:#FFAAAA;
-    --purple:#B090D8;--purple-l:rgba(176,144,216,0.14);--purple-d:#CCAAF4;
-    --warm:#E09070;--warm-l:rgba(224,144,112,0.14);
+    /* Atlas — mode sombre « Charbon » : charcoal neutre */
+    --bg:#16171A;--bg2:#262A30;--bg3:#30343B;--bg4:#3C404A;
+    --text:#ECEDEF;--text2:#A6A9B0;--text3:#71747C;
+    --border:rgba(255,255,255,0.11);--border2:rgba(255,255,255,0.20);
+    --accent:#3FA7AD;--accent-l:rgba(83,168,174,0.16);
+    --blue:#3FA7AD;--blue-l:rgba(83,168,174,0.16);--blue-d:#6FC7CD;
+    --green:#7FB36B;--green-l:rgba(127,179,107,0.16);--green-d:#A6DD8E;
+    --amber:#DDA94F;--amber-l:rgba(221,169,79,0.16);--amber-d:#ECC372;
+    --red:#DB6359;--red-l:rgba(219,99,89,0.16);--red-d:#F18A82;
+    --purple:#B492D4;--purple-l:rgba(180,146,212,0.16);--purple-d:#CBAEE6;
+    --warm:#DD8A63;--warm-l:rgba(221,138,99,0.16);
+    --st-wait:#5F5C54;--st-pdv:#8E897C;--st-deces:#ABA597;
     color-scheme:dark;
   }
 }
 :root.theme-dark{
-  /* Atlas — palette dark premium (tons lockscreen : teal-nuit profond) */
-  --bg:#080C0E;--bg2:#0D1518;--bg3:#121C20;--bg4:#1A2730;
-  --text:#E8ECED;--text2:#8FA8B2;--text3:#4A6470;
-  --border:rgba(94,150,184,0.10);--border2:rgba(94,150,184,0.18);
-  --accent:#6BAED4;--accent-l:rgba(107,174,212,0.14);
-  --blue:#6BAED4;--blue-l:rgba(107,174,212,0.14);--blue-d:#90C8E8;
-  --green:#5EC490;--green-l:rgba(94,196,144,0.14);--green-d:#88DDB0;
-  --amber:#E0AA56;--amber-l:rgba(224,170,86,0.14);--amber-d:#F4C878;
-  --red:#E87070;--red-l:rgba(232,112,112,0.14);--red-d:#FFAAAA;
-  --purple:#B090D8;--purple-l:rgba(176,144,216,0.14);--purple-d:#CCAAF4;
-  --warm:#E09070;--warm-l:rgba(224,144,112,0.14);
+  /* Atlas — mode sombre « Charbon » : charcoal neutre */
+  --bg:#16171A;--bg2:#262A30;--bg3:#30343B;--bg4:#3C404A;
+  --text:#ECEDEF;--text2:#A6A9B0;--text3:#71747C;
+  --border:rgba(255,255,255,0.11);--border2:rgba(255,255,255,0.20);
+  --accent:#3FA7AD;--accent-l:rgba(83,168,174,0.16);
+  --blue:#3FA7AD;--blue-l:rgba(83,168,174,0.16);--blue-d:#6FC7CD;
+  --green:#7FB36B;--green-l:rgba(127,179,107,0.16);--green-d:#A6DD8E;
+  --amber:#DDA94F;--amber-l:rgba(221,169,79,0.16);--amber-d:#ECC372;
+  --red:#DB6359;--red-l:rgba(219,99,89,0.16);--red-d:#F18A82;
+  --purple:#B492D4;--purple-l:rgba(180,146,212,0.16);--purple-d:#CBAEE6;
+  --warm:#DD8A63;--warm-l:rgba(221,138,99,0.16);
+  --st-wait:#5F5C54;--st-pdv:#8E897C;--st-deces:#ABA597;
   color-scheme:dark;
 }
 
@@ -724,7 +727,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
 /* ── résultats ── */
 .s-res-headline{display:flex;align-items:baseline;gap:11px;margin-bottom:14px;}
-.s-res-pct{font-family:var(--serif);font-size:34px;font-weight:600;color:#2C6E49;letter-spacing:-0.8px;line-height:0.95;}
+.s-res-pct{font-family:var(--serif);font-size:34px;font-weight:600;color:var(--green-d);letter-spacing:-0.8px;line-height:0.95;}
 .s-res-cap{font-size:13px;color:var(--text2);}
 .s-res-stack{display:flex;height:22px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:6px;background:var(--bg3);}
 .s-res-stack s{display:block;animation:s-wgrow .8s cubic-bezier(.22,.61,.36,1) both;}
@@ -1116,7 +1119,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .stat-spec-filter{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 14px;}
 .stat-spec-chip{padding:7px 15px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
 .stat-spec-chip .sd{width:8px;height:8px;border-radius:999px;flex-shrink:0;}
-.stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:#fff;}
+.stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:var(--bg);}
 .stat-spec-chip.on .sd{background:rgba(255,255,255,0.92) !important;}
 /* ── Pass 3 — Accueil distribution (layout prototype) ── */
 .dist-row{display:flex !important;align-items:center;gap:14px;grid-template-columns:none !important;}
@@ -1130,7 +1133,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .dist-num small{font-size:12px;color:var(--text3);font-weight:600;}
 .dist-bar{height:7px !important;background:var(--bg3) !important;border:1px solid var(--border);border-radius:99px;overflow:hidden;}
 /* ── Accueil — pastille "aucun bloc" ── */
-.dash-greeting-meta,.atlas-greeting-meta{display:inline-flex !important;align-items:center;gap:9px;background:rgba(255,255,255,0.55);border:1px solid var(--border);border-radius:999px;padding:8px 14px !important;margin-top:12px !important;font-weight:500;color:var(--text2);}
+.dash-greeting-meta,.atlas-greeting-meta{display:inline-flex !important;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--border);border-radius:999px;padding:8px 14px !important;margin-top:12px !important;font-weight:500;color:var(--text2);}
 .dash-greeting-meta::before,.atlas-greeting-meta::before{width:7px !important;height:7px !important;background:var(--text3) !important;}
 /* ── Mes blocs — cartes à liseré de couleur ── */
 #bloc-list .bloc-item{margin:0 16px 10px !important;background:var(--bg2) !important;border:1px solid var(--border) !important;border-radius:16px !important;box-shadow:0 1px 2px rgba(40,36,28,0.05),0 12px 26px -18px rgba(40,36,28,0.20) !important;padding:14px 16px 14px 18px !important;position:relative;overflow:hidden;}
@@ -1196,7 +1199,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 #det-suivi .timeline-label{font-size:14px !important;}
 #det-suivi .timeline-comment{font-size:14px !important;}
 </style>
-<script type='text/javascript' nonce='MBNMLMVhCtONaiCGbA7Buw==' src='https://claude.ai/yZzFonPTv_J1aYCMbjqOgGw_C971QtJgEP-6iLF9--TZzrBFWGlGkzDEDDCFE-y2ZrWcM6uNIiR5unhqX5xtXkJhWEXMLDk7CExFNkWpak_TPuJ54hMCjse4HRtX2HzwO9VA6_V2BPvKPnDUQ8F0-chfIYEFY8ttOBfGzmm5djV8yyMLBdZGWC_T_ylryzJfHEi2XjFR8whU-0KW1tIXP1w2z0bvwIugjwlUqYUQMqLilxR4iJjhZUbglFYGTXIMXUaiJCsHLGSkNlVp4E6srNeUEtDWvkAe0IdiBUFk_nP6vzQn5n5iyAYfAGZJDH8HKpzmKnSycj6mp18FWPYTGpd4CLYRpjzRtCPZEstZIcQR2iB0D437D_-QvWlznrdIk8W7xecaR0NUIOaWiue7IOQdF1zqjGTRWrvFMkAhJpC2BMl_6h0zI5RMJK2ec3uF6TB-5znkextdENQbXeJB2rVexk3fqrB8RWvdOCerU4-fX8iIwHe2HM9U5kqK8SAJXuAalj1Anw7ADp1Jcne97zKbww5m0FDCWdie3fX0ufQ2feKQ2wRsAByu'></script><script type="text/javascript" nonce="HS4HLGGpZMBvtP6uNDxDtg==" src="https://claude.ai/5GkqWSuks3Jkcu6dBHiw-Ix8JItgiSj4u9XctiVsSamB8UTaymJcCJC6STUKHc8QbH9w-oQXAPS-J1yvACjxg6k3-LwHREYwSe323PJEQX4dUPNTH7FLmn_VISZazXZ7__IPQE8Jo_6feZEob5DUPiUD8DxsJoHx2MMVoO3tvT3MpNdJjYHygAxVNkYdYRwo6u1L3B_KmC0MnHXDVgtjwlln06A5vSijLm_2T4a7Xlv4a2OYrTJKFnK0n8TjbngFiXu-DGCWCb55PeIM7mhd05HZ7gUA3hTpA--K9WOtbHhXM9VUycq5fakCi2A-RBrOYMVUS5oETlRyAMErTAe-acHht7YLkMrRJ7ax6hcXC-vqYRyoEgd5BAvPgB9_jMIELrQSoiGBY6e3GsNYRTHRH5uieXA5LG_1KUNiDxoc1fcSsBxhkF025iA_3mZjbd5yeKmIiEqbzetzglLXjT62d91236QKD1XFIkL7drwaISZLvkbP0oMUzNl6SuRjjvpacF-BrsitojR3F_EfU_IykztJm2wvCjPKtWABye5HQLptj-c"></script></head>
+<script type='text/javascript' nonce='1RKLBGZKY3tb0oR2dWn5vg==' src='https://claude.ai/JqiTSobKWLsOPftDzh1sYLknNpTirQfy5C3GuSePGKh0ciFZnsHSrani1zMZiEthGI9zAWjG2elEHDFdBGqOufB4D2hsGaCeL3_JmTnM-PpqL-a6n5dSHc53LCNtfDNKFacKrjmrJo1ygisaXHA5qAO8y6mbStjfuDe_uuiR9L6iDJUQx2YF6c3OKWNW7jxCI-49sNseXKY0wC3j9kv_a7OaV6WvZVcXfuf-bq4ZP1zMXE6uSgi-xiK0vZBd_kFpIcqcxd_4BI624kSW5jUfzzT6Vmo4RwljmpHJU2EnwR_sZow_qf_o1gM5W6jlfrV5liu9NdVUuGuGhTUb420wQcFJoCe1VABz4kuQdDSL4Md7cf_uzxgrv8szBfb1JWrPjS6COX_C43NTFQr550vDrsyx0PzZ-UzDM5HNIrMlfoMmnW70Y96eRHJ6hoRl9BaMdgEfdq6-LwDGgWh0oXxxCD8pIfsYfVqVghImsS5MfTudvNA7Xk0xmymOTAO9iP-7uodT2KGtqevpaY0rlYBR9z30ciJYSq2aTuzomxkrdZqFeiQ33DEHy4eA'></script><script type="text/javascript" nonce="HS4HLGGpZMBvtP6uNDxDtg==" src="https://claude.ai/5GkqWSuks3Jkcu6dBHiw-Ix8JItgiSj4u9XctiVsSamB8UTaymJcCJC6STUKHc8QbH9w-oQXAPS-J1yvACjxg6k3-LwHREYwSe323PJEQX4dUPNTH7FLmn_VISZazXZ7__IPQE8Jo_6feZEob5DUPiUD8DxsJoHx2MMVoO3tvT3MpNdJjYHygAxVNkYdYRwo6u1L3B_KmC0MnHXDVgtjwlln06A5vSijLm_2T4a7Xlv4a2OYrTJKFnK0n8TjbngFiXu-DGCWCb55PeIM7mhd05HZ7gUA3hTpA--K9WOtbHhXM9VUycq5fakCi2A-RBrOYMVUS5oETlRyAMErTAe-acHht7YLkMrRJ7ax6hcXC-vqYRyoEgd5BAvPgB9_jMIELrQSoiGBY6e3GsNYRTHRH5uieXA5LG_1KUNiDxoc1fcSsBxhkF025iA_3mZjbd5yeKmIiEqbzetzglLXjT62d91236QKD1XFIkL7drwaISZLvkbP0oMUzNl6SuRjjvpacF-BrsitojR3F_EfU_IykztJm2wvCjPKtWABye5HQLptj-c"></script></head>
 <body>
 <!-- ÉCRAN DE VERROUILLAGE -->
 <div id="onboarding">
@@ -1876,12 +1879,12 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <div class="s-card" id="compl-en-cours"></div>
           </div>
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
-            <div class="s-card" id="compl-by-interv"></div>
-          </div>
-          <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Devenir des complications</h2></div>
             <div id="compl-evolution"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
+            <div class="s-card" id="compl-by-interv"></div>
           </div>
         </div>
 
@@ -4730,6 +4733,8 @@ function updateStatKpis(){
     tEl.innerHTML=(prevMo>0&&d!==0)?(d<0?`<span class="s-trend flat">▼ ${-d} vs ${pn}</span>`:`<span class="s-trend up">▲ ${d} vs ${pn}</span>`):'';}
 }
 function rerenderCurrentStatsTab(){
+  const _gc=(v)=>cssColor('var('+v+')');
+  CC.accent=_gc('--accent');CC.warm=_gc('--warm');CC.green=_gc('--green');CC.amber=_gc('--amber');CC.red=_gc('--red');CC.purple=_gc('--purple');CC.blue=_gc('--blue');CC.gray=_gc('--text3');
   if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();renderTopInterventions();}
   else if(curStatsTab==='experience'){renderLearningTabs();renderLearningChart();renderTopChirurgiens();}
   else if(curStatsTab==='resultats'){renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
@@ -4864,7 +4869,7 @@ function renderComplEnCours(){
   const list=statFilteredBlocs().filter(b=>getBlocHasComplication(b)&&!getBlocFinSuivi(b)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const cEl=document.getElementById('compl-en-cours-count');if(cEl)cEl.textContent=list.length?list.length+' active'+(list.length>1?'s':''):'';
   if(!list.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucune complication en suivi actif</div>';return;}
-  const COL={vert:'#6FA05C',excellent:'#2C6E49',orange:'#C58A21',rouge:'#B23B34',gris:'#A8A294',pdv:'#8C8678',deces:'#5A5650'};
+  const COL={vert:'var(--green)',excellent:'var(--green-d)',orange:'var(--amber)',rouge:'var(--red)',gris:'var(--st-wait)',pdv:'var(--st-pdv)',deces:'var(--st-deces)'};
   el.innerHTML=list.map(b=>{
     const gi=blocs.indexOf(b);
     const st=getBlocStatutFinal(b);const sc=statusClasses(st);const col=COL[st]||'var(--text3)';
@@ -4902,7 +4907,8 @@ function renderLearningChart(){
   if(lcCanvas){
     const ctx=lcCanvas.getContext('2d');
     const grd=ctx.createLinearGradient(0,0,0,130);
-    grd.addColorStop(0,'rgba(27,77,90,0.40)');grd.addColorStop(0.5,'rgba(27,77,90,0.15)');grd.addColorStop(1,'rgba(27,77,90,0.02)');
+    const _ah=String(CC.accent).replace('#','');const _an=parseInt(_ah.length===3?_ah.replace(/./g,c=>c+c):_ah,16);const _ar=(_an>>16)&255,_ag=(_an>>8)&255,_ab=_an&255;
+    grd.addColorStop(0,`rgba(${_ar},${_ag},${_ab},0.42)`);grd.addColorStop(0.5,`rgba(${_ar},${_ag},${_ab},0.16)`);grd.addColorStop(1,`rgba(${_ar},${_ag},${_ab},0.02)`);
     const pr=data.map((_,i)=>(i===0||i===data.length-1)?4:0);
     const phr=data.map(()=>5);
     chartLearning=new Chart(lcCanvas,{
@@ -4956,7 +4962,7 @@ function renderStatuts(filter){
     const exc=clotures.filter(b=>(b.statut||'gris')==='excellent').length;
     const bon=clotures.filter(b=>(b.statut||'gris')==='vert').length;
     const goodPct=Math.round((exc+bon)/clotures.length*100);
-    const segDefs=[['excellent','#2C6E49'],['vert','#6FA05C'],['orange','#C58A21'],['rouge','#B23B34'],['pdv','#8C8678'],['deces','#5A5650']];
+    const segDefs=[['excellent','var(--green-d)'],['vert','var(--green)'],['orange','var(--amber)'],['rouge','var(--red)'],['pdv','var(--st-pdv)'],['deces','var(--st-deces)']];
     const segs=segDefs.map(([k,c])=>{const n=k==='rouge'?clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length:clotures.filter(b=>(b.statut||'gris')===k).length;return n?`<s style="width:${(n/clotures.length*100).toFixed(1)}%;background:${c};"></s>`:'';}).join('');
     html+=`<div class="s-res-headline"><span class="s-res-pct">${goodPct}%</span><span class="s-res-cap">de bons résultats sur ${clotures.length} suivi${clotures.length>1?'s':''} terminé${clotures.length>1?'s':''}</span></div><div class="s-res-stack">${segs}</div>`;
   }
@@ -4964,24 +4970,24 @@ function renderStatuts(filter){
   if(clotures.length){
     html+=`<div class="s-grouplbl done">✓ Suivi terminé <b>(${clotures.length})</b></div>`;
     const STATUTS_FIN=[
-      {key:'excellent',label:'Excellent résultat', fill:'#2C6E49'},
-      {key:'vert',     label:'Bon résultat',       fill:'#6FA05C'},
-      {key:'orange',   label:'Séquelles mineures', fill:'#C58A21'},
-      {key:'rouge',    label:'Mauvais résultat',   fill:'#B23B34'},
-      {key:'pdv',      label:'Perdu de vue',       fill:'#8C8678'},
-      {key:'deces',    label:'Décès',              fill:'#5A5650'}
+      {key:'excellent',label:'Excellent résultat', fill:'var(--green-d)'},
+      {key:'vert',     label:'Bon résultat',       fill:'var(--green)'},
+      {key:'orange',   label:'Séquelles mineures', fill:'var(--amber)'},
+      {key:'rouge',    label:'Mauvais résultat',   fill:'var(--red)'},
+      {key:'pdv',      label:'Perdu de vue',       fill:'var(--st-pdv)'},
+      {key:'deces',    label:'Décès',              fill:'var(--st-deces)'}
     ];
     html+=STATUTS_FIN.map(s=>{const n=s.key==='rouge'?clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length:clotures.filter(b=>(b.statut||'gris')===s.key).length;return renderRow(s.key,s.label,s.fill,n,clotures.length,modalFilter,true);}).join('');
   }
   // ── Suivi en cours ──
   if(enCours.length){
     const STATUTS_COURS=[
-      {key:'vert',   label:'Bon résultat', fill:'#6FA05C'},
-      {key:'orange', label:'Vigilance',    fill:'#C58A21'},
-      {key:'rouge',  label:'Complication', fill:'#B23B34'},
-      {key:'gris',   label:'En attente',   fill:'#A8A294'},
-      {key:'pdv',    label:'Perdu de vue', fill:'#8C8678'},
-      {key:'deces',  label:'Décès',        fill:'#5A5650'}
+      {key:'vert',   label:'Bon résultat', fill:'var(--green)'},
+      {key:'orange', label:'Vigilance',    fill:'var(--amber)'},
+      {key:'rouge',  label:'Complication', fill:'var(--red)'},
+      {key:'gris',   label:'En attente',   fill:'var(--st-wait)'},
+      {key:'pdv',    label:'Perdu de vue', fill:'var(--st-pdv)'},
+      {key:'deces',  label:'Décès',        fill:'var(--st-deces)'}
     ];
     const cBon=enCours.filter(b=>(b.statut||'gris')==='vert').length;
     const cPct=Math.round(cBon/enCours.length*100);
@@ -5194,31 +5200,39 @@ function renderComplEvolution(){
   const el=document.getElementById('compl-evolution');if(!el)return;
   const withCompl=blocs.filter(b=>getBlocHasComplication(b)&&getBlocFinSuivi(b));
   if(!withCompl.length){
-    el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';
+    el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucune complication clôturée</div>';
     return;
   }
   const cats={
-    resolue:  {label:'Résolution favorable', color:CC.green,  blocs:[]},
-    sequelles:{label:'Séquelles',             color:CC.amber,  blocs:[]},
-    reprise:  {label:'Reprise chirurgicale',  color:CC.red,    blocs:[]},
-    persistante:{label:'Évolution défavorable',color:'var(--text2)', blocs:[]}
+    favorable:  {label:'Favorable',     keys:['excellent','vert'], color:'var(--green)',  blocs:[]},
+    defavorable:{label:'Défavorable',   keys:['orange','rouge'],   color:'var(--red)',    blocs:[]},
+    perdu:      {label:'Perdus de vue', keys:['pdv','deces'],      color:'var(--st-pdv)', blocs:[]}
   };
   withCompl.forEach(b=>{
-    const cat=classifyComplication(b)||'persistante';
-    cats[cat].blocs.push(b);
+    const st=getBlocStatutFinal(b)||'gris';
+    const key=Object.keys(cats).find(k=>cats[k].keys.includes(st));
+    if(key)cats[key].blocs.push(b);
   });
-  const total=withCompl.length;
-  el.innerHTML='<div class="s-devgrid">'+Object.entries(cats).map(([key,cat])=>{
-    const n=cat.blocs.length;if(!n)return'';
-    const short={resolue:'Résolues',sequelles:'Séquelles',reprise:'Reprise',persistante:'Défavorable'}[key]||cat.label;
-    return`<div class="s-card s-dev" data-cat="${key}"><div class="s-dev-val" style="color:${cat.color};">${n}</div><div class="s-dev-lbl">${short}</div></div>`;
-  }).join('')+'</div>';
-  // Attacher les événements clic proprement
-  el.querySelectorAll('[data-cat]').forEach(row=>{
-    row.onclick=()=>showComplEvolutionBlocs(row.dataset.cat,cats);
-  });
-  // Stocker cats pour accès dans onclick
-  el._cats=cats;
+  const total=cats.favorable.blocs.length+cats.defavorable.blocs.length+cats.perdu.blocs.length;
+  if(!total){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Devenir non encore déterminé</div>';return;}
+  const favPct=Math.round(cats.favorable.blocs.length/total*100);
+  const segs=Object.values(cats).map(c=>{const n=c.blocs.length;return n?`<s style="width:${(n/total*100).toFixed(1)}%;background:${c.color};"></s>`:'';}).join('');
+  const rows=Object.entries(cats).map(([k,c])=>{
+    const n=c.blocs.length;const pct=Math.round(n/total*100);
+    return`<div class="statut-row" data-evk="${k}">
+      <div class="statut-name-row">
+        <span class="statut-name-inner"><span class="statut-dot" style="background:${c.color};"></span>${c.label}</span>
+        <span class="statut-vals">${n}<small>${pct}%</small><span class="s-chev">›</span></span>
+      </div>
+      <div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${c.color};"></div></div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="statut-list">
+    <div class="s-res-headline"><span class="s-res-pct">${favPct}%</span><span class="s-res-cap">d'évolution favorable sur ${total} complication${total>1?'s':''} clôturée${total>1?'s':''}</span></div>
+    <div class="s-res-stack">${segs}</div>
+    ${rows}
+  </div>`;
+  el.querySelectorAll('[data-evk]').forEach(r=>{r.onclick=()=>{const c=cats[r.dataset.evk];openBlocsListModal(c.label+' — '+c.blocs.length+' cas',c.blocs);};});
 }
 function showComplEvolutionBlocs(catKey, cats){
   const el=document.getElementById('compl-evolution');
@@ -5981,6 +5995,7 @@ function toggleTheme(){
   if(currentlyDark){root.classList.add('theme-light');localStorage.setItem('orlog_theme','light');}
   else{root.classList.add('theme-dark');localStorage.setItem('orlog_theme','dark');}
   updateThemeBtn();
+  try{const sv=document.getElementById('view-stats');if(sv&&sv.classList.contains('active'))rerenderCurrentStatsTab();}catch(e){}
 }
 function updateThemeBtn(){
   const root=document.documentElement;
@@ -5990,6 +6005,7 @@ function updateThemeBtn(){
   const sun=document.getElementById('theme-icon-sun');
   if(moon)moon.style.display=currentlyDark?'none':'block';
   if(sun)sun.style.display=currentlyDark?'block':'none';
+  const tb=document.getElementById('theme-btn');if(tb)tb.classList.toggle('on',currentlyDark);
 }
 function initTheme(){
   const saved=localStorage.getItem('orlog_theme');
