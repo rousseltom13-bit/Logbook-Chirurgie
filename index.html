@@ -18,9 +18,9 @@
   --border:rgba(60,55,40,0.10);--border2:rgba(60,55,40,0.18);
   --accent:#1B4D5A;--accent-l:#E5EDEF;
   --blue:#1B4D5A;--blue-l:#E5EDEF;--blue-d:#0E2C36;
-  --green:#3F6B3D;--green-l:#E6EFE2;--green-d:#264020;
-  --amber:#A06A12;--amber-l:#F5E6CC;--amber-d:#6A3A00;
-  --red:#A8413C;--red-l:#F2DDDA;--red-d:#6A1010;
+  --green:#6FA05C;--green-l:#E6EFE2;--green-d:#2C6E49;
+  --amber:#C58A21;--amber-l:#F5E6CC;--amber-d:#8A5E14;
+  --red:#B23B34;--red-l:#F2DDDA;--red-d:#8E2F2A;
   --purple:#7A5687;--purple-l:#E9DEEF;--purple-d:#3A2060;
   --warm:#C97864;--warm-l:#F6E7E0;
   --radius:10px;--radius-lg:16px;
@@ -65,9 +65,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0;}
 .head-brand{display:flex;align-items:center;gap:8px;}
 .brand-mark{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-0.03em;color:var(--text);line-height:1;}
-.head-icon{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.head-icon:active{background:var(--bg2);}
-.head-icon svg{width:15px;height:15px;}
+.head-icon{width:37px;height:37px;border-radius:11px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .15s,color .15s,transform .12s,box-shadow .15s;}
+.head-icon:hover{color:var(--text);box-shadow:0 1px 2px rgba(40,36,28,0.05),0 6px 16px -10px rgba(40,36,28,0.5);}
+.head-icon:active{transform:scale(0.93);background:var(--bg3);}
+.head-icon svg{width:18px;height:18px;}
+.head-icon#theme-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 12px -4px rgba(27,77,90,0.5);}
 .views{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(72px + var(--safe-bot));}
 .view{display:none;padding:16px;}.view.active{display:block;}
 #view-dashboard{padding:0;}
@@ -114,9 +116,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .ba{background:var(--bg2);color:var(--text2);border:0.5px solid var(--border2);}
 .sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .sv{background:var(--green);}.so{background:var(--amber);}.sr{background:var(--red);}.sg{background:var(--text3);}
-.sp{background:#6B7A8D;}.sn{background:#2C2C2A;}
+.sp{background:#8C8678;}.sn{background:#5A5650;}
 .tv{color:var(--green);}.to{color:var(--amber);}.tr{color:var(--red);}.tg{color:var(--text3);}
-.tp{color:#4A5568;}.tn{color:#2C2C2A;}
+.tp{color:#8C8678;}.tn{color:#5A5650;}
 .status-row{display:flex;align-items:center;gap:6px;font-size:12px;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
 .chip{background:var(--bg2);padding:5px 10px;border-radius:var(--radius);font-size:12px;border:0.5px solid var(--border);}
@@ -595,40 +597,165 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .saisie-cta{position:sticky;bottom:0;left:0;right:0;width:100%;padding:14px 16px calc(16px + var(--safe-bot));background:var(--bg);border-top:1px solid var(--border);z-index:10;margin-top:8px;}
 .f-toggle-btn{padding:8px 14px;border:1px solid var(--border2);border-radius:99px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
 .f-toggle-btn.on{background:var(--text);color:var(--bg);border-color:var(--text);}
-/* Stats sections polish */
-/* === PROTO-EXACT: Stats === */
-.stats-page-h{padding:6px 20px 14px;border-bottom:0;}
-.stats-page-title{font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);}
-.stats-tabs-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg);padding:0 20px;overflow-x:auto;}
+/* ════════ STATS — refonte premium (cohérente avec le reste de l'app) ════════
+   Couleurs 100% via les variables de l'app (--bg, --bg2 = blanc des cartes,
+   --border, --text*, --accent, --warm, --purple…). Un seul système d'élévation. */
+#view-stats{--s-shadow:0 1px 2px rgba(40,36,28,0.05),0 14px 30px -18px rgba(40,36,28,0.20);
+  --s-shadow-sm:0 1px 2px rgba(40,36,28,0.05);--s-r:18px;}
+.stats-page-h{padding:4px 20px 14px;border-bottom:0;}
+.stats-page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.5px;color:var(--text);}
+.stats-tabs-bar{display:flex;gap:22px;border-bottom:1px solid var(--border);background:var(--bg);padding:0 20px;overflow-x:auto;}
 .stats-tabs-bar::-webkit-scrollbar{display:none;}
-.stats-tab{padding:12px 14px 11px;font-size:13px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;}
-.stats-tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600;}
-.stats-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px 80px;}
-.stats-panel{display:none;}.stats-panel.on{display:block;}
-.kpi-hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
-.s-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;}
+.stats-tab{padding:0 0 12px;font-size:15px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;}
+.stats-tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:700;}
+.stats-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 90px;}
+.stats-panel{display:none;}.stats-panel.on{display:block;animation:s-rise .45s cubic-bezier(.22,.61,.36,1) both;}
+@keyframes s-rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* premium primitives */
+.s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--s-r);box-shadow:var(--s-shadow);}
+.s-card.pad{padding:18px;}
+.s-eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);white-space:nowrap;}
+.s-section{margin-bottom:26px;}
+.s-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:13px;gap:10px;}
+.s-section-title{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-0.2px;color:var(--text);}
+.s-chev{color:var(--text3);font-size:13px;}
+.s-periods{display:flex;gap:6px;margin-bottom:13px;flex-wrap:wrap;}
+.s-period{padding:6px 13px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:999px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;box-shadow:var(--s-shadow-sm);white-space:nowrap;}
+.s-period.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* ── editorial KPI hero (Activité) ── */
+.s-hero{padding:20px 20px 16px;margin-bottom:24px;}
+.s-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.s-hero-eyebrow{margin-bottom:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.s-hero-figure{display:flex;align-items:baseline;gap:9px;}
+.s-hero-num{font-family:var(--serif);font-size:60px;font-weight:600;line-height:0.86;letter-spacing:-2px;color:var(--text);}
+.s-hero-unit{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--text2);}
+.s-hero-sub{margin-top:8px;font-size:13px;color:var(--text2);}
+.s-hero-sub b{color:var(--text);}
+.s-trend{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:0.2px;white-space:nowrap;}
+.s-trend.flat{background:var(--bg3);color:var(--text2);}
+.s-trend.up{background:var(--green-l);color:var(--green-d);}
+.s-trend.bad{background:var(--red-l);color:var(--red-d);}
+.s-spark{display:flex;align-items:flex-end;gap:4px;height:52px;flex-shrink:0;}
+.s-spark i{width:8px;border-radius:3px 3px 0 0;background:var(--accent);opacity:0.28;display:block;}
+.s-spark i.cur{opacity:1;}
+.s-hero-div{height:1px;background:var(--border);margin:16px 0 14px;}
+.s-micro-row{display:flex;}
+.s-micro{flex:1;display:flex;flex-direction:column;gap:3px;}
+.s-micro+.s-micro{border-left:1px solid var(--border);padding-left:16px;}
+.s-micro:not(:last-child){padding-right:16px;}
+.s-micro-val{font-family:var(--serif);font-size:23px;font-weight:600;color:var(--text);letter-spacing:-0.3px;line-height:1;}
+.s-micro-val small{font-size:13px;color:var(--text2);font-weight:500;}
+.s-micro-lbl{font-size:11px;color:var(--text3);font-weight:500;}
+
+/* ── valorisation 2-up KPI (reuse .kpi-hero/.s-kpi) ── */
+.kpi-hero{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.s-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--s-r);box-shadow:var(--s-shadow);padding:16px;display:flex;flex-direction:column;gap:6px;}
 .s-kpi-h{display:flex;align-items:center;justify-content:space-between;}
-.s-kpi-label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;}
-.s-kpi-value{font-family:var(--serif);font-size:30px;font-weight:500;line-height:1;letter-spacing:-0.02em;color:var(--text);}
+.s-kpi-label{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:700;}
+.s-kpi-value{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1;letter-spacing:-0.6px;color:var(--text);}
 .s-kpi-sub{font-size:12px;color:var(--text2);}
-.s-section{margin-bottom:22px;}
-.s-section-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
-.s-section-title{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-0.01em;color:var(--text);}
-.s-periods{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
-.s-period{padding:5px 10px;font-size:11px;font-weight:500;border:1px solid var(--border);border-radius:99px;background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;}
-.s-period.on{background:var(--text);color:var(--bg);border-color:var(--text);font-weight:600;}
-.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;}
-.chart-legend{display:flex;gap:14px;margin-top:12px;font-size:11px;color:var(--text2);}
-.legend-item{display:inline-flex;align-items:center;gap:5px;}
-.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
-.statut-list{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:14px;}
-.statut-row{display:flex;flex-direction:column;gap:5px;}
-.statut-name-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;}
-.statut-name-inner{display:inline-flex;align-items:center;gap:6px;color:var(--text);font-weight:500;}
-.statut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.statut-vals{font-family:var(--serif);color:var(--text);font-weight:500;}
-.statut-bar{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:2px;}
-.statut-fill{height:100%;border-radius:99px;}
+.s-kpi-sub b{color:var(--warm);font-weight:600;}
+
+/* ── CSS bar chart (Activité mensuelle) ── */
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--s-r);box-shadow:var(--s-shadow);padding:18px;}
+.s-chart{position:relative;height:172px;padding-top:8px;}
+.s-gridline{position:absolute;left:0;right:0;height:1px;background:var(--border);}
+.s-avgline{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed var(--warm);opacity:0.75;}
+.s-avgtag{position:absolute;right:0;transform:translateY(-50%);font-size:9.5px;font-weight:700;color:var(--warm);background:var(--bg2);padding:1px 5px;letter-spacing:0.3px;}
+.s-bars{position:absolute;left:0;right:0;bottom:22px;top:8px;display:flex;align-items:flex-end;justify-content:space-around;}
+.s-bcol{display:flex;flex-direction:column-reverse;width:18px;border-radius:6px 6px 0 0;overflow:hidden;transform-origin:bottom;animation:s-grow .6s cubic-bezier(.22,.61,.36,1) both;}
+.s-bcol s{display:block;width:100%;}
+@keyframes s-grow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+.s-xlabels{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;}
+.s-xlabels span{flex:1;text-align:center;font-size:11px;color:var(--text3);font-weight:600;}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--border);}
+.legend-item{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text);font-weight:600;}
+.legend-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+
+/* ── role split ── */
+.s-role-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:13px;}
+.s-role-fig{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1;letter-spacing:-0.5px;}
+.s-role-lbl{font-size:12.5px;font-weight:700;color:var(--text2);margin-bottom:3px;}
+.s-splitbar{display:flex;height:16px;border-radius:999px;overflow:hidden;gap:2px;background:var(--bg3);}
+.s-splitbar s{display:block;animation:s-wgrow .7s cubic-bezier(.22,.61,.36,1) both;}
+@keyframes s-wgrow{from{width:0 !important;}}
+.s-role-note{margin-top:11px;font-size:12.5px;color:var(--text2);font-weight:500;}
+.s-role-note b{color:var(--text);font-weight:700;}
+
+/* ── ranked list (top interv / chirurgiens / compl par interv) ── */
+.s-rank{padding:13px 16px;display:block;cursor:pointer;}
+.s-rank+.s-rank{border-top:1px solid var(--border);}
+.s-rank:active{background:var(--bg3);}
+.s-rank-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;}
+.s-rank-name{display:flex;align-items:center;gap:9px;min-width:0;}
+.s-rank-no{font-family:var(--serif);font-size:13px;font-weight:600;color:var(--text3);width:16px;flex-shrink:0;}
+.s-rank-no.top{color:var(--accent);}
+.s-rank-label{font-size:14.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-rank-count{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--text);flex-shrink:0;display:flex;align-items:baseline;gap:6px;}
+.s-rank-count small{font-size:11px;color:var(--text3);font-weight:600;font-family:-apple-system,sans-serif;}
+.s-rank-bar{height:6px;background:var(--bg3);border-radius:999px;overflow:hidden;}
+.s-rank-bar s{display:block;height:100%;border-radius:999px;animation:s-wgrow .7s cubic-bezier(.22,.61,.36,1) both;}
+.s-rank-meta{margin-top:8px;display:flex;gap:6px;}
+.s-tagpill{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--bg3);color:var(--text2);}
+.s-tagpill.p{background:var(--accent-l);color:var(--accent);}
+.s-tagpill.a{background:var(--warm-l);color:var(--warm);}
+.s-initial{width:30px;height:30px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:13px;font-weight:700;background:var(--warm-l);color:var(--warm);}
+
+/* ── valorisation rows ── */
+.s-valo-row{display:flex;align-items:center;gap:13px;padding:14px 16px;}
+.s-valo-row+.s-valo-row{border-top:1px solid var(--border);}
+.s-specdot{width:34px;height:34px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.s-specdot svg{width:19px;height:19px;}
+.s-valo-mid{flex:1;min-width:0;}
+.s-valo-line{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px;}
+.s-valo-name{font-size:14.5px;font-weight:700;color:var(--text);}
+.s-valo-eur{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--text);}
+.s-valo-eur small{font-size:11px;color:var(--text3);font-weight:600;margin-left:3px;font-family:-apple-system,sans-serif;}
+.s-valo-bar{height:7px;background:var(--bg3);border-radius:999px;overflow:hidden;}
+.s-valo-bar s{display:block;height:100%;border-radius:999px;animation:s-wgrow .7s cubic-bezier(.22,.61,.36,1) both;}
+.s-fineprint{font-size:11px;color:var(--text3);margin-top:11px;line-height:1.45;}
+
+/* ── learning curve ── */
+.s-curve-trend{display:flex;align-items:baseline;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.s-curve-big{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:-0.4px;white-space:nowrap;}
+.s-curve-cap{font-size:12.5px;color:var(--text2);}
+
+/* ── résultats ── */
+.s-res-headline{display:flex;align-items:baseline;gap:11px;margin-bottom:14px;}
+.s-res-pct{font-family:var(--serif);font-size:34px;font-weight:600;color:#2C6E49;letter-spacing:-0.8px;line-height:0.95;}
+.s-res-cap{font-size:13px;color:var(--text2);}
+.s-res-stack{display:flex;height:22px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:6px;background:var(--bg3);}
+.s-res-stack s{display:block;animation:s-wgrow .8s cubic-bezier(.22,.61,.36,1) both;}
+.s-grouplbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--text3);margin:16px 0 4px;display:flex;align-items:center;gap:7px;}
+.s-grouplbl.done{color:var(--green-d);}
+.s-grouplbl b{color:var(--text3);font-weight:500;}
+.statut-list{background:var(--bg2);border:1px solid var(--border);border-radius:var(--s-r);box-shadow:var(--s-shadow);padding:18px;}
+.statut-row{padding:11px 0;cursor:pointer;}
+.statut-row+.statut-row{border-top:1px solid var(--border);}
+.statut-name-row{display:flex;align-items:center;justify-content:space-between;font-size:13.5px;margin-bottom:6px;}
+.statut-name-inner{display:inline-flex;align-items:center;gap:8px;color:var(--text);font-weight:600;}
+.statut-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.statut-vals{font-family:var(--serif);font-size:15px;color:var(--text);font-weight:600;display:flex;align-items:baseline;gap:6px;}
+.statut-vals small{font-size:11px;color:var(--text3);font-weight:600;font-family:-apple-system,sans-serif;}
+.statut-bar{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.statut-fill{height:100%;border-radius:99px;animation:s-wgrow .7s cubic-bezier(.22,.61,.36,1) both;}
+
+/* ── patient rows / devenir ── */
+.s-prow{display:flex;align-items:center;gap:11px;padding:12px 16px;cursor:pointer;}
+.s-prow+.s-prow{border-top:1px solid var(--border);}
+.s-prow:active{background:var(--bg3);}
+.s-prow .dot{width:9px;height:9px;border-radius:999px;flex-shrink:0;}
+.s-prow-mid{flex:1;min-width:0;}
+.s-prow-name{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-prow-meta{font-size:11.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.s-prow-tag{font-size:11.5px;font-weight:700;flex-shrink:0;}
+.s-devgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.s-dev{padding:15px 12px;text-align:center;}
+.s-dev-val{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1;letter-spacing:-0.5px;}
+.s-dev-lbl{font-size:11px;color:var(--text2);font-weight:600;margin-top:7px;}
+.s-empty{font-size:13px;color:var(--text3);padding:8px 0;}
 .btn-secondary{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:6px;font-weight:500;padding:12px;font-size:14px;cursor:pointer;font-family:inherit;}
 
 
@@ -985,6 +1112,12 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .bk-s{font-size:12px;color:var(--text3);margin-top:2px;}
 .bk-arrow{width:18px;height:18px;color:var(--text3);flex-shrink:0;}
 .bk-sep{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:22px 0 12px;}
+/* Filtre spécialité global (stats) */
+.stat-spec-filter{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 14px;}
+.stat-spec-chip{padding:7px 15px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
+.stat-spec-chip .sd{width:8px;height:8px;border-radius:999px;flex-shrink:0;}
+.stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:#fff;}
+.stat-spec-chip.on .sd{background:rgba(255,255,255,0.92) !important;}
 /* ── Pass 3 — Accueil distribution (layout prototype) ── */
 .dist-row{display:flex !important;align-items:center;gap:14px;grid-template-columns:none !important;}
 .dist-icon{width:38px !important;height:38px !important;border-radius:12px !important;}
@@ -1063,7 +1196,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 #det-suivi .timeline-label{font-size:14px !important;}
 #det-suivi .timeline-comment{font-size:14px !important;}
 </style>
-<script type='text/javascript' nonce='HS4HLGGpZMBvtP6uNDxDtg==' src='https://claude.ai/5GkqWSuks3Jkcu6dBHiw-Ix8JItgiSj4u9XctiVsSamB8UTaymJcCJC6STUKHc8QbH9w-oQXAPS-J1yvACjxg6k3-LwHREYwSe323PJEQX4dUPNTH7FLmn_VISZazXZ7__IPQE8Jo_6feZEob5DUPiUD8DxsJoHx2MMVoO3tvT3MpNdJjYHygAxVNkYdYRwo6u1L3B_KmC0MnHXDVgtjwlln06A5vSijLm_2T4a7Xlv4a2OYrTJKFnK0n8TjbngFiXu-DGCWCb55PeIM7mhd05HZ7gUA3hTpA--K9WOtbHhXM9VUycq5fakCi2A-RBrOYMVUS5oETlRyAMErTAe-acHht7YLkMrRJ7ax6hcXC-vqYRyoEgd5BAvPgB9_jMIELrQSoiGBY6e3GsNYRTHRH5uieXA5LG_1KUNiDxoc1fcSsBxhkF025iA_3mZjbd5yeKmIiEqbzetzglLXjT62d91236QKD1XFIkL7drwaISZLvkbP0oMUzNl6SuRjjvpacF-BrsitojR3F_EfU_IykztJm2wvCjPKtWABye5HQLptj-c'></script></head>
+<script type='text/javascript' nonce='MBNMLMVhCtONaiCGbA7Buw==' src='https://claude.ai/yZzFonPTv_J1aYCMbjqOgGw_C971QtJgEP-6iLF9--TZzrBFWGlGkzDEDDCFE-y2ZrWcM6uNIiR5unhqX5xtXkJhWEXMLDk7CExFNkWpak_TPuJ54hMCjse4HRtX2HzwO9VA6_V2BPvKPnDUQ8F0-chfIYEFY8ttOBfGzmm5djV8yyMLBdZGWC_T_ylryzJfHEi2XjFR8whU-0KW1tIXP1w2z0bvwIugjwlUqYUQMqLilxR4iJjhZUbglFYGTXIMXUaiJCsHLGSkNlVp4E6srNeUEtDWvkAe0IdiBUFk_nP6vzQn5n5iyAYfAGZJDH8HKpzmKnSycj6mp18FWPYTGpd4CLYRpjzRtCPZEstZIcQR2iB0D437D_-QvWlznrdIk8W7xecaR0NUIOaWiue7IOQdF1zqjGTRWrvFMkAhJpC2BMl_6h0zI5RMJK2ec3uF6TB-5znkextdENQbXeJB2rVexk3fqrB8RWvdOCerU4-fX8iIwHe2HM9U5kqK8SAJXuAalj1Anw7ADp1Jcne97zKbww5m0FDCWdie3fX0ufQ2feKQ2wRsAByu'></script><script type="text/javascript" nonce="HS4HLGGpZMBvtP6uNDxDtg==" src="https://claude.ai/5GkqWSuks3Jkcu6dBHiw-Ix8JItgiSj4u9XctiVsSamB8UTaymJcCJC6STUKHc8QbH9w-oQXAPS-J1yvACjxg6k3-LwHREYwSe323PJEQX4dUPNTH7FLmn_VISZazXZ7__IPQE8Jo_6feZEob5DUPiUD8DxsJoHx2MMVoO3tvT3MpNdJjYHygAxVNkYdYRwo6u1L3B_KmC0MnHXDVgtjwlln06A5vSijLm_2T4a7Xlv4a2OYrTJKFnK0n8TjbngFiXu-DGCWCb55PeIM7mhd05HZ7gUA3hTpA--K9WOtbHhXM9VUycq5fakCi2A-RBrOYMVUS5oETlRyAMErTAe-acHht7YLkMrRJ7ax6hcXC-vqYRyoEgd5BAvPgB9_jMIELrQSoiGBY6e3GsNYRTHRH5uieXA5LG_1KUNiDxoc1fcSsBxhkF025iA_3mZjbd5yeKmIiEqbzetzglLXjT62d91236QKD1XFIkL7drwaISZLvkbP0oMUzNl6SuRjjvpacF-BrsitojR3F_EfU_IykztJm2wvCjPKtWABye5HQLptj-c"></script></head>
 <body>
 <!-- ÉCRAN DE VERROUILLAGE -->
 <div id="onboarding">
@@ -1664,30 +1797,32 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="stats-page-h">
         <h1 class="stats-page-title">Statistiques</h1>
       </div>
+      <div class="stat-spec-filter" id="stat-spec-filter"></div>
       <div class="stats-tabs-bar" id="stats-tabs">
         <button class="stats-tab on" onclick="switchStatsTab(&#39;activite&#39;,this)">Activité</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;ortho&#39;,this)">Orthopédie</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;trauma&#39;,this)">Traumatologie</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;top&#39;,this)">Top</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;complications&#39;,this)">Complications</button>
+        <button class="stats-tab" onclick="switchStatsTab(&#39;experience&#39;,this)">Expérience &amp; encadrement</button>
+        <button class="stats-tab" onclick="switchStatsTab(&#39;resultats&#39;,this)">Résultats</button>
       </div>
       <div class="stats-scroll">
 
         <!-- ① ACTIVITÉ -->
         <div class="stats-panel on" id="sp-activite">
-          <!-- KPI hero -->
-          <div class="kpi-hero">
-            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span><span id="st-ce-mois-trend"></span></div><div class="s-kpi-value" id="st-ce-mois">0</div><div class="s-kpi-sub">blocs</div></div>
-            <div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Moyenne</span></div><div class="s-kpi-value" id="st-moy-mois">0</div><div class="s-kpi-sub">blocs/mois · 6 mois</div></div>
+          <div class="s-card s-hero">
+            <div class="s-hero-top">
+              <div>
+                <div class="s-hero-eyebrow"><span class="s-eyebrow" id="st-month">Ce mois</span><span id="st-ce-mois-trend"></span></div>
+                <div class="s-hero-figure"><span class="s-hero-num" id="st-ce-mois">0</span><span class="s-hero-unit">blocs</span></div>
+                <div class="s-hero-sub">ce mois-ci · <b id="st-semestre">0</b> sur le semestre</div>
+              </div>
+              <div class="s-spark" id="st-spark"></div>
+            </div>
+            <div class="s-hero-div"></div>
+            <div class="s-micro-row">
+              <div class="s-micro"><span class="s-micro-val" id="st-moy-mois">0</span><span class="s-micro-lbl">moy. / mois · 6 mois</span></div>
+              <div class="s-micro"><span class="s-micro-val" id="st-pct-op">0<small>%</small></span><span class="s-micro-lbl">opérateur principal</span></div>
+              <div class="s-micro"><span class="s-micro-val" id="st-taux-compl">0<small>%</small></span><span class="s-micro-lbl">complications</span></div>
+            </div>
           </div>
-
-          <!-- Valorisation CCAM -->
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Valorisation CCAM</h2></div>
-            <div id="valo-content"></div>
-          </div>
-
-          <!-- Graphique mensuel -->
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Activité mensuelle</h2></div>
             <div class="s-periods" id="activity-period-tabs">
@@ -1696,132 +1831,57 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
               <button class="s-period" onclick="setActivityPeriod(0,this)">Tout</button>
             </div>
             <div class="chart-card">
-              <div style="position:relative;height:140px;"><canvas id="chart-activity"></canvas></div>
-              <div class="chart-legend">
-                <span class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span>Orthopédie</span>
-                <span class="legend-item"><span class="legend-dot" style="background:var(--warm);"></span>Traumatologie</span>
-              </div>
+              <div class="s-chart" id="activity-chart-host"></div>
+              <div class="chart-legend" id="activity-legend"></div>
             </div>
           </div>
-
-          <!-- Rôle donut -->
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Rôle</h2></div>
+            <div class="s-section-h"><h2 class="s-section-title">Rôle opératoire</h2></div>
+            <div class="chart-card"><div id="role-host"></div></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Valorisation CCAM</h2></div>
+            <div id="valo-content"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Top interventions</h2></div>
+            <div class="s-card" id="top-interventions"></div>
+          </div>
+        </div>
+
+        <!-- ② EXPÉRIENCE & ENCADREMENT -->
+        <div class="stats-panel" id="sp-experience">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Courbe d'expérience</h2></div>
+            <div class="s-periods" id="learning-tabs"></div>
             <div class="chart-card">
-              <div style="position:relative;height:110px;"><canvas id="chart-role"></canvas></div>
-              <div id="role-legend" class="chart-legend"></div>
+              <div class="s-curve-trend" id="learning-trend"></div>
+              <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
             </div>
           </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Chirurgiens aidés</h2><span class="s-eyebrow">Trauma · aide</span></div>
+            <div class="s-card" id="top-chirurgiens"></div>
+          </div>
+        </div>
 
-          <!-- Résultats patients — 3 onglets pastilles -->
+        <!-- ③ RÉSULTATS -->
+        <div class="stats-panel" id="sp-resultats">
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
-            <div class="s-periods" id="statut-scope-tabs" style="margin-bottom:14px;">
-              <button class="s-period on" onclick="setStatutScope(&#39;all&#39;,this)">Tous</button>
-              <button class="s-period" onclick="setStatutScope(&#39;trauma&#39;,this)">Trauma</button>
-              <button class="s-period" onclick="setStatutScope(&#39;ortho&#39;,this)">Orthopédie</button>
-            </div>
             <div class="statut-list" id="activite-statuts"></div>
           </div>
-          <!-- Évolution temporelle des résultats -->
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Évolution des résultats</h2></div>
-            <div class="s-periods" id="evol-period-tabs">
-              <button class="s-period on" onclick="setEvolPeriod(12,this)">12 mois</button>
-              <button class="s-period" onclick="setEvolPeriod(24,this)">24 mois</button>
-              <button class="s-period" onclick="setEvolPeriod(0,this)">Tout</button>
-            </div>
-            <div class="chart-card">
-              <div style="position:relative;height:130px;"><canvas id="chart-evol"></canvas></div>
-              <div class="chart-legend">
-                <span class="legend-item"><span class="legend-dot" style="background:var(--green-d);"></span>Bons résultats</span>
-                <span class="legend-item"><span class="legend-dot" style="background:var(--red-d);"></span>Complications</span>
-              </div>
-            </div>
+            <div class="s-section-h"><h2 class="s-section-title">Complications en cours</h2><span class="s-eyebrow" id="compl-en-cours-count"></span></div>
+            <div class="s-card" id="compl-en-cours"></div>
           </div>
-
-          <!-- Complications par rôle -->
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Complications par rôle</h2></div>
-            <div class="chart-card" id="compl-by-role"></div>
+            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
+            <div class="s-card" id="compl-by-interv"></div>
           </div>
-
-          <!-- Évolution des complications -->
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Devenir des complications</h2></div>
-            <div class="chart-card" id="compl-evolution"></div>
-          </div>
-        </div>
-        <div class="stats-panel" id="sp-ortho">
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Courbe d'apprentissage</h2></div>
-            <div class="s-periods" id="learning-tabs">
-              <button class="s-period on" onclick="setLearning(&#39;PTH&#39;,this)">PTH</button>
-              <button class="s-period" onclick="setLearning(&#39;PTG&#39;,this)">PTG</button>
-              <button class="s-period" onclick="setLearning(&#39;LCA&#39;,this)">LCA</button>
-              <button class="s-period" onclick="setLearning(&#39;Ménisque&#39;,this)">Ménisque</button>
-              <button class="s-period" onclick="setLearning(&#39;Autre&#39;,this)">Autre</button>
-            </div>
-            <div class="chart-card">
-              <div style="position:relative;height:130px;"><canvas id="chart-learning"></canvas></div>
-              <div style="font-size:11px;color:var(--text3);margin-top:8px;" id="learning-trend"></div>
-            </div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
-            <div class="statut-list" id="ortho-statuts"></div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
-            <div class="chart-card" id="compl-by-interv-ortho"></div>
-          </div>
-        </div>
-
-        <!-- ③ TRAUMA -->
-        <div class="stats-panel" id="sp-trauma">
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Courbe d'apprentissage</h2></div>
-            <div class="s-periods" id="learning-trauma-tabs">
-              <button class="s-period on" onclick="setTraumaLearning(null,this)">Auto</button>
-            </div>
-            <div class="chart-card">
-              <div style="position:relative;height:130px;"><canvas id="chart-learning-trauma"></canvas></div>
-              <div style="font-size:11px;color:var(--text3);margin-top:8px;" id="learning-trauma-trend"></div>
-            </div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
-            <div class="statut-list" id="trauma-statuts"></div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Complications par intervention</h2></div>
-            <div class="chart-card" id="compl-by-interv-trauma"></div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Chirurgiens aidés</h2></div>
-            <div class="chart-card" id="top-chirurgiens"></div>
-          </div>
-        </div>
-
-        <!-- ④ TOP -->
-        <div class="stats-panel" id="sp-top">
-          <div class="s-periods" id="top-filter-tabs" style="margin-bottom:14px;">
-            <button class="s-period on" onclick="setTopFilter(&#39;all&#39;,this)">Tout</button>
-            <button class="s-period" onclick="setTopFilter(&#39;ortho&#39;,this)">Orthopédie</button>
-            <button class="s-period" onclick="setTopFilter(&#39;trauma&#39;,this)">Traumatologie</button>
-          </div>
-          <div class="chart-card" id="top-interventions"></div>
-        </div>
-
-        <!-- ⑤ COMPLICATIONS -->
-        <div class="stats-panel" id="sp-complications">
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Vue d'ensemble</h2></div>
-            <div id="compl-overview" class="chart-card"></div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Détail</h2></div>
-            <div id="compl-detail-list"></div>
+            <div id="compl-evolution"></div>
           </div>
         </div>
 
@@ -2099,10 +2159,10 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 
 <!-- MODAL SETTINGS -->
-<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal(&#39;settings-modal&#39;)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    <button class="modal-close" onclick="closeModal(&#39;settings-modal&#39;)">×</button>
     <div class="modal-title">Sauvegarde &amp; données</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement pour ne rien perdre.</div>
 
@@ -2110,22 +2170,22 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <button class="bk-card" onclick="exportData()">
         <div class="bk-ic">💾</div>
         <div class="bk-tx"><div class="bk-t">Exporter les blocs</div><div class="bk-s">Sauvegarde JSON complète</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
+      <button class="bk-card" onclick="document.getElementById(&#39;import-file-input&#39;).click()">
         <div class="bk-ic">📥</div>
         <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure une sauvegarde, sans doublon</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <button class="bk-card" onclick="exportCSV()">
         <div class="bk-ic">📊</div>
         <div class="bk-tx"><div class="bk-t">Export Excel (CSV)</div><div class="bk-s">Tableur · e-portfolio</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <button class="bk-card" onclick="exportRadiosBatch()">
         <div class="bk-ic">🗂</div>
         <div class="bk-tx"><div class="bk-t">Exporter les radios</div><div class="bk-s">Images, par packs de 150</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
 
@@ -2136,23 +2196,23 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     <button class="bk-card" onclick="migrateCCAM()">
       <div class="bk-ic">⚕️</div>
       <div class="bk-tx"><div class="bk-t">Coder mes anciens blocs</div><div class="bk-s">Attribution automatique des codes CCAM · préserve l'existant</div></div>
-      <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
 
     <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.5;" id="settings-stats"></div>
-    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
+    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal(&#39;settings-modal&#39;)">Fermer</button>
   </div>
 </div>
 
 <!-- MODAL SPÉCIALITÉS (écrou) -->
-<div class="modal-overlay" id="spec-modal" onclick="if(event.target===this)closeModal('spec-modal')">
+<div class="modal-overlay" id="spec-modal" onclick="if(event.target===this)closeModal(&#39;spec-modal&#39;)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('spec-modal')">×</button>
+    <button class="modal-close" onclick="closeModal(&#39;spec-modal&#39;)">×</button>
     <div class="modal-title">Mes spécialités</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Choisis les spécialités affichées dans l'app. Tape un badge pour l'activer ou le désactiver.</div>
     <div id="spec-badges-grid" class="spec-badges-grid"></div>
-    <button class="btn-primary" style="width:100%;margin-top:22px;" onclick="closeModal('spec-modal')">Terminé</button>
+    <button class="btn-primary" style="width:100%;margin-top:22px;" onclick="closeModal(&#39;spec-modal&#39;)">Terminé</button>
   </div>
 </div>
 
@@ -2393,7 +2453,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 <div class="lightbox" id="lightbox" onclick="closeLB()">
   <button class="lb-close" onclick="closeLB()">×</button>
-  <img id="lb-img" src="" alt="" onclick="event.stopPropagation()">
+  <img id="lb-img" alt="" onclick="event.stopPropagation()">
   <div class="lb-info" id="lb-info"></div>
   <div class="lb-controls" onclick="event.stopPropagation()">
     <button onclick="lbZoom(-0.4)" title="Dézoomer" aria-label="Dézoomer">−</button>
@@ -2868,32 +2928,35 @@ function migrateCCAM(){
 }
 // ── Valorisation CCAM (stats) ──
 function renderValorisation(){
+  const blocs=statFilteredBlocs();
   const host=document.getElementById('valo-content');if(!host)return;
   const coded=blocs.filter(b=>b.ccamTarif);
-  if(!coded.length){host.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0;">Aucun bloc codé CCAM pour l\'instant. Code tes blocs ou lance la migration dans Réglages.</div>';return;}
+  if(!coded.length){host.innerHTML='<div class="s-empty">Aucun bloc codé CCAM pour l\'instant. Code tes blocs ou lance la migration dans Réglages.</div>';return;}
   const totalAll=coded.reduce((s,b)=>s+(b.ccamTarif||0),0);
   const now=new Date();const mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const moisVal=coded.filter(b=>b.date&&getMonthKey(b.date)===mk).reduce((s,b)=>s+(b.ccamTarif||0),0);
   const moy=totalAll/coded.length;
   // Par spécialité
+  const fmt=n=>Math.round(n).toLocaleString('fr-FR');
   const bySpec={};coded.forEach(b=>{const s=b.spec||'Autre';bySpec[s]=(bySpec[s]||0)+(b.ccamTarif||0);});
-  const specRows=Object.entries(bySpec).sort((a,b)=>b[1]-a[1]).map(([s,v],i)=>{
+  const specRows=Object.entries(bySpec).sort((a,b)=>b[1]-a[1]).map(([s,v])=>{
     const sc=getSpecConfig(s);
     const pct=Math.round(v/totalAll*100);
-    return '<div style="display:flex;align-items:center;gap:13px;padding:13px 0;border-top:'+(i===0?'none':'1px solid var(--border)')+';">'
-      +'<div style="width:36px;height:36px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb, '+sc.color+' 15%, transparent);color:'+sc.color+';"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" style="width:19px;height:19px;">'+sc.icon+'</svg></div>'
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px;"><span style="font-size:14.5px;font-weight:700;color:var(--text);">'+sc.label+'</span><span style="font-family:var(--serif);font-size:17px;font-weight:600;color:var(--text);">'+v.toFixed(0)+'€ <span style="font-size:11px;color:var(--text3);font-weight:600;">'+pct+'%</span></span></div>'
-        +'<div style="height:7px;background:var(--bg3);border:1px solid var(--border);border-radius:99px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+sc.color+';border-radius:99px;"></div></div>'
+    return '<div class="s-valo-row">'
+      +'<div class="s-specdot" style="background:color-mix(in srgb, '+sc.color+' 15%, transparent);color:'+sc.color+';"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">'+sc.icon+'</svg></div>'
+      +'<div class="s-valo-mid">'
+        +'<div class="s-valo-line"><span class="s-valo-name">'+sc.label+'</span><span class="s-valo-eur">'+fmt(v)+'€<small>'+pct+'%</small></span></div>'
+        +'<div class="s-valo-bar"><s style="width:'+pct+'%;background:'+sc.color+';"></s></div>'
       +'</div></div>';
   }).join('');
+  const totDisp=totalAll>=1000?(((totalAll/1000).toFixed(1))+'').replace('.',',')+'k':fmt(totalAll);
   host.innerHTML=
-   '<div class="kpi-hero" style="margin-bottom:14px;">'
-   +'<div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span></div><div class="s-kpi-value">'+moisVal.toFixed(0)+'€</div><div class="s-kpi-sub">valorisation</div></div>'
-   +'<div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Total</span></div><div class="s-kpi-value">'+(totalAll>=1000?(totalAll/1000).toFixed(1)+'k':totalAll.toFixed(0))+'€</div><div class="s-kpi-sub">'+coded.length+' blocs · moy '+moy.toFixed(0)+'€</div></div>'
+   '<div class="kpi-hero">'
+   +'<div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Ce mois</span></div><div class="s-kpi-value">'+fmt(moisVal)+'€</div><div class="s-kpi-sub">valorisation théorique</div></div>'
+   +'<div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Total</span></div><div class="s-kpi-value">'+totDisp+'€</div><div class="s-kpi-sub">'+coded.length+' blocs · moy <b>'+fmt(moy)+'€</b></div></div>'
    +'</div>'
-   +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;box-shadow:0 1px 2px rgba(40,36,28,0.05),0 14px 30px -18px rgba(40,36,28,0.22);padding:2px 16px 6px;">'+specRows+'</div>'
-   +'<div style="font-size:11px;color:var(--text3);margin-top:12px;line-height:1.4;">Valorisation CCAM théorique, base secteur 1. Ne reflète pas le financement réel T2A (GHS) en établissement public.</div>';
+   +'<div class="s-card">'+specRows+'</div>'
+   +'<div class="s-fineprint">Valorisation CCAM théorique, base secteur 1. Ne reflète pas le financement réel T2A (GHS) en établissement public.</div>';
 }
 
 function ccamRegionForSpec(spec){
@@ -2941,7 +3004,7 @@ function ccamClear(prefix){
   ccamRenderSelected(prefix);
 }
 
-const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#A06A12',red:'#A8413C',green:'#3F6B3D',gray:'#7B8290',warm:'#C97864'};
+const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#C58A21',red:'#B23B34',green:'#6FA05C',gray:'#7B8290',warm:'#C97864'};
 
 let blocs=[],planned=[],patients=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
 let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',curStatusFilter='all',complCtx={},consultCtx={};
@@ -4624,37 +4687,69 @@ function trendBadge(diff, isGoodWhenDown=false){
 }
 let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='activite', statStatutScope='all';
 
+let statSpecFilter=[];
+function statFilteredBlocs(){return statSpecFilter.length?blocs.filter(b=>statSpecFilter.includes(b.spec)):blocs;}
+function cssColor(v){if(!v)return'#888';v=(''+v).trim();if(v.startsWith('var(')){const n=v.slice(4,-1).trim();return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888';}return v;}
+function renderStatSpecFilter(){
+  const host=document.getElementById('stat-spec-filter');if(!host)return;
+  const specs=getActiveSpecs();
+  let h=`<button type="button" class="stat-spec-chip${statSpecFilter.length===0?' on':''}" onclick="toggleStatSpec('__ALL__')">Tout</button>`;
+  h+=specs.map(s=>{const on=statSpecFilter.includes(s);const cfg=getSpecConfig(s);const lbl=(cfg&&cfg.label)||s;return `<button type="button" class="stat-spec-chip${on?' on':''}" style="--sc:${getSpecColor(s)};" onclick="toggleStatSpec('${s}')"><span class="sd" style="background:${getSpecColor(s)};"></span>${lbl}</button>`;}).join('');
+  host.innerHTML=h;
+}
+function toggleStatSpec(id){
+  if(id==='__ALL__')statSpecFilter=[];
+  else{if(statSpecFilter.includes(id))statSpecFilter=statSpecFilter.filter(x=>x!==id);else statSpecFilter.push(id);}
+  renderStatSpecFilter();rerenderCurrentStatsTab();
+}
+function updateStatKpis(){
+  const B=statFilteredBlocs();const now=new Date();
+  const ceMois=B.filter(b=>b.date&&getMonthKey(b.date)===getMonthKey(now.toISOString())).length;
+  let t6=0;for(let i=5;i>=0;i--){const k=getMonthKey(new Date(now.getFullYear(),now.getMonth()-i,1).toISOString());t6+=B.filter(b=>b.date&&getMonthKey(b.date)===k).length;}
+  const moy6=Math.round(t6/6*10)/10;
+  const principal=B.filter(b=>b.role==='Principal').length;
+  const pctOp=B.length?Math.round(principal/B.length*100):0;
+  const withC=B.filter(b=>getBlocHasComplication(b)).length;
+  const pctC=B.length?Math.round(withC/B.length*100):0;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
+  set('st-ce-mois',ceMois);
+  set('st-moy-mois',(''+moy6).replace('.',','));
+  set('st-pct-op',pctOp+'<small>%</small>');
+  set('st-taux-compl',pctC+'<small>%</small>');
+  set('st-semestre',t6);
+  const mEl=document.getElementById('st-month');if(mEl)mEl.textContent=now.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  // sparkline — 6 derniers mois
+  const sp6=[];for(let i=5;i>=0;i--){const k=getMonthKey(new Date(now.getFullYear(),now.getMonth()-i,1).toISOString());sp6.push(B.filter(b=>b.date&&getMonthKey(b.date)===k).length);}
+  const spMax=Math.max(1,...sp6);
+  const spEl=document.getElementById('st-spark');
+  if(spEl)spEl.innerHTML=sp6.map((v,i)=>`<i class="${i===5?'cur':''}" style="height:${Math.max(5,Math.round(v/spMax*52))}px;"></i>`).join('');
+  // tendance vs mois précédent
+  const prevMo=sp6[4];
+  const tEl=document.getElementById('st-ce-mois-trend');
+  if(tEl){const d=ceMois-prevMo;const pn=new Date(now.getFullYear(),now.getMonth()-1,1).toLocaleDateString('fr-FR',{month:'short'});
+    tEl.innerHTML=(prevMo>0&&d!==0)?(d<0?`<span class="s-trend flat">▼ ${-d} vs ${pn}</span>`:`<span class="s-trend up">▲ ${d} vs ${pn}</span>`):'';}
+}
+function rerenderCurrentStatsTab(){
+  if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();renderTopInterventions();}
+  else if(curStatsTab==='experience'){renderLearningTabs();renderLearningChart();renderTopChirurgiens();}
+  else if(curStatsTab==='resultats'){renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
+}
 function switchStatsTab(tab,btn){
   curStatsTab=tab;
   document.querySelectorAll('#stats-tabs .stats-tab').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
-  document.getElementById('sp-'+tab).classList.add('on');
-  if(tab==='activite'){renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();}
-  else if(tab==='ortho'){renderLearningChart();renderStatuts('ortho');renderComplByIntervFiltered('ortho');}
-  else if(tab==='trauma'){renderTraumaLearningTabs();renderStatuts('trauma');renderComplByIntervFiltered('trauma');renderTopChirurgiens();}
-  else if(tab==='top'){renderTopInterventions();}
-  else if(tab==='complications'){renderComplications();}
+  const p=document.getElementById('sp-'+tab);if(p)p.classList.add('on');
+  rerenderCurrentStatsTab();
 }
 
 function renderStats(){
-  const now=new Date();
-  const thisMonthKey=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
-  const ceMois=blocs.filter(b=>b.date&&getMonthKey(b.date)===thisMonthKey).length;
-  const months6=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months6.push(getMonthKey(d.toISOString()));}
-  const total6=months6.reduce((s,k)=>s+blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length,0);
-  const moy6=Math.round(total6/6*10)/10;
-  const ceEl=document.getElementById('st-ce-mois');if(ceEl)ceEl.textContent=ceMois;
-  const moyEl=document.getElementById('st-moy-mois');if(moyEl)moyEl.textContent=moy6;
-  // Badge trend Ce mois vs mois précédent
-  const prevMo=blocs.filter(b=>b.date&&getMonthKey(b.date)===getMonthKey(new Date(now.getFullYear(),now.getMonth()-1,1).toISOString())).length;
-  const tEl=document.getElementById('st-ce-mois-trend');
-  if(tEl)tEl.innerHTML=prevMo>0?trendBadge(ceMois-prevMo,false):'';
   curStatsTab='activite';
   document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
-  renderActivityChart();renderRoleChart();renderStatuts('activite');renderEvolChart();renderComplByRole();renderComplEvolution();renderValorisation();
+  renderStatSpecFilter();
+  rerenderCurrentStatsTab();
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -4693,51 +4788,55 @@ function renderActivityChart(){
   const now=new Date();const months=statPeriodActivity>0?statPeriodActivity:36;
   const labels=[],keys=[];
   for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labels.push(d.toLocaleDateString('fr-FR',{month:'short'}));keys.push(getMonthKey(d.toISOString()));}
-  const ortho=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&isOrthoSpec(b.spec)).length);
-  const trauma=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&b.spec==='Traumatologie').length);
-  if(chartActivity){chartActivity.destroy();chartActivity=null;}
-  {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-activity"));if(ex)ex.destroy();}
-  const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
-  const gridColor=isDark?'rgba(255,255,255,0.08)':'rgba(226,223,213,0.9)';
-  const actCanvas=setSafeChartCanvas('chart-activity',140);if(!actCanvas)return;
-  chartActivity=new Chart(actCanvas,{
-    type:'bar',
-    data:{labels,datasets:[
-      {label:'Orthopédie',data:ortho,backgroundColor:isDark?'rgba(94,150,184,0.9)':'rgba(27,77,90,0.85)',borderRadius:10,borderSkipped:false,barPercentage:0.46,categoryPercentage:0.78},
-      {label:'Traumatologie',data:trauma,backgroundColor:isDark?'rgba(216,134,110,0.9)':'rgba(201,120,100,0.85)',borderRadius:10,borderSkipped:false,barPercentage:0.46,categoryPercentage:0.78}
-    ]},
-    options:{
-      responsive:false,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{stacked:false,grid:{display:false},border:{display:false},ticks:{color:CC.gray,font:{size:10},maxRotation:0}},
-        y:{stacked:false,display:true,beginAtZero:true,border:{display:false,dash:[2,3]},grid:{color:gridColor,drawBorder:false,lineWidth:0.8},ticks:{display:false},grace:'15%'}
-      }
-    }
-  });
+  const specsToShow=statSpecFilter.length?statSpecFilter:getActiveSpecs();
+  const totals=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length);
+  const maxTot=Math.max(0,...totals);
+  const host=document.getElementById('activity-chart-host');if(!host)return;
+  const leg=document.getElementById('activity-legend');
+  if(leg)leg.innerHTML=specsToShow.map(sp=>`<span class="legend-item"><span class="legend-dot" style="background:${getSpecColor(sp)};"></span>${(getSpecConfig(sp)&&getSpecConfig(sp).label)||sp}</span>`).join('');
+  if(maxTot===0){host.innerHTML='<div class="s-empty" style="text-align:center;padding-top:64px;">Aucun bloc sur la période</div>';return;}
+  const plotH=142, base=22;
+  const axisMax=(maxTot*1.18)||1;
+  const avg=totals.reduce((a,v)=>a+v,0)/totals.length;
+  const avgB=base+avg/axisMax*plotH;
+  const avgDisp=((Math.round(avg*10)/10)+'').replace('.',',');
+  const w=months>12?7:(months>6?11:18);
+  const bars=keys.map((k,idx)=>{
+    const segs=specsToShow.map(sp=>{
+      const n=blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&b.spec===sp).length;
+      if(!n)return'';
+      return `<s style="height:${(n/axisMax*plotH).toFixed(1)}px;background:${getSpecColor(sp)};"></s>`;
+    }).join('');
+    return `<div class="s-bcol" style="width:${w}px;animation-delay:${(idx*0.03).toFixed(2)}s">${segs}</div>`;
+  }).join('');
+  const showLabels=months<=12;
+  host.innerHTML=
+    `<div class="s-gridline" style="bottom:${base}px;"></div>`
+    +`<div class="s-gridline" style="bottom:${(base+plotH*0.5).toFixed(0)}px;"></div>`
+    +`<div class="s-gridline" style="bottom:${base+plotH}px;"></div>`
+    +`<div class="s-avgline" style="bottom:${avgB.toFixed(1)}px;"></div>`
+    +`<div class="s-avgtag" style="bottom:${avgB.toFixed(1)}px;">MOY ${avgDisp}</div>`
+    +`<div class="s-bars">${bars}</div>`
+    +(showLabels?`<div class="s-xlabels">${labels.map(l=>`<span>${l}</span>`).join('')}</div>`:'');
 }
 
+
 function renderRoleChart(){
-  const principal=blocs.filter(b=>b.role==='Principal').length,aide=blocs.length-principal;
+  const B=statFilteredBlocs();
+  const principal=B.filter(b=>b.role==='Principal').length;
+  const aide=B.length-principal;
   const total=principal+aide;
   const pPct=total?Math.round(principal/total*100):0;
-  if(chartRole){chartRole.destroy();chartRole=null;}
-  {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-role"));if(ex)ex.destroy();}
-  const cv=document.getElementById('chart-role');const host=cv?cv.parentElement:null;
-  if(host){
-    host.style.height='auto';host.style.position='static';
-    host.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;">'
-      +'<div><div style="font-size:13px;font-weight:700;color:var(--text);">Principal</div><div style="font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.1;color:'+CC.accent+';">'+principal+'</div></div>'
-      +'<div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:var(--text);">Aide</div><div style="font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.1;color:'+CC.accent2+';">'+aide+'</div></div>'
-      +'</div>'
-      +'<div style="display:flex;height:14px;border-radius:99px;overflow:hidden;background:var(--bg3);">'
-      +'<div style="width:'+pPct+'%;background:'+CC.accent+';"></div>'
-      +'<div style="flex:1;background:'+CC.accent2+';"></div>'
-      +'</div>'
-      +'<div style="margin-top:10px;font-size:12.5px;color:var(--text2);font-weight:500;">'+pPct+'% en op\u00e9rateur principal</div>';
-  }
-  const leg=document.getElementById('role-legend');if(leg)leg.innerHTML='';
+  const host=document.getElementById('role-host');if(!host)return;
+  if(!total){host.innerHTML='<div class="s-empty">Aucun bloc pour ce filtre</div>';return;}
+  host.innerHTML='<div class="s-role-top">'
+    +'<div><div class="s-role-lbl">Principal</div><div class="s-role-fig" style="color:'+CC.accent+';">'+principal+'</div></div>'
+    +'<div style="text-align:right;"><div class="s-role-lbl">Aide</div><div class="s-role-fig" style="color:'+CC.warm+';">'+aide+'</div></div>'
+    +'</div>'
+    +'<div class="s-splitbar"><s style="width:'+pPct+'%;background:'+CC.accent+';"></s><s style="width:'+(100-pPct)+'%;background:'+CC.warm+';"></s></div>'
+    +'<div class="s-role-note"><b>'+pPct+'&nbsp;%</b> en opérateur principal sur '+total+' blocs</div>';
 }
+
 
 function setLearning(type,btn){
   statLearning=type;
@@ -4745,43 +4844,77 @@ function setLearning(type,btn){
   btn.classList.add('on');renderLearningChart();
 }
 
+function renderLearningTabs(){
+  const host=document.getElementById('learning-tabs');if(!host)return;
+  const B=statFilteredBlocs();
+  const counts={};
+  B.forEach(b=>{const k=b.interv;if(k)counts[k]=(counts[k]||0)+1;});
+  const list=Object.entries(counts).filter(([,n])=>n>=5).sort((a,b)=>b[1]-a[1]).map(([k])=>k);
+  if(!list.includes(statLearning))statLearning=list[0]||null;
+  if(!list.length){
+    host.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 0;">Aucune intervention réalisée au moins 5 fois pour ce filtre.</div>';
+    const cv=document.getElementById('chart-learning');if(cv&&typeof Chart!=='undefined'&&Chart.getChart){const ex=Chart.getChart(cv);if(ex)ex.destroy();}
+    const el=document.getElementById('learning-trend');if(el)el.textContent='';
+    return;
+  }
+  host.innerHTML=list.map(k=>`<button type="button" class="s-period${k===statLearning?' on':''}" onclick="setLearning('${k.replace(/'/g,"\\'")}',this)">${esc(displayInterv(k))}</button>`).join('');
+}
+function renderComplEnCours(){
+  const el=document.getElementById('compl-en-cours');if(!el)return;
+  const list=statFilteredBlocs().filter(b=>getBlocHasComplication(b)&&!getBlocFinSuivi(b)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const cEl=document.getElementById('compl-en-cours-count');if(cEl)cEl.textContent=list.length?list.length+' active'+(list.length>1?'s':''):'';
+  if(!list.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucune complication en suivi actif</div>';return;}
+  const COL={vert:'#6FA05C',excellent:'#2C6E49',orange:'#C58A21',rouge:'#B23B34',gris:'#A8A294',pdv:'#8C8678',deces:'#5A5650'};
+  el.innerHTML=list.map(b=>{
+    const gi=blocs.indexOf(b);
+    const st=getBlocStatutFinal(b);const sc=statusClasses(st);const col=COL[st]||'var(--text3)';
+    return `<div class="s-prow" onclick="openBlocDetail(${gi})">
+      <span class="dot" style="background:${col};"></span>
+      <div class="s-prow-mid">
+        <div class="s-prow-name">${esc(b.patient||'Patient')}</div>
+        <div class="s-prow-meta">${esc(displayInterv(b.interv||'—'))} · ${fmtDate(b.date)}</div>
+      </div>
+      <span class="s-prow-tag" style="color:${col};">${sc.sl}</span>
+      <span class="s-chev">›</span>
+    </div>`;
+  }).join('');
+}
 function renderLearningChart(){
-  const LEARNING_FILTERS={
-    PTH:{spec:'Hanche',kw:['pth','voie postérieure','voie antérolatérale','révision']},
-    PTG:{spec:'Genou',kw:['ptg','prothèse totale genou','révision']},
-    LCA:{spec:'Genou',kw:['lca','ligamentoplastie','didt','kj','dt3']},
-    Ménisque:{spec:'Genou',kw:['ménisque','méniscectomie','suture méniscale']},
-    Autre:{spec:null,kw:['unicompartimentale','otv','vissage']}
-  };
-  const f=LEARNING_FILTERS[statLearning]||{spec:null,kw:[]};
-  const relevant=blocs.filter(b=>{
-    if(!b.duree)return false;
-    if(f.spec&&b.spec!==f.spec)return false;
-    const txt=(b.interv||'').toLowerCase();
-    if(f.kw.length&&!f.kw.some(k=>txt.includes(k)))return false;
-    return true;
-  }).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const blocs=statFilteredBlocs();
+  const relevant=blocs.filter(b=>b.duree&&b.interv===statLearning).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   if(chartLearning){chartLearning.destroy();chartLearning=null;}
   {const ex=typeof Chart!=="undefined"&&Chart.getChart&&Chart.getChart(document.getElementById("chart-learning"));if(ex)ex.destroy();}
   const el=document.getElementById('learning-trend');
   if(relevant.length<2){
     const lcEmpty=setSafeChartCanvas('chart-learning',130);if(lcEmpty)chartLearning=new Chart(lcEmpty,{type:'line',data:{labels:[],datasets:[{data:[],borderColor:CC.accent,borderWidth:2}]},options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-    if(el)el.textContent=relevant.length===0?'Aucun bloc '+statLearning+' avec durée renseignée':'Un seul bloc enregistré — tendance indisponible';
+    if(el)el.textContent=relevant.length===0?'Aucun bloc '+displayInterv(statLearning||'')+' avec durée renseignée':'Un seul bloc enregistré — tendance indisponible';
     return;
   }
   const data=relevant.map(b=>b.duree);const diff=data[data.length-1]-data[0];
   const avg=Math.round(data.reduce((a,v)=>a+v,0)/data.length);
-  if(el)el.textContent=`${relevant.length} blocs · Moy. ${avg} min · Tendance : ${diff<0?'↓ '+Math.abs(diff)+' min':'↑ +'+diff+' min'}`;
+  if(el)el.innerHTML=(diff<0
+     ?'<span class="s-curve-big" style="color:'+CC.green+';">↓ '+Math.abs(diff)+' min</span>'
+     :diff>0?'<span class="s-curve-big" style="color:'+CC.red+';">↑ '+diff+' min</span>'
+     :'<span class="s-curve-big" style="color:var(--text);">→ stable</span>')
+   +'<span class="s-curve-cap">sur vos '+relevant.length+' derniers blocs · moy. '+avg+' min</span>';
   const isDark=document.documentElement.classList.contains('theme-dark')||(matchMedia('(prefers-color-scheme:dark)').matches&&!document.documentElement.classList.contains('theme-light'));
   const lcCanvas=setSafeChartCanvas('chart-learning',130);
-  if(lcCanvas)chartLearning=new Chart(lcCanvas,{
-    type:'line',data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{data,borderColor:CC.accent,backgroundColor:'transparent',borderWidth:2,pointBackgroundColor:CC.accent,pointRadius:3,tension:0.3}]},
-    options:{responsive:false,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:45,autoSkip:true}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(100,70,30,0.1)'},ticks:{color:CC.gray,font:{size:10}},beginAtZero:false}}}
-  });
+  if(lcCanvas){
+    const ctx=lcCanvas.getContext('2d');
+    const grd=ctx.createLinearGradient(0,0,0,130);
+    grd.addColorStop(0,'rgba(27,77,90,0.40)');grd.addColorStop(0.5,'rgba(27,77,90,0.15)');grd.addColorStop(1,'rgba(27,77,90,0.02)');
+    const pr=data.map((_,i)=>(i===0||i===data.length-1)?4:0);
+    const phr=data.map(()=>5);
+    chartLearning=new Chart(lcCanvas,{
+      type:'line',data:{labels:relevant.map(b=>fmtDate(b.date)),datasets:[{data,borderColor:CC.accent,backgroundColor:grd,fill:true,borderWidth:3.4,pointBackgroundColor:CC.accent,pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:pr,pointHoverRadius:phr,tension:0.4}]},
+      options:{responsive:false,maintainAspectRatio:false,layout:{padding:{top:6}},plugins:{legend:{display:false}},scales:{x:{grid:{display:false},border:{display:false},ticks:{color:CC.gray,font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:4}},y:{grid:{color:isDark?'rgba(255,255,255,0.06)':'rgba(60,55,40,0.10)'},border:{display:false},ticks:{color:CC.gray,font:{size:10},maxTicksLimit:4},beginAtZero:false}}}
+    });
+  }
 }
 
 // ── STATUTS (pastilles) — deux sections : suivi en cours + suivi terminé ──
 function renderStatuts(filter){
+  const blocs=statFilteredBlocs();
   let elId, subset;
   if(filter==='activite'){
     elId='activite-statuts';
@@ -4793,7 +4926,7 @@ function renderStatuts(filter){
     subset=blocs.filter(b=>filter==='ortho'?getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec):b.spec==='Traumatologie');
   }
   const el=document.getElementById(elId);if(!el)return;
-  if(!subset.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc enregistré</div>';return;}
+  if(!subset.length){el.innerHTML='<div class="s-empty">Aucun bloc enregistré</div>';return;}
 
   const modalFilter=filter==='activite'
     ?(statStatutScope==='ortho'?'ortho':statStatutScope==='trauma'?'trauma':'all')
@@ -4808,59 +4941,56 @@ function renderStatuts(filter){
     if(!count)return'';
     const pct=Math.round(count/total*100);
     const scopeKey=isCloture?statusKey+'_fin':statusKey;
-    return`<div class="statut-row" onclick="showStatutPatients('${mf}','${statusKey}',${isCloture})" style="cursor:pointer;">
+    return`<div class="statut-row" onclick="showStatutPatients('${mf}','${statusKey}',${isCloture})">
       <div class="statut-name-row">
         <span class="statut-name-inner"><span class="statut-dot" style="background:${fill};"></span>${label}</span>
-        <span class="statut-vals">${count}<span style="font-size:11px;color:var(--text3);margin-left:5px;">${pct}%</span> <span style="font-size:10px;color:var(--text3);">›</span></span>
+        <span class="statut-vals">${count}<small>${pct}%</small><span class="s-chev">›</span></span>
       </div>
       <div class="statut-bar"><div class="statut-fill" style="width:${pct}%;background:${fill};"></div></div>
     </div>`;
   };
 
   let html='';
-
-  // ── Section 1 : Suivi en cours ──
+  // ── Accroche + barre récap (suivi terminé) ──
+  if(clotures.length){
+    const exc=clotures.filter(b=>(b.statut||'gris')==='excellent').length;
+    const bon=clotures.filter(b=>(b.statut||'gris')==='vert').length;
+    const goodPct=Math.round((exc+bon)/clotures.length*100);
+    const segDefs=[['excellent','#2C6E49'],['vert','#6FA05C'],['orange','#C58A21'],['rouge','#B23B34'],['pdv','#8C8678'],['deces','#5A5650']];
+    const segs=segDefs.map(([k,c])=>{const n=k==='rouge'?clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length:clotures.filter(b=>(b.statut||'gris')===k).length;return n?`<s style="width:${(n/clotures.length*100).toFixed(1)}%;background:${c};"></s>`:'';}).join('');
+    html+=`<div class="s-res-headline"><span class="s-res-pct">${goodPct}%</span><span class="s-res-cap">de bons résultats sur ${clotures.length} suivi${clotures.length>1?'s':''} terminé${clotures.length>1?'s':''}</span></div><div class="s-res-stack">${segs}</div>`;
+  }
+  // ── Suivi terminé ──
+  if(clotures.length){
+    html+=`<div class="s-grouplbl done">✓ Suivi terminé <b>(${clotures.length})</b></div>`;
+    const STATUTS_FIN=[
+      {key:'excellent',label:'Excellent résultat', fill:'#2C6E49'},
+      {key:'vert',     label:'Bon résultat',       fill:'#6FA05C'},
+      {key:'orange',   label:'Séquelles mineures', fill:'#C58A21'},
+      {key:'rouge',    label:'Mauvais résultat',   fill:'#B23B34'},
+      {key:'pdv',      label:'Perdu de vue',       fill:'#8C8678'},
+      {key:'deces',    label:'Décès',              fill:'#5A5650'}
+    ];
+    html+=STATUTS_FIN.map(s=>{const n=s.key==='rouge'?clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length:clotures.filter(b=>(b.statut||'gris')===s.key).length;return renderRow(s.key,s.label,s.fill,n,clotures.length,modalFilter,true);}).join('');
+  }
+  // ── Suivi en cours ──
   if(enCours.length){
     const STATUTS_COURS=[
-      {key:'vert',   label:'Bon résultat',  fill:'var(--green-d)'},
-      {key:'orange', label:'Vigilance',     fill:'var(--amber-d)'},
-      {key:'rouge',  label:'Complication',  fill:'var(--red-d)'},
-      {key:'gris',   label:'En attente',    fill:'var(--bg4)'},
-      {key:'pdv',    label:'Perdu de vue',  fill:'var(--text3)'},
-      {key:'deces',  label:'Décès',         fill:'var(--text2)'}
+      {key:'vert',   label:'Bon résultat', fill:'#6FA05C'},
+      {key:'orange', label:'Vigilance',    fill:'#C58A21'},
+      {key:'rouge',  label:'Complication', fill:'#B23B34'},
+      {key:'gris',   label:'En attente',   fill:'#A8A294'},
+      {key:'pdv',    label:'Perdu de vue', fill:'#8C8678'},
+      {key:'deces',  label:'Décès',        fill:'#5A5650'}
     ];
-    html+=`<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--text3);margin-bottom:8px;">Suivi en cours <span style="font-weight:400;color:var(--text3);">(${enCours.length})</span></div>`;
-    html+=STATUTS_COURS.map(s=>{
-      const n=s.key==='rouge'
-        ?enCours.filter(b=>getBlocHasComplication(b)).length
-        :enCours.filter(b=>(b.statut||'gris')===s.key).length;
-      return renderRow(s.key,s.label,s.fill,n,enCours.length,modalFilter,false);
-    }).join('');
+    const cBon=enCours.filter(b=>(b.statut||'gris')==='vert').length;
+    const cPct=Math.round(cBon/enCours.length*100);
+    const cSegs=STATUTS_COURS.map(d=>{const n=d.key==='rouge'?enCours.filter(b=>getBlocHasComplication(b)).length:enCours.filter(b=>(b.statut||'gris')===d.key).length;return n?`<s style="width:${(n/enCours.length*100).toFixed(1)}%;background:${d.fill};"></s>`:'';}).join('');
+    html+=`<div class="s-res-headline" style="margin-top:${clotures.length?'22px':'0'};"><span class="s-res-pct">${cPct}%</span><span class="s-res-cap">en bonne évolution sur ${enCours.length} suivi${enCours.length>1?'s':''} en cours</span></div><div class="s-res-stack">${cSegs}</div>`;
+    html+=`<div class="s-grouplbl">Suivi en cours <b>(${enCours.length})</b></div>`;
+    html+=STATUTS_COURS.map(s=>{const n=s.key==='rouge'?enCours.filter(b=>getBlocHasComplication(b)).length:enCours.filter(b=>(b.statut||'gris')===s.key).length;return renderRow(s.key,s.label,s.fill,n,enCours.length,modalFilter,false);}).join('');
   }
-
-  // ── Section 2 : Suivi terminé ──
-  if(clotures.length){
-    html+=`<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--green-d);margin:${enCours.length?'18px':'0px'} 0 8px;display:flex;align-items:center;gap:6px;">
-      <span style="font-size:11px;">✓</span> Suivi terminé <span style="font-weight:400;color:var(--text3);">(${clotures.length})</span>
-    </div>`;
-    const STATUTS_FIN=[
-      {key:'excellent',label:'Excellent résultat',   fill:'var(--green-d)'},
-      {key:'vert',     label:'Bon résultat',         fill:'var(--green-d)'},
-      {key:'orange',   label:'Séquelles mineures',   fill:'var(--amber-d)'},
-      {key:'rouge',    label:'Mauvais résultat',     fill:'var(--red-d)'},
-      {key:'pdv',      label:'Perdu de vue',         fill:'var(--text3)'},
-      {key:'deces',    label:'Décès',                fill:'var(--text2)'}
-    ];
-    html+=STATUTS_FIN.map(s=>{
-      // Pour les clôturés : on lit le statut du dernier événement (= fin_suivi)
-      const n=s.key==='rouge'
-        ? clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length
-        : clotures.filter(b=>(b.statut||'gris')===s.key).length;
-      return renderRow(s.key,s.label,s.fill,n,clotures.length,modalFilter,true);
-    }).join('');
-  }
-
-  if(!html)html='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun résultat enregistré</div>';
+  if(!html)html='<div class="s-empty">Aucun résultat enregistré</div>';
   el.innerHTML=html;
 }
 
@@ -4914,55 +5044,36 @@ function showStatutPatients(filter,statusKey,isCloture=false){
   openBlocsListModal(title, filtered);
 }
 
-function renderComplByIntervFiltered(filter){
-  const elId=filter==='ortho'?'compl-by-interv-ortho':'compl-by-interv-trauma';
-  const el=document.getElementById(elId);if(!el)return;
-  const subset=blocs.filter(b=>filter==='ortho'?getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec):b.spec==='Traumatologie');
+function renderComplByIntervFiltered(){
+  const el=document.getElementById('compl-by-interv');if(!el)return;
+  const subset=statFilteredBlocs();
   const data={};
-  subset.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0,blocs:[]};data[k].total++;if(getBlocHasComplication(b)){data[k].compl++;data[k].blocs.push(b);}});
+  subset.forEach(b=>{const k=b.interv||'—';if(!data[k])data[k]={total:0,compl:0};data[k].total++;if(getBlocHasComplication(b))data[k].compl++;});
   const withCompl=Object.entries(data).filter(([,v])=>v.compl>0).sort((a,b)=>b[1].compl/b[1].total-a[1].compl/a[1].total);
-  if(!withCompl.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';return;}
-  // Stocker pour accès au clic
-  el._complData = withCompl;
-  el.innerHTML=withCompl.map(([name,v],i)=>{
-    const pct=Math.round(v.compl/v.total*100);
-    const color=pct>=50?CC.red:pct>=25?CC.amber:CC.green;
-    return`<div onclick="showComplBlocsForInterv('${filter}','${name.replace(/'/g,"\\'")}','${elId}')" style="margin-bottom:12px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%;font-weight:500;">${esc(displayInterv(name))}</span>
-        <span style="font-weight:600;color:${color};flex-shrink:0;">${pct}% <span style="font-weight:400;color:var(--text3);">(${v.compl}/${v.total})</span> <span style="color:var(--text3);font-size:10px;">›</span></span>
-      </div>
-      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${pct}%;background:${color};border-radius:99px;"></div>
-      </div>
-    </div>`;
-  }).join('');
+  if(!withCompl.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucune complication enregistrée</div>';return;}
+  el.innerHTML=withCompl.map(([name,v])=>{const pct=Math.round(v.compl/v.total*100);const color=pct>=50?CC.red:pct>=25?CC.amber:CC.green;return`<div class="s-rank" onclick="showComplBlocsForInterv('${name.replace(/'/g,"\\'")}')"><div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-label">${esc(displayInterv(name))}</span></div><span class="s-rank-count" style="color:${color};font-size:15px;">${pct}%<small>${v.compl}/${v.total}</small><span class="s-chev">›</span></span></div><div class="s-rank-bar"><s style="width:${pct}%;background:${color};"></s></div></div>`;}).join('');
 }
-
-function showComplBlocsForInterv(filter, intervName, elId){
-  const subset=blocs.filter(b=>filter==='ortho'?getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec):b.spec==='Traumatologie');
-  const withCompl=subset.filter(b=>b.interv===intervName&&getBlocHasComplication(b));
+function showComplBlocsForInterv(intervName){
+  const withCompl=statFilteredBlocs().filter(b=>b.interv===intervName&&getBlocHasComplication(b));
   openBlocsListModal('Complications — '+displayInterv(intervName), withCompl);
 }
 
+
 function renderTopChirurgiens(){
+  const blocs=statFilteredBlocs();
   const el=document.getElementById('top-chirurgiens');if(!el)return;
   const traumaAide=blocs.filter(b=>b.spec==='Traumatologie'&&b.role==='Aide'&&b.operateur&&b.operateur.trim()!=='');
-  if(!traumaAide.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc trauma en tant qu\'aide enregistré</div>';return;}
+  if(!traumaAide.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc trauma en tant qu\'aide enregistré</div>';return;}
   const groups={};
   traumaAide.forEach(b=>{const k=b.operateur.trim();if(!groups[k])groups[k]=[];groups[k].push(b);});
   const sorted=Object.entries(groups).sort((a,b)=>b[1].length-a[1].length);
   const max=sorted[0][1].length;
-  el.innerHTML=sorted.map(([name,list],i)=>{
+  el.innerHTML=sorted.map(([name,list])=>{
     const count=list.length;
-    return`<div onclick="showBlocsForChirurgien('${name.replace(/'/g,"\\'")}',${count})" style="margin-bottom:12px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72%;font-weight:${i===0?'600':'500'};">${esc(name)}</span>
-        <span style="font-weight:600;">${count} bloc${count>1?'s':''} <span style="color:var(--text3);font-size:10px;">›</span></span>
-      </div>
-      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${Math.round(count/max*100)}%;background:${CC.amber};border-radius:99px;"></div>
-      </div>
+    const init=(name.replace(/^(Dr|Pr)\.?\s*/i,'').trim()[0]||'?').toUpperCase();
+    return`<div class="s-rank" onclick="showBlocsForChirurgien('${name.replace(/'/g,"\\'")}',${count})">
+      <div class="s-rank-h"><div class="s-rank-name"><span class="s-initial">${init}</span><span class="s-rank-label">${esc(name)}</span></div><span class="s-rank-count">${count}<small>bloc${count>1?'s':''}</small><span class="s-chev">›</span></span></div>
+      <div class="s-rank-bar" style="margin-top:9px;"><s style="width:${Math.round(count/max*100)}%;background:${CC.warm};"></s></div>
     </div>`;
   }).join('');
 }
@@ -4979,8 +5090,7 @@ function setTopFilter(filter,btn){
 }
 
 function renderTopInterventions(){
-  const subset=statTopFilter==='ortho'?blocs.filter(b=>getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec)):
-                statTopFilter==='trauma'?blocs.filter(b=>b.spec==='Traumatologie'):blocs;
+  const subset=statFilteredBlocs();
   const groups={};
   subset.forEach(b=>{
     const k=b.interv||'—';
@@ -4991,20 +5101,14 @@ function renderTopInterventions(){
   const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
   const max=sorted.length?sorted[0][1].total:1;
   const el=document.getElementById('top-interventions');if(!el)return;
-  if(!sorted.length){el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucun bloc</div>';return;}
+  if(!sorted.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>';return;}
   el.innerHTML=sorted.map(([name,v],i)=>{
-    const isH=v.spec==='Hanche';const isG=v.spec==='Genou';
-    const color=isH?CC.purple:isG?CC.blue:CC.amber;
     const rank=i+1;
-    return`<div onclick="showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})" style="margin-bottom:14px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:4px;gap:8px;">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:66%;font-weight:${rank<=3?'600':'500'};">${rank<=3?'<span style="font-size:10px;color:var(--text3);margin-right:4px;">#'+rank+'</span>':''}${esc(displayInterv(name))}</span>
-        <span style="font-weight:600;flex-shrink:0;">${v.total} <span style="color:var(--text3);font-size:10px;">›</span></span>
-      </div>
-      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-bottom:4px;">
-        <div style="height:100%;width:${Math.round(v.total/max*100)}%;background:${color};border-radius:99px;"></div>
-      </div>
-      <div style="font-size:10px;color:var(--text3);">Principal: ${v.principal} · Aide: ${v.aide}</div>
+    const color=cssColor(getSpecColor(v.spec));
+    return`<div class="s-rank" onclick="showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})">
+      <div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-no${rank<=3?' top':''}">${rank}</span><span class="s-rank-label">${esc(displayInterv(name))}</span></div><span class="s-rank-count">${v.total}<span class="s-chev">›</span></span></div>
+      <div class="s-rank-bar"><s style="width:${Math.round(v.total/max*100)}%;background:${color};"></s></div>
+      <div class="s-rank-meta"><span class="s-tagpill p">Principal ${v.principal}</span><span class="s-tagpill a">Aide ${v.aide}</span></div>
     </div>`;
   }).join('');
 }
@@ -5024,6 +5128,7 @@ function setEvolPeriod(n,btn){
   btn.classList.add('on');renderEvolChart();
 }
 function renderEvolChart(){
+  const blocs=statFilteredBlocs();
   const now=new Date();
   const months=statEvolPeriod>0?statEvolPeriod:Math.max(12,36);
   const labels=[],keys=[];
@@ -5085,8 +5190,9 @@ function renderComplByRole(){
 
 // ── DEVENIR DES COMPLICATIONS ──
 function renderComplEvolution(){
+  const blocs=statFilteredBlocs();
   const el=document.getElementById('compl-evolution');if(!el)return;
-  const withCompl=blocs.filter(b=>getBlocHasComplication(b));
+  const withCompl=blocs.filter(b=>getBlocHasComplication(b)&&getBlocFinSuivi(b));
   if(!withCompl.length){
     el.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Aucune complication enregistrée</div>';
     return;
@@ -5102,19 +5208,11 @@ function renderComplEvolution(){
     cats[cat].blocs.push(b);
   });
   const total=withCompl.length;
-  el.innerHTML=Object.entries(cats).map(([key,cat])=>{
+  el.innerHTML='<div class="s-devgrid">'+Object.entries(cats).map(([key,cat])=>{
     const n=cat.blocs.length;if(!n)return'';
-    const pct=Math.round(n/total*100);
-    return`<div onclick="openBlocsListModal('${cat.label} — ${n} cas',cats_${key}_blocs)" data-cat="${key}" style="margin-bottom:12px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background 0.1s;" onmouseenter="this.style.background='var(--bg3)'" onmouseleave="this.style.background='transparent'" onclick="showComplEvolutionBlocs('${key}')">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:500;color:${cat.color};">${cat.label}</span>
-        <span style="font-weight:600;">${n} <span style="color:var(--text3);font-size:10px;">(${pct}%) ›</span></span>
-      </div>
-      <div style="height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;">
-        <div style="height:100%;width:${pct}%;background:${cat.color};border-radius:99px;"></div>
-      </div>
-    </div>`;
-  }).join('');
+    const short={resolue:'Résolues',sequelles:'Séquelles',reprise:'Reprise',persistante:'Défavorable'}[key]||cat.label;
+    return`<div class="s-card s-dev" data-cat="${key}"><div class="s-dev-val" style="color:${cat.color};">${n}</div><div class="s-dev-lbl">${short}</div></div>`;
+  }).join('')+'</div>';
   // Attacher les événements clic proprement
   el.querySelectorAll('[data-cat]').forEach(row=>{
     row.onclick=()=>showComplEvolutionBlocs(row.dataset.cat,cats);
@@ -5686,7 +5784,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v59',
+    version:'atlas-v62',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
