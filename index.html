@@ -5068,10 +5068,10 @@ function showComplBlocsForInterv(intervName){
 function renderTopChirurgiens(){
   const blocs=statFilteredBlocs();
   const el=document.getElementById('top-chirurgiens');if(!el)return;
-  const traumaAide=blocs.filter(b=>b.spec==='Traumatologie'&&b.role==='Aide'&&b.operateur&&b.operateur.trim()!=='');
-  if(!traumaAide.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc trauma en tant qu\'aide enregistré</div>';return;}
+  const aideBlocs=blocs.filter(b=>b.role==='Aide'&&b.operateur&&b.operateur.trim()!=='');
+  if(!aideBlocs.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc en tant qu\'aide enregistré</div>';return;}
   const groups={};
-  traumaAide.forEach(b=>{const k=b.operateur.trim();if(!groups[k])groups[k]=[];groups[k].push(b);});
+  aideBlocs.forEach(b=>{const k=b.operateur.trim();if(!groups[k])groups[k]=[];groups[k].push(b);});
   const sorted=Object.entries(groups).sort((a,b)=>b[1].length-a[1].length);
   const max=sorted[0][1].length;
   el.innerHTML=sorted.map(([name,list])=>{
@@ -5085,7 +5085,7 @@ function renderTopChirurgiens(){
 }
 
 function showBlocsForChirurgien(name, count){
-  const list=blocs.filter(b=>b.spec==='Traumatologie'&&b.role==='Aide'&&(b.operateur||'').trim()===name);
+  const list=statFilteredBlocs().filter(b=>b.role==='Aide'&&(b.operateur||'').trim()===name);
   openBlocsListModal('Aide à '+name+' — '+count+' bloc'+(count>1?'s':''), list);
 }
 
@@ -5798,7 +5798,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v62',
+    version:'atlas-v63',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
