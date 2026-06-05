@@ -279,7 +279,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .cal-month-num{font-size:13px;font-weight:500;}
 .cal-month-cell.today .cal-month-num{background:var(--accent);color:white;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}
 /* Planning view — cellules calendrier plus grandes */
-#view-planning .cal-month-cell{min-height:60px;}
+#view-planning .cal-month-cell{min-height:52px;}
 #view-planning .cal-month-num{font-size:15px;font-weight:500;}
 /* Blocs prévus */
 .planned-item{padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;}
@@ -1150,7 +1150,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 #upcoming-list .up-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--spec,var(--accent));}
 #upcoming-list .up-item+.up-item{border-top:1px solid var(--border);}
 /* ── Pass 4 — Planning : pastilles couleur par spécialité + légende ── */
-#view-planning .cal-month-cell{min-height:62px;gap:4px;}
+#view-planning .cal-month-cell{min-height:52px;gap:3px;}
 .cal-dots{display:flex;gap:3px;height:6px;align-items:center;justify-content:center;}
 .cal-spot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .cal-legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;padding:14px 8px 2px;margin-top:10px;border-top:1px solid var(--border);}
@@ -5798,7 +5798,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v63',
+    version:'atlas-v64',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
