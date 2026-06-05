@@ -3801,7 +3801,7 @@ async function renderDetRadios(bi){
         <input type="date" id="radio-upload-date" class="f-input" style="flex:1;font-size:16px;padding:8px 10px;" value="${new Date().toLocaleDateString('fr-CA')}">
         <label style="flex-shrink:0;cursor:pointer;background:var(--accent);color:white;padding:8px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;">
           + Photo
-          <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadFree(event,${bi})">
+          <input type="file" accept="image/*" multiple style="display:none;" onchange="handleUploadFree(event,${bi})">
         </label>
       </div>
       <div style="font-size:11px;color:var(--text3);">Le délai post-op sera calculé automatiquement.</div>
@@ -3831,7 +3831,7 @@ function renderRadioUploadFixed(bi, slot, labelTxt){
     <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;">${labelTxt}</div>
     <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;">
       + Photo
-      <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handleUploadIDB(event,${bi},'${slot}')">
+      <input type="file" accept="image/*" multiple style="display:none;" onchange="handleUploadIDB(event,${bi},'${slot}')">
     </label>
   </div>`;
 }
@@ -5653,7 +5653,7 @@ function openPlannedDetail(idx){
       <div id="pdet-radios-grid" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;min-height:0;"></div>
       <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;">
         + Ajouter une radio préop
-        <input type="file" accept="image/*" multiple capture="environment" style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})">
+        <input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})">
       </label>
     </div>
   `;
@@ -5798,7 +5798,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v64',
+    version:'atlas-v66',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
