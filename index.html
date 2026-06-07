@@ -3701,7 +3701,7 @@ function openBlocDetail(bi){
     metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${cloturePill}${histComplPill}${statusPill}`;
   }
   // Tab counts
-  const nc2=(b.consultations||[]).length;
+  const nc2=getBlocEvenements(b).length;
   const scEl=document.getElementById('det-suivi-count');
   const rcEl=document.getElementById('det-radios-count');
   if(scEl)scEl.textContent=nc2||'';
@@ -6118,7 +6118,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v72',
+    version:'atlas-v73',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -6217,16 +6217,29 @@ function importData(e){
         importedRadios = parsed.radios || [];
       }
       if(!Array.isArray(importedBlocs)) throw new Error('Format invalide');
-      // Merge blocs par ID
+      // Merge blocs par ID — UNION des tableaux de suivi (ne JAMAIS perdre d'événements).
+      // Sur conflit : les scalaires de l'actuel gagnent, l'import comble les trous,
+      // et evenements[]/consultations[]/complications[] sont fusionnés sans doublon.
+      const _evtSig =e=>e.id||('s_'+(e.type||'')+'_'+(e.date||'')+'_'+((e.comment||'').slice(0,24)));
+      const _consSig=c=>c.id||('c_'+(c.date||'')+'_'+((c.comment||'').slice(0,24)));
+      const _compSig=c=>c.id||('cp_'+(c.date||'')+'_'+(c.type||'')+'_'+(c.clavien||''));
+      const _union=(a,b2,sig)=>{const out=(a||[]).slice();const seen=new Set(out.map(sig));(b2||[]).forEach(x=>{const s=sig(x);if(!seen.has(s)){out.push(x);seen.add(s);}});return out;};
       const existing=new Map(blocs.map(b=>[b.id,b]));
-      let added=0,updated=0;
+      let added=0,updated=0,evtsRecovered=0;
       importedBlocs.forEach(b=>{
         if(!b.id)return;
         if(!existing.has(b.id)){existing.set(b.id,b);added++;}
         else{
           const cur=existing.get(b.id);
-          const curC=(cur.consultations||[]).length,impC=(b.consultations||[]).length;
-          if(impC>curC||(impC===curC&&(b.statut||'')!==(cur.statut||''))){existing.set(b.id,b);updated++;}}
+          const beforeN=getBlocEvenements(cur).length;
+          const merged=Object.assign({},b,cur); // actuel gagne sur les scalaires, import comble les trous
+          merged.evenements   =_union(cur.evenements,   b.evenements,   _evtSig);
+          merged.consultations=_union(cur.consultations,b.consultations,_consSig);
+          merged.complications=_union(cur.complications,b.complications,_compSig);
+          existing.set(b.id,merged);
+          const afterN=getBlocEvenements(merged).length;
+          if(afterN>beforeN){updated++;evtsRecovered+=(afterN-beforeN);}
+        }
       });
       blocs=Array.from(existing.values()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
       // Merge planned par ID
@@ -6288,7 +6301,7 @@ function importData(e){
       } else if(isLight){
         summary = `Fusion légère OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs (radios non incluses).`;
       } else {
-        summary = `Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
+        summary = `Fusion OK — ${added} ajouté(s), ${updated} bloc(s) enrichi(s)${evtsRecovered>0?` (+${evtsRecovered} suivi(s) restauré(s))`:''}, ${blocs.length} blocs au total${radioMsg}.`;
       }
       st.textContent = summary;
       setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},4000);
