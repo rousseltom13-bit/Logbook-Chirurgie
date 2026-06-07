@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Atlas">
 <meta name="theme-color" content="#1B4D5A" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1e1e1c" media="(prefers-color-scheme: dark)">
-<title>Atlas — Le journal du chirurgien moderne</title>
+<title>Atlas</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{
@@ -6118,7 +6118,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v73',
+    version:'atlas-v74',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,

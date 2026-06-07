@@ -1,12 +1,12 @@
 {
-  "name": "OrLog — Logbook chirurgical",
-  "short_name": "OrLog",
+  "name": "Atlas",
+  "short_name": "Atlas",
   "description": "Logbook chirurgical personnel — blocs, suivi post-op, scores fonctionnels, radiographies",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#8B4A14",
-  "theme_color": "#8B4A14",
+  "background_color": "#FAFAF5",
+  "theme_color": "#1B4D5A",
   "icons": [
     {
       "src": "icon-192.png",
