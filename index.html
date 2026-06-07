@@ -6118,7 +6118,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v68',
+    version:'atlas-v72',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -7150,6 +7150,30 @@ const VALID_LICENSES = [
   "ATLAS-PS6Q-012L-KHP2", // Tom Roussel
 ];
 
+// --- Clés auto-validées par checksum (format ATLAS-XXXX-XXXX-CCCC) ---
+// Aucune liste à maintenir : l'app reconnaît toute clé dont le checksum est correct.
+// L'algo DOIT rester identique à atlas_keygen.py (même ALPHABET + même SALT).
+const LIC_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 car., sans I O 0 1
+const LIC_SALT     = "AtlasOrtho-2026-Salt-v1";          // = SALT du keygen
+function ksum(body){
+  let h = 5381;
+  const s = body + LIC_SALT;
+  for(let i=0;i<s.length;i++){
+    h = (h * 33) % 4294967296;              // *33 puis masque 32 bits NON signés
+    h = (h ^ s.charCodeAt(i)) >>> 0;        // XOR, reforce non signé
+  }
+  let out = "";
+  for(let i=0;i<4;i++){ out += LIC_ALPHABET[(h >>> (i*5)) & 31]; }
+  return out;
+}
+function isChecksumKey(key){
+  if(!key) return false;
+  key = String(key).trim().toUpperCase();
+  const m = /^ATLAS-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})$/.exec(key);
+  if(!m) return false;
+  return ksum(m[1]+m[2]) === m[3];
+}
+
 // Clés d'essai : "TRIAL-XXXX-YYYYMMDD" (date d'expiration intégrée)
 function isTrialKey(key) {
   return /^TRIAL-[A-Z0-9]{4}-\d{8}$/.test(key);
@@ -7160,7 +7184,7 @@ function isTrialValid(key) {
   return new Date() <= exp;
 }
 function isPermanentKey(key) {
-  return VALID_LICENSES.includes(key);
+  return VALID_LICENSES.includes(key) || isChecksumKey(key);
 }
 function isLicenseValid(key) {
   if(!key) return false;
