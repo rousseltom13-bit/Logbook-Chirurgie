@@ -666,11 +666,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 
 /* ── CSS bar chart (Activité mensuelle) ── */
 .chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--s-r);box-shadow:var(--s-shadow);padding:18px;}
-.s-chart{position:relative;height:172px;padding-top:8px;}
+.s-chart{position:relative;height:186px;padding-top:8px;}
 .s-gridline{position:absolute;left:0;right:0;height:1px;background:var(--border);}
 .s-avgline{position:absolute;left:0;right:0;height:0;border-top:1.5px dashed var(--warm);opacity:0.75;}
 .s-avgtag{position:absolute;right:0;transform:translateY(-50%);font-size:9.5px;font-weight:700;color:var(--warm);background:var(--bg2);padding:1px 5px;letter-spacing:0.3px;}
-.s-bars{position:absolute;left:0;right:0;bottom:22px;top:8px;display:flex;align-items:flex-end;justify-content:space-around;}
+.s-bars{position:absolute;left:0;right:0;bottom:36px;top:8px;display:flex;align-items:flex-end;justify-content:space-around;}
 .s-bcol{display:flex;flex-direction:column-reverse;width:18px;border-radius:6px 6px 0 0;overflow:hidden;transform-origin:bottom;animation:s-grow .6s cubic-bezier(.22,.61,.36,1) both;}
 .s-bcol s{display:block;width:100%;}
 @keyframes s-grow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
@@ -681,6 +681,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 #view-bloclist.active{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;}
 #view-bloclist .bloclist-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 90px;}
 #view-bloclist .bl-list{max-height:none;overflow:visible;border-top:none;}
+.s-uncoded-cta{margin-top:10px;padding:13px 15px;background:color-mix(in srgb,var(--amber) 13%,transparent);color:var(--amber);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.s-uncoded-cta .s-uncoded-go{font-size:13px;opacity:.85;white-space:nowrap;}
+.empty-cta{text-align:center;padding:48px 28px;}
+.empty-cta-ico{font-size:40px;margin-bottom:12px;}
+.empty-cta-title{font-family:var(--serif);font-size:20px;color:var(--text);margin-bottom:6px;}
+.empty-cta-sub{font-size:14px;color:var(--text3);line-height:1.5;max-width:280px;margin:0 auto 18px;}
+.empty-cta-btn{background:var(--accent);color:#fff;border:none;border-radius:99px;padding:12px 22px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
 .s-xlabels span{flex:1;text-align:center;font-size:11px;color:var(--text3);font-weight:600;}
 .chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--border);}
 .legend-item{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text);font-weight:600;}
@@ -3297,14 +3304,16 @@ function migrateCCAM(){
   try{renderBlocs();}catch(e){}
   try{if(document.getElementById('view-stats').classList.contains('active'))renderStats();}catch(e){}
   showToast(done+' codés · '+skip+' à compléter');
-  alert('Migration CCAM terminée\n\n✅ '+done+' blocs codés automatiquement\n⚠️ '+skip+' à compléter manuellement (libellés non mappés ou « Autre »)\n↺ '+already+' déjà codés');
+  showToast(done+' codés · '+skip+' à compléter · '+already+' déjà codés');
 }
 // ── Valorisation CCAM (stats) ──
 function renderValorisation(){
   const blocs=statFilteredBlocs();
   const host=document.getElementById('valo-content');if(!host)return;
   const coded=blocs.filter(b=>b.ccamTarif);
-  if(!coded.length){host.innerHTML='<div class="s-empty">Aucun bloc codé CCAM pour l\'instant. Code tes blocs ou lance la migration dans Réglages.</div>';return;}
+  const uncoded=blocs.filter(b=>!b.ccamCode);
+  const uncodedCta=uncoded.length?'<div class="s-uncoded-cta" onclick="showUncodedBlocs()"><span>⚠️ '+uncoded.length+' bloc'+(uncoded.length>1?'s':'')+' non codé'+(uncoded.length>1?'s':'')+'</span><span class="s-uncoded-go">coder à la main ›</span></div>':'';
+  if(!coded.length){host.innerHTML='<div class="s-empty">Aucun bloc codé CCAM pour l\'instant. Code tes blocs ou lance la migration dans Réglages.</div>'+uncodedCta;return;}
   const totalAll=coded.reduce((s,b)=>s+(b.ccamTarif||0),0);
   const now=new Date();const mk=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   const moisVal=coded.filter(b=>b.date&&getMonthKey(b.date)===mk).reduce((s,b)=>s+(b.ccamTarif||0),0);
@@ -3329,7 +3338,8 @@ function renderValorisation(){
    +'<div class="s-kpi"><div class="s-kpi-h"><span class="s-kpi-label">Total</span></div><div class="s-kpi-value">'+totDisp+'€</div><div class="s-kpi-sub">'+coded.length+' blocs · moy <b>'+fmt(moy)+'€</b></div></div>'
    +'</div>'
    +'<div class="s-card">'+specRows+'</div>'
-   +'<div class="s-fineprint">Valorisation CCAM théorique, base secteur 1. Ne reflète pas le financement réel T2A (GHS) en établissement public.</div>';
+   +'<div class="s-fineprint">Valorisation CCAM théorique, base secteur 1. Ne reflète pas le financement réel T2A (GHS) en établissement public.</div>'
+   +uncodedCta;
 }
 
 function ccamRegionForSpec(spec){
@@ -3387,6 +3397,10 @@ let detailBlocIdx=-1,curDetTab='info';
 let detailReturn=null,lastBlocsListModal=null;
 function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlocsListModal.title,lastBlocsListModal.blocsList);}
 function backFromDetail(){if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;document.getElementById('view-detail').classList.remove('active');f();}else{sw('blocs');}}
+(function(){let sx=0,sy=0,track=false;
+  document.addEventListener('touchstart',e=>{if(e.touches.length!==1){track=false;return;}const x=e.touches[0].clientX;track=x<=24;sx=x;sy=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');}},{passive:true});
+})();
 
 // ── PERSISTENCE ──
 function loadLocal(){
@@ -3641,7 +3655,7 @@ function renderBlocs(){
   const subEl=document.getElementById('blocs-count-sub');
   if(countEl)countEl.textContent=(searchRaw||activeTagFilters.size>0)?filtered.length+' résultat'+(filtered.length>1?'s':'')+' sur '+blocs.length+' blocs':'';
   if(subEl)subEl.textContent=blocs.length+' cas';
-  if(!filtered.length){el.innerHTML='<div class="empty">'+(searchRaw||activeTagFilters.size>0?'🔍 Aucun résultat':'📋 Aucun bloc enregistré')+'</div>';return;}
+  if(!filtered.length){el.innerHTML=(searchRaw||activeTagFilters.size>0)?'<div class="empty">🔍 Aucun résultat</div>':'<div class="empty-cta"><div class="empty-cta-ico">📋</div><div class="empty-cta-title">Aucun bloc enregistré</div><div class="empty-cta-sub">Commencez votre logbook en ajoutant votre premier bloc opératoire.</div><button class="empty-cta-btn" onclick="sw(\'saisie\')">+ Ajouter mon premier bloc</button></div>';return;}
   const sorted=filtered.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const groups={};
   sorted.forEach(b=>{const mk=b.date?getMonthKey(b.date):'—';if(!groups[mk])groups[mk]=[];groups[mk].push(b);});
@@ -5175,7 +5189,7 @@ function renderActivityChart(){
   const leg=document.getElementById('activity-legend');
   if(leg)leg.innerHTML=specsToShow.map(sp=>`<span class="legend-item"><span class="legend-dot" style="background:${getSpecColor(sp)};"></span>${(getSpecConfig(sp)&&getSpecConfig(sp).label)||sp}</span>`).join('');
   if(maxTot===0){host.innerHTML='<div class="s-empty" style="text-align:center;padding-top:64px;">Aucun bloc sur la période</div>';return;}
-  const plotH=142, base=22;
+  const plotH=142, base=36;
   const axisMax=(maxTot*1.18)||1;
   const avg=totals.reduce((a,v)=>a+v,0)/totals.length;
   const avgB=base+avg/axisMax*plotH;
@@ -5248,7 +5262,7 @@ function renderComplEnCours(){
   el.innerHTML=list.map(b=>{
     const gi=blocs.indexOf(b);
     const st=getBlocStatutFinal(b);const sc=statusClasses(st);const col=COL[st]||'var(--text3)';
-    return `<div class="s-prow" onclick="openBlocDetail(${gi})">
+    return `<div class="s-prow" onclick="openBlocDetail(${gi}, ()=>sw('stats'))">
       <span class="dot" style="background:${col};"></span>
       <div class="s-prow-mid">
         <div class="s-prow-name">${esc(b.patient||'Patient')}</div>
@@ -5380,6 +5394,10 @@ function showBlocListView(){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   const v=document.getElementById('view-bloclist');
   if(v){v.classList.add('active');const sc=v.querySelector('.bloclist-scroll');if(sc)sc.scrollTop=0;}
+}
+function showUncodedBlocs(){
+  const list=statFilteredBlocs().filter(b=>!b.ccamCode);
+  openBlocsListModal('Blocs non codés — '+list.length+' bloc'+(list.length>1?'s':''), list);
 }
 function openBlocsListModal(title, blocsList){
   lastBlocsListModal={title:title,blocsList:blocsList};
@@ -6223,7 +6241,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v77',
+    version:'atlas-v78',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -6958,7 +6976,7 @@ async function exportRadiosBatch(){
       }
     }
     if(result === 'failed'){
-      alert('Échec sur le paquet '+(i+1)+'. Vérifie l\'espace disque et réessaye.');
+      showToast('Échec paquet '+(i+1)+' — vérifie l\'espace disque');
       return;
     }
     // Yield + petit délai pour laisser respirer la mémoire iOS
