@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Atlas">
 <meta name="theme-color" content="#1B4D5A" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1e1e1c" media="(prefers-color-scheme: dark)">
-<title>Atlas — Le journal du chirurgien moderne</title>
+<title>Atlas</title>
 <link rel="manifest" href="manifest.json">
 <style>
 :root{
@@ -2106,6 +2106,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="stat-spec-filter" id="stat-spec-filter"></div>
       <div class="stats-tabs-bar" id="stats-tabs">
         <button class="stats-tab on" onclick="switchStatsTab(&#39;activite&#39;,this)">Activité</button>
+        <button class="stats-tab" onclick="switchStatsTab(&#39;interventions&#39;,this)">Interventions</button>
         <button class="stats-tab" onclick="switchStatsTab(&#39;experience&#39;,this)">Expérience &amp; encadrement</button>
         <button class="stats-tab" onclick="switchStatsTab(&#39;resultats&#39;,this)">Résultats</button>
       </div>
@@ -2149,13 +2150,17 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <div class="s-section-h"><h2 class="s-section-title">Valorisation CCAM</h2></div>
             <div id="valo-content"></div>
           </div>
+        </div>
+
+        <!-- ② INTERVENTIONS -->
+        <div class="stats-panel" id="sp-interventions">
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Top interventions</h2></div>
             <div class="s-card" id="top-interventions"></div>
           </div>
         </div>
 
-        <!-- ② EXPÉRIENCE & ENCADREMENT -->
+        <!-- ③ EXPÉRIENCE & ENCADREMENT -->
         <div class="stats-panel" id="sp-experience">
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Courbe d'expérience</h2></div>
@@ -3730,7 +3735,7 @@ function openBlocDetail(bi){
     metaRow.innerHTML=`<span class="atlas-det-role">${roleLabel}</span>${b.role==='Aide'&&b.operateur?`<span class="atlas-det-sep">·</span><span class="atlas-det-meta-txt">Aide à ${esc(b.operateur)}</span>`:''}${histLink?`<span class="atlas-det-sep">·</span>${histLink}`:''}${cloturePill}${histComplPill}${statusPill}`;
   }
   // Tab counts
-  const nc2=(b.consultations||[]).length;
+  const nc2=getBlocEvenements(b).length;
   const scEl=document.getElementById('det-suivi-count');
   const rcEl=document.getElementById('det-radios-count');
   if(scEl)scEl.textContent=nc2||'';
@@ -5084,7 +5089,8 @@ function updateStatKpis(){
 function rerenderCurrentStatsTab(){
   const _gc=(v)=>cssColor('var('+v+')');
   CC.accent=_gc('--accent');CC.warm=_gc('--warm');CC.green=_gc('--green');CC.amber=_gc('--amber');CC.red=_gc('--red');CC.purple=_gc('--purple');CC.blue=_gc('--blue');CC.gray=_gc('--text3');
-  if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();renderTopInterventions();}
+  if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();}
+  else if(curStatsTab==='interventions'){renderTopInterventions();}
   else if(curStatsTab==='experience'){renderLearningTabs();renderLearningChart();renderTopChirurgiens();}
   else if(curStatsTab==='resultats'){renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
 }
@@ -6002,8 +6008,19 @@ function upIntervPlanned(){
 function savePlanned(){
   const sp=document.getElementById('p-spec').value;
   const selVal=document.getElementById('p-interv').value;
-  const iv=sp==='Traumatologie'||selVal.startsWith('Autre')?document.getElementById('p-interv-libre').value:selVal;
-  if(!sp||!iv||iv.includes('Sélectionner')){showToast('Spécialité et intervention requises');return;}
+  const libreVal=(document.getElementById('p-interv-libre').value||'').trim();
+  let iv;
+  if(sp==='Traumatologie'){
+    iv=libreVal;
+  }else if(selVal.includes('__LIBRE__')){
+    iv = (selVal==='__LIBRE__') ? libreVal : selVal.replace(' — __LIBRE__',' — '+libreVal);
+    if(!libreVal) iv='';
+  }else if(selVal.startsWith('Autre')){
+    iv=libreVal;
+  }else{
+    iv=selVal;
+  }
+  if(!sp||!iv||iv.includes('Sélectionner')||iv.includes('Choisir')||iv.includes('__LIBRE__')){showToast('Spécialité et intervention requises');return;}
   const entry={id:Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value,comment:document.getElementById('p-comment').value};
   if(plannedEditIdx!==null){planned[plannedEditIdx]=entry;}
   else{planned.push(entry);}
@@ -6180,7 +6197,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v68',
+    version:'atlas-v75',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -6279,16 +6296,27 @@ function importData(e){
         importedRadios = parsed.radios || [];
       }
       if(!Array.isArray(importedBlocs)) throw new Error('Format invalide');
-      // Merge blocs par ID
+      // Merge blocs par ID — UNION des tableaux de suivi (ne JAMAIS perdre d'événements)
+      const _evtSig =e=>e.id||('s_'+(e.type||'')+'_'+(e.date||'')+'_'+((e.comment||'').slice(0,24)));
+      const _consSig=c=>c.id||('c_'+(c.date||'')+'_'+((c.comment||'').slice(0,24)));
+      const _compSig=c=>c.id||('cp_'+(c.date||'')+'_'+(c.type||'')+'_'+(c.clavien||''));
+      const _union=(a,b2,sig)=>{const out=(a||[]).slice();const seen=new Set(out.map(sig));(b2||[]).forEach(x=>{const s=sig(x);if(!seen.has(s)){out.push(x);seen.add(s);}});return out;};
       const existing=new Map(blocs.map(b=>[b.id,b]));
-      let added=0,updated=0;
+      let added=0,updated=0,evtsRecovered=0;
       importedBlocs.forEach(b=>{
         if(!b.id)return;
         if(!existing.has(b.id)){existing.set(b.id,b);added++;}
         else{
           const cur=existing.get(b.id);
-          const curC=(cur.consultations||[]).length,impC=(b.consultations||[]).length;
-          if(impC>curC||(impC===curC&&(b.statut||'')!==(cur.statut||''))){existing.set(b.id,b);updated++;}}
+          const beforeN=getBlocEvenements(cur).length;
+          const merged=Object.assign({},b,cur); // actuel gagne sur les scalaires, import comble les trous
+          merged.evenements   =_union(cur.evenements,   b.evenements,   _evtSig);
+          merged.consultations=_union(cur.consultations,b.consultations,_consSig);
+          merged.complications=_union(cur.complications,b.complications,_compSig);
+          existing.set(b.id,merged);
+          const afterN=getBlocEvenements(merged).length;
+          if(afterN>beforeN){updated++;evtsRecovered+=(afterN-beforeN);}
+        }
       });
       blocs=Array.from(existing.values()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
       // Merge planned par ID
@@ -7212,6 +7240,29 @@ const VALID_LICENSES = [
   "ATLAS-PS6Q-012L-KHP2", // Tom Roussel
 ];
 
+// --- Clés auto-validées par checksum (format ATLAS-XXXX-XXXX-CCCC) ---
+// Algo identique à atlas_keygen.py (même ALPHABET + même SALT). Ne pas modifier.
+const LIC_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const LIC_SALT     = "AtlasOrtho-2026-Salt-v1";
+function ksum(body){
+  let h = 5381;
+  const s = body + LIC_SALT;
+  for(let i=0;i<s.length;i++){
+    h = (h * 33) % 4294967296;
+    h = (h ^ s.charCodeAt(i)) >>> 0;
+  }
+  let out = "";
+  for(let i=0;i<4;i++){ out += LIC_ALPHABET[(h >>> (i*5)) & 31]; }
+  return out;
+}
+function isChecksumKey(key){
+  if(!key) return false;
+  key = String(key).trim().toUpperCase();
+  const m = /^ATLAS-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})$/.exec(key);
+  if(!m) return false;
+  return ksum(m[1]+m[2]) === m[3];
+}
+
 // Clés d'essai : "TRIAL-XXXX-YYYYMMDD" (date d'expiration intégrée)
 function isTrialKey(key) {
   return /^TRIAL-[A-Z0-9]{4}-\d{8}$/.test(key);
@@ -7222,7 +7273,7 @@ function isTrialValid(key) {
   return new Date() <= exp;
 }
 function isPermanentKey(key) {
-  return VALID_LICENSES.includes(key);
+  return VALID_LICENSES.includes(key) || isChecksumKey(key);
 }
 function isLicenseValid(key) {
   if(!key) return false;
