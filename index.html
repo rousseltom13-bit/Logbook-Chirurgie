@@ -675,6 +675,12 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .s-bcol s{display:block;width:100%;}
 @keyframes s-grow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
 .s-xlabels{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;}
+.s-xlabels span{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.s-xcount{font-size:11px;font-weight:700;color:var(--text2);line-height:1;}
+#view-bloclist{padding:0;}
+#view-bloclist.active{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;}
+#view-bloclist .bloclist-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 90px;}
+#view-bloclist .bl-list{max-height:none;overflow:visible;border-top:none;}
 .s-xlabels span{flex:1;text-align:center;font-size:11px;color:var(--text3);font-weight:600;}
 .chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--border);}
 .legend-item{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text);font-weight:600;}
@@ -2280,6 +2286,20 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 
     <!-- COURRIERS -->
 
+    <!-- LISTE BLOCS — vue plein écran (depuis les stats) -->
+    <div class="view" id="view-bloclist">
+      <div class="atlas-det-topbar">
+        <button onclick="sw('stats')" class="atlas-iconbtn" aria-label="Retour">
+          <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div style="flex:1;"></div>
+      </div>
+      <div class="bloclist-scroll">
+        <div id="statut-patients-title"></div>
+        <div id="statut-patients-list" class="bl-list"></div>
+      </div>
+    </div>
+
   </div>
 
   <nav class="bottomnav">
@@ -2486,14 +2506,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .bl-sub{font-size:12px;color:var(--text2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .bl-sub .role{color:var(--text3);font-weight:600;}
 </style>
-<div class="modal-overlay" id="statut-patients-modal">
-  <div class="modal bl-modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal(&#39;statut-patients-modal&#39;)">×</button>
-    <div id="statut-patients-title"></div>
-    <div id="statut-patients-list" class="bl-list"></div>
-  </div>
-</div>
+<!-- (liste blocs déplacée dans la vue plein écran #view-bloclist) -->
 
 <!-- MODAL SETTINGS -->
 <div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal(&#39;settings-modal&#39;)">
@@ -5156,7 +5169,7 @@ function renderActivityChart(){
   const labels=[],keys=[];
   for(let i=months-1;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);labels.push(d.toLocaleDateString('fr-FR',{month:'short'}));keys.push(getMonthKey(d.toISOString()));}
   const specsToShow=statSpecFilter.length?statSpecFilter:getActiveSpecs();
-  const totals=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k).length);
+  const totals=keys.map(k=>blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&specsToShow.includes(b.spec)).length);
   const maxTot=Math.max(0,...totals);
   const host=document.getElementById('activity-chart-host');if(!host)return;
   const leg=document.getElementById('activity-legend');
@@ -5184,7 +5197,7 @@ function renderActivityChart(){
     +`<div class="s-avgline" style="bottom:${avgB.toFixed(1)}px;"></div>`
     +`<div class="s-avgtag" style="bottom:${avgB.toFixed(1)}px;">MOY ${avgDisp}</div>`
     +`<div class="s-bars">${bars}</div>`
-    +(showLabels?`<div class="s-xlabels">${labels.map(l=>`<span>${l}</span>`).join('')}</div>`:'');
+    +(showLabels?`<div class="s-xlabels">${labels.map((l,i)=>`<span><b class="s-xcount">${totals[i]}</b>${l}</span>`).join('')}</div>`:'');
 }
 
 
@@ -5363,6 +5376,11 @@ function renderStatuts(filter){
 }
 
 // ── MODAL GÉNÉRIQUE LISTE DE BLOCS ──
+function showBlocListView(){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  const v=document.getElementById('view-bloclist');
+  if(v){v.classList.add('active');const sc=v.querySelector('.bloclist-scroll');if(sc)sc.scrollTop=0;}
+}
 function openBlocsListModal(title, blocsList){
   lastBlocsListModal={title:title,blocsList:blocsList};
   const MONTHS_ABBR=['JANV','FÉVR','MARS','AVR','MAI','JUIN','JUIL','AOÛT','SEPT','OCT','NOV','DÉC'];
@@ -5390,7 +5408,7 @@ function openBlocsListModal(title, blocsList){
   const listEl=document.getElementById('statut-patients-list');
   if(!list.length){
     listEl.innerHTML='<div style="padding:28px;color:var(--text3);text-align:center;">Aucun bloc</div>';
-    openModal('statut-patients-modal');return;
+    showBlocListView();return;
   }
   // l'intervention/le rôle ne s'affichent en sous-titre que s'ils varient (sinon redondants avec le titre)
   const intervVaries=new Set(list.map(b=>b.interv||'')).size>1;
@@ -5407,13 +5425,13 @@ function openBlocsListModal(title, blocsList){
     if(intervVaries)parts.push(esc(displayInterv(b.interv)));
     if(roleVaries||!intervVaries)parts.push('<span class="role">'+roleTxtOf(b)+'</span>');
     const sub=parts.join(' · ')||'<span class="role">'+roleTxtOf(b)+'</span>';
-    return `<div class="bl-row" onclick="closeModal('statut-patients-modal');setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);">
+    return `<div class="bl-row" onclick="setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);">
       <div class="bl-date"><span class="d">${day}</span><span class="mo">${mo}</span></div>
       <div class="bl-mid"><div class="bl-pat">${esc(b.patient)||'—'}</div><div class="bl-sub">${sub}</div></div>
       <span class="bloc-status-pill ${pillCls}">${pillLbl}</span>
     </div>`;
   }).join('');
-  openModal('statut-patients-modal');
+  showBlocListView();
 }
 
 function showStatutPatients(filter,statusKey,isCloture=false){
@@ -6205,7 +6223,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v76',
+    version:'atlas-v77',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
