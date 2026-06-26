@@ -1215,7 +1215,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 #det-suivi .timeline-label{font-size:14px !important;}
 #det-suivi .timeline-comment{font-size:14px !important;}
 </style>
-<script type='text/javascript' nonce='1RKLBGZKY3tb0oR2dWn5vg==' src='https://claude.ai/JqiTSobKWLsOPftDzh1sYLknNpTirQfy5C3GuSePGKh0ciFZnsHSrani1zMZiEthGI9zAWjG2elEHDFdBGqOufB4D2hsGaCeL3_JmTnM-PpqL-a6n5dSHc53LCNtfDNKFacKrjmrJo1ygisaXHA5qAO8y6mbStjfuDe_uuiR9L6iDJUQx2YF6c3OKWNW7jxCI-49sNseXKY0wC3j9kv_a7OaV6WvZVcXfuf-bq4ZP1zMXE6uSgi-xiK0vZBd_kFpIcqcxd_4BI624kSW5jUfzzT6Vmo4RwljmpHJU2EnwR_sZow_qf_o1gM5W6jlfrV5liu9NdVUuGuGhTUb420wQcFJoCe1VABz4kuQdDSL4Md7cf_uzxgrv8szBfb1JWrPjS6COX_C43NTFQr550vDrsyx0PzZ-UzDM5HNIrMlfoMmnW70Y96eRHJ6hoRl9BaMdgEfdq6-LwDGgWh0oXxxCD8pIfsYfVqVghImsS5MfTudvNA7Xk0xmymOTAO9iP-7uodT2KGtqevpaY0rlYBR9z30ciJYSq2aTuzomxkrdZqFeiQ33DEHy4eA'></script><script type="text/javascript" nonce="HS4HLGGpZMBvtP6uNDxDtg==" src="https://claude.ai/5GkqWSuks3Jkcu6dBHiw-Ix8JItgiSj4u9XctiVsSamB8UTaymJcCJC6STUKHc8QbH9w-oQXAPS-J1yvACjxg6k3-LwHREYwSe323PJEQX4dUPNTH7FLmn_VISZazXZ7__IPQE8Jo_6feZEob5DUPiUD8DxsJoHx2MMVoO3tvT3MpNdJjYHygAxVNkYdYRwo6u1L3B_KmC0MnHXDVgtjwlln06A5vSijLm_2T4a7Xlv4a2OYrTJKFnK0n8TjbngFiXu-DGCWCb55PeIM7mhd05HZ7gUA3hTpA--K9WOtbHhXM9VUycq5fakCi2A-RBrOYMVUS5oETlRyAMErTAe-acHht7YLkMrRJ7ax6hcXC-vqYRyoEgd5BAvPgB9_jMIELrQSoiGBY6e3GsNYRTHRH5uieXA5LG_1KUNiDxoc1fcSsBxhkF025iA_3mZjbd5yeKmIiEqbzetzglLXjT62d91236QKD1XFIkL7drwaISZLvkbP0oMUzNl6SuRjjvpacF-BrsitojR3F_EfU_IykztJm2wvCjPKtWABye5HQLptj-c"></script></head>
+</head>
 <body>
 <template id="__bundler_thumbnail">
   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -2592,6 +2592,26 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 
 <!-- MODAL EDITION -->
+<style id="ed-redesign-css">
+#edit-modal .modal{padding:0;}
+.ed-sec-t{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.09em;font-weight:700;margin:20px 2px 7px;}
+.ed-sec-t:first-child{margin-top:2px;}
+.ed-group{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;}
+.ed-row{padding:12px 15px;border-bottom:0.5px solid var(--border);}
+.ed-row:last-child{border-bottom:none;}
+.ed-k{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:9px;}
+.ed-k .req{color:var(--warm);}
+.ed-grid2{display:grid;grid-template-columns:1fr 1fr;border-bottom:0.5px solid var(--border);}
+.ed-grid2:last-child{border-bottom:none;}
+.ed-cell{padding:12px 15px;}
+.ed-cell:first-child{border-right:0.5px solid var(--border);}
+.ed-group input:not([type=hidden]):not(.f-input):not(.tag-field),.ed-group select,.ed-group textarea{padding-left:0!important;padding-right:0!important;}
+.ed-more-btn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 16px;margin-top:16px;background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;font-family:inherit;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;text-align:left;}
+.ed-more-btn .chev{color:var(--text3);font-size:20px;line-height:1;transition:transform .22s ease;flex-shrink:0;}
+.ed-more-btn.open .chev{transform:rotate(90deg);}
+.ed-more-body{display:none;}
+.ed-more-body.open{display:block;}
+</style>
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="padding:0;border-radius:20px 20px 0 0;max-height:96vh;display:flex;flex-direction:column;">
     <!-- Header fixe -->
@@ -2607,150 +2627,150 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     </div>
 
     <!-- Scroll body -->
-    <div style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:16px 20px 0;">
+    <div id="e-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:10px 18px 0;">
 
-      <!-- Spécialité pills -->
-      <div style="margin-bottom:16px;">
-        <div class="f-section-label">Spécialité</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-spec-pills"><!-- rendu via renderEditSpecPills() --></div>
-      </div>
-
-      <!-- Intervention -->
-      <div style="margin-bottom:16px;">
-        <div class="f-section-label">Intervention <span style="color:var(--warm);">*</span></div>
-        <div class="field-card">
-          <select id="e-trauma-region" style="display:none;margin-bottom:8px;width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="onTraumaRegionChange(&#39;e&#39;)">
+      <!-- ░ INTERVENTION ░ -->
+      <div class="ed-sec-t">Intervention</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Spécialité</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-spec-pills"><!-- rendu via renderEditSpecPills() --></div>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Acte <span class="req">*</span></span>
+          <select id="e-trauma-region" style="display:none;margin-bottom:8px;width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="onTraumaRegionChange('e')">
             <option value="">Choisir une région…</option>
             <option value="Membre inférieur">Membre inférieur</option>
             <option value="Membre supérieur">Membre supérieur</option>
             <option value="Péri-prothétiques">Péri-prothétiques</option>
           </select>
-          <select id="e-interv" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="toggleIntervLibre(&#39;e&#39;)"></select>
-          <input type="text" id="e-interv-libre" placeholder="Décrire l&#39;intervention…" style="display:none;width:100%;padding:10px;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" autocomplete="off">
+          <select id="e-interv" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="toggleIntervLibre('e')"></select>
+          <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention…" style="display:none;width:100%;padding:10px;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" autocomplete="off">
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Côté</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="e-side-pill" onclick="selectEditSide('Gauche',this)">Gauche</button>
+            <button type="button" class="e-side-pill" onclick="selectEditSide('Droit',this)">Droit</button>
+            <button type="button" class="e-side-pill" onclick="selectEditSide('Bilatéral',this)">Bilatéral</button>
+            <button type="button" class="e-side-pill" onclick="selectEditSide('',this)">—</button>
+          </div>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Rôle <span class="req">*</span></span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button type="button" class="e-role-pill on" id="e-role-principal" onclick="selectEditRole('Principal')">
+              <svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Principal
+            </button>
+            <button type="button" class="e-role-pill" id="e-role-aide" onclick="selectEditRole('Aide')">
+              <svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Aide
+            </button>
+          </div>
+          <input type="hidden" id="e-spec" value="">
+          <input type="hidden" id="e-side" value="">
+          <input type="hidden" id="e-role" value="Principal">
+          <div id="e-operateur-row" style="display:none;margin-top:10px;">
+            <input type="text" id="e-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs" style="font-size:15px;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;">
+          </div>
         </div>
       </div>
 
-      <!-- Côté pills -->
-      <div style="margin-bottom:16px;">
-        <div class="f-section-label">Côté</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button type="button" class="e-side-pill" onclick="selectEditSide(&#39;Gauche&#39;,this)">Gauche</button>
-          <button type="button" class="e-side-pill" onclick="selectEditSide(&#39;Droit&#39;,this)">Droit</button>
-          <button type="button" class="e-side-pill" onclick="selectEditSide(&#39;Bilatéral&#39;,this)">Bilatéral</button>
-          <button type="button" class="e-side-pill" onclick="selectEditSide(&#39;&#39;,this)">—</button>
+      <!-- ░ PATIENT & CONTEXTE ░ -->
+      <div class="ed-sec-t">Patient &amp; contexte</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Patient</span>
+          <input type="text" id="e-patient" autocomplete="off" list="dl-patients" placeholder="Nom ou initiales…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+        </div>
+        <div class="ed-grid2">
+          <div class="ed-cell">
+            <span class="ed-k">Date</span>
+            <input type="date" id="e-date" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          </div>
+          <div class="ed-cell">
+            <span class="ed-k">Durée (min)</span>
+            <input type="number" id="e-duree" inputmode="numeric" placeholder="90" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          </div>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Établissement</span>
+          <input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+        </div>
+        <div class="ed-grid2">
+          <div class="ed-cell">
+            <span class="ed-k">Âge</span>
+            <input type="number" id="e-age" inputmode="numeric" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          </div>
+          <div class="ed-cell">
+            <span class="ed-k">IMC</span>
+            <input type="number" id="e-imc" step="0.1" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          </div>
         </div>
       </div>
 
-      <!-- Rôle pills -->
-      <div style="margin-bottom:16px;">
-        <div class="f-section-label">Rôle <span style="color:var(--warm);">*</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button type="button" class="e-role-pill on" id="e-role-principal" onclick="selectEditRole(&#39;Principal&#39;)">
-            <svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Principal
-          </button>
-          <button type="button" class="e-role-pill" id="e-role-aide" onclick="selectEditRole(&#39;Aide&#39;)">
-            <svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            Aide
-          </button>
-        </div>
-        <input type="hidden" id="e-spec" value="">
-        <input type="hidden" id="e-side" value="">
-        <input type="hidden" id="e-role" value="Principal">
-        <div id="e-operateur-row" style="display:none;margin-top:10px;">
-          <input type="text" id="e-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs" style="font-size:15px;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;">
-        </div>
-      </div>
-
-      <!-- Date / Patient / Établissement -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <div>
-          <div class="f-section-label">Date</div>
-          <div class="field-card"><input type="date" id="e-date" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-        </div>
-        <div>
-          <div class="f-section-label">Durée (min)</div>
-          <div class="field-card"><input type="number" id="e-duree" inputmode="numeric" placeholder="90" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-        </div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Patient</div>
-        <div class="field-card"><input type="text" id="e-patient" autocomplete="off" list="dl-patients" placeholder="Nom ou initiales…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Établissement</div>
-        <div class="field-card"><input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <div>
-          <div class="f-section-label">Âge</div>
-          <div class="field-card"><input type="number" id="e-age" inputmode="numeric" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-        </div>
-        <div>
-          <div class="f-section-label">IMC</div>
-          <div class="field-card"><input type="number" id="e-imc" step="0.1" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;"></div>
-        </div>
-      </div>
-
-      <!-- Implants -->
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Implants</div>
-        <div class="field-card">
-          <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
-          <textarea id="e-implants" placeholder="Détail des implants…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:70px;resize:vertical;"></textarea>
-        </div>
-      </div>
-
-      <!-- Voie d'abord -->
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Voie d'abord</div>
-        <div class="field-card">
-          <select id="e-abord" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
-            <option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Code CCAM -->
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Code CCAM <span style="color:var(--text3);font-weight:400;font-size:11px;">valorisation</span></div>
-        <div class="field-card" style="padding:10px;">
-          <input type="text" id="e-ccam-search" placeholder="Rechercher un acte ou un code CCAM…" autocomplete="off" oninput="ccamSearch(this.value,&#39;e&#39;)" style="width:100%;padding:6px 0;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+      <!-- ░ CODAGE ░ -->
+      <div class="ed-sec-t">Codage</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Code CCAM <span style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;">· valorisation</span></span>
+          <input type="text" id="e-ccam-search" placeholder="Rechercher un acte ou un code CCAM…" autocomplete="off" oninput="ccamSearch(this.value,'e')" style="width:100%;padding:6px 0;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
           <div id="e-ccam-suggestions" style="display:none;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg);max-height:280px;overflow-y:auto;"></div>
           <div id="e-ccam-selected" style="display:none;margin-top:8px;"></div>
           <input type="hidden" id="e-ccam-code" value=""><input type="hidden" id="e-ccam-tarif" value=""><input type="hidden" id="e-ccam-libelle" value="">
         </div>
       </div>
 
-      <!-- Astuces & Remarques -->
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Difficultés / astuces</div>
-        <div class="field-card"><textarea id="e-astuces" placeholder="Particularités, points techniques…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:80px;resize:vertical;font-family:var(--serif);font-size:16px;"></textarea></div>
-      </div>
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Remarques libres</div>
-        <div class="field-card"><textarea id="e-remarques" placeholder="Notes libres, contact…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:80px;resize:vertical;font-family:var(--serif);font-size:16px;"></textarea></div>
-      </div>
-
-      <!-- Statut -->
-      <div style="margin-bottom:10px;">
-        <div class="f-section-label">Statut actuel</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-statut-pills">
-          <button type="button" class="e-statut-pill" onclick="selectEditStatut(&#39;gris&#39;,this)" data-val="gris">En attente</button>
-          <button type="button" class="e-statut-pill bon" onclick="selectEditStatut(&#39;vert&#39;,this)" data-val="vert">Bon résultat</button>
-          <button type="button" class="e-statut-pill vigilance" onclick="selectEditStatut(&#39;orange&#39;,this)" data-val="orange">Vigilance</button>
-          <button type="button" class="e-statut-pill compli" onclick="selectEditStatut(&#39;rouge&#39;,this)" data-val="rouge">Complication</button>
-          <button type="button" class="e-statut-pill" onclick="selectEditStatut(&#39;pdv&#39;,this)" data-val="pdv">Perdu de vue</button>
-          <button type="button" class="e-statut-pill" onclick="selectEditStatut(&#39;deces&#39;,this)" data-val="deces">Décès</button>
+      <!-- ░ STATUT ░ -->
+      <div class="ed-sec-t">Statut</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Statut actuel</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-statut-pills">
+            <button type="button" class="e-statut-pill" onclick="selectEditStatut('gris',this)" data-val="gris">En attente</button>
+            <button type="button" class="e-statut-pill bon" onclick="selectEditStatut('vert',this)" data-val="vert">Bon résultat</button>
+            <button type="button" class="e-statut-pill vigilance" onclick="selectEditStatut('orange',this)" data-val="orange">Vigilance</button>
+            <button type="button" class="e-statut-pill compli" onclick="selectEditStatut('rouge',this)" data-val="rouge">Complication</button>
+            <button type="button" class="e-statut-pill" onclick="selectEditStatut('pdv',this)" data-val="pdv">Perdu de vue</button>
+            <button type="button" class="e-statut-pill" onclick="selectEditStatut('deces',this)" data-val="deces">Décès</button>
+          </div>
+          <input type="hidden" id="e-statut" value="gris">
         </div>
-        <input type="hidden" id="e-statut" value="gris">
       </div>
 
-      <!-- Tags -->
-      <div style="margin-bottom:24px;">
-        <div class="f-section-label">Tags</div>
-        <div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById(&#39;etf&#39;).focus()">
-          <input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags">
+      <!-- ░ PLUS DE DÉTAILS (repliable) ░ -->
+      <button type="button" class="ed-more-btn" id="ed-more-btn" onclick="this.classList.toggle('open');document.getElementById('ed-more-body').classList.toggle('open');">
+        <span>Plus de détails<span style="color:var(--text3);font-weight:400;"> · implants, voie d'abord, notes, tags</span></span>
+        <span class="chev">›</span>
+      </button>
+      <div class="ed-more-body" id="ed-more-body">
+        <div class="ed-group" style="margin-top:12px;">
+          <div class="ed-row">
+            <span class="ed-k">Implants</span>
+            <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
+            <textarea id="e-implants" placeholder="Détail des implants…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:70px;resize:vertical;"></textarea>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Voie d'abord</span>
+            <select id="e-abord" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+              <option value="">—</option><option>Médiale parapatellaire</option><option>Mid-vastus</option><option>Sub-vastus</option><option>Voie antéro-latérale</option><option>Voie de Hardinge</option><option>Voie postérieure</option><option>Arthroscopique</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Difficultés / astuces</span>
+            <textarea id="e-astuces" placeholder="Particularités, points techniques…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:80px;resize:vertical;font-size:16px;"></textarea>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Remarques libres</span>
+            <textarea id="e-remarques" placeholder="Notes libres, contact…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:80px;resize:vertical;font-size:16px;"></textarea>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Tags</span>
+            <div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()">
+              <input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -4463,8 +4483,18 @@ function openEditModal(){
   selectEditStatut(b.statut||'gris', null, true);
   // Tags
   editTags=[...(b.tags||[])];renderEditTags();
+  syncEditMore();
   openModal('edit-modal');
-  setTimeout(()=>{const m=document.querySelector('#edit-modal>div');if(m){const scroll=m.querySelectorAll('div')[2];if(scroll)scroll.scrollTop=0;}},50);
+  setTimeout(()=>{const s=document.getElementById('e-scroll');if(s)s.scrollTop=0;},50);
+}
+function syncEditMore(){
+  const ids=['e-implants','e-astuces','e-remarques','e-abord'];
+  let has=ids.some(id=>{const el=document.getElementById(id);return el&&el.value&&String(el.value).trim();});
+  if(!has && typeof editTags!=='undefined' && editTags && editTags.length)has=true;
+  const btn=document.getElementById('ed-more-btn'), body=document.getElementById('ed-more-body');
+  if(!btn||!body)return;
+  if(has){btn.classList.add('open');body.classList.add('open');}
+  else{btn.classList.remove('open');body.classList.remove('open');}
 }
 // Helpers pills edit
 function renderEditSpecPills(){
@@ -6287,7 +6317,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v79',
+    version:'atlas-v82',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
