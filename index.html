@@ -180,6 +180,20 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot);}
 .modal-overlay.show{display:flex;}
 .modal{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;}
+#edit-modal,#consult-modal,#settings-modal,#implant-modal,#score-modal{align-items:stretch;padding:0;background:var(--bg);}
+#edit-modal>.modal,#consult-modal>.modal,#settings-modal>.modal,#implant-modal>.modal,#score-modal>.modal{max-width:100%;max-height:100%;height:100%;border-radius:0;padding-top:max(16px,env(safe-area-inset-top));}
+#edit-modal .modal-handle,#consult-modal .modal-handle,#settings-modal .modal-handle,#implant-modal .modal-handle,#score-modal .modal-handle{display:none;}
+.ms-score-btn{width:100%;padding:9px 10px;font-size:15px;font-weight:600;border:1px dashed var(--accent);border-radius:10px;background:color-mix(in srgb,var(--accent) 6%,var(--bg));color:var(--accent);font-family:inherit;cursor:pointer;text-align:left;}
+.ms-score-btn.filled{border-style:solid;background:var(--accent);color:#fff;}
+.ox-q{padding:14px 0;border-bottom:1px solid var(--border);}
+.ox-q:last-child{border-bottom:none;}
+.ox-q-t{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;line-height:1.35;}
+.ox-opts{display:flex;flex-direction:column;gap:6px;}
+.ox-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text2);font-size:13px;font-family:inherit;cursor:pointer;text-align:left;transition:all .12s;}
+.ox-opt.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--bg));color:var(--text);font-weight:600;}
+.ox-opt .ox-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text3);}
+.ox-opt.on .ox-num{background:var(--accent);border-color:var(--accent);color:#fff;}
+.set-sec{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin:22px 0 10px;}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 16px;}
 .modal-title{font-size:17px;font-weight:700;margin-bottom:14px;}
 .modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);padding:0;line-height:1;}
@@ -2063,6 +2077,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
         <div class="field-group quick-hide">
           <div class="field">
             <div class="field-label">Implants</div>
+            <div id="f-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
             <input type="text" id="f-implants-suggest" class="f-input" placeholder="Rechercher un implant déjà utilisé…" autocomplete="off" list="dl-implants" style="margin-bottom:6px;" oninput="onImplantSuggest(this.value)" onchange="onImplantSuggest(this.value)">
             <textarea id="f-implants" class="f-textarea" placeholder="ex. Nexgen Legacy PS · Fémur D3 · Tibia 4..."></textarea>
           </div>
@@ -2174,6 +2189,10 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <div class="s-section-h"><h2 class="s-section-title">Top interventions</h2></div>
             <div class="s-card" id="top-interventions"></div>
           </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Par implant</h2></div>
+            <div class="s-card" id="stat-implants"></div>
+          </div>
         </div>
 
         <!-- ③ EXPÉRIENCE & ENCADREMENT -->
@@ -2194,6 +2213,9 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 
         <!-- ③ RÉSULTATS -->
         <div class="stats-panel" id="sp-resultats">
+          <div class="s-section">
+            <div class="s-card" id="suivi-completeness"></div>
+          </div>
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
             <div class="statut-list" id="activite-statuts"></div>
@@ -2365,6 +2387,23 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       </select>
     </div>
 
+    <!-- Fiche de suivi — mesures standardisées -->
+    <div id="evt-mesures" style="margin:2px 0 14px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg2);">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:12px;">Fiche de suivi — mesures <span style="text-transform:none;letter-spacing:0;font-weight:500;">(optionnel)</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div><label style="display:block;font-size:12px;color:var(--text2);margin-bottom:5px;">EVA douleur <span style="color:var(--text3);">/10</span></label><input type="number" id="ms-eva" min="0" max="10" step="0.5" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:16px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;"></div>
+        <div id="ms-score-cell"><label id="ms-score-label" style="display:block;font-size:12px;color:var(--text2);margin-bottom:5px;">Score fonctionnel</label>
+          <button type="button" id="ms-score-btn" class="ms-score-btn" onclick="openOxford()" style="display:none;">Remplir le score…</button>
+          <input type="number" id="ms-score-num" min="0" max="100" inputmode="numeric" placeholder="—" oninput="document.getElementById('ms-score').value=this.value" style="width:100%;padding:10px;font-size:16px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
+          <input type="hidden" id="ms-score">
+        </div>
+      </div>
+      <div id="ms-amp-fields" style="display:none;gap:10px;margin-top:10px;"></div>
+      <div id="ms-row-mob" style="display:none;margin-top:10px;">
+        <label style="display:block;font-size:12px;color:var(--text2);margin-bottom:5px;">Mobilité / examen</label><input type="text" id="ms-mob" placeholder="ex. Amplitudes, examen clinique…" style="width:100%;padding:10px;font-size:15px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
+      </div>
+    </div>
+
     <!-- Champs spécifiques complication -->
     <div id="evt-compl-fields" style="display:none;">
       <div class="form-group"><label>Type de complication</label>
@@ -2515,28 +2554,102 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </style>
 <!-- (liste blocs déplacée dans la vue plein écran #view-bloclist) -->
 
-<!-- MODAL SETTINGS -->
-<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal(&#39;settings-modal&#39;)">
+
+
+<!-- MODAL SCORE OXFORD (plein écran, v85) -->
+<div class="modal-overlay" id="score-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal(&#39;settings-modal&#39;)">×</button>
-    <div class="modal-title">Sauvegarde &amp; données</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement pour ne rien perdre.</div>
+    <button class="modal-close" onclick="closeModal('score-modal')">×</button>
+    <div class="modal-title" id="score-modal-title">Score fonctionnel</div>
+    <div id="score-total" style="display:flex;align-items:baseline;gap:4px;margin-bottom:16px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--bg2);position:sticky;top:0;z-index:2;"></div>
+    <div id="score-body"></div>
+    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="saveOxford()">Valider le score</button>
+  </div>
+</div>
 
+<!-- MODAL CONFIG OXFORD (éditeur de libellés, v85) -->
+<div class="modal-overlay" id="oxcfg-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('oxcfg-modal')">×</button>
+    <div class="modal-title">Scores fonctionnels</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Colle ici le libellé <strong>validé sous licence</strong> des 12 items (Oxford University Innovation). Chaque question a 5 réponses valant 0→4 points. Total 0–48, 48 = meilleur résultat.</div>
+    <div id="oxcfg-tabs" style="display:flex;gap:6px;margin-bottom:16px;">
+      <button type="button" class="imp-pill on" data-k="knee" onclick="oxCfgTab('knee')">Oxford genou (OKS)</button>
+      <button type="button" class="imp-pill" data-k="hip" onclick="oxCfgTab('hip')">Oxford hanche (OHS)</button>
+    </div>
+    <div id="oxcfg-body"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn-primary" style="flex:1;" onclick="saveOxfordConfig()">Enregistrer</button>
+      <button onclick="resetOxfordConfig()" style="padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);color:var(--text2);font-weight:600;font-family:inherit;cursor:pointer;">Réinitialiser</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CATALOGUE IMPLANTS + styles fiche suivi (v84) -->
+<style id="atlas-implants-css">
+.imp-pill{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border:1px solid var(--border);border-radius:999px;background:var(--bg);color:var(--text2);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+.imp-pill.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.imp-pill.ghost{border-style:dashed;color:var(--text3);font-weight:500;}
+.imp-pill.sm{padding:5px 10px;font-size:12px;}
+.imp-chip{display:inline-flex;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--accent) 10%,var(--bg2));border:1px solid color-mix(in srgb,var(--accent) 25%,var(--border));color:var(--accent);font-size:12px;font-weight:600;}
+.ms-chip{display:inline-flex;padding:2px 8px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:600;}
+.ms-chip.delay{background:color-mix(in srgb,var(--accent) 10%,var(--bg2));border-color:color-mix(in srgb,var(--accent) 25%,var(--border));color:var(--accent);}
+.imp-guard{display:inline-flex;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--warm) 12%,var(--bg2));border:1px solid color-mix(in srgb,var(--warm) 30%,var(--border));color:var(--warm);font-size:11px;font-weight:600;}
+</style>
+<div class="modal-overlay" id="implant-modal" onclick="if(event.target===this)closeModal('implant-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('implant-modal')">×</button>
+    <div class="modal-title">Mes implants</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.45;">Pré-enregistre tes références (marque / modèle). À la saisie du bloc, elles apparaîtront en pills à cocher selon la spécialité et l'intervention.</div>
+
+    <div id="imp-list" style="margin-bottom:16px;"></div>
+
+    <div style="padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--bg2);">
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:10px;">Ajouter un implant</div>
+      <input type="text" id="imp-new-label" placeholder="ex. PTH Medacta — AMIStem / Versafit" style="width:100%;padding:10px 12px;font-size:15px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;margin-bottom:10px;">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Spécialité</div>
+      <div id="imp-spec-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <div id="imp-interv-wrap" style="display:none;">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Interventions concernées <span style="color:var(--text3);">(aucune = toutes)</span></div>
+        <div id="imp-interv-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      </div>
+      <button onclick="addImplantEntry()" style="width:100%;padding:12px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">Ajouter au catalogue</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SETTINGS -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    <div class="modal-title">Options</div>
+
+    <div class="set-sec" style="margin-top:8px;">Sauvegarde des données</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement — c'est ta seule protection contre la perte.</div>
     <div class="bk-grid">
       <button class="bk-card" onclick="exportData()">
         <div class="bk-ic">💾</div>
-        <div class="bk-tx"><div class="bk-t">Exporter les blocs</div><div class="bk-s">Sauvegarde JSON complète</div></div>
+        <div class="bk-tx"><div class="bk-t">Exporter (JSON)</div><div class="bk-s">Sauvegarde complète · blocs, suivi, implants</div></div>
         <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-      <button class="bk-card" onclick="document.getElementById(&#39;import-file-input&#39;).click()">
+      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
         <div class="bk-ic">📥</div>
-        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure une sauvegarde, sans doublon</div></div>
+        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure sans créer de doublon</div></div>
         <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
+    </div>
+    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
+    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+
+    <div class="set-sec">Exports secondaires</div>
+    <div class="bk-grid">
       <button class="bk-card" onclick="exportCSV()">
         <div class="bk-ic">📊</div>
-        <div class="bk-tx"><div class="bk-t">Export Excel (CSV)</div><div class="bk-s">Tableur · e-portfolio</div></div>
+        <div class="bk-tx"><div class="bk-t">Export tableur (CSV)</div><div class="bk-s">Excel · e-portfolio</div></div>
         <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <button class="bk-card" onclick="exportRadiosBatch()">
@@ -2546,18 +2659,31 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       </button>
     </div>
 
-    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
-    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+    <div class="set-sec">Catalogues &amp; référentiels</div>
+    <div class="bk-grid">
+      <button class="bk-card" onclick="openImplantCatalog()">
+        <div class="bk-ic">🦴</div>
+        <div class="bk-tx"><div class="bk-t">Mes implants</div><div class="bk-s">Marque / modèle par intervention</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="bk-card" onclick="openOxfordConfig()">
+        <div class="bk-ic">📋</div>
+        <div class="bk-tx"><div class="bk-t">Scores fonctionnels</div><div class="bk-s">Libellés Oxford genou / hanche</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
 
-    <div class="bk-sep">Codage CCAM</div>
-    <button class="bk-card" onclick="migrateCCAM()">
-      <div class="bk-ic">⚕️</div>
-      <div class="bk-tx"><div class="bk-t">Coder mes anciens blocs</div><div class="bk-s">Attribution automatique des codes CCAM · préserve l'existant</div></div>
-      <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
+    <div class="set-sec">Codage CCAM</div>
+    <div class="bk-grid">
+      <button class="bk-card" onclick="migrateCCAM()">
+        <div class="bk-ic">⚕️</div>
+        <div class="bk-tx"><div class="bk-t">Coder mes anciens blocs</div><div class="bk-s">Attribution automatique · préserve l'existant</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
 
-    <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.5;" id="settings-stats"></div>
-    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal(&#39;settings-modal&#39;)">Fermer</button>
+    <div style="font-size:11px;color:var(--text3);margin-top:22px;line-height:1.5;" id="settings-stats"></div>
+    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
   </div>
 </div>
 
@@ -2613,7 +2739,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .ed-more-body.open{display:block;}
 </style>
 <div class="modal-overlay" id="edit-modal">
-  <div class="modal" style="padding:0;border-radius:20px 20px 0 0;max-height:96vh;display:flex;flex-direction:column;">
+  <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
     <!-- Header fixe -->
     <div style="padding:16px 20px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;">
       <div class="modal-handle" style="margin-bottom:12px;"></div>
@@ -2748,6 +2874,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
         <div class="ed-group" style="margin-top:12px;">
           <div class="ed-row">
             <span class="ed-k">Implants</span>
+            <div id="e-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;"></div>
             <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
             <textarea id="e-implants" placeholder="Détail des implants…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:70px;resize:vertical;"></textarea>
           </div>
@@ -3850,6 +3977,7 @@ function openBlocDetail(bi, returnFn){
       <div class="atlas-info-cell"><div class="atlas-info-cell-label">Difficulté</div><div class="atlas-info-cell-val" style="color:var(--amber);">${stars}</div></div>
     </div>
     ${b.ccamCode?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Code CCAM</div><div class="atlas-info-prose">${esc(b.ccamLibelle||'')}<br><span style="font-size:12px;color:var(--text3);">${esc(b.ccamCode)}${b.ccamTarif?' · valorisation '+b.ccamTarif.toFixed(2)+'€':''}</span></div></div>`:''}
+    ${(b.implantModels&&b.implantModels.length)?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Implant${b.implantModels.length>1?'s':''} (catalogue)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">${b.implantModels.map(m=>`<span class="imp-chip">${esc(m)}</span>`).join('')}</div></div>`:''}
     ${b.implants?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Implants</div><div class="atlas-info-prose">${esc(b.implants)}</div></div>`:''}
     ${b.astuces?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Difficultés & astuces</div><div class="atlas-info-prose">${escNl(b.astuces)}</div></div>`:''}
     ${b.remarques?`<div class="atlas-info-card"><div class="atlas-info-eyebrow">Remarques</div><div class="atlas-info-prose">${escNl(b.remarques)}</div></div>`:''}
@@ -3963,11 +4091,13 @@ function renderDetSuivi(bi){
           </div>
           <div class="timeline-date" style="margin-top:3px;">${fmtDate(evt.date)}${evt.type==='fin_suivi'?' · <strong style="color:var(--green-d);">FIN DE SUIVI</strong>':''}</div>
           ${evt.comment?`<div class="timeline-comment" style="margin-top:4px;">${escNl(evt.comment)}</div>`:''}
+          ${mesuresLineHtml(evt,b)}
         </div>
         <button onclick="deleteEvt(${bi},'${evt.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 0 0 8px;align-self:flex-start;margin-top:2px;" title="Supprimer">×</button>
       </div>`;
     });
     html+='</div>';
+    html+=renderEvolutionCard(b,evts);
   }
 
   // Boutons d'action
@@ -3978,6 +4108,481 @@ function renderDetSuivi(bi){
 
   el.innerHTML=html;
 }
+
+
+// ═══════════ MODULE IMPLANTS & FICHE DE SUIVI (v84) ═══════════
+
+// ── Catalogue d'implants (localStorage) ──
+let implantCatalog=[];
+try{implantCatalog=JSON.parse(localStorage.getItem('atlas_implant_catalog')||'[]')||[];}catch(e){implantCatalog=[];}
+function saveImplantCatalog(){localStorage.setItem('atlas_implant_catalog',JSON.stringify(implantCatalog));}
+
+function flattenIntervsForSpec(spec){
+  const node=INTERV_HIER[spec];if(!node)return[];
+  const out=[];
+  const walk=(v)=>{
+    if(Array.isArray(v)){v.forEach(x=>{if(x&&x!=='Autre'&&!String(x).includes('__LIBRE__')&&!out.includes(x))out.push(x);});}
+    else if(v&&typeof v==='object'){Object.values(v).forEach(walk);}
+  };
+  walk(node);
+  return out;
+}
+
+function implantsForContext(spec,iv){
+  if(!spec)return[];
+  const ivn=(iv||'').toLowerCase();
+  return implantCatalog.filter(c=>{
+    if(c.spec!==spec)return false;
+    if(!c.intervs||!c.intervs.length)return true;
+    if(!ivn)return false;
+    return c.intervs.some(t=>ivn.includes(String(t).toLowerCase()));
+  });
+}
+
+// ── Pills de sélection (saisie) ──
+function renderImplantPills(){
+  const box=document.getElementById('f-implant-pills');if(!box)return;
+  const sp=(document.getElementById('f-spec')||{}).value||'';
+  let iv=(document.getElementById('f-interv')||{}).value||'';
+  const libre=(document.getElementById('f-interv-libre')||{}).value||'';
+  if(libre)iv=iv?iv+' '+libre:libre;
+  if(!window._selImplants)window._selImplants=new Set();
+  if(!sp){box.innerHTML='';return;}
+  const list=implantsForContext(sp,iv);
+  let html=list.map(c=>{
+    const on=window._selImplants.has(c.label);
+    return '<button type="button" class="imp-pill'+(on?' on':'')+'" data-id="'+c.id+'" onclick="toggleImplantPill(this)">'+esc(c.label)+'</button>';
+  }).join('');
+  // Implants sélectionnés hors contexte (garde-fou)
+  window._selImplants.forEach(l=>{
+    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleImplantPill(this)">'+esc(l)+'</button>';
+  });
+  html+='<button type="button" class="imp-pill ghost" onclick="openImplantCatalog()">＋ Gérer</button>';
+  box.innerHTML=html;
+}
+function toggleImplantPill(el){
+  if(!window._selImplants)window._selImplants=new Set();
+  let label='';
+  if(el.dataset.id){const c=implantCatalog.find(x=>String(x.id)===String(el.dataset.id));label=c?c.label:'';}
+  else label=el.dataset.raw||'';
+  if(!label)return;
+  if(window._selImplants.has(label))window._selImplants.delete(label);else window._selImplants.add(label);
+  renderImplantPills();
+}
+
+// ── Pills de sélection (édition) ──
+function renderEditImplantPills(b){
+  const box=document.getElementById('e-implant-pills');if(!box)return;
+  if(!window._selImplantsEdit)window._selImplantsEdit=new Set(b&&b.implantModels||[]);
+  const sp=b?b.spec:'';const iv=b?(b.interv||''):'';
+  const list=implantsForContext(sp,iv);
+  let html=list.map(c=>{
+    const on=window._selImplantsEdit.has(c.label);
+    return '<button type="button" class="imp-pill'+(on?' on':'')+'" data-id="'+c.id+'" onclick="toggleEditImplantPill(this)">'+esc(c.label)+'</button>';
+  }).join('');
+  window._selImplantsEdit.forEach(l=>{
+    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleEditImplantPill(this)">'+esc(l)+'</button>';
+  });
+  box.innerHTML=html;
+}
+function toggleEditImplantPill(el){
+  if(!window._selImplantsEdit)window._selImplantsEdit=new Set();
+  let label='';
+  if(el.dataset.id){const c=implantCatalog.find(x=>String(x.id)===String(el.dataset.id));label=c?c.label:'';}
+  else label=el.dataset.raw||'';
+  if(!label)return;
+  if(window._selImplantsEdit.has(label))window._selImplantsEdit.delete(label);else window._selImplantsEdit.add(label);
+  const b=(typeof detailBlocIdx==='number'&&detailBlocIdx>=0)?blocs[detailBlocIdx]:null;
+  renderEditImplantPills(b);
+}
+
+// ── Modal catalogue ──
+function openImplantCatalog(){
+  window._impNewSpec='';window._impNewIntervs=new Set();
+  const inp=document.getElementById('imp-new-label');if(inp)inp.value='';
+  renderImplantCatalog();
+  openModal('implant-modal');
+}
+function renderImplantCatalog(){
+  const listEl=document.getElementById('imp-list');
+  if(listEl){
+    if(!implantCatalog.length){
+      listEl.innerHTML='<div style="padding:14px 4px;font-size:13px;color:var(--text3);text-align:center;">Aucun implant enregistré. Ajoute ta première référence ci-dessous — elle apparaîtra en un clic à la saisie du bloc.</div>';
+    } else {
+      const bySpec={};
+      implantCatalog.forEach(c=>{(bySpec[c.spec]=bySpec[c.spec]||[]).push(c);});
+      listEl.innerHTML=Object.entries(bySpec).map(([sp,arr])=>{
+        const scfg=getSpecConfig(sp)||{label:sp,color:'var(--text3)',icon:''};
+        return '<div style="margin-bottom:12px;">'
+          +'<div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+cssColor(scfg.color)+'" stroke-width="1.6">'+scfg.icon+'</svg>'+esc(scfg.label)+'</div>'
+          +arr.map(c=>'<div style="display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg);margin-bottom:6px;">'
+            +'<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:var(--text);">'+esc(c.label)+'</div>'
+            +(c.intervs&&c.intervs.length?'<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+esc(c.intervs.join(' · '))+'</div>':'<div style="font-size:11px;color:var(--text3);margin-top:2px;">Toutes interventions '+esc(scfg.label)+'</div>')
+            +'</div>'
+            +'<button onclick="deleteImplantEntry(\''+c.id+'\')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;padding:2px 4px;">×</button>'
+            +'</div>').join('')
+          +'</div>';
+      }).join('');
+    }
+  }
+  // spec pills du formulaire d'ajout
+  const spBox=document.getElementById('imp-spec-pills');
+  if(spBox){
+    spBox.innerHTML=getActiveSpecs().map(sid=>{
+      const s=getSpecConfig(sid);
+      return '<button type="button" class="imp-pill'+(window._impNewSpec===sid?' on':'')+'" onclick="impSelectSpec(\''+sid+'\')">'+esc(s.label)+'</button>';
+    }).join('');
+  }
+  renderImpIntervPills();
+}
+function impSelectSpec(sid){
+  window._impNewSpec=(window._impNewSpec===sid)?'':sid;
+  window._impNewIntervs=new Set();
+  renderImplantCatalog();
+}
+function renderImpIntervPills(){
+  const box=document.getElementById('imp-interv-pills');if(!box)return;
+  const wrap=document.getElementById('imp-interv-wrap');
+  if(!window._impNewSpec){box.innerHTML='';if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='block';
+  const ivs=flattenIntervsForSpec(window._impNewSpec);
+  box.innerHTML=ivs.map(iv=>{
+    const on=window._impNewIntervs.has(iv);
+    return '<button type="button" class="imp-pill sm'+(on?' on':'')+'" data-iv="'+esc(iv)+'" onclick="impToggleInterv(this)">'+esc(iv)+'</button>';
+  }).join('')||'<span style="font-size:12px;color:var(--text3);">Nomenclature vide pour cette spécialité</span>';
+}
+function impToggleInterv(el){
+  const iv=el.dataset.iv;if(!iv)return;
+  if(window._impNewIntervs.has(iv))window._impNewIntervs.delete(iv);else window._impNewIntervs.add(iv);
+  renderImpIntervPills();
+}
+function addImplantEntry(){
+  const inp=document.getElementById('imp-new-label');
+  const label=(inp?inp.value:'').trim();
+  if(!label){showToast('Nom de l\'implant requis (marque / modèle)');return;}
+  if(!window._impNewSpec){showToast('Choisis une spécialité');return;}
+  if(implantCatalog.find(c=>c.label===label&&c.spec===window._impNewSpec)){showToast('Cet implant existe déjà');return;}
+  implantCatalog.push({id:'imp_'+Date.now()+'_'+Math.random().toString(36).slice(2,5),label,spec:window._impNewSpec,intervs:Array.from(window._impNewIntervs||[])});
+  saveImplantCatalog();
+  if(inp)inp.value='';
+  window._impNewIntervs=new Set();
+  renderImplantCatalog();renderImplantPills();
+  showToast('Implant ajouté au catalogue');
+}
+function deleteImplantEntry(id){
+  const c=implantCatalog.find(x=>x.id===id);
+  if(!confirm('Supprimer "'+(c?c.label:'')+'" du catalogue ? Les blocs déjà saisis conservent leur implant.'))return;
+  implantCatalog=implantCatalog.filter(x=>x.id!==id);
+  saveImplantCatalog();renderImplantCatalog();renderImplantPills();
+}
+
+// ── Fiche de suivi : mesures ──
+function setupMesuresFields(bi){
+  const b=blocs[bi];if(!b)return;
+  window._consultSpec=b.spec||'';
+  window._oxfordAnswers=null;
+  // reset simples
+  ['ms-eva','ms-score','ms-score-num','ms-mob'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // amplitudes dynamiques selon la spécialité du bloc
+  const ampBox=document.getElementById('ms-amp-fields');
+  const fields=AMPLITUDE_FIELDS[b.spec];
+  if(ampBox){
+    if(fields&&fields.length){
+      ampBox.style.display='grid';
+      ampBox.style.gridTemplateColumns=fields.length<=2?'1fr 1fr':(fields.length===3?'1fr 1fr 1fr':'1fr 1fr 1fr 1fr');
+      ampBox.innerHTML=fields.map(f=>`<div><label style="display:block;font-size:11px;color:var(--text2);margin-bottom:5px;">${f.l}</label><input type="number" id="ms-amp-${f.k}" min="-30" max="180" inputmode="numeric" placeholder="${f.ph||'—'}" style="width:100%;padding:9px 8px;font-size:15px;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;"></div>`).join('');
+    } else { ampBox.style.display='none'; ampBox.innerHTML=''; }
+  }
+  // champ mobilité libre uniquement si pas de grille structurée
+  const mo=document.getElementById('ms-row-mob');
+  if(mo)mo.style.display=(fields&&fields.length)?'none':'block';
+  // score : bouton Oxford pour Genou/Hanche, sinon champ numérique générique
+  const isOx=(b.spec==='Genou'||b.spec==='Hanche');
+  const btn=document.getElementById('ms-score-btn');
+  const num=document.getElementById('ms-score-num');
+  const lbl=document.getElementById('ms-score-label');
+  if(lbl)lbl.textContent=isOx?(b.spec==='Genou'?'Oxford Knee Score':'Oxford Hip Score'):'Score fonctionnel';
+  if(btn){btn.style.display=isOx?'block':'none';btn.classList.remove('filled');btn.textContent='Remplir le score…';}
+  if(num)num.style.display=isOx?'none':'block';
+  const ms=document.getElementById('evt-mesures');
+  if(ms)ms.style.display=(document.getElementById('evt-type').value||'consultation')==='consultation'?'block':'none';
+}
+function collectMesures(){
+  const num=id=>{const el=document.getElementById(id);if(!el||el.value==='')return null;const v=parseFloat(el.value);return isNaN(v)?null:v;};
+  const m={};
+  const eva=num('ms-eva');if(eva!==null)m.eva=eva;
+  const score=num('ms-score');if(score!==null)m.score=score;
+  // amplitudes structurées
+  const fields=AMPLITUDE_FIELDS[window._consultSpec]||[];
+  const amp={};
+  fields.forEach(f=>{const v=num('ms-amp-'+f.k);if(v!==null)amp[f.k]=v;});
+  if(Object.keys(amp).length)m.amp=amp;
+  if(window._oxfordAnswers)m.oxford=window._oxfordAnswers.slice();
+  const mob=(document.getElementById('ms-mob')||{}).value||'';if(mob.trim())m.mob=mob.trim();
+  return Object.keys(m).length?m:null;
+}
+function delaiPostOp(b,dateStr){
+  if(!b||!b.date||!dateStr)return null;
+  const d=(new Date(dateStr)-new Date(b.date))/86400000;
+  if(isNaN(d)||d<0)return null;
+  return d;
+}
+function delaiPostOpLabel(b,dateStr){
+  const d=delaiPostOp(b,dateStr);
+  if(d===null)return'';
+  if(d<45)return'J+'+Math.round(d);
+  return'M+'+Math.round(d/30.44);
+}
+const AMP_SHORT={ext:'Ext',flex:'Flex',abd:'Abd',add:'Add',ri:'RI',re:'RE',pron:'Pron',sup:'Sup',elev:'Élév'};
+function normalizeAmp(m){
+  if(!m)return{};
+  if(m.amp)return m.amp;
+  // rétrocompat v84 (clés à plat)
+  const a={};
+  if(m.flex!=null)a.flex=m.flex;
+  if(m.fless!=null&&m.fless>0)a.ext=-m.fless;
+  if(m.abd!=null)a.abd=m.abd;
+  if(m.ri!=null)a.ri=m.ri;
+  if(m.re!=null)a.re=m.re;
+  return a;
+}
+function mesuresLineHtml(evt,b){
+  const m=evt.mesures;
+  const delay=delaiPostOpLabel(b,evt.date);
+  if(!m&&!delay)return'';
+  let chips='';
+  if(delay)chips+='<span class="ms-chip delay">'+delay+'</span>';
+  if(m){
+    if(m.eva!=null)chips+='<span class="ms-chip">EVA '+m.eva+'</span>';
+    const amp=normalizeAmp(m);
+    Object.keys(amp).forEach(k=>{chips+='<span class="ms-chip">'+(AMP_SHORT[k]||k)+' '+amp[k]+'°</span>';});
+    if(m.score!=null)chips+='<span class="ms-chip">Score '+m.score+'</span>';
+    if(m.mob)chips+='<span class="ms-chip">'+esc(m.mob)+'</span>';
+  }
+  return chips?'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">'+chips+'</div>':'';
+}
+
+// ── Évolution dynamique par patient ──
+function _sparkSvg(pts,color,unit,invert){
+  // pts: [{x:mois, y:valeur}] triés
+  const W=280,H=44,P=6;
+  const xs=pts.map(p=>p.x),ys=pts.map(p=>p.y);
+  const xmin=Math.min.apply(null,xs),xmax=Math.max.apply(null,xs);
+  let ymin=Math.min.apply(null,ys),ymax=Math.max.apply(null,ys);
+  if(ymax===ymin){ymax+=1;ymin-=1;}
+  const sx=x=>xmax===xmin?W/2:P+(x-xmin)/(xmax-xmin)*(W-2*P);
+  const sy=y=>P+(1-(y-ymin)/(ymax-ymin))*(H-2*P);
+  const path=pts.map((p,i)=>(i?'L':'M')+sx(p.x).toFixed(1)+' '+sy(p.y).toFixed(1)).join(' ');
+  const dots=pts.map(p=>'<circle cx="'+sx(p.x).toFixed(1)+'" cy="'+sy(p.y).toFixed(1)+'" r="2.6" fill="'+color+'"/>').join('');
+  const first=pts[0].y,last=pts[pts.length-1].y;
+  const better=invert?last<first:last>first;
+  const same=last===first;
+  const trendCol=same?'var(--text3)':better?'var(--green-d)':'var(--red-d)';
+  const arrow=same?'→':(last>first?'↗':'↘');
+  return{svg:'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:'+H+'px;display:block;"><path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+dots+'</svg>',
+    first,last,trendCol,arrow,unit};
+}
+function renderEvolutionCard(b,evts){
+  const pts=(evts||[]).filter(e=>e.mesures&&e.date).map(e=>({d:delaiPostOp(b,e.date),m:e.mesures})).filter(p=>p.d!==null).sort((a,x)=>a.d-x.d);
+  if(pts.length<2)return'';
+  const valOf=(m,key)=>{ if(key==='flex')return normalizeAmp(m).flex; return m[key]; };
+  const series=[
+    {key:'eva',label:'EVA douleur',color:cssColor('var(--warm)'),unit:'/10',invert:true},
+    {key:'flex',label:'Flexion',color:cssColor('var(--accent)'),unit:'°',invert:false},
+    {key:'score',label:b.spec==='Genou'?'Oxford (OKS)':b.spec==='Hanche'?'Oxford (OHS)':'Score',color:cssColor('var(--purple)'),unit:'',invert:false}
+  ];
+  let rows='';
+  series.forEach(s=>{
+    const sp=pts.map(p=>({x:p.d/30.44,y:valOf(p.m,s.key)})).filter(p=>p.y!=null);
+    if(sp.length<2)return;
+    const r=_sparkSvg(sp,s.color,s.unit,s.invert);
+    rows+='<div style="margin-bottom:10px;">'
+      +'<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px;">'
+      +'<span style="font-size:12px;font-weight:600;color:var(--text2);">'+s.label+'</span>'
+      +'<span style="margin-left:auto;font-size:12px;color:var(--text3);">'+r.first+r.unit+' → <strong style="color:'+r.trendCol+';">'+r.last+r.unit+' '+r.arrow+'</strong></span>'
+      +'</div>'+r.svg+'</div>';
+  });
+  if(!rows)return'';
+  return '<div style="margin-top:14px;padding:14px;border:1px solid var(--border);border-radius:14px;background:var(--bg2);">'
+    +'<div style="font-family:var(--serif,Georgia),Georgia,serif;font-size:16px;color:var(--text);margin-bottom:10px;">Évolution <span style="font-size:11px;font-family:-apple-system,sans-serif;color:var(--text3);font-weight:500;">· axe en mois post-op</span></div>'
+    +rows+'</div>';
+}
+
+// ── Stats : résultats par implant ──
+function blocHasComplication(b){
+  if((b.complications||[]).length)return true;
+  const evts=getBlocEvenements(b);
+  if(evts.some(e=>e.type==='complication'||e.type==='reprise_chir'))return true;
+  return getBlocStatutFinal(b)==='rouge';
+}
+function renderStatImplants(){
+  const el=document.getElementById('stat-implants');if(!el)return;
+  const subset=(typeof statFilteredBlocs==='function'?statFilteredBlocs():blocs);
+  const groups={};
+  subset.forEach(b=>{(b.implantModels||[]).forEach(l=>{
+    if(!groups[l])groups[l]={total:0,compl:0,spec:b.spec};
+    groups[l].total++;
+    if(blocHasComplication(b))groups[l].compl++;
+  });});
+  const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
+  if(!sorted.length){
+    el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc avec implant coché.<br><span style="font-size:12px;color:var(--text3);">Configure ton catalogue dans Réglages → Mes implants, puis coche l\'implant à la saisie du bloc.</span></div>';
+    return;
+  }
+  const max=sorted[0][1].total;
+  el.innerHTML=sorted.map(([name,v])=>{
+    const color=cssColor(getSpecColor(v.spec));
+    const pct=v.total?Math.round(v.compl/v.total*100):0;
+    const guard=v.total<20?'<span class="imp-guard">n&lt;20 — non interprétable</span>':'';
+    return '<div class="s-rank" onclick="showBlocsForImplant(\''+name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
+      +'<div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-label">'+esc(name)+'</span></div><span class="s-rank-count">'+v.total+'<span class="s-chev">›</span></span></div>'
+      +'<div class="s-rank-bar"><s style="width:'+Math.round(v.total/max*100)+'%;background:'+color+';"></s></div>'
+      +'<div class="s-rank-meta"><span class="s-tagpill '+(v.compl?'a':'p')+'">Complications '+v.compl+' ('+pct+'%)</span>'+guard+'</div>'
+      +'</div>';
+  }).join('');
+}
+function showBlocsForImplant(label){
+  const list=blocs.filter(b=>(b.implantModels||[]).includes(label));
+  if(typeof openBlocsListModal==='function')openBlocsListModal(label+' — '+list.length+' bloc'+(list.length>1?'s':''),list);
+}
+
+// ── Stats : complétude du suivi ──
+function renderSuiviCompleteness(){
+  const el=document.getElementById('suivi-completeness');if(!el)return;
+  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
+  const eligible=blocs.filter(b=>b.date&&new Date(b.date)<cutoff);
+  if(!eligible.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc opéré il y a plus de 3 mois</div>';return;}
+  const withSuivi=eligible.filter(b=>getBlocEvenements(b).length>0);
+  const pct=Math.round(withSuivi.length/eligible.length*100);
+  const col=pct>=80?'var(--green-d)':pct>=60?'var(--amber-d)':'var(--red-d)';
+  const warn=pct<60?'<div style="font-size:12px;color:var(--warm);margin-top:8px;line-height:1.4;">⚠ Un suivi incomplet biaise toutes les statistiques de résultats : les patients non revus ne sont ni des bons ni des mauvais résultats — ce sont des inconnues.</div>':'';
+  el.innerHTML='<div style="padding:16px;">'
+    +'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;">Complétude du suivi</div>'
+    +'<div style="display:flex;align-items:baseline;gap:10px;">'
+    +'<span style="font-family:var(--serif,Georgia),Georgia,serif;font-size:34px;color:'+col+';">'+pct+'%</span>'
+    +'<span style="font-size:13px;color:var(--text2);">'+withSuivi.length+' / '+eligible.length+' blocs &gt; 3 mois avec ≥ 1 événement de suivi</span>'
+    +'</div>'
+    +'<div style="height:6px;border-radius:3px;background:var(--border);margin-top:10px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px;"></div></div>'
+    +warn+'</div>';
+}
+
+// ── Hook saisie : re-render des pills implant à chaque interaction du formulaire ──
+(function(){
+  const v=document.getElementById('view-saisie');
+  if(v){
+    let _ipT=null;
+    const trig=()=>{clearTimeout(_ipT);_ipT=setTimeout(renderImplantPills,80);};
+    v.addEventListener('click',trig);
+    v.addEventListener('change',trig);
+    v.addEventListener('input',e=>{if(e.target&&e.target.id==='f-interv-libre')trig();});
+  }
+})();
+
+
+// ═══════════ AMPLITUDES & SCORES OXFORD (v85) ═══════════
+
+// Champs d'amplitude par spécialité (extension en valeur négative = flessum/déficit)
+const AMPLITUDE_FIELDS = {
+  Genou:  [{k:'ext',l:'Extension (°)',ph:'0'},{k:'flex',l:'Flexion (°)'}],
+  Hanche: [{k:'flex',l:'Flexion'},{k:'abd',l:'Abduction'},{k:'add',l:'Adduction'},{k:'ri',l:'RI'},{k:'re',l:'RE'}],
+  Epaule: [{k:'elev',l:'Élévation'},{k:'abd',l:'Abduction'},{k:'re',l:'RE'},{k:'ri',l:'RI'}],
+  Coude:  [{k:'ext',l:'Extension (°)',ph:'0'},{k:'flex',l:'Flexion (°)'},{k:'pron',l:'Pronation'},{k:'sup',l:'Supination'}],
+  Main:   [{k:'ext',l:'Ext. poignet'},{k:'flex',l:'Flex. poignet'},{k:'pron',l:'Pronation'},{k:'sup',l:'Supination'}]
+};
+
+// ── Config Oxford (libellés EDITABLES par l'utilisateur) ──
+// IMPORTANT : instruments protégés (Oxford University Innovation). Placeholders neutres livrés
+// par défaut ; remplace-les par le libellé validé sous licence. Scoring standard : 0–4 / item, total 0–48.
+const OXFORD_DEFAULT = {
+  knee: {
+    title:'Oxford Knee Score',
+    items: Array.from({length:12},(_,i)=>({q:'Question '+(i+1)+' — à renseigner',
+      opts:['Réponse 0 (score le plus bas)','Réponse 1','Réponse 2','Réponse 3','Réponse 4 (score le plus haut)']}))
+  },
+  hip: {
+    title:'Oxford Hip Score',
+    items: Array.from({length:12},(_,i)=>({q:'Question '+(i+1)+' — à renseigner',
+      opts:['Réponse 0 (score le plus bas)','Réponse 1','Réponse 2','Réponse 3','Réponse 4 (score le plus haut)']}))
+  }
+};
+let OXFORD_CFG;
+try{OXFORD_CFG=JSON.parse(localStorage.getItem('atlas_oxford_cfg')||'null')||JSON.parse(JSON.stringify(OXFORD_DEFAULT));}
+catch(e){OXFORD_CFG=JSON.parse(JSON.stringify(OXFORD_DEFAULT));}
+function saveOxfordCfg(){localStorage.setItem('atlas_oxford_cfg',JSON.stringify(OXFORD_CFG));}
+function oxfordKey(spec){return spec==='Genou'?'knee':spec==='Hanche'?'hip':null;}
+function oxfordConfigured(spec){
+  const k=oxfordKey(spec);if(!k)return false;
+  return (OXFORD_CFG[k].items||[]).some(it=>!/à renseigner/.test(it.q));
+}
+
+// ── Remplissage du score (page plein écran) ──
+let _oxKey=null, _oxDraft=[];
+function openOxford(){
+  _oxKey=oxfordKey(window._consultSpec);
+  if(!_oxKey){showToast('Score Oxford : genou ou hanche uniquement');return;}
+  _oxDraft=(window._oxfordAnswers&&window._oxfordAnswers.length===12)?window._oxfordAnswers.slice():Array(12).fill(null);
+  renderOxford();
+  openModal('score-modal');
+}
+function renderOxford(){
+  const cfg=OXFORD_CFG[_oxKey];
+  document.getElementById('score-modal-title').textContent=cfg.title;
+  const unconf=(cfg.items||[]).some(it=>/à renseigner/.test(it.q));
+  const banner=unconf
+    ? '<div style="padding:11px 13px;border:1px solid color-mix(in srgb,var(--warm) 35%,var(--border));background:color-mix(in srgb,var(--warm) 8%,var(--bg2));border-radius:12px;font-size:12px;color:var(--text2);line-height:1.45;margin-bottom:14px;">⚠ Libellés non renseignés. Le calcul fonctionne, mais renseigne les 12 items validés dans <strong>Options → Scores fonctionnels</strong> pour un score interprétable.</div>'
+    : '';
+  const body=(cfg.items||[]).map((it,qi)=>{
+    const opts=it.opts.map((o,oi)=>`<button type="button" class="ox-opt${_oxDraft[qi]===oi?' on':''}" onclick="oxPick(${qi},${oi})"><span class="ox-num">${oi}</span><span>${esc(o)}</span></button>`).join('');
+    return `<div class="ox-q"><div class="ox-q-t">${qi+1}. ${esc(it.q)}</div><div class="ox-opts">${opts}</div></div>`;
+  }).join('');
+  document.getElementById('score-body').innerHTML=banner+body;
+  updateOxTotal();
+}
+function oxPick(qi,oi){_oxDraft[qi]=oi;renderOxford();}
+function oxTotal(){return _oxDraft.reduce((s,v)=>s+(v==null?0:v),0);}
+function oxAnswered(){return _oxDraft.filter(v=>v!=null).length;}
+function updateOxTotal(){
+  const el=document.getElementById('score-total');if(!el)return;
+  const complete=oxAnswered()===12;
+  el.innerHTML='<span style="font-family:var(--serif,Georgia),Georgia,serif;font-size:30px;color:'+(complete?'var(--accent)':'var(--text3)')+';">'+oxTotal()+'</span><span style="font-size:14px;color:var(--text3);">/48</span>'
+    +'<span style="margin-left:10px;font-size:12px;color:'+(complete?'var(--text2)':'var(--warm)')+';">'+(complete?'12/12 complété':oxAnswered()+'/12 items')+'</span>';
+}
+function saveOxford(){
+  if(oxAnswered()<12&&!confirm('Score incomplet ('+oxAnswered()+'/12). Enregistrer quand même ?'))return;
+  const total=oxTotal();
+  window._oxfordAnswers=_oxDraft.slice();
+  document.getElementById('ms-score').value=total;
+  const btn=document.getElementById('ms-score-btn');
+  if(btn){btn.classList.add('filled');btn.textContent=(OXFORD_CFG[_oxKey].title)+' : '+total+'/48';}
+  closeModal('score-modal');
+  showToast('Score enregistré : '+total+'/48');
+}
+
+// ── Éditeur de libellés Oxford (config) ──
+let _oxCfgKey='knee';
+function openOxfordConfig(){_oxCfgKey='knee';renderOxfordConfig();openModal('oxcfg-modal');}
+function oxCfgTab(k){_oxCfgKey=k;renderOxfordConfig();}
+function renderOxfordConfig(){
+  const cfg=OXFORD_CFG[_oxCfgKey];
+  document.querySelectorAll('#oxcfg-tabs .imp-pill').forEach(b=>b.classList.toggle('on',b.dataset.k===_oxCfgKey));
+  const body=document.getElementById('oxcfg-body');
+  body.innerHTML=(cfg.items||[]).map((it,qi)=>{
+    const opts=it.opts.map((o,oi)=>`<input type="text" value="${esc(o)}" oninput="oxCfgSet(${qi},${oi},this.value)" placeholder="Réponse ${oi} (=${oi} pts)" style="width:100%;padding:7px 9px;font-size:13px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;margin-bottom:4px;">`).join('');
+    return `<div class="ox-q"><input type="text" value="${esc(it.q)}" oninput="oxCfgSetQ(${qi},this.value)" placeholder="Intitulé question ${qi+1}" style="width:100%;padding:8px 10px;font-size:14px;font-weight:600;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;margin-bottom:8px;"><div style="padding-left:4px;">${opts}</div></div>`;
+  }).join('');
+}
+function oxCfgSetQ(qi,v){OXFORD_CFG[_oxCfgKey].items[qi].q=v;}
+function oxCfgSet(qi,oi,v){OXFORD_CFG[_oxCfgKey].items[qi].opts[oi]=v;}
+function saveOxfordConfig(){saveOxfordCfg();closeModal('oxcfg-modal');showToast('Libellés enregistrés');}
+function resetOxfordConfig(){
+  if(!confirm('Réinitialiser les libellés '+(_oxCfgKey==='knee'?'genou':'hanche')+' aux placeholders ?'))return;
+  OXFORD_CFG[_oxCfgKey]=JSON.parse(JSON.stringify(OXFORD_DEFAULT[_oxCfgKey]));
+  saveOxfordCfg();renderOxfordConfig();
+}
+
+// ═══════════ FIN AMPLITUDES & SCORES OXFORD ═══════════
+
+// ═══════════ FIN MODULE IMPLANTS & FICHE DE SUIVI ═══════════
 
 // ── MODAL ÉVÉNEMENT — HELPERS ──
 function selectEvtType(type, btn){
@@ -3991,6 +4596,7 @@ function selectEvtType(type, btn){
   document.getElementById('evt-fin-fields').style.display=isFin?'block':'none';
   // statut visible pour consultation ET reprise_chir, masqué pour complication (forcé rouge) et fin_suivi (champ dédié)
   document.getElementById('evt-statut-row').style.display=(isFin||isCompl)?'none':'block';
+  const _ms=document.getElementById('evt-mesures');if(_ms)_ms.style.display=(type==='consultation')?'block':'none';
   // Pré-sélectionner un statut cohérent selon le type
   const statutSel=document.getElementById('cslt-statut');
   if(statutSel){
@@ -4009,6 +4615,7 @@ function openConsultModal(bi){
   document.getElementById('cslt-date').value=new Date().toISOString().split('T')[0];
   document.getElementById('cslt-statut').value='vert';
   document.getElementById('cslt-comment').value='';
+  setupMesuresFields(bi);
   // Reset type pills → consultation
   selectEvtType('consultation', document.querySelector('.evt-type-pill'));
   openModal('consult-modal');
@@ -4046,6 +4653,7 @@ function saveConsult(){
   if(type==='complication'){
     evt.complType=document.getElementById('cmp-type-evt').value||'';
   }
+  if(type==='consultation'){const _m=collectMesures();if(_m)evt.mesures=_m;}
   blocs[bi].evenements.push(evt);
   syncBlocStatutFromConsults(bi);
   saveLocal();closeModal('consult-modal');renderDetSuivi(bi);renderBlocs();
@@ -4469,6 +5077,8 @@ function openEditModal(){
   document.getElementById('e-age').value=b.age||'';
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
+  window._selImplantsEdit=new Set(b.implantModels||[]);
+  if(typeof renderEditImplantPills==='function')renderEditImplantPills(b);
   const eSuggest=document.getElementById('e-implants-suggest');if(eSuggest)eSuggest.value='';
   document.getElementById('e-abord').value=b.abord||'';
   document.getElementById('e-ccam-code').value=b.ccamCode||'';
@@ -4500,7 +5110,11 @@ function syncEditMore(){
 function renderEditSpecPills(){
   const container=document.getElementById('e-spec-pills');
   if(!container)return;
-  container.innerHTML=ALL_SPECS.map(s=>{
+  let specs=getActiveSpecs().slice();
+  const cur=(typeof detailBlocIdx==='number'&&detailBlocIdx>=0&&blocs[detailBlocIdx])?blocs[detailBlocIdx].spec:'';
+  if(cur&&!specs.includes(cur))specs.push(cur);
+  container.innerHTML=specs.map(sid=>{
+    const s=getSpecConfig(sid);
     const icon=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${s.icon}</svg>`;
     return `<button type="button" class="e-spec-pill" onclick="selectEditSpec('${s.id}',this)">${icon} ${s.label}</button>`;
   }).join('');
@@ -4578,6 +5192,7 @@ function saveEdit(){
   b.imc=document.getElementById('e-imc').value;
   b.etablissement=document.getElementById('e-etablissement').value.trim();
   b.implants=document.getElementById('e-implants').value;
+  if(window._selImplantsEdit)b.implantModels=Array.from(window._selImplantsEdit);
   b.abord=document.getElementById('e-abord').value;
   b.ccamCode=document.getElementById('e-ccam-code').value||'';
   b.ccamTarif=parseFloat(document.getElementById('e-ccam-tarif').value)||null;
@@ -4725,6 +5340,8 @@ function initForm(){
   if(eyebrow)eyebrow.textContent='Nouveau bloc';
   // Rendre les pills spécialité depuis getActiveSpecs()
   renderSpecPills();
+  window._selImplants=new Set();
+  if(typeof renderImplantPills==='function')renderImplantPills();
   // Reset hidden state
   ['f-spec','f-side','f-interv','f-ccam-code','f-ccam-tarif','f-ccam-libelle'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const _cs=document.getElementById('f-ccam-search');if(_cs)_cs.value='';
@@ -5013,7 +5630,7 @@ function saveBloc(){
     hospitMode:document.getElementById('f-hospit-mode').value||'Hospitalisation',
     hospitDuree:document.getElementById('f-hospit-duree').value||null
   }:{};
-  const newBloc = {id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,ccamCode:document.getElementById('f-ccam-code').value||'',ccamTarif:parseFloat(document.getElementById('f-ccam-tarif').value)||null,ccamLibelle:document.getElementById('f-ccam-libelle').value||'',diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
+  const newBloc = {implantModels:(window._selImplants&&window._selImplants.size?Array.from(window._selImplants):[]),id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,ccamCode:document.getElementById('f-ccam-code').value||'',ccamTarif:parseFloat(document.getElementById('f-ccam-tarif').value)||null,ccamLibelle:document.getElementById('f-ccam-libelle').value||'',diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
   blocs.push(newBloc);
   window._plannedBlocId = null; // reset après usage
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
@@ -5200,9 +5817,9 @@ function rerenderCurrentStatsTab(){
   const _gc=(v)=>cssColor('var('+v+')');
   CC.accent=_gc('--accent');CC.warm=_gc('--warm');CC.green=_gc('--green');CC.amber=_gc('--amber');CC.red=_gc('--red');CC.purple=_gc('--purple');CC.blue=_gc('--blue');CC.gray=_gc('--text3');
   if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();}
-  else if(curStatsTab==='interventions'){renderTopInterventions();}
+  else if(curStatsTab==='interventions'){renderTopInterventions();renderStatImplants();}
   else if(curStatsTab==='experience'){renderLearningTabs();renderLearningChart();renderTopChirurgiens();}
-  else if(curStatsTab==='resultats'){renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
+  else if(curStatsTab==='resultats'){renderSuiviCompleteness();renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
 }
 function switchStatsTab(tab,btn){
   curStatsTab=tab;
@@ -6317,14 +6934,16 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v82',
+    version:'atlas-v85',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
     patients_count:(patients||[]).length,
     blocs,
     planned:planned||[],
-    patients:patients||[]
+    patients:patients||[],
+    implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
+    oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null)
   };
   const json=JSON.stringify(payload);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
@@ -6396,6 +7015,14 @@ function importData(e){
   reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
+      if(Array.isArray(parsed.implant_catalog)&&typeof implantCatalog!=='undefined'){
+        parsed.implant_catalog.forEach(c=>{if(c&&c.label&&!implantCatalog.find(x=>x.label===c.label&&x.spec===c.spec))implantCatalog.push(c);});
+        saveImplantCatalog();
+      }
+      if(parsed.oxford_cfg&&parsed.oxford_cfg.knee&&typeof OXFORD_CFG!=='undefined'){
+        const _hasCustom=(OXFORD_CFG.knee.items||[]).some(it=>!/à renseigner/.test(it.q))||(OXFORD_CFG.hip.items||[]).some(it=>!/à renseigner/.test(it.q));
+        if(!_hasCustom){OXFORD_CFG=parsed.oxford_cfg;saveOxfordCfg();}
+      }
       // v13-rescue : support des formats partiels (light + radios-batch)
       const fmt = parsed.version || '';
       const isLight = fmt === 'orlog-v13-light' || parsed.radios_excluded === true;

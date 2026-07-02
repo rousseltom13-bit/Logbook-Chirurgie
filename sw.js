@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v82';
+const CACHE = 'atlas-v85';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
