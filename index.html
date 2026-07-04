@@ -1746,8 +1746,9 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <button class="head-icon" onclick="openSaveModal()" aria-label="Sauvegarde">
         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       </button>
-      <button class="head-icon" onclick="showSettings();tutoShowScreen(&#39;reglages&#39;)" aria-label="Options">
-        <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <button class="head-icon" id="theme-btn" onclick="toggleTheme()" aria-label="Mode nuit">
+        <svg id="theme-icon-moon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="theme-icon-sun" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
     </div>
   </div>
@@ -2590,7 +2591,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <button class="oxcfg-close" onclick="closeModal('oxcfg-modal')" aria-label="Fermer">×</button>
     </div>
     <div class="oxcfg-scroll">
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Colle ici le libellé <strong>validé sous licence</strong> des 12 items (Oxford University Innovation). Chaque question a 5 réponses cotées de 4 à 0.</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Les 12 items des scores Oxford genou (OKS) et hanche (OHS) sont pré-remplis. Chaque question est cotée de 4 (meilleur) à 0 (pire), total sur 48. Modifie les libellés si besoin.</div>
       <div id="oxcfg-tabs" style="display:flex;gap:6px;margin-bottom:16px;">
         <button type="button" class="imp-pill on" data-k="knee" onclick="oxCfgTab('knee')">Oxford genou (OKS)</button>
         <button type="button" class="imp-pill" data-k="hip" onclick="oxCfgTab('hip')">Oxford hanche (OHS)</button>
@@ -2704,16 +2705,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
     <div class="modal-title">Options</div>
-
-    <div class="set-sec" style="margin-top:8px;">Affichage</div>
-    <button class="bk-card" id="theme-btn" onclick="toggleTheme()">
-      <div class="bk-ic">
-        <svg id="theme-icon-moon" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg id="theme-icon-sun" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </div>
-      <div class="bk-tx"><div class="bk-t">Mode nuit</div><div class="bk-s">Basculer clair / sombre</div></div>
-      <span class="set-switch"><span class="set-knob"></span></span>
-    </button>
 
     <div style="font-size:11px;color:var(--text3);margin-top:22px;line-height:1.5;" id="settings-stats"></div>
     <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
@@ -4536,18 +4527,42 @@ const AMPLITUDE_FIELDS = {
 };
 
 // ── Config Oxford (libellés EDITABLES par l'utilisateur) ──
-// IMPORTANT : instruments protégés (Oxford University Innovation). Placeholders neutres livrés
+// Scores Oxford genou (OKS) et hanche (OHS) — 12 items, cotés 0-4, total /48. Libellés pré-remplis, éditables par l'utilisateur (usage personnel).
 // par défaut ; remplace-les par le libellé validé sous licence. Scoring standard : 0–4 / item, total 0–48.
 const OXFORD_DEFAULT = {
   knee: {
-    title:'Oxford Knee Score',
-    items: Array.from({length:12},(_,i)=>({q:'Question '+(i+1)+' — à renseigner',
-      opts:['Réponse 0 (score le plus bas)','Réponse 1','Réponse 2','Réponse 3','Réponse 4 (score le plus haut)']}))
+    title:'Oxford Knee Score (OKS)',
+    items: [
+      {q:"Comment décririez-vous la douleur habituelle de votre genou ?", opts:["Sévère", "Modérée", "Moyenne", "Très légère", "Aucune"]},
+      {q:"Vous laver et vous essuyer entièrement (à cause du genou)", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Aucune difficulté"]},
+      {q:"Monter ou descendre d'une voiture / des transports en commun", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Aucune difficulté"]},
+      {q:"Combien de temps pouvez-vous marcher avant que la douleur devienne sévère (avec ou sans canne) ?", opts:["Aucune / quelques pas", "Moins de 5 min", "5 à 15 min", "16 à 30 min", "Sans limite / plus de 30 min"]},
+      {q:"Douleur en passant de la position assise à debout", opts:["Insupportable", "Très douloureux", "Modérément", "Un peu", "Pas du tout"]},
+      {q:"Avez-vous boité en marchant ?", opts:["En permanence / presque", "La plupart du temps", "Parfois ou au début seulement", "Rarement", "Jamais"]},
+      {q:"Pourriez-vous vous agenouiller puis vous relever ?", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]},
+      {q:"Avez-vous été gêné par une douleur du genou la nuit, au lit ?", opts:["Toutes les nuits", "La plupart des nuits", "Quelques nuits", "1 ou 2 nuits", "Aucune nuit"]},
+      {q:"La douleur du genou a-t-elle gêné votre travail habituel / vos tâches ménagères ?", opts:["En permanence", "La plupart du temps", "Modérément", "Un peu", "Pas du tout"]},
+      {q:"Avez-vous eu la sensation que votre genou pouvait vous lâcher ?", opts:["En permanence", "Souvent", "Parfois", "Rarement", "Jamais"]},
+      {q:"Pourriez-vous faire vos courses ménagères seul(e) ?", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]},
+      {q:"Pourriez-vous descendre un escalier ?", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]}
+    ]
   },
   hip: {
-    title:'Oxford Hip Score',
-    items: Array.from({length:12},(_,i)=>({q:'Question '+(i+1)+' — à renseigner',
-      opts:['Réponse 0 (score le plus bas)','Réponse 1','Réponse 2','Réponse 3','Réponse 4 (score le plus haut)']}))
+    title:'Oxford Hip Score (OHS)',
+    items: [
+      {q:"Comment décririez-vous la douleur habituelle de votre hanche ?", opts:["Sévère", "Modérée", "Moyenne", "Très légère", "Aucune"]},
+      {q:"Vous laver et vous essuyer entièrement (à cause de la hanche)", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Aucune difficulté"]},
+      {q:"Monter ou descendre d'une voiture / des transports en commun", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Aucune difficulté"]},
+      {q:"Mettre vos chaussettes, collants ou chaussures", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]},
+      {q:"Pourriez-vous faire vos courses ménagères seul(e) ?", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]},
+      {q:"Combien de temps pouvez-vous marcher avant que la douleur devienne sévère (avec ou sans canne) ?", opts:["Aucune / quelques pas", "Moins de 5 min", "5 à 15 min", "16 à 30 min", "Sans limite / plus de 30 min"]},
+      {q:"Pourriez-vous monter un escalier ?", opts:["Impossible", "Très difficile", "Modérément difficile", "Un peu difficile", "Facilement"]},
+      {q:"Douleur en passant de la position assise à debout", opts:["Insupportable", "Très douloureux", "Modérément", "Un peu", "Pas du tout"]},
+      {q:"Avez-vous boité en marchant ?", opts:["En permanence / presque", "La plupart du temps", "Parfois ou au début seulement", "Rarement", "Jamais"]},
+      {q:"Avez-vous ressenti une douleur soudaine, aiguë (« élancement ») de la hanche ?", opts:["En permanence", "La plupart du temps", "Parfois", "Rarement", "Jamais"]},
+      {q:"La douleur de la hanche a-t-elle gêné votre travail habituel / vos tâches ménagères ?", opts:["En permanence", "La plupart du temps", "Modérément", "Un peu", "Pas du tout"]},
+      {q:"Avez-vous été gêné par une douleur de la hanche la nuit, au lit ?", opts:["Toutes les nuits", "La plupart des nuits", "Quelques nuits", "1 ou 2 nuits", "Aucune nuit"]}
+    ]
   }
 };
 let OXFORD_CFG;
@@ -6979,7 +6994,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v86',
+    version:'atlas-v87',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
