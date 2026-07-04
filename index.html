@@ -194,6 +194,18 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .ox-opt .ox-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text3);}
 .ox-opt.on .ox-num{background:var(--accent);border-color:var(--accent);color:#fff;}
 .set-sec{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin:22px 0 10px;}
+.set-switch{width:44px;height:26px;border-radius:99px;background:var(--border2);position:relative;flex-shrink:0;transition:background .2s;display:inline-block;}
+.set-switch .set-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+#theme-btn.on .set-switch{background:var(--accent);}
+#theme-btn.on .set-switch .set-knob{transform:translateX(18px);}
+#oxcfg-modal{align-items:stretch;padding:0;}
+#oxcfg-modal .modal{max-width:100%;width:100%;height:100%;max-height:100%;border-radius:0;padding:0;display:flex;flex-direction:column;overflow:hidden;}
+.oxcfg-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
+.oxcfg-close{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:20px;line-height:1;cursor:pointer;flex-shrink:0;}
+.oxcfg-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:16px;}
+.oxcfg-scroll *{max-width:100%;box-sizing:border-box;min-width:0;}
+.oxcfg-scroll input,.oxcfg-scroll textarea{width:100%;word-break:break-word;}
+.oxcfg-foot{flex:0 0 auto;display:flex;gap:8px;padding:12px 16px calc(12px + var(--safe-bot,0px));border-top:0.5px solid var(--border);background:var(--bg);}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 16px;}
 .modal-title{font-size:17px;font-weight:700;margin-bottom:14px;}
 .modal-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);padding:0;line-height:1;}
@@ -1725,15 +1737,17 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="brand-mark">Atlas</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="head-icon" onclick="toggleTheme()" id="theme-btn" aria-label="Mode nuit">
-        <svg id="theme-icon-moon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg id="theme-icon-sun" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <button class="head-icon" id="btn-reglages" onclick="showSpecModal()" aria-label="Mes spécialités">
+        <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4.5l7 7-2.8 2.8-7-7z"/><path d="M15.2 2.9l5.9 5.9"/><path d="M10.4 9.4l-6.6 6.6a2.2 2.2 0 0 0 3.1 3.1l6.6-6.6"/></svg>
       </button>
-      <button class="head-icon" onclick="showSettings();tutoShowScreen(&#39;reglages&#39;)" aria-label="Synchronisation">
-        <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-      </button>
-      <button class="head-icon" id="btn-reglages" onclick="showSpecModal()" aria-label="Réglages">
+      <button class="head-icon" onclick="openToolsModal()" aria-label="Outils">
         <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="head-icon" onclick="openSaveModal()" aria-label="Sauvegarde">
+        <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      </button>
+      <button class="head-icon" onclick="showSettings();tutoShowScreen(&#39;reglages&#39;)" aria-label="Options">
+        <svg viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
     </div>
   </div>
@@ -2571,17 +2585,20 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 <!-- MODAL CONFIG OXFORD (éditeur de libellés, v85) -->
 <div class="modal-overlay" id="oxcfg-modal">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('oxcfg-modal')">×</button>
-    <div class="modal-title">Scores fonctionnels</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Colle ici le libellé <strong>validé sous licence</strong> des 12 items (Oxford University Innovation). Chaque question a 5 réponses valant 0→4 points. Total 0–48, 48 = meilleur résultat.</div>
-    <div id="oxcfg-tabs" style="display:flex;gap:6px;margin-bottom:16px;">
-      <button type="button" class="imp-pill on" data-k="knee" onclick="oxCfgTab('knee')">Oxford genou (OKS)</button>
-      <button type="button" class="imp-pill" data-k="hip" onclick="oxCfgTab('hip')">Oxford hanche (OHS)</button>
+    <div class="oxcfg-head">
+      <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--text);">Scores fonctionnels</div>
+      <button class="oxcfg-close" onclick="closeModal('oxcfg-modal')" aria-label="Fermer">×</button>
     </div>
-    <div id="oxcfg-body"></div>
-    <div style="display:flex;gap:8px;margin-top:16px;">
-      <button class="btn-primary" style="flex:1;" onclick="saveOxfordConfig()">Enregistrer</button>
+    <div class="oxcfg-scroll">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.45;">Colle ici le libellé <strong>validé sous licence</strong> des 12 items (Oxford University Innovation). Chaque question a 5 réponses cotées de 4 à 0.</div>
+      <div id="oxcfg-tabs" style="display:flex;gap:6px;margin-bottom:16px;">
+        <button type="button" class="imp-pill on" data-k="knee" onclick="oxCfgTab('knee')">Oxford genou (OKS)</button>
+        <button type="button" class="imp-pill" data-k="hip" onclick="oxCfgTab('hip')">Oxford hanche (OHS)</button>
+      </div>
+      <div id="oxcfg-body"></div>
+    </div>
+    <div class="oxcfg-foot">
+      <button class="btn-primary" style="flex:1;margin:0;" onclick="saveOxfordConfig()">Enregistrer</button>
       <button onclick="resetOxfordConfig()" style="padding:12px 16px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);color:var(--text2);font-weight:600;font-family:inherit;cursor:pointer;">Réinitialiser</button>
     </div>
   </div>
@@ -2621,46 +2638,13 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
   </div>
 </div>
 
-<!-- MODAL SETTINGS -->
-<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+<!-- MODAL OUTILS (écrou) -->
+<div class="modal-overlay" id="tools-modal" onclick="if(event.target===this)closeModal('tools-modal')">
   <div class="modal">
     <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
-    <div class="modal-title">Options</div>
-
-    <div class="set-sec" style="margin-top:8px;">Sauvegarde des données</div>
-    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement — c'est ta seule protection contre la perte.</div>
-    <div class="bk-grid">
-      <button class="bk-card" onclick="exportData()">
-        <div class="bk-ic">💾</div>
-        <div class="bk-tx"><div class="bk-t">Exporter (JSON)</div><div class="bk-s">Sauvegarde complète · blocs, suivi, implants</div></div>
-        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
-        <div class="bk-ic">📥</div>
-        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure sans créer de doublon</div></div>
-        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
-    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
-    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
-
-    <div class="set-sec">Exports secondaires</div>
-    <div class="bk-grid">
-      <button class="bk-card" onclick="exportCSV()">
-        <div class="bk-ic">📊</div>
-        <div class="bk-tx"><div class="bk-t">Export tableur (CSV)</div><div class="bk-s">Excel · e-portfolio</div></div>
-        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-      <button class="bk-card" onclick="exportRadiosBatch()">
-        <div class="bk-ic">🗂</div>
-        <div class="bk-tx"><div class="bk-t">Exporter les radios</div><div class="bk-s">Images, par packs de 150</div></div>
-        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
-
-    <div class="set-sec">Catalogues &amp; référentiels</div>
-    <div class="bk-grid">
+    <button class="modal-close" onclick="closeModal('tools-modal')">×</button>
+    <div class="modal-title">Outils</div>
+    <div class="bk-grid" style="margin-top:8px;">
       <button class="bk-card" onclick="openImplantCatalog()">
         <div class="bk-ic">🦴</div>
         <div class="bk-tx"><div class="bk-t">Mes implants</div><div class="bk-s">Marque / modèle par intervention</div></div>
@@ -2671,16 +2655,65 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
         <div class="bk-tx"><div class="bk-t">Scores fonctionnels</div><div class="bk-s">Libellés Oxford genou / hanche</div></div>
         <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
-    </div>
-
-    <div class="set-sec">Codage CCAM</div>
-    <div class="bk-grid">
-      <button class="bk-card" onclick="migrateCCAM()">
+      <button class="bk-card" onclick="closeModal('tools-modal');migrateCCAM()">
         <div class="bk-ic">⚕️</div>
-        <div class="bk-tx"><div class="bk-t">Coder mes anciens blocs</div><div class="bk-s">Attribution automatique · préserve l'existant</div></div>
+        <div class="bk-tx"><div class="bk-t">Coder automatiquement mes anciens blocs</div><div class="bk-s">Attribution CCAM automatique · préserve l'existant</div></div>
         <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL SAUVEGARDE (disquette) -->
+<div class="modal-overlay" id="save-modal" onclick="if(event.target===this)closeModal('save-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('save-modal')">×</button>
+    <div class="modal-title">Sauvegarde</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.45;">Tes données restent sur cet appareil. Exporte régulièrement — c'est ta seule protection contre la perte.</div>
+    <div class="bk-grid">
+      <button class="bk-card" onclick="exportData()">
+        <div class="bk-ic">💾</div>
+        <div class="bk-tx"><div class="bk-t">Exporter (JSON)</div><div class="bk-s">Sauvegarde complète · blocs, suivi, implants</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="bk-card" onclick="exportRadiosBatch()">
+        <div class="bk-ic">🗂</div>
+        <div class="bk-tx"><div class="bk-t">Exporter les radios</div><div class="bk-s">Images, par packs de 150</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="bk-card" onclick="exportCSV()">
+        <div class="bk-ic">📊</div>
+        <div class="bk-tx"><div class="bk-t">Export tableur (CSV)</div><div class="bk-s">Excel · e-portfolio</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
+        <div class="bk-ic">📥</div>
+        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure sans créer de doublon</div></div>
+        <svg class="bk-arrow" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
+    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
+  </div>
+</div>
+
+<!-- MODAL SETTINGS -->
+<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
+    <div class="modal-title">Options</div>
+
+    <div class="set-sec" style="margin-top:8px;">Affichage</div>
+    <button class="bk-card" id="theme-btn" onclick="toggleTheme()">
+      <div class="bk-ic">
+        <svg id="theme-icon-moon" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="theme-icon-sun" width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </div>
+      <div class="bk-tx"><div class="bk-t">Mode nuit</div><div class="bk-s">Basculer clair / sombre</div></div>
+      <span class="set-switch"><span class="set-knob"></span></span>
+    </button>
 
     <div style="font-size:11px;color:var(--text3);margin-top:22px;line-height:1.5;" id="settings-stats"></div>
     <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
@@ -4197,7 +4230,10 @@ function toggleEditImplantPill(el){
 }
 
 // ── Modal catalogue ──
+function openToolsModal(){openModal('tools-modal');}
+function openSaveModal(){openModal('save-modal');}
 function openImplantCatalog(){
+  closeModal('settings-modal');closeModal('tools-modal');
   window._impNewSpec='';window._impNewIntervs=new Set();
   const inp=document.getElementById('imp-new-label');if(inp)inp.value='';
   renderImplantCatalog();
@@ -4453,17 +4489,26 @@ function renderSuiviCompleteness(){
   const eligible=blocs.filter(b=>b.date&&new Date(b.date)<cutoff);
   if(!eligible.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc opéré il y a plus de 3 mois</div>';return;}
   const withSuivi=eligible.filter(b=>getBlocEvenements(b).length>0);
+  const unseen=eligible.length-withSuivi.length;
   const pct=Math.round(withSuivi.length/eligible.length*100);
   const col=pct>=80?'var(--green-d)':pct>=60?'var(--amber-d)':'var(--red-d)';
+  const clickAttr=unseen>0?' onclick="showUnseenBlocs()" style="padding:16px;cursor:pointer;"':' style="padding:16px;"';
+  const hint=unseen>0?'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;font-weight:600;color:var(--accent);"><span>Voir les '+unseen+' patient'+(unseen>1?'s':'')+' non revu'+(unseen>1?'s':'')+'</span><span style="font-size:15px;">›</span></div>':'';
   const warn=pct<60?'<div style="font-size:12px;color:var(--warm);margin-top:8px;line-height:1.4;">⚠ Un suivi incomplet biaise toutes les statistiques de résultats : les patients non revus ne sont ni des bons ni des mauvais résultats — ce sont des inconnues.</div>':'';
-  el.innerHTML='<div style="padding:16px;">'
+  el.innerHTML='<div'+clickAttr+'>'
     +'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;">Complétude du suivi</div>'
     +'<div style="display:flex;align-items:baseline;gap:10px;">'
     +'<span style="font-family:var(--serif,Georgia),Georgia,serif;font-size:34px;color:'+col+';">'+pct+'%</span>'
     +'<span style="font-size:13px;color:var(--text2);">'+withSuivi.length+' / '+eligible.length+' blocs &gt; 3 mois avec ≥ 1 événement de suivi</span>'
     +'</div>'
     +'<div style="height:6px;border-radius:3px;background:var(--border);margin-top:10px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px;"></div></div>'
-    +warn+'</div>';
+    +warn+hint+'</div>';
+}
+function showUnseenBlocs(){
+  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
+  const list=blocs.filter(b=>b.date&&new Date(b.date)<cutoff&&getBlocEvenements(b).length===0)
+    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  openBlocsListModal('Patients non revus — opérés il y a > 3 mois ('+list.length+')',list);
 }
 
 // ── Hook saisie : re-render des pills implant à chaque interaction du formulaire ──
@@ -4560,7 +4605,7 @@ function saveOxford(){
 
 // ── Éditeur de libellés Oxford (config) ──
 let _oxCfgKey='knee';
-function openOxfordConfig(){_oxCfgKey='knee';renderOxfordConfig();openModal('oxcfg-modal');}
+function openOxfordConfig(){closeModal('settings-modal');closeModal('tools-modal');_oxCfgKey='knee';renderOxfordConfig();openModal('oxcfg-modal');}
 function oxCfgTab(k){_oxCfgKey=k;renderOxfordConfig();}
 function renderOxfordConfig(){
   const cfg=OXFORD_CFG[_oxCfgKey];
@@ -6934,7 +6979,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v85',
+    version:'atlas-v86',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
