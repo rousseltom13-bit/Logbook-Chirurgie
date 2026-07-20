@@ -194,6 +194,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .ox-opt .ox-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text3);}
 .ox-opt.on .ox-num{background:var(--accent);border-color:var(--accent);color:#fff;}
 .set-sec{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:700;margin:22px 0 10px;}
+.scan-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:8px;padding:10px 13px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--accent);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;}
+.scan-btn:active{background:var(--bg3);}
+.scan-btn:disabled{opacity:.6;cursor:default;}
 .set-switch{width:44px;height:26px;border-radius:99px;background:var(--border2);position:relative;flex-shrink:0;transition:background .2s;display:inline-block;}
 .set-switch .set-knob{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25);}
 #theme-btn.on .set-switch{background:var(--accent);}
@@ -1983,6 +1986,12 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           <div class="field">
             <div class="field-label">Patient</div>
             <input type="text" id="f-patient" class="f-input" placeholder="Nom ou initiales..." autocomplete="off" list="dl-patients">
+            <button type="button" class="scan-btn" onclick="document.getElementById('scan-input').click()">
+              <svg width="15" height="15" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              Scanner l'étiquette patient
+            </button>
+            <input type="file" id="scan-input" accept="image/*" capture="environment" style="display:none;" onchange="scanLabel(event)">
+            <div id="scan-status" style="display:none;font-size:12px;margin-top:6px;line-height:1.4;"></div>
           </div>
           <div class="field">
             <div class="field-label">Établissement</div>
@@ -3698,6 +3707,88 @@ function toggleSpecBadge(id){
   try{renderBlocFilters();}catch(e){}
   try{renderDash();}catch(e){}
 }
+// ── SCAN ÉTIQUETTE PATIENT (OCR 100% local, Tesseract.js) ──
+function _loadTesseract(){
+  return new Promise((res,rej)=>{
+    if(window.Tesseract)return res();
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload=()=>res();s.onerror=()=>rej(new Error('Chargement OCR impossible'));
+    document.head.appendChild(s);
+  });
+}
+function _mkDate(m){const d=('0'+m[1]).slice(-2),mo=('0'+m[2]).slice(-2),y=m[3];return {disp:d+'/'+mo+'/'+y,iso:y+'-'+mo+'-'+d};}
+function ageFromDOB(disp,refISO){
+  const p=disp&&disp.match(/(\d{2})\/(\d{2})\/(\d{4})/);if(!p)return null;
+  const dob=new Date(+p[3],+p[2]-1,+p[1]);
+  const r=refISO?new Date(refISO):new Date();
+  if(isNaN(dob)||isNaN(r))return null;
+  let a=r.getFullYear()-dob.getFullYear();
+  const md=(r.getMonth()-dob.getMonth())||(r.getDate()-dob.getDate());
+  if(md<0)a--;
+  return (a>=0&&a<=120)?a:null;
+}
+function parseLabel(text){
+  const raw=(text||'').replace(/\r/g,'');
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  const dateRe=/([0-3]?\d)[\/.\-]([01]?\d)[\/.\-](\d{4})/;
+  // 1) Date de naissance : priorité à la ligne "nais"
+  let dob=null;
+  const naisLine=lines.find(l=>/na[iï]?s|n[ée]{1,2}\b|naiss/i.test(l));
+  if(naisLine){const m=naisLine.match(dateRe);if(m)dob=_mkDate(m);}
+  // 2) sinon : toutes les dates, on garde la plus ancienne (la date d'entrée est ≥ naissance)
+  if(!dob){
+    const all=[];const g=/([0-3]?\d)[\/.\-]([01]?\d)[\/.\-](\d{4})/g;let mm;
+    while((mm=g.exec(raw))){all.push(_mkDate(mm));}
+    if(all.length){all.sort((a,b)=>a.iso.localeCompare(b.iso));dob=all[0];}
+  }
+  // 3) Nom / prénom : lignes majoritairement en MAJUSCULES, sans chiffre
+  const STOP=/^(IPP|NOM|PRENOM|PRÉNOM|SEXE|NÉ|NEE|NÉE|SERVICE|UF|CHAMBRE|LIT|DR|PR|CHU|CH)$/;
+  const isName=l=>{
+    if(/\d/.test(l))return false;
+    const letters=(l.match(/\p{L}/gu)||[]).length;if(letters<2)return false;
+    const upper=(l.match(/\p{Lu}/gu)||[]).length;
+    if(upper<letters*0.8)return false;
+    return !STOP.test(l.replace(/[^\p{L}]/gu,'').toUpperCase());
+  };
+  const names=lines.filter(isName);
+  const nom=names[0]||'',prenomRaw=names[1]||'';
+  const prenom=prenomRaw?prenomRaw.replace(/([\p{L}])([\p{L}'’]*)/gu,(_,a,b)=>a.toUpperCase()+b.toLowerCase()):'';
+  const patient=(nom+(prenom?' '+prenom:'')).trim();
+  return {patient,dob:dob?dob.disp:null};
+}
+async function scanLabel(ev){
+  const file=ev.target.files&&ev.target.files[0];
+  ev.target.value='';
+  if(!file)return;
+  const st=document.getElementById('scan-status');
+  const btn=document.querySelector('.scan-btn');
+  const show=(msg,c)=>{if(st){st.style.display='block';st.innerHTML=msg;st.style.color=c||'var(--text2)';}};
+  if(btn)btn.disabled=true;
+  show('Lecture de l\'étiquette…');
+  try{
+    await _loadTesseract();
+    show('Analyse en cours… (quelques secondes)');
+    const worker=await Tesseract.createWorker('fra');
+    const {data}=await worker.recognize(file);
+    await worker.terminate();
+    const parsed=parseLabel(data&&data.text||'');
+    const done=[];
+    if(parsed.patient){const p=document.getElementById('f-patient');if(p)p.value=parsed.patient;done.push('<strong>'+esc(parsed.patient)+'</strong>');}
+    if(parsed.dob){
+      const ref=(document.getElementById('f-date')||{}).value||'';
+      const age=ageFromDOB(parsed.dob,ref);
+      if(age!=null){const a=document.getElementById('f-age');if(a)a.value=age;done.push('né(e) le '+parsed.dob+' · '+age+' ans');}
+      else done.push('né(e) le '+parsed.dob);
+    }
+    if(done.length){show('✓ '+done.join(' — '),'var(--accent)');if(typeof showToast==='function')showToast('Étiquette scannée');}
+    else show('Rien reconnu. Réessaie avec une photo nette, cadrée sur l\'étiquette.','var(--warm)');
+  }catch(e){
+    console.warn('scanLabel',e);
+    show('Échec du scan (connexion requise au 1er usage). Tu peux saisir manuellement.','var(--warm)');
+  }finally{if(btn)btn.disabled=false;}
+}
+
 function showSettings(){
   const statsEl=document.getElementById('settings-stats');
   if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement sur cet appareil';
@@ -6994,7 +7085,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v87',
+    version:'atlas-v88',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
