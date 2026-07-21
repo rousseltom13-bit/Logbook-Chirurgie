@@ -639,6 +639,46 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
   --s-shadow-sm:0 1px 2px rgba(40,36,28,0.05);--s-r:18px;}
 .stats-page-h{padding:4px 20px 14px;border-bottom:0;}
 .stats-page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.5px;color:var(--text);}
+.stats-sub-h{display:flex;align-items:center;gap:11px;}
+.stats-back{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
+.stats-back svg{width:17px;height:17px;}
+/* ── Hub stats — cartes vivantes ── */
+.shub-hero{grid-column:1/-1;background:var(--accent);border-radius:var(--s-r);padding:16px 18px;color:#fff;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;box-shadow:0 14px 30px -18px rgba(27,77,90,0.6);margin:0 0 2px;}
+.shub-hero-kpis{display:flex;gap:22px;}
+.shub-hk-val{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1;letter-spacing:-0.02em;}
+.shub-hk-val small{font-size:15px;}
+.shub-hk-lbl{font-size:10.5px;opacity:0.72;margin-top:4px;text-transform:uppercase;letter-spacing:0.05em;}
+:root.theme-dark .shub-hero{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);box-shadow:var(--s-shadow);}
+:root.theme-dark .shub-hero svg{color:var(--accent);}
+:root.theme-dark .shub-hk-lbl{color:var(--text3);opacity:1;}
+@media(prefers-color-scheme:dark){
+  :root:not(.theme-light) .shub-hero{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);box-shadow:var(--s-shadow);}
+  :root:not(.theme-light) .shub-hero svg{color:var(--accent);}
+  :root:not(.theme-light) .shub-hk-lbl{color:var(--text3);opacity:1;}
+}
+.shub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 0 10px;}
+.shub-card{display:flex;flex-direction:column;align-items:stretch;width:100%;text-align:left;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--s-r);padding:14px;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:var(--s-shadow-sm);}
+.shub-card:active{background:var(--bg3);}
+.shub-wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;padding:14px 16px;}
+.shub-h{display:flex;align-items:center;gap:7px;min-width:0;}
+.shub-h svg{width:15px;height:15px;flex-shrink:0;}
+.shub-t{font-family:var(--serif);font-size:15px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.shub-wide .shub-t{font-size:16px;}
+.shub-tx{display:flex;flex-direction:column;min-width:0;flex:1;}
+.shub-s{font-size:12px;color:var(--text2);margin-top:auto;padding-top:2px;}
+.shub-wide .shub-s{margin-top:3px;padding-top:0;}
+.shub-chev{margin-left:auto;color:var(--text3);font-size:19px;flex-shrink:0;}
+.shub-num{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:8px 0 2px;line-height:1.1;}
+.shub-viz{margin:11px 0 9px;}
+.shub-ring-row{display:flex;align-items:center;gap:10px;margin:10px 0 8px;}
+.shub-bars{display:flex;flex-direction:column;gap:5px;margin:12px 0 10px;}
+.shub-bar{height:6px;border-radius:99px;background:var(--bg3);overflow:hidden;}
+.shub-bar i{display:block;height:100%;border-radius:99px;}
+.shub-split{display:flex;height:6px;border-radius:99px;overflow:hidden;background:var(--bg3);margin:6px 0 9px;}
+.shub-split i{display:block;height:100%;}
+.shub-dots{display:flex;gap:4px;flex-wrap:wrap;}
+.shub-dots i{width:9px;height:9px;border-radius:99px;}
+
 .stats-tabs-bar{display:flex;gap:22px;border-bottom:1px solid var(--border);background:var(--bg);padding:0 20px;overflow-x:auto;overflow-y:hidden;}
 .stats-tabs-bar::-webkit-scrollbar{display:none;}
 .stats-tab{padding:0 0 12px;font-size:15px;font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;}
@@ -2155,20 +2195,24 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 
     <!-- STATS -->
     <div class="view" id="view-stats" style="padding:0;">
-      <div class="stats-page-h">
+      <div class="stats-page-h" id="stats-head-hub">
         <h1 class="stats-page-title">Statistiques</h1>
       </div>
-      <div class="stat-spec-filter" id="stat-spec-filter"></div>
-      <div class="stats-tabs-bar" id="stats-tabs">
-        <button class="stats-tab on" onclick="switchStatsTab(&#39;activite&#39;,this)">Activité</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;interventions&#39;,this)">Interventions</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;experience&#39;,this)">Expérience &amp; encadrement</button>
-        <button class="stats-tab" onclick="switchStatsTab(&#39;resultats&#39;,this)">Résultats</button>
+      <div class="stats-page-h stats-sub-h" id="stats-head-sub" style="display:none;">
+        <button class="stats-back" onclick="backToStatsHub()" aria-label="Retour">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h1 class="stats-page-title" id="stats-sub-title"></h1>
       </div>
+      <div class="stat-spec-filter" id="stat-spec-filter"></div>
       <div class="stats-scroll">
 
+        <div class="stats-panel on" id="sp-hub">
+          <div class="shub-grid" id="shub-grid"></div>
+        </div>
+
         <!-- ① ACTIVITÉ -->
-        <div class="stats-panel on" id="sp-activite">
+        <div class="stats-panel" id="sp-activite">
           <div class="s-card s-hero">
             <div class="s-hero-top">
               <div>
@@ -2196,10 +2240,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
               <div class="s-chart" id="activity-chart-host"></div>
               <div class="chart-legend" id="activity-legend"></div>
             </div>
-          </div>
-          <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Rôle opératoire</h2></div>
-            <div class="chart-card"><div id="role-host"></div></div>
           </div>
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Valorisation CCAM</h2></div>
@@ -2230,20 +2270,43 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             </div>
           </div>
           <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Progression par intervention</h2></div>
+            <div class="s-card" id="exp-progress"></div>
+          </div>
+        </div>
+
+        <div class="stats-panel" id="sp-encadrement">
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Rôle opératoire</h2></div>
+            <div class="chart-card"><div id="role-host"></div></div>
+          </div>
+          <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Chirurgiens aidés</h2><span class="s-eyebrow">Trauma · aide</span></div>
             <div class="s-card" id="top-chirurgiens"></div>
           </div>
         </div>
 
-        <!-- ③ RÉSULTATS -->
-        <div class="stats-panel" id="sp-resultats">
+        <div class="stats-panel" id="sp-encours">
           <div class="s-section">
             <div class="s-card" id="suivi-completeness"></div>
           </div>
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Résultats patients</h2></div>
-            <div class="statut-list" id="activite-statuts"></div>
+            <div class="s-section-h"><h2 class="s-section-title">Résultats patients — suivi en cours</h2></div>
+            <div class="statut-list" id="encours-statuts"></div>
           </div>
+        </div>
+
+        <div class="stats-panel" id="sp-termines">
+          <div class="s-section">
+            <div class="s-card" id="delai-cloture"></div>
+          </div>
+          <div class="s-section">
+            <div class="s-section-h"><h2 class="s-section-title">Résultats en fin de suivi</h2></div>
+            <div class="statut-list" id="clotures-statuts"></div>
+          </div>
+        </div>
+
+        <div class="stats-panel" id="sp-complications">
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Complications en cours</h2><span class="s-eyebrow" id="compl-en-cours-count"></span></div>
             <div class="s-card" id="compl-en-cours"></div>
@@ -2257,8 +2320,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <div class="s-card" id="compl-by-interv"></div>
           </div>
         </div>
-
-      </div>
+</div>
     </div>
 
     <!-- RÉGLAGES -->
@@ -3621,7 +3683,7 @@ function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlo
 function backFromDetail(){if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;document.getElementById('view-detail').classList.remove('active');f();}else{sw('blocs');}}
 (function(){let sx=0,sy=0,track=false;
   document.addEventListener('touchstart',e=>{if(e.touches.length!==1){track=false;return;}const x=e.touches[0].clientX;track=x<=24;sx=x;sy=e.touches[0].clientY;},{passive:true});
-  document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');}},{passive:true});
+  document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist'),SV=document.getElementById('view-stats');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');else if(SV&&SV.classList.contains('active')&&curStatsPage!==null)backToStatsHub();}},{passive:true});
 })();
 
 // ── PERSISTENCE ──
@@ -5920,7 +5982,7 @@ function trendBadge(diff, isGoodWhenDown=false){
   else{cls=isUp?'up':'down-bad';svg=isUp?SVG_UP:SVG_DN;}
   return`<span class="kpi-trend ${cls}">${svg}${sign}${diff}</span>`;
 }
-let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', curStatsTab='activite', statStatutScope='all';
+let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', statStatutScope='all';
 
 let statSpecFilter=[];
 function statFilteredBlocs(){return statSpecFilter.length?blocs.filter(b=>statSpecFilter.includes(b.spec)):blocs;}
@@ -5964,30 +6026,159 @@ function updateStatKpis(){
   if(tEl){const d=ceMois-prevMo;const pn=new Date(now.getFullYear(),now.getMonth()-1,1).toLocaleDateString('fr-FR',{month:'short'});
     tEl.innerHTML=(prevMo>0&&d!==0)?(d<0?`<span class="s-trend flat">▼ ${-d} vs ${pn}</span>`:`<span class="s-trend up">▲ ${d} vs ${pn}</span>`):'';}
 }
+let curStatsPage=null; // null = hub
+const STATS_PAGES={activite:{title:'Activité'},interventions:{title:'Interventions'},experience:{title:'Expérience'},encadrement:{title:'Encadrement'},encours:{title:'Suivis en cours'},termines:{title:'Suivis terminés'},complications:{title:'Complications'}};
 function rerenderCurrentStatsTab(){
   const _gc=(v)=>cssColor('var('+v+')');
   CC.accent=_gc('--accent');CC.warm=_gc('--warm');CC.green=_gc('--green');CC.amber=_gc('--amber');CC.red=_gc('--red');CC.purple=_gc('--purple');CC.blue=_gc('--blue');CC.gray=_gc('--text3');
-  if(curStatsTab==='activite'){updateStatKpis();renderActivityChart();renderRoleChart();renderValorisation();}
-  else if(curStatsTab==='interventions'){renderTopInterventions();renderStatImplants();}
-  else if(curStatsTab==='experience'){renderLearningTabs();renderLearningChart();renderTopChirurgiens();}
-  else if(curStatsTab==='resultats'){renderSuiviCompleteness();renderStatuts('activite');renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
+  if(curStatsPage===null){renderStatsHub();return;}
+  if(curStatsPage==='activite'){updateStatKpis();renderActivityChart();renderValorisation();}
+  else if(curStatsPage==='interventions'){renderTopInterventions();renderStatImplants();}
+  else if(curStatsPage==='experience'){renderLearningTabs();renderLearningChart();renderExpProgress();}
+  else if(curStatsPage==='encadrement'){renderRoleChart();renderTopChirurgiens();}
+  else if(curStatsPage==='encours'){renderSuiviCompleteness();renderStatuts('activite','encours','encours-statuts');}
+  else if(curStatsPage==='termines'){renderDelaiCloture();renderStatuts('activite','clotures','clotures-statuts');}
+  else if(curStatsPage==='complications'){renderComplEnCours();renderComplByIntervFiltered();renderComplEvolution();}
 }
-function switchStatsTab(tab,btn){
-  curStatsTab=tab;
-  document.querySelectorAll('#stats-tabs .stats-tab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+function showStatsPage(){
+  const hub=curStatsPage===null;
+  const hh=document.getElementById('stats-head-hub'),hs=document.getElementById('stats-head-sub');
+  if(hh)hh.style.display=hub?'':'none';
+  if(hs)hs.style.display=hub?'none':'flex';
+  if(!hub){const t=document.getElementById('stats-sub-title');if(t)t.textContent=(STATS_PAGES[curStatsPage]||{}).title||'';}
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
-  const p=document.getElementById('sp-'+tab);if(p)p.classList.add('on');
+  const p=document.getElementById(hub?'sp-hub':'sp-'+curStatsPage);if(p)p.classList.add('on');
+  const sc=document.querySelector('#view-stats .stats-scroll');if(sc)sc.scrollTop=0;
   rerenderCurrentStatsTab();
 }
-
+function openStatsPage(id){curStatsPage=id;showStatsPage();}
+function backToStatsHub(){curStatsPage=null;showStatsPage();}
+function renderStatsHub(){
+  const host=document.getElementById('shub-grid');if(!host)return;
+  const B=statFilteredBlocs();const now=new Date();
+  const mois=B.filter(b=>b.date&&getMonthKey(b.date)===getMonthKey(now.toISOString())).length;
+  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
+  const enCours=B.filter(b=>!getBlocFinSuivi(b));
+  const nonRevus=enCours.filter(b=>b.date&&new Date(b.date)<cutoff&&getBlocEvenements(b).length===0).length;
+  const termines=B.filter(b=>!!getBlocFinSuivi(b));
+  const goodT=termines.filter(b=>(b.statut||'gris')==='vert'||(b.statut||'gris')==='excellent').length;
+  const compl=B.filter(b=>getBlocHasComplication(b));
+  const complEC=compl.filter(b=>(b.statut||'gris')==='rouge'&&!getBlocFinSuivi(b)).length;
+  const aide=B.filter(b=>b.role==='Aide').length;
+  const princPct=B.length?Math.round((B.length-aide)/B.length*100):0;
+  const durs=B.filter(b=>+b.duree>0);
+  const avgDur=durs.length?Math.round(durs.reduce((s,b)=>s+(+b.duree),0)/durs.length):0;
+  const nInterv=new Set(B.map(b=>b.interv).filter(Boolean)).size;
+  const IC={
+    activite:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+    interventions:'<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="0.8"/><circle cx="4" cy="12" r="0.8"/><circle cx="4" cy="18" r="0.8"/>',
+    experience:'<polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/>',
+    encadrement:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    encours:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    termines:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    complications:'<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+  };
+  // séries mensuelles (8 derniers mois)
+  const mk=[];for(let i=7;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);mk.push(getMonthKey(d.toISOString()));}
+  const serie=mk.map(k=>B.filter(b=>b.date&&getMonthKey(b.date)===k).length);
+  const maxS=Math.max(1,...serie);
+  const tauxC=B.length?(compl.length/B.length*100):0;
+  const sparkPts=serie.map((v,i)=>(4+i*12.6).toFixed(1)+','+(30-v/maxS*24).toFixed(1)).join(' ');
+  const lastY=(30-serie[7]/maxS*24).toFixed(1);
+  const hero='<div class="shub-hero"><div class="shub-hero-kpis">'
+    +'<div><div class="shub-hk-val">'+B.length+'</div><div class="shub-hk-lbl">blocs</div></div>'
+    +'<div><div class="shub-hk-val">'+mois+'</div><div class="shub-hk-lbl">ce mois</div></div>'
+    +'<div><div class="shub-hk-val">'+tauxC.toFixed(1).replace('.',',')+'<small>%</small></div><div class="shub-hk-lbl">compl.</div></div>'
+    +'</div><svg viewBox="0 0 96 34" style="width:96px;height:34px;flex-shrink:0;"><polyline points="'+sparkPts+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/><circle cx="92.2" cy="'+lastY+'" r="3" fill="currentColor"/></svg></div>';
+  const actBars=serie.map((v,i)=>{const h=4+v/maxS*28,y=34-h;return '<rect x="'+(2+i*14.3).toFixed(1)+'" y="'+y.toFixed(1)+'" width="10" height="'+h.toFixed(1)+'" rx="2" fill="var(--accent)" fill-opacity="'+(i<3?0.28:i<6?0.55:1)+'"/>';}).join('');
+  const byI={};B.forEach(b=>{if(b.interv)byI[b.interv]=(byI[b.interv]||0)+1;});
+  const top3=Object.values(byI).sort((a,b)=>b-a).slice(0,3);
+  const maxI=Math.max(1,...top3);const opsI=[1,0.55,0.3];
+  const intervViz=top3.length?'<span class="shub-bars">'+top3.map((v,i)=>'<span class="shub-bar"><i style="width:'+Math.round(v/maxI*100)+'%;background:var(--accent);opacity:'+opsI[i]+';"></i></span>').join('')+'</span>':'<span class="shub-num">0</span>';
+  const dl=B.filter(b=>+b.duree>0&&b.date).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(b=>+b.duree);
+  let expViz='<span class="shub-num">–</span>',expSub='Courbes de temps opératoire';
+  if(dl.length>=6){
+    const nb=6,bk=[];for(let i=0;i<nb;i++){const a=Math.floor(i*dl.length/nb),z=Math.floor((i+1)*dl.length/nb);const sl=dl.slice(a,z);bk.push(sl.reduce((s,v)=>s+v,0)/sl.length);}
+    const lo=Math.min(...bk),sp=(Math.max(...bk)-lo)||1;
+    const pts=bk.map((v,i)=>(3+i*24.8).toFixed(1)+','+(26-(v-lo)/sp*20).toFixed(1)).join(' ');
+    const delta=Math.round(bk[nb-1]-bk[0]);
+    expViz='<svg viewBox="0 0 130 30" class="shub-viz" style="width:100%;height:30px;display:block;"><polyline points="'+pts+'" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    expSub=avgDur+' min en moyenne'+(delta?' · <b style="color:var(--'+(delta<0?'green':'red')+'-d);">'+(delta<0?'▼ ':'▲ +')+Math.abs(delta)+' min</b>':'');
+  } else if(avgDur){expViz='<span class="shub-num">'+avgDur+'<small style="font-size:14px;color:var(--text3);"> min</small></span>';expSub='durée moyenne';}
+  const nEC=enCours.length||1;
+  const gEC=enCours.filter(b=>['vert','excellent'].includes(b.statut||'gris')).length;
+  const oEC=enCours.filter(b=>(b.statut||'gris')==='orange').length;
+  const rEC=enCours.filter(b=>(b.statut||'gris')==='rouge').length;
+  const splitViz='<span class="shub-split">'
+    +(gEC?'<i style="width:'+(gEC/nEC*100).toFixed(1)+'%;background:var(--green);"></i>':'')
+    +(oEC?'<i style="width:'+(oEC/nEC*100).toFixed(1)+'%;background:var(--amber);"></i>':'')
+    +(rEC?'<i style="width:'+(rEC/nEC*100).toFixed(1)+'%;background:var(--red);"></i>':'')+'</span>';
+  const ring=(pct,color)=>'<svg viewBox="0 0 40 40" style="width:40px;height:40px;flex-shrink:0;"><circle cx="20" cy="20" r="16" fill="none" stroke="var(--bg3)" stroke-width="6"/><circle cx="20" cy="20" r="16" fill="none" stroke="'+color+'" stroke-width="6" stroke-dasharray="'+(Math.max(0,Math.min(100,pct))/100*100.5).toFixed(1)+' 100.5" stroke-linecap="round" transform="rotate(-90 20 20)"/></svg>';
+  const pctT=termines.length?Math.round(goodT/termines.length*100):0;
+  const nd=Math.min(compl.length,8);
+  const dotsViz=nd?'<span class="shub-dots" style="margin:10px 0 9px;">'+Array.from({length:nd},(_,i)=>'<i style="background:var(--red'+(i<complEC?'':'-l')+');"></i>').join('')+'</span>':'';
+  const hd=(id,t,crit)=>'<span class="shub-h"><svg viewBox="0 0 24 24" fill="none" stroke="'+(crit?'var(--red)':'var(--accent)')+'" stroke-width="1.7">'+IC[id]+'</svg><span class="shub-t">'+t+'</span></span>';
+  host.innerHTML=hero
+    +'<button class="shub-card shub-wide" onclick="openStatsPage(\'activite\')"><span class="shub-tx">'+hd('activite','Activité')+'<span class="shub-s">'+B.length+' bloc'+(B.length>1?'s':'')+' · '+mois+' ce mois-ci</span></span><svg viewBox="0 0 120 36" style="width:116px;height:36px;flex-shrink:0;">'+actBars+'</svg><span class="shub-chev">›</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'interventions\')">'+hd('interventions','Interventions')+intervViz+'<span class="shub-s">'+nInterv+' distincte'+(nInterv>1?'s':'')+'</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'encadrement\')">'+hd('encadrement','Encadrement')+'<span class="shub-ring-row">'+ring(princPct,'var(--accent)')+'<span class="shub-num" style="margin:0;">'+princPct+'<small style="font-size:13px;">%</small></span></span><span class="shub-s">opérateur principal · '+aide+' en aide</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'experience\')">'+hd('experience','Expérience')+expViz+'<span class="shub-s">'+expSub+'</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'encours\')">'+hd('encours','En cours')+'<span class="shub-num">'+enCours.length+'</span>'+splitViz+'<span class="shub-s">'+nonRevus+' non revu'+(nonRevus>1?'s':'')+' &gt; 3 mois</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'termines\')">'+hd('termines','Terminés')+'<span class="shub-ring-row">'+ring(pctT,'var(--green)')+'<span class="shub-num" style="margin:0;">'+termines.length+'</span></span><span class="shub-s">'+(termines.length?pctT+'% bons résultats':'aucun suivi clôturé')+'</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'complications\')">'+hd('complications','Complications',1)+'<span class="shub-num" style="color:var(--red-d);">'+compl.length+'</span>'+dotsViz+'<span class="shub-s">'+complEC+' en cours</span></button>';
+}
 function renderStats(){
-  curStatsTab='activite';
-  document.querySelectorAll('#stats-tabs .stats-tab').forEach((b,i)=>{b.classList.toggle('on',i===0);});
-  document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
-  const sp=document.getElementById('sp-activite');if(sp)sp.classList.add('on');
   renderStatSpecFilter();
-  rerenderCurrentStatsTab();
+  showStatsPage();
+}
+function renderDelaiCloture(){
+  const el=document.getElementById('delai-cloture');if(!el)return;
+  const B=statFilteredBlocs().filter(b=>!!getBlocFinSuivi(b));
+  const delais=B.map(b=>{
+    const fs=getBlocFinSuivi(b);
+    if(!b.date||!fs||!fs.date)return null;
+    const d=(new Date(fs.date)-new Date(b.date))/86400000;
+    return d>=0?d:null;
+  }).filter(v=>v!==null);
+  if(!delais.length){el.innerHTML='<div class="s-empty">Aucune date de clôture exploitable</div>';return;}
+  delais.sort((a,b)=>a-b);
+  const moy=delais.reduce((s,v)=>s+v,0)/delais.length;
+  const med=delais[Math.floor(delais.length/2)];
+  const fmt=d=>d>=60?(d/30.44).toFixed(1).replace('.',',')+' mois':Math.round(d)+' j';
+  el.innerHTML='<div class="s-micro-row" style="padding:14px 16px;">'
+    +'<div class="s-micro"><span class="s-micro-val">'+fmt(moy)+'</span><span class="s-micro-lbl">délai moyen de clôture</span></div>'
+    +'<div class="s-micro"><span class="s-micro-val">'+fmt(med)+'</span><span class="s-micro-lbl">médiane</span></div>'
+    +'<div class="s-micro"><span class="s-micro-val">'+delais.length+'</span><span class="s-micro-lbl">suivis datés</span></div>'
+    +'</div>';
+}
+function renderExpProgress(){
+  const el=document.getElementById('exp-progress');if(!el)return;
+  const B=statFilteredBlocs().filter(b=>b.interv&&+b.duree>0&&b.date);
+  const byInterv={};
+  B.forEach(b=>{(byInterv[b.interv]=byInterv[b.interv]||[]).push(b);});
+  const rows=Object.entries(byInterv)
+    .filter(([,list])=>list.length>=5)
+    .map(([interv,list])=>{
+      list.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      const n=Math.min(5,Math.floor(list.length/2));
+      const avg=arr=>arr.reduce((s,b)=>s+(+b.duree),0)/arr.length;
+      const first=avg(list.slice(0,n)),last=avg(list.slice(-n));
+      const delta=Math.round(last-first);
+      const moy=Math.round(avg(list));
+      return {interv,count:list.length,moy,delta,n};
+    })
+    .sort((a,b)=>b.count-a.count).slice(0,8);
+  if(!rows.length){el.innerHTML='<div class="s-empty">Pas assez de blocs avec durée (min. 5 par intervention)</div>';return;}
+  el.innerHTML=rows.map(r=>{
+    const good=r.delta<0;
+    const badge=r.delta===0?'<span class="s-eyebrow">stable</span>'
+      :'<span style="font-size:12px;font-weight:700;color:'+(good?'var(--green-d)':'var(--red-d)')+';">'+(good?'▼ ':'▲ +')+Math.abs(r.delta)+' min</span>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--border);">'
+      +'<div style="min-width:0;"><div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(r.interv)+'</div>'
+      +'<div style="font-size:11.5px;color:var(--text3);">'+r.count+' blocs · '+r.moy+' min en moyenne</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;">'+badge+'<div style="font-size:10.5px;color:var(--text3);">'+r.n+' premiers vs '+r.n+' derniers</div></div>'
+      +'</div>';
+  }).join('');
 }
 
 function getMonthKey(d){const dt=new Date(d);return dt.getFullYear()+'-'+(dt.getMonth()+1).toString().padStart(2,'0');}
@@ -6003,7 +6194,8 @@ function setStatutScope(scope,btn){
   statStatutScope=scope;
   document.querySelectorAll('#statut-scope-tabs .s-period').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
-  renderStatuts('activite');
+  if(curStatsPage==='termines')renderStatuts('activite','clotures','clotures-statuts');
+  else renderStatuts('activite','encours','encours-statuts');
 }
 
 // ── Helper : force le dimensionnement du canvas avant Chart.js (bypasse ResizeObserver) ──
@@ -6152,16 +6344,17 @@ function renderLearningChart(){
 }
 
 // ── STATUTS (pastilles) — deux sections : suivi en cours + suivi terminé ──
-function renderStatuts(filter){
+function renderStatuts(filter,mode,targetId){
+  mode=mode||'all';
   const blocs=statFilteredBlocs();
   let elId, subset;
   if(filter==='activite'){
-    elId='activite-statuts';
+    elId=targetId||'activite-statuts';
     if(statStatutScope==='ortho') subset=blocs.filter(b=>getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec));
     else if(statStatutScope==='trauma') subset=blocs.filter(b=>b.spec==='Traumatologie');
     else subset=[...blocs];
   } else {
-    elId=filter==='ortho'?'ortho-statuts':'trauma-statuts';
+    elId=targetId||(filter==='ortho'?'ortho-statuts':'trauma-statuts');
     subset=blocs.filter(b=>filter==='ortho'?getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec):b.spec==='Traumatologie');
   }
   const el=document.getElementById(elId);if(!el)return;
@@ -6191,7 +6384,7 @@ function renderStatuts(filter){
 
   let html='';
   // ── Accroche + barre récap (suivi terminé) ──
-  if(clotures.length){
+  if(mode!=='encours'&&clotures.length){
     const exc=clotures.filter(b=>(b.statut||'gris')==='excellent').length;
     const bon=clotures.filter(b=>(b.statut||'gris')==='vert').length;
     const goodPct=Math.round((exc+bon)/clotures.length*100);
@@ -6200,7 +6393,7 @@ function renderStatuts(filter){
     html+=`<div class="s-res-headline"><span class="s-res-pct">${goodPct}%</span><span class="s-res-cap">de bons résultats sur ${clotures.length} suivi${clotures.length>1?'s':''} terminé${clotures.length>1?'s':''}</span></div><div class="s-res-stack">${segs}</div>`;
   }
   // ── Suivi terminé ──
-  if(clotures.length){
+  if(mode!=='encours'&&clotures.length){
     html+=`<div class="s-grouplbl done">✓ Suivi terminé <b>(${clotures.length})</b></div>`;
     const STATUTS_FIN=[
       {key:'excellent',label:'Excellent résultat', fill:'var(--green-d)'},
@@ -6213,7 +6406,7 @@ function renderStatuts(filter){
     html+=STATUTS_FIN.map(s=>{const n=s.key==='rouge'?clotures.filter(b=>getBlocHasComplication(b)&&(b.statut||'gris')==='rouge').length:clotures.filter(b=>(b.statut||'gris')===s.key).length;return renderRow(s.key,s.label,s.fill,n,clotures.length,modalFilter,true);}).join('');
   }
   // ── Suivi en cours ──
-  if(enCours.length){
+  if(mode!=='clotures'&&enCours.length){
     const STATUTS_COURS=[
       {key:'vert',   label:'Bon résultat', fill:'var(--green)'},
       {key:'orange', label:'Vigilance',    fill:'var(--amber)'},
@@ -6225,7 +6418,7 @@ function renderStatuts(filter){
     const cBon=enCours.filter(b=>(b.statut||'gris')==='vert').length;
     const cPct=Math.round(cBon/enCours.length*100);
     const cSegs=STATUTS_COURS.map(d=>{const n=d.key==='rouge'?enCours.filter(b=>getBlocHasComplication(b)).length:enCours.filter(b=>(b.statut||'gris')===d.key).length;return n?`<s style="width:${(n/enCours.length*100).toFixed(1)}%;background:${d.fill};"></s>`:'';}).join('');
-    html+=`<div class="s-res-headline" style="margin-top:${clotures.length?'22px':'0'};"><span class="s-res-pct">${cPct}%</span><span class="s-res-cap">en bonne évolution sur ${enCours.length} suivi${enCours.length>1?'s':''} en cours</span></div><div class="s-res-stack">${cSegs}</div>`;
+    html+=`<div class="s-res-headline" style="margin-top:${(mode!=='encours'&&clotures.length)?'22px':'0'};"><span class="s-res-pct">${cPct}%</span><span class="s-res-cap">en bonne évolution sur ${enCours.length} suivi${enCours.length>1?'s':''} en cours</span></div><div class="s-res-stack">${cSegs}</div>`;
     html+=`<div class="s-grouplbl">Suivi en cours <b>(${enCours.length})</b></div>`;
     html+=STATUTS_COURS.map(s=>{const n=s.key==='rouge'?enCours.filter(b=>getBlocHasComplication(b)).length:enCours.filter(b=>(b.statut||'gris')===s.key).length;return renderRow(s.key,s.label,s.fill,n,enCours.length,modalFilter,false);}).join('');
   }
@@ -7085,7 +7278,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v88',
+    version:'atlas-v91',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
