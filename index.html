@@ -651,18 +651,27 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .doc-tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
 .doc-text{flex:1 1 auto;min-height:0;margin:0 16px;padding:14px;border:0.5px solid var(--border);border-radius:14px;background:var(--bg2);color:var(--text);font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12.5px;line-height:1.6;resize:none;outline:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .doc-foot{flex:0 0 auto;display:flex;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+.doc-formscroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px 16px;}
+.doc-frow{margin-bottom:13px;}
+.doc-flabel{font-size:11px;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;color:var(--text3);margin-bottom:6px;}
+.doc-fin{width:100%;box-sizing:border-box;padding:10px 11px;font-size:15px;border:0.5px solid var(--border2);border-radius:10px;background:var(--bg2);color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;}
+.doc-fin:focus{border-color:var(--accent);}
+textarea.doc-fin{resize:vertical;line-height:1.45;}
+.doc-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.doc-pill{padding:8px 13px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;}
+.doc-pill.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.doc-cb{display:flex;align-items:center;gap:10px;padding:9px 2px;cursor:pointer;font-size:13.5px;}
+.doc-cbx{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;}
+.doc-cb.on .doc-cbx{background:var(--accent);border-color:var(--accent);}
+
 .doc-act{flex:1;padding:12px;border:0.5px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;}
 .doc-act-p{background:var(--accent);border-color:var(--accent);color:#fff;}
 
-#sp-hub .shub-grid{gap:7px;padding:0 0 4px;}
-#sp-hub .shub-card{padding:9px 12px;border-radius:12px;}
-#sp-hub .shub-hero{padding:11px 13px;border-radius:13px;margin-bottom:7px;}
-#sp-hub .shub-t{font-size:14px;}
-#sp-hub .shub-s{font-size:11px;}
-#sp-hub .shub-num{font-size:16px;}
-#sp-hub .shub-hk-val{font-size:17px;}
-#sp-hub .shub-hk-lbl{font-size:10px;}
-#sp-hub .shub-viz{transform:scale(0.92);transform-origin:right center;}
+#sp-hub .shub-grid{gap:10px;padding:0 0 6px;}
+#sp-hub .shub-card{padding:14px 15px;border-radius:14px;}
+#sp-hub .shub-t{font-size:15.5px;}
+#sp-hub .shub-s{font-size:12px;}
+#sp-hub .shub-num{font-size:21px;}
 
 .stats-page-title{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-0.4px;color:var(--text);}
 .stats-sub-h{display:flex;align-items:center;gap:11px;}
@@ -6724,7 +6733,7 @@ function renderStatsHub(){
   const nd=Math.min(compl.length,8);
   const dotsViz=nd?'<span class="shub-dots" style="margin:10px 0 9px;">'+Array.from({length:nd},(_,i)=>'<i style="background:var(--red'+(i<complEC?'':'-l')+');"></i>').join('')+'</span>':'';
   const hd=(id,t,c)=>'<span class="shub-h"><svg viewBox="0 0 24 24" fill="none" stroke="'+(c||'var(--accent)')+'" stroke-width="1.7">'+IC[id]+'</svg><span class="shub-t">'+t+'</span></span>';
-  host.innerHTML=hero
+  host.innerHTML=''
     +'<button class="shub-card shub-wide" onclick="openStatsPage(\'activite\')"><span class="shub-tx">'+hd('activite','Activité')+'<span class="shub-s">'+B.length+' bloc'+(B.length>1?'s':'')+' · '+mois+' ce mois-ci</span></span><svg viewBox="0 0 120 36" style="width:116px;height:36px;flex-shrink:0;">'+actBars+'</svg><span class="shub-chev">›</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'interventions\')">'+hd('interventions','Interventions','var(--accent)')+intervViz+'<span class="shub-s">'+nInterv+' distincte'+(nInterv>1?'s':'')+'</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'encadrement\')">'+hd('encadrement','Encadrement','var(--accent)')+'<span class="shub-ring-row">'+ring(princPct,'var(--accent)','var(--warm)')+'<span class="shub-num" style="margin:0;">'+princPct+'<small style="font-size:13px;">%</small></span></span><span class="shub-s">opérateur principal · '+aide+' en aide</span></button>'
@@ -7531,201 +7540,415 @@ function _syncStatusUI(){
   const c=getSyncCfg();
   el.textContent=c.last?('Dernière synchro : '+new Date(c.last).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(c.blind?' · non confirmée':'')+(c.dirty?' · en attente':'')):(c.url?'Jamais synchronisé':'');
 }
-function ptNom(f) { return `${f.civ || ""} ${f.nom?.toUpperCase() || "—"} ${f.prenom || ""}`.trim(); }
-function doc_dateStr(d) { if (!d) return "—"; const [y,m,j] = d.split("-"); return `${j}/${m}/${y}`; }
-function coteStr(f) { return f.cote || "—"; }
-function buildCRO_PTH(f) {
-  const rev = f._inter === "pth_revision";
-  const blocs = [];
-  if (f.renfortMetal) blocs.push("mise en place d'un renfort métallique acétabulaire (cage/augment)");
-  if (f.ablationMat || f.ablationVisCotyle) blocs.push("ablation du matériel préexistant (visserie / cerclages)");
-  if (f.greffeCotyle) blocs.push("greffe osseuse acétabulaire");
-  if (rev && f.cotyleCimente && f.ablationCimentCotyle) blocs.push("ablation du ciment cotyloïdien");
-  if (rev && f.tigeCimentee) {
-    let s = "ablation tige cimentée";
-    if (f.ciseauxAO) s += " aux ciseaux AO";
-    if (f.ablationCiment) s += " avec ablation ciment fémoral";
-    if (f.femoroclasie) s += " — fémoroclasie réalisée";
-    blocs.push(s);
-  }
-  if (rev && f.femoratomie) blocs.push(`fémorotomie ETO réalisée avec synthèse par ${f.nbCerclages || "?"} cerclages`);
-  if (f.cerclageProphy) blocs.push("cerclage prophylactique fémoral");
-  if (f.tenotomiePsoas) blocs.push("ténotomie du psoas");
-  if (f.bursectomie) blocs.push("bursectomie trochantérienne");
-  const blocsStr = blocs.length ? `\n\nGestes associés : ${blocs.join(", ")}.` : "";
+function ptNom(f){return (f.civ?f.civ+' ':'')+(f.nom||'')+(f.prenom?' '+f.prenom:'');}
+function doc_dateStr(d){if(!d)return '—';const x=new Date(d+(d.length===10?'T12:00:00':''));return isNaN(x)?d:x.toLocaleDateString('fr-FR');}
+function coteStrD(f){return (f.cote||'').toLowerCase()==='gauche'?'gauche':'droit';}
+function _dProfil(){return (typeof getProfil==='function')?getProfil():{};}
+function _dSig(){const p=_dProfil();return ((p.titre||'Dr')+' '+(p.nom||'')).trim();}
+function _dRpps(){const p=_dProfil();return p.rpps?(' — RPPS '+p.rpps):'';}
+function _dService(){const p=_dProfil();return p.service||'Service de Traumatologie-Orthopédie';}
+function _dHopN(){const p=_dProfil();return p.hopital?('\n'+p.hopital):'';}
+function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Boolean).join(' — ');return l?('\n'+l):'';}
+function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
-  return `COMPTE-RENDU OPÉRATOIRE
-${rev ? "PTH DE RÉVISION" : "PROTHÈSE TOTALE DE HANCHE"} — CÔTÉ ${coteStr(f).toUpperCase()}
-
-Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
-Date d'intervention : ${doc_dateStr(f.dateInter)}
-Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
-Anesthésie : ${f.anesthesie || "—"}
-
-INSTALLATION
-Décubitus latéral opposé. Champ opératoire selon protocole CHU.
-
-VOIE D'ABORD
-Voie postéro-latérale de Moore. Désinsertion des pelvitrochantériens. Arthrotomie postérieure.
-
-TEMPS COTYLOÏDIEN
-Luxation de la prothèse${rev ? " — dépose cup" : ""}. Fraisage acétabulaire progressif. ${f.cotyleModele || "Cotyle"} ${f.cotyleTaille || "—"} mm impacté en position satisfaisante (antéversion 15°, inclinaison 40°).${blocs.filter(b => b.includes("acétabu") || b.includes("cotyle") || b.includes("greffe")).length ? "\n[" + blocs.filter(b => b.includes("acétabu") || b.includes("cotyle") || b.includes("greffe")).join(" — ") + "]" : ""}
-
-TEMPS FÉMORAL
-Préparation du fémur. Râpe N°${f.rapeTaille || "—"}. Tige ${f.tigeModele || "—"} ${f.tigeTaille || "—"}${rev ? " (reprise — " + (f.typesTige || "") + ")" : " (" + (f.typesTige || "standard") + ")"}. Col ${f.col || "standard"}. Tête ${f.teteTaille || "—"} mm ${f.teteMat || "céramique"}.${blocsStr}
-
-RÉDUCTION — STABILITÉ
-Réduction de la prothèse. Test de stabilité satisfaisant — pas de conflit, amplitude complète. Infiltration péri-articulaire${f.infiltration ? " : " + f.infiltration : " selon protocole"}.
-
-FERMETURE
-Réinsertion des pelvitrochantériens. Fermeture plan par plan. Vicryl 2 + Stratafix. Agrafes cutanées. Pansement compressif.`;
+// ── Config par intervention ──
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA021',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004'};
+const DOC_DOCS={
+  pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
+  pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
+  ptg:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
+  lca:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
+  menisc:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
+  arthroscopie:['CRO','CRH','Ordo pharma','Ordo IDE'],
+  fracture:['CRO','CRH','Ordo pharma','Ordo IDE'],
+  ablation:['CRO','CRH','Ordo pharma','Ordo IDE']
+};
+const ANTICO_OPTS=['INNOHEP 4500 UI','LOVENOX 4000 UI','XARELTO 10 mg','ELIQUIS 2,5 mg','Aucun'];
+function anticoIsHBPM(a){return /INNOHEP|LOVENOX/i.test(a||'');}
+const _COMMON=[
+  {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
+  {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
+  {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
+  {k:'anesthesie',t:'seg',l:'Anesthésie',o:['Rachianesthésie','Anesthésie générale','Rachi + sédation'],def:'Rachianesthésie'}
+];
+const DOC_OPTS={
+  pth:[..._COMMON,
+    {k:'indication',t:'text',l:'Indication',def:'Coxarthrose invalidante'},
+    {k:'longueur',t:'seg',l:'Longueurs pré-opératoires',o:['Identiques','Raccourcissement'],def:'Identiques'},
+    {k:'longueurMm',t:'num',l:'Raccourcissement (mm)',def:'10',show:f=>f.longueur==='Raccourcissement'},
+    {k:'cotyleModele',t:'text',l:'Cotyle — modèle',def:'CAPTIV'},
+    {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52'},
+    {k:'tigeModele',t:'text',l:'Tige — modèle',def:'ECOFIT'},
+    {k:'tigeLat',t:'check',l:'Tige latéralisée',def:true},
+    {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12'},
+    {k:'teteTaille',t:'seg',l:'Tête — diamètre',o:['22','28','32','36'],def:'28'},
+    {k:'teteMat',t:'seg',l:'Tête — matériau',o:['inox','céramique'],def:'inox'},
+    {k:'teteCol',t:'seg',l:'Col',o:['standard','+4','+8','-4'],def:'standard'},
+    {k:'drainage',t:'check',l:'Drain de Redon',def:false},
+    {k:'infiltration',t:'check',l:'Infiltration péri-articulaire',def:false},
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}],
+  ptg:[..._COMMON,
+    {k:'indication',t:'text',l:'Indication',def:'Gonarthrose tricompartimentale'},
+    {k:'deformation',t:'seg',l:'Déformation',o:['Varus','Valgus'],def:'Varus'},
+    {k:'degres',t:'num',l:'Degrés',def:'5'},
+    {k:'femurT',t:'num',l:'Fémur ACS — taille',def:'5'},
+    {k:'plateauT',t:'num',l:'Plateau ACS — taille',def:'4'},
+    {k:'insertMm',t:'text',l:'Insert (mm)',def:'12,5'},
+    {k:'rotule',t:'check',l:'Resurfaçage rotulien',def:true},
+    {k:'boutonT',t:'num',l:'Bouton rotulien — taille',def:'32',show:f=>f.rotule},
+    {k:'flexion',t:'num',l:'Flexion per-opératoire (°)',def:'120'},
+    {k:'drainage',t:'check',l:'Drain de Redon',def:false},
+    {k:'infiltration',t:'check',l:'Infiltration péri-articulaire',def:false},
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'14',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}],
+  lca:[..._COMMON,
+    {k:'greffon',t:'seg',l:'Greffon',o:['DT3+2','DIDT','DT4'],def:'DT3+2'},
+    {k:'diamTib',t:'num',l:'Ø tunnel tibial (mm)',def:'9'},
+    {k:'diamFem',t:'num',l:'Ø tunnel fémoral (mm)',def:'9'},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'ressaut',t:'check',l:'Ressaut rotatoire pré-opératoire',def:true},
+    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture ramp transtibiale'],def:'RAS'},
+    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'RAS'},
+    {k:'retourExterne',t:'check',l:'Retour externe (Gerdy, endobouton)',def:true},
+    {k:'visFem',t:'num',l:'Vis interférence fémorale',def:'9'},
+    {k:'visTib',t:'num',l:'Vis interférence tibiale',def:'9'},
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'21',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}],
+  menisc:[..._COMMON,
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'Méniscectomie partielle'},
+    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'RAS'},
+    {k:'chondroplastie',t:'check',l:'Chondroplastie',def:false},
+    {k:'synovectomie',t:'check',l:'Synovectomie partielle',def:false},
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm'],def:'Sec'}],
+  arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''}],
+  fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''}],
+  ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''}]
+};
+DOC_OPTS.pth_revision=DOC_OPTS.pth;
+function docSuture(f){return /Suture/.test(f.menMed||'')||/Suture/.test(f.menLat||'');}
+function detectInter(interv){
+  const s=(interv||'').toLowerCase();
+  if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
+  if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
+  if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
+  if(/ménisc|menisc/.test(s))return 'menisc';
+  if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
+  return 'fracture';
 }
-function buildCRO_PTG(f) {
-  const def = f.deformation || "Varus";
-  const deg = f.degres ? ` de ${f.degres}°` : "";
-  const releaseStr = f.releaseMed ? " Release ligamentaire médial réalisée." : f.releaseLat ? " Release ligamentaire latéral réalisée." : "";
-  return `COMPTE-RENDU OPÉRATOIRE
-PROTHÈSE TOTALE DU GENOU — CÔTÉ ${coteStr(f).toUpperCase()}
-
-Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
-Date d'intervention : ${doc_dateStr(f.dateInter)}
-Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
-Anesthésie : ${f.anesthesie || "—"}
-
-INSTALLATION
-Décubitus dorsal. Garrot pneumatique. Champ opératoire selon protocole CHU.
-
-VOIE D'ABORD
-Voie médiale para-patellaire. Résection du Hoffa. Mise en place du pivot central.${f.ablationMatPTG ? "\n[Ablation matériel préexistant réalisée (agrafes / visserie).]" : ""}
-
-COUPES OSSEUSES
-Déformation en ${def}${deg}.${releaseStr} Coupe tibiale première (hémi-espaceur). Temps fémoral : guide Mehary puis faux espaceur. Coupes fémorales à 5 valgus. Mesure des espaces en flexion-extension — équilibre satisfaisant.
-
-IMPLANTS
-Fémur ACS N°${f.femurACS || "—"} · Plateau ACS N°${f.plateauACS || "—"} · Insert ${f.insert || "CR"} ${f.insertEp || "—"} mm.${f.resurfacageRotule ? `\nResurfaçage rotulien systématique : bouton ${f.boutonRotule || "—"}. No thumb test négatif.` : ""}${f.synovectomie ? "\nSynovectomie réalisée." : ""}
-
-CIMENTATION
-Cimentation composants tibial et fémoral en deux temps. Retrait des excès de ciment.
-
-FERMETURE
-Flexion obtenue : ${f.flexion || "—"}°. Vicryl 2 + Stratafix / Vicryl 0 capsule. Agrafes cutanées. Pansement compressif.${f.remarqueOp ? "\n\nREMARQUE : " + f.remarqueOp : ""}`;
+function _menMedTxt(v){
+  if(v==='Méniscectomie partielle')return 'Lésion méniscale médiale.\nMéniscectomie partielle médiale.';
+  if(v==='Suture all-inside')return 'Lésion méniscale médiale.\nSuture méniscale all-inside.';
+  if(v==='Suture ramp transtibiale')return 'Lésion de rampe méniscale médiale.\nSuture par point transtibial.';
+  return 'RAS';
 }
-function buildCRO_LCA(f) {
-  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
-  const innohep = suture ? "45 jours" : "21 jours";
-  const greffon = f.greffon || "DT3+2";
-  const retStr = f.retourExterne
-    ? `\nRetour externe de Lemaire modifié (${greffon === "DIDT" ? "sur DI" : greffon === "DT3+2" ? "sur brin accessoire DT" : "fascia lata"}). Tunnel 6 mm. Endobouton. Fixation en rotation neutre extension complète.`
-    : "";
-  return `COMPTE-RENDU OPÉRATOIRE
-LIGAMENTOPLASTIE LCA — CÔTÉ ${coteStr(f).toUpperCase()}
-
-Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
-Date d'intervention : ${doc_dateStr(f.dateInter)}
-Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
-Anesthésie : ${f.anesthesie || "—"} — Ressaut rotatoire : ${f.ressaut || "positif"}
-
-INSTALLATION
-Décubitus dorsal, flexion à 90°. Garrot pneumatique 300 mmHg. Champ opératoire selon protocole CHU.
-
-PRÉLÈVEMENT ${greffon}
-Voie patte d'oie. Stripper atraumatique. Préservation des vinculas. Compresse à la Vancomycine pédiculée sur le site de prélèvement. Préparation : TigerStick + XBRAID. Calibrage.
-
-EXPLORATION ARTHROSCOPIQUE
-Voie optique antéro-latérale puis antéro-médiale à l'aiguille. Section du ligament suspenseur de Hoffa — préservation du pied tibial. Exploration des 4 compartiments.${f.regMed ? "\nRégularisation méniscale médiale." : ""}${f.regLat ? "\nRégularisation méniscale latérale." : ""}${f.sutureMed ? "\nSuture méniscale médiale réalisée." : ""}${f.sutureLat ? "\nSuture méniscale latérale réalisée." : ""}${f.rampTrans ? "\nRamp lésion — suture transtibiale réalisée." : ""}${f.rampAllInside ? "\nRamp lésion — all-inside réalisée." : ""}${f.chondroplastie ? "\nChondroplastie réalisée." : ""}${f.microfractures ? `\nMicrofractures : ${f.microLoc || "—"}.` : ""}
-
-TEMPS TIBIAL
-Guide à 55°. Mèche 9 mm. Shaver. Tunnelisation tibiale.
-
-TEMPS FÉMORAL
-Contre-abord épicondyle latéral. Guide outside-in à 55°. Tunnelisation fémorale.
-
-FIXATION
-Montée des fils relais. Cyclage du greffon. Fixation fémur : vis d'interférence ${f.visFemorale || "—"}. Fixation tibiale à 30° de flexion : ${f.visTibiale || "—"}.${retStr}
-
-CONTRÔLE
-Lachman et tiroir antérieur négatifs. Ressaut absent.
-
-FERMETURE
-INNOHEP ${innohep}. Vicryl 2-0 / 3-0 rapide. Pansement sec.${f.remarqueOp ? "\n\nREMARQUE : " + f.remarqueOp : ""}`;
+function _menLatTxt(v){
+  if(v==='Méniscectomie partielle')return 'Lésion méniscale latérale.\nMéniscectomie partielle latérale.';
+  if(v==='Suture all-inside')return 'Lésion méniscale latérale.\nSuture méniscale all-inside.';
+  return 'RAS';
 }
-function buildCRH(f) {
-  const inter = f._inter;
-  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
-  const innohepDur = inter === "lca" ? (suture ? "45" : "21") : inter === "pth" || inter === "pth_revision" ? "35" : "21";
 
-  if (inter === "lca") {
-    return `Cher Confrère,
+// ── CRO — textes types Dr Roussel (paramétrés) ──
+function buildCRO_PTH(f){
+  const cote=coteStrD(f);
+  return `COMPTE-RENDU OPÉRATOIRE — PTH ${cote.toUpperCase()}
 
-Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, en ambulatoire le ${doc_dateStr(f.dateInter)} pour une ligamentoplastie du LCA ${coteStr(f)} sous ${f.anesthesie || "anesthésie loco-régionale"}.
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
 
-Le geste opératoire a consisté en une reconstruction du LCA par greffon ${f.greffon || "DT3+2"}${f.retourExterne ? " avec retour externe de Lemaire modifié" : ""}. ${suture ? "Un geste méniscal complémentaire (suture) a été réalisé." : ""}
+Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
+CCAM : ${f.ccam}
+${f.longueur==='Raccourcissement'?'Inégalité de longueur pré-opératoire : raccourcissement de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cotyleModele} taille ${f.cotyleTaille} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
 
-Les suites opératoires ont été simples. Sortie le jour même.
+Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
 
-CONSIGNES DE SORTIE
-— Appui autorisé ${suture ? "avec 2 cannes pendant 1 mois" : "complet d'emblée"}
-— Pansements à renouveler tous les 48h
-— Ablation des agrafes à J15
-— Kinésithérapie en urgence : protocole DT3+2 (prescription jointe)
-— INNOHEP 4000 UI pendant ${innohepDur} jours
-— Antalgiques selon prescription
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
 
-Rendez-vous de contrôle à 4 semaines avec radiographies.
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.
 
-Nous restons à votre disposition pour tout renseignement complémentaire.
+Temps fémoral :
+Exposition du fût fémoral jambe au zénith.
+Ablation du reliquat de col à l'emporte-pièce.
+Tunnelisation à la dague.
+Évidement du grand trochanter à la curette.
+On passe les râpes de tailles successives jusqu'à la râpe taille ${f.tigeTaille}.
+Essais sur râpe en place col ${f.teteCol}.
+La stabilité est excellente et les longueurs sont restaurées.
+Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.
+Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.
+Réduction de la hanche.
+Nettoyage abondant.
+${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Agrafes à la peau.
+Pansement ${f.pansement}.
 
-${_dSig()} — ${_dService()}${_dChefHopLine()}`;
-  }
+${_dSigBloc()}`;
+}
+function buildCRO_PTG(f){
+  const cote=coteStrD(f);
+  return `COMPTE-RENDU OPÉRATOIRE — PTG ${cote.toUpperCase()}
 
-  if (inter === "ptg") {
-    return `Cher Confrère,
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
 
-Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour la mise en place d'une prothèse totale du genou ${coteStr(f)} sous ${f.anesthesie || "rachianesthésie"}.
+Indication : Arthroplastie totale de genou ${cote} dans le cadre d'une ${f.indication||'gonarthrose tricompartimentale'} avec déformation en ${(f.deformation||'varus').toLowerCase()} de ${f.degres}°.
+CCAM : ${f.ccam}
+Rappel des implants : Fémur ACS taille ${f.femurT} / Plateau ACS taille ${f.plateauT} / Insert ${f.insertMm} mm${f.rotule?' / Bouton rotulien taille '+f.boutonT:''}
 
-L'intervention s'est parfaitement déroulée. Déformation initiale en ${f.deformation || "varus"} de ${f.degres || "—"}°. Flexion obtenue : ${f.flexion || "—"}°. Suites simples par ailleurs, sortie ce jour.
+Installation en décubitus dorsal.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
 
-CONSIGNES DE SORTIE
-— Kinésithérapie intensive — appui complet d'emblée
-— Pansements à renouveler tous les 4 jours
-— Ablation des agrafes à J15
-— INNOHEP 4000 UI pendant ${innohepDur} jours
-— Antalgiques selon prescription
+Voie d'abord médiale para-patellaire.
+Arthrotomie médiale para-patellaire.
+Éversion de la rotule.
+Résection des ostéophytes périphériques.
+Résection du corps adipeux de Hoffa.
+Résection du pivot central.
 
-Rendez-vous de contrôle à 6 semaines avec pangonogramme.
+Coupe tibiale première :
+Guide tibial extra-médullaire.
+Résection tibiale proximale selon planification.
+Contrôle de l'espace par l'hémi-espaceur.
 
-Nous restons à votre disposition.
+Temps fémoral :
+Guide fémoral intra-médullaire.
+Résections distale, antérieure, postérieure et chanfreins.
+Trial fémoral taille ${f.femurT}.
+Ouverture espace flexion au Mehary, ablation ostéophytes postérieurs et ménisques.
 
-${_dSig()} — ${_dService()}${_dChefHopLine()}`;
-  }
+Temps tibial :
+Trial plateau ${f.plateauT}, empreinte au ciseau, essai PE ${f.insertMm} mm.
 
-  const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
-  const isHip=(inter==="pth"||inter==="pth_revision");
+${f.rotule?'Resurfaçage patellaire. No thumb test positif.\n\n':''}Bilan ligamentaire :
+Balance satisfaisante en flexion et en extension.
+Flexion à ${f.flexion}°, extension complète.
+
+Cimentation plateau ${f.plateauT}/insert ${f.insertMm}, fémur ${f.femurT}${f.rotule?', rotule '+f.boutonT:''}.
+${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Vicryl 2 + Stratafix capsulo-synovial, Vicryl 0 sous-cutané.
+Agrafes. Pansement ${f.pansement}.
+
+${_dSigBloc()}`;
+}
+function buildCRO_LCA(f){
+  const cote=coteStrD(f);
+  const prel=f.greffon==='DT4'
+    ?`Incision verticale en regard de la patte d'oie.
+Prélèvement du demi-tendineux au stripper atraumatique après ablation des vinculas.
+Le tendon est laissé pédiculé au tibia, enroulé dans une compresse imbibée de Vancomycine et réintroduit dans sa gaine pendant la durée du temps arthroscopique.`
+    :`Incision verticale en regard de la patte d'oie.
+Prélèvement du demi-tendineux et du droit interne au stripper atraumatique après ablation des vinculas.
+Les ischio-jambiers sont laissés pédiculés au tibia, enroulés dans une compresse imbibée de Vancomycine et réintroduits dans leur gaine pendant la durée du temps arthroscopique.`;
+  return `COMPTE-RENDU OPÉRATOIRE — LCA ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Reconstruction du ligament croisé antérieur du genou ${cote} par technique ${f.greffon}.${f.ressaut?' Ressaut rotatoire présent en pré-opératoire.':''}
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal, genou fléchi à 90°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Prélèvement du greffon :
+${prel}
+
+Gonflage du garrot pneumatique à la racine du membre à ${f.garrot} mmHg.
+
+Temps arthroscopique :
+Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
+Exploration systématique du genou :
+- Compartiment fémoro-patellaire : RAS
+- Compartiment médial : ${_menMedTxt(f.menMed)}
+- Compartiment latéral : ${_menLatTxt(f.menLat)}
+- Échancrure : LCA rompu / LCP intact
+Section du ligament suspenseur du Hoffa et ablation du reliquat de LCA en prenant soin de préserver son pied au niveau de son insertion tibiale.
+
+Temps tibial :
+Réalisation du tunnel tibial à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation tibiale initiale à la mèche de ${f.diamTib} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Temps fémoral :
+Contre-abord centimétrique 1 cm proximal et postérieur à l'épicondyle latéral.
+Ouverture du fascia lata.
+Réalisation du tunnel fémoral outside-in à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation fémorale initiale à la mèche de ${f.diamFem} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Préparation du greffon :
+On détermine la longueur du greffon à l'aide du tigerstick passé dans les tunnels.
+Faufilage au XBRAID pour préparation du greffon selon technique ${f.greffon}.
+Calibrage définitif à ${f.diamTib} mm au tibia et ${f.diamFem} mm au fémur.
+
+On monte le greffon sous arthroscopie à l'aide de fils relais.
+Cyclage du genou.
+Fixation au fémur par vis d'interférence ${f.visFem}.
+Fixation tibiale par vis d'interférence ${f.visTib} à 30° de flexion.
+${f.retourExterne?`
+Retour externe :
+Abord tibial postérieur au tubercule de Gerdy.
+Réalisation d'un passage reliant le tunnel fémoral et la partie postérieure du Gerdy en passant sous le fascia lata.
+Réalisation d'un tunnel de diamètre 6 mm orienté vers la patte d'oie.
+À l'aide de fils relais, passage du retour externe dans le tunnel et fixation au tibia par endobouton RT en extension et rotation neutre.
+`:''}
+Test de Lachman négatif.
+Tiroir antérieur négatif.
+Isométrie satisfaisante en fin d'intervention.
+
+Fermeture des plans sous-cutanés au Vicryl 2-0.
+Fermeture plan cutané au Vicryl 3-0 rapide.
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+
+${_dSigBloc()}`;
+}
+function buildCRO_MENISC(f){
+  const cote=coteStrD(f);
+  const gestes=[];
+  if(f.menMed!=='RAS')gestes.push(_menMedTxt(f.menMed));
+  if(f.menLat!=='RAS')gestes.push(_menLatTxt(f.menLat));
+  return `COMPTE-RENDU OPÉRATOIRE — ARTHROSCOPIE DU GENOU ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Lésion méniscale du genou ${cote}.
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal, genou fléchi à 90°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+Gonflage du garrot pneumatique à la racine du membre à ${f.garrot} mmHg.
+
+Temps arthroscopique :
+Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
+Exploration systématique du genou :
+- Compartiment fémoro-patellaire : RAS
+- Compartiment médial : ${_menMedTxt(f.menMed)}
+- Compartiment latéral : ${_menLatTxt(f.menLat)}
+- Échancrure : pivot central intact
+${f.chondroplastie?'Chondroplastie de régularisation.\n':''}${f.synovectomie?'Synovectomie partielle.\n':''}Lavage articulaire abondant.
+
+Fermeture des voies d'abord par points séparés.
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+
+${_dSigBloc()}`;
+}
+
+// ── CRH / Ordonnances (paramétrés) ──
+const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
+function _crhAppui(f){
+  const i=f._inter;
+  if(i==='pth'||i==='pth_revision')return "Appui complet autorisé + précautions anti-luxation pendant 6 semaines";
+  if(i==='ptg')return "Appui complet autorisé sous couvert de cannes anglaises";
+  if(i==='lca'||i==='menisc')return docSuture(f)?"Appui autorisé sous couvert de cannes, flexion limitée à 90° pendant 6 semaines (suture méniscale)":"Appui complet autorisé, mobilisation libre selon tolérance";
+  return "Appui selon consignes opératoires";
+}
+function _crhFils(f){
+  const i=f._inter;
+  return (i==='lca'||i==='menisc')?"Fils résorbables : pas d'ablation nécessaire":"Ablation des agrafes à J15";
+}
+function buildCRH(f){
+  const inter=f._inter;
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
   return `Cher Confrère,
 
-Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||"une intervention orthopédique"} ${coteStr(f)} sous ${f.anesthesie || "rachianesthésie"}.
+Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||'une intervention orthopédique'} ${coteStrD(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
 
-L'intervention s'est parfaitement déroulée. Suites simples. Kinésithérapie avec reprise de la marche débutée dès J1.
+L'intervention s'est parfaitement déroulée. Suites simples. Kinésithérapie avec ${inter==='pth'||inter==='pth_revision'||inter==='ptg'?'reprise de la marche débutée dès J1':'mobilisation débutée précocement'}.
 
 CONSIGNES DE SORTIE
 — Pansements à renouveler tous les 4 jours
-— Ablation des agrafes à J15
+— ${_crhFils(f)}
 — Kinésithérapie de rééducation
-${isHip?"— Appui complet autorisé + précautions anti-luxation pendant 6 semaines":"— Appui selon consignes opératoires"}
+— ${_crhAppui(f)}
 — Antalgiques selon prescription
-— INNOHEP 4000 UI pendant ${innohepDur} jours
-
-Rendez-vous de contrôle à 6 semaines avec ${isHip?"radio bassin + hanche de face":"radiographies de contrôle"}.
+${antico}
+Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':'radiographies de contrôle'}.
 
 Nous restons à votre disposition.
 
 ${_dSig()} — ${_dService()}${_dChefHopLine()}`;
 }
-function buildOrdoKineeLCA() {
-  return `ORDONNANCE KINÉSITHÉRAPIE — PROTOCOLE DT3+2
+function buildOrdoPharma(f){
+  const lines=[];
+  if(f.antico&&f.antico!=='Aucun'){
+    lines.push('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours');
+  }
+  lines.push('— PARACETAMOL 1g — 1 comprimé toutes les 6h si douleur (max 4g/j)');
+  lines.push('— IBUPROFENE 400mg — 1 comprimé toutes les 8h pendant 5 jours (si pas de contre-indication)');
+  lines.push('— Protection gastrique si AINS prolongés');
+  return `ORDONNANCE PHARMACEUTIQUE
 
-LIGAMENTOPLASTIE LCA — PROTOCOLE DT3+2
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
 
+${lines.join('\n')}
+
+Renouvellement non autorisé sauf avis médical.
+${_dSig()}${_dRpps()}`;
+}
+function buildOrdoIDE(f){
+  const inj=(f.antico&&f.antico!=='Aucun'&&anticoIsHBPM(f.antico))?('— Injection '+f.antico+' SC 1x/jour pendant '+f.anticoJours+' jours\n'):'';
+  return `ORDONNANCE INFIRMIÈRE
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
+
+${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) tous les 2-4 jours
+${_crhFils(f)==='Ablation des agrafes à J15'?'— Ablation des agrafes à J15\n':''}— Contrôle du point de ponction
+— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
+
+${_dSig()}${_dRpps()}`;
+}
+function buildOrdoKine(f){
+  const inter=f._inter;
+  if(inter==='lca'){
+    const su=docSuture(f);
+    return `ORDONNANCE KINÉSITHÉRAPIE — LIGAMENTOPLASTIE LCA (${f.greffon})
+${su?`
+⚠ SUTURE MÉNISCALE ASSOCIÉE — pendant 6 semaines :
+Appui sous couvert de cannes. Flexion limitée à 90°. Pas de flexion en charge. Pas de rotation forcée.
+`:''}
 Phase 1 — S1 à S3
 Travail de cicatrisation, lutte contre l'épanchement. Mobilisation douce. Travail isométrique quadriceps. Électrostimulation.
 
@@ -7747,88 +7970,116 @@ Course avec changements de direction. Exercices spécifiques sport. Travail de v
 Phase 7 — M9 à M12
 Reprise progressive de l'activité sportive. Reprise de la compétition autorisée à environ 1 an post-opératoire sous couvert d'un test isocinétique satisfaisant.
 
-Nombre de séances : non limité — à adapter selon progression clinique`;
-}
-function buildOrdoPharma(f) {
-  const inter = f._inter;
-  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
-  const innohepDur = inter === "lca" ? (suture ? 45 : 21) : inter?.includes("pth") ? 35 : 21;
-  return `ORDONNANCE PHARMACEUTIQUE
+Nombre de séances : non limité — à adapter selon progression clinique
+${_dSig()}${_dRpps()}`;
+  }
+  if(inter==='menisc'){
+    const su=docSuture(f);
+    return `ORDONNANCE KINÉSITHÉRAPIE — ARTHROSCOPIE MÉNISCALE
 
-Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
-Date : ${doc_dateStr(f.dateInter)}
+${su?`SUTURE MÉNISCALE — protocole protégé :
+S1 à S6 : appui sous couvert de cannes, flexion limitée à 90°, pas de flexion en charge ni rotation forcée.
+S6 et au-delà : récupération progressive des amplitudes, renforcement en chaîne fermée puis ouverte, proprioception.
+Reprise sportive progressive à partir de M3-M4 selon évolution.`:`MÉNISCECTOMIE PARTIELLE :
+Appui complet immédiat. Récupération des amplitudes, lutte contre l'épanchement.
+Renforcement quadricipital et proprioception dès la sédation des douleurs.
+Reprise sportive progressive à partir de S4-S6 selon évolution.`}
 
-— INNOHEP 4000 UI/0.4mL — 1 injection sous-cutanée par jour pendant ${innohepDur} jours
-— PARACETAMOL 1g — 1 comprimé toutes les 6h si douleur (max 4g/j)
-— IBUPROFENE 400mg — 1 comprimé toutes les 8h pendant 5 jours (si pas de contre-indication)
-— Protection gastrique si AINS prolongés
+Nombre de séances : 15, à adapter selon progression clinique
+${_dSig()}${_dRpps()}`;
+  }
+  const lbl=inter==='ptg'?'PROTHÈSE TOTALE DE GENOU':'PROTHÈSE TOTALE DE HANCHE';
+  return `ORDONNANCE KINÉSITHÉRAPIE — ${lbl}
 
-Renouvellement non autorisé sauf avis médical.
+Rééducation post-opératoire :
+— Reprise de la marche avec appui complet${inter==='ptg'?' sous couvert de cannes':''}
+— Récupération des amplitudes articulaires${inter==='ptg'?' (objectif flexion > 110°, extension complète)':''}
+— Renforcement musculaire progressif${inter==='pth'||inter==='pth_revision'?'\n— Respect des précautions anti-luxation pendant 6 semaines':''}
+— Travail de l'équilibre et de la proprioception
+
+Nombre de séances : 20, à renouveler selon évolution
 ${_dSig()}${_dRpps()}`;
 }
-function buildOrdoIDE(f) {
-  return `ORDONNANCE INFIRMIÈRE
 
-Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
-Date : ${doc_dateStr(f.dateInter)}
-
-— Injection INNOHEP 4000 UI SC 1x/jour pendant la durée prescrite
-— Surveillance et renouvellement pansement tous les 2-4 jours selon intervention
-— Contrôle point de ponction
-— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
-
-${_dSig()}${_dRpps()}`;
+// ── Contenu / état / UI ──
+let DOCF=null,docTabs=[],docIdx=0,docOverrides={},docStep=1;
+function docContent(doc){
+  const f=DOCF,inter=DOCF._inter;
+  if(doc==='CRO'){
+    if(inter==='pth'||inter==='pth_revision')return buildCRO_PTH(f);
+    if(inter==='ptg')return buildCRO_PTG(f);
+    if(inter==='lca')return buildCRO_LCA(f);
+    if(inter==='menisc')return buildCRO_MENISC(f);
+    return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
+  }
+  if(doc==='CRH')return buildCRH(f);
+  if(doc==='Ordo pharma')return buildOrdoPharma(f);
+  if(doc==='Ordo IDE')return buildOrdoIDE(f);
+  if(doc==='Ordo kiné')return buildOrdoKine(f);
+  return '(Document non défini)';
 }
-const DOCS_BY_INTER = {
-  pth: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné", "Ordo matériel"],
-  pth_revision: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné"],
-  ptg: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné", "Ordo matériel"],
-  lca: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné LCA"],
-  arthroscopie: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
-  fracture: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
-  ablation: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
-};
-const DEFAULT_FIELDS = {
-  civ: "M.", nom: "", prenom: "", ddn: "", age: "", dateInter: "", dateSortie: "",
-  cote: "Droit", anesthesie: "Rachianesthésie", medTraitant: "", indication: "", atcd: "", aides: "",
-  // PTH
-  cotyleModele: "", cotyleTaille: "", renfortMetal: false, ablationMat: false, greffeCotyle: false,
-  rapeTaille: "", typesTige: "Standard", tigeModele: "", tigeTaille: "",
-  col: "", teteMat: "Céramique", teteTaille: "", cerclageProphy: false, infiltration: "",
-  tenotomiePsoas: false, bursectomie: false,
-  // PTH révision spécifique
-  typeReprise: "Bipolaire (cup + tige)", cotyleCimente: false, ablationCimentCotyle: false,
-  ablationVisCotyle: false, tigeCimentee: false, ciseauxAO: false, ablationCiment: false,
-  femoroclasie: false, femoratomie: false, nbCerclages: "", cerclagesFemoratomie: false,
-  // PTG
-  deformation: "Varus", degres: "", releaseMed: false, releaseLat: false,
-  femurACS: "", plateauACS: "", insert: "CR — conservation LCP", insertEp: "",
-  resurfacageRotule: true, boutonRotule: "", ablationMatPTG: false, synovectomie: false, flexion: "",
-  // LCA
-  greffon: "DT3+2", diamTibial: "", diamFemoral: "", visTibiale: "", visFemorale: "",
-  ressaut: "Positif", regMed: false, regLat: false, sutureMed: false, sutureLat: false,
-  rampTrans: false, rampAllInside: false, chondroplastie: false, microfractures: false,
-  microLoc: "", retourExterne: true, lesionCart: "",
-  // Arthroscopie
-  regMenMed: false, regMenLat: false, sutureMen: false, corpsEtrangers: false,
-  detailOp: "",
-  // Ablation
-  voieAbord: "Reprise cicatrice antérieure", voieAbordDetail: "",
-  typeImplant: "Vis(s)", locImplant: "Cheville", ablationComplete: true, ablationPartielle: false, diffTechnique: false,
-  // Fractures
-  installation: "Décubitus dorsal", ampli: "Oui", garrot: "Non", garrotPression: "",
-  antibioprophylaxie: true, checklistOK: true,
-  locFracture: "Cheville", fixation: "Plaque-vis", greffe: false, geszteLig: false,
-  remarqueOp: "",
-};
-function detectInter(interv){
-  const s=(interv||'').toLowerCase();
-  if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
-  if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
-  if(/lca|ligamentoplastie|didt|dt4|dt3|kj\b/.test(s))return 'lca';
-  if(/arthroscopie|ménisc|menisc/.test(s))return 'arthroscopie';
-  if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
-  return 'fracture';
+function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
+function openBlocDocs(bi){
+  const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
+  const inter=detectInter(b.interv||'');
+  DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||DOC_CCAM[inter]||''};
+  (DOC_OPTS[inter]||[]).forEach(o=>{DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
+  const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
+  const noms=[],prenoms=[];
+  parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
+  DOCF.nom=noms.join(' ')||parts[0]||'';DOCF.prenom=prenoms.join(' ');
+  if(b.operateur)DOCF.aides=b.operateur;
+  if(b.ptgIndication)DOCF.indication=b.ptgIndication;
+  if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
+  docTabs=(DOC_DOCS[inter]||['CRO','CRH']).slice();
+  docIdx=0;docOverrides={};docStep=1;
+  renderDocStep();
+  document.getElementById('doc-modal').classList.add('open');
+}
+function setDocF(k,v){DOCF[k]=v;docOverrides={};
+  if((k==='menMed'||k==='menLat')&&/Suture/.test(v)&&DOCF.anticoJours&&+DOCF.anticoJours<45&&DOCF._inter==='lca'){DOCF.anticoJours='45';}
+  renderDocForm();
+}
+function setDocFT(k,v){DOCF[k]=v;docOverrides={};}
+function renderDocStep(){
+  const s1=document.getElementById('doc-step1'),s2=document.getElementById('doc-step2');
+  if(s1)s1.style.display=docStep===1?'flex':'none';
+  if(s2)s2.style.display=docStep===2?'flex':'none';
+  const st=document.getElementById('doc-sub');
+  if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
+  if(docStep===1)renderDocForm();else renderDocModal();
+}
+function renderDocForm(){
+  const host=document.getElementById('doc-form');if(!host)return;
+  const opts=DOC_OPTS[DOCF._inter]||[];
+  host.innerHTML=opts.filter(o=>!o.show||o.show(DOCF)).map(o=>{
+    if(o.t==='check'){
+      return '<div class="doc-cb'+(DOCF[o.k]?' on':'')+'" onclick="setDocF(\''+o.k+'\',!DOCF[\''+o.k+'\'])"><span class="doc-cbx">'+(DOCF[o.k]?'✓':'')+'</span><span>'+o.l+'</span></div>';
+    }
+    if(o.t==='seg'){
+      return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><div class="doc-pills">'+o.o.map(v=>'<button type="button" class="doc-pill'+(DOCF[o.k]===v?' on':'')+'" onclick="setDocF(\''+o.k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>').join('')+'</div></div>';
+    }
+    if(o.t==='area'){
+      return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><textarea class="doc-fin" rows="5" oninput="setDocFT(\''+o.k+'\',this.value)">'+esc(DOCF[o.k]||'')+'</textarea></div>';
+    }
+    const type=o.t==='date'?'date':(o.t==='num'?'text':'text');
+    const im=o.t==='num'?' inputmode="numeric"':'';
+    return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><input class="doc-fin" type="'+type+'"'+im+' value="'+esc(DOCF[o.k]||'')+'" placeholder="'+esc(o.ph||'')+'" oninput="setDocFT(\''+o.k+'\',this.value)"></div>';
+  }).join('');
+}
+function docGenerate(){docStep=2;docIdx=0;renderDocStep();}
+function docBackToForm(){docStep=1;renderDocStep();}
+function renderDocModal(){
+  const tb=document.getElementById('doc-tabs');
+  if(tb)tb.innerHTML=docTabs.map((d,i)=>'<button type="button" class="doc-tab'+(i===docIdx?' on':'')+'" onclick="docIdx='+i+';renderDocModal()">'+d+'</button>').join('');
+  const tx=document.getElementById('doc-text');
+  if(tx)tx.value=docTabs[docIdx]?docFinal(docTabs[docIdx]):'';
+}
+function docEdited(){const d=docTabs[docIdx];if(d)docOverrides[d]=document.getElementById('doc-text').value;}
+function closeDocModal(){document.getElementById('doc-modal').classList.remove('open');}
+function docCopy(){
+  const d=docTabs[docIdx];if(!d)return;
+  navigator.clipboard.writeText(docFinal(d)).then(()=>showToast(d+' copié — colle dans le DPI'),()=>showToast('Copie impossible'));
 }
 let _docxLoading=null;
 function loadDocx(){
@@ -7842,72 +8093,12 @@ async function generateDocxBlob(content){
   const {Document,Packer,Paragraph,TextRun}=window.docx;
   const paragraphs=content.split('\n').map(line=>{
     if(!line.trim())return new Paragraph({});
-    const isBold=line===line.toUpperCase()&&line.length>4&&/^[A-ZÉÀÈÙÇ\s\-—:·']+$/.test(line.trim());
+    const isBold=line===line.toUpperCase()&&line.length>4&&/^[A-ZÉÀÈÙÇ\s\-—:·'0-9]+$/.test(line.trim());
     return new Paragraph({children:[new TextRun({text:line,bold:isBold,size:20,font:'Calibri'})]});
   });
   return Packer.toBlob(new Document({sections:[{properties:{},children:paragraphs}]}));
 }
-function fname(doc){const nom=(DOCF.nom||'Patient').toUpperCase();const date=(DOCF.dateInter||'date').replace(/-/g,'');return doc.replace(/\s/g,'_')+'_'+nom+'_'+date+'.docx';}
-
-// ═══════════ MODULE DOCUMENTS (CRO / CRH / ordonnances) — moteur OrthoDocs, profil-driven ═══════════
-function _dProfil(){return (typeof getProfil==='function')?getProfil():{};}
-function _dSig(){const p=_dProfil();return ((p.titre||'Dr')+' '+(p.nom||'')).trim();}
-function _dRpps(){const p=_dProfil();return p.rpps?(' — RPPS '+p.rpps):'';}
-function _dService(){const p=_dProfil();return p.service||'Service de Chirurgie Orthopédique';}
-function _dChefDash(){const p=_dProfil();return p.chef?(' — '+p.chef):'';}
-function _dChefHopLine(){const p=_dProfil();const l2=[p.chef,p.hopital].filter(Boolean).join(' — ');return l2?('\n'+l2):'';}
-
-let DOCF=null,docTabs=[],docIdx=0,docOverrides={};
-function docContent(doc){
-  const f=DOCF,inter=DOCF._inter;
-  if(doc==='CRO'){
-    if(inter==='pth'||inter==='pth_revision')return buildCRO_PTH(f);
-    if(inter==='ptg')return buildCRO_PTG(f);
-    if(inter==='lca')return buildCRO_LCA(f);
-    if(inter==='arthroscopie')return f.detailOp||'(Détail opératoire à compléter)';
-    if(inter==='fracture')return 'COMPTE-RENDU OPÉRATOIRE\nFRACTURE'+(f.locFracture?' — '+f.locFracture.toUpperCase():'')+'\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\n\n'+(f.detailOp||'(Description à compléter)');
-    if(inter==='ablation')return 'COMPTE-RENDU OPÉRATOIRE\nABLATION DE MATÉRIEL\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\n\n'+(f.detailOp||'(Description à compléter)');
-  }
-  if(doc==='CRH')return buildCRH(f);
-  if(doc==='Ordo pharma')return buildOrdoPharma(f);
-  if(doc==='Ordo IDE')return buildOrdoIDE(f);
-  if(doc==='Ordo kiné'||doc==='Ordo kiné LCA')return buildOrdoKineeLCA();
-  return '(Document non défini)';
-}
-function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
-function openBlocDocs(bi){
-  const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
-  const inter=detectInter(b.interv||'');
-  DOCF=Object.assign({},DEFAULT_FIELDS,{_inter:inter});
-  const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
-  const noms=[],prenoms=[];
-  parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
-  DOCF.nom=noms.join(' ')||parts[0]||'';DOCF.prenom=prenoms.join(' ');
-  DOCF.dateInter=b.date||'';DOCF.cote=(b.side==='Gauche')?'Gauche':'Droit';DOCF.age=b.age?String(b.age):'';
-  if(b.operateur)DOCF.aides=b.operateur;
-  if(b.ptgIndication)DOCF.indication=b.ptgIndication;
-  if(b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
-  const extras=[];if(b.implants)extras.push('Implants : '+b.implants);if(b.abord)extras.push("Voie d'abord : "+b.abord);
-  if(extras.length)DOCF.remarqueOp=extras.join('\n');
-  docTabs=(DOCS_BY_INTER[inter]||['CRO','CRH']).filter(d=>d!=='Ordo matériel');
-  docIdx=0;docOverrides={};
-  renderDocModal();
-  document.getElementById('doc-modal').classList.add('open');
-}
-function renderDocModal(){
-  const st=document.getElementById('doc-sub');
-  if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
-  const tb=document.getElementById('doc-tabs');
-  if(tb)tb.innerHTML=docTabs.map((d,i)=>'<button type="button" class="doc-tab'+(i===docIdx?' on':'')+'" onclick="docIdx='+i+';renderDocModal()">'+d+'</button>').join('');
-  const tx=document.getElementById('doc-text');
-  if(tx)tx.value=docTabs[docIdx]?docFinal(docTabs[docIdx]):'';
-}
-function docEdited(){const d=docTabs[docIdx];if(d)docOverrides[d]=document.getElementById('doc-text').value;}
-function closeDocModal(){document.getElementById('doc-modal').classList.remove('open');}
-function docCopy(){
-  const d=docTabs[docIdx];if(!d)return;
-  navigator.clipboard.writeText(docFinal(d)).then(()=>showToast(d+' copié — colle dans le DPI'),()=>showToast('Copie impossible'));
-}
+function fname(doc){const nom=(DOCF.nom||'Patient').toUpperCase().replace(/\s+/g,'_');const date=(DOCF.dateInter||'date').replace(/-/g,'');return doc.replace(/\s/g,'_')+'_'+nom+'_'+date+'.docx';}
 async function docDocx(){
   const d=docTabs[docIdx];if(!d)return;
   try{
@@ -8413,7 +8604,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v97',
+    version:'atlas-v98',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -9888,12 +10079,26 @@ function _triggerDashTutoOnUnlock(){
       </div>
       <button class="doc-close" onclick="closeDocModal()" aria-label="Fermer">×</button>
     </div>
-    <div id="doc-tabs" class="doc-tabsrow"></div>
-    <textarea id="doc-text" class="doc-text" oninput="docEdited()" spellcheck="false"></textarea>
-    <div class="doc-foot">
-      <button class="doc-act doc-act-p" onclick="docCopy()">Copier</button>
-      <button class="doc-act" onclick="docDocx()">.docx</button>
-      <button class="doc-act" onclick="docMail()">✉ Secrétariat</button>
+
+    <div id="doc-step1" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+      <div class="doc-formscroll">
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.45;">Vérifie et ajuste les options de l'intervention — le CRO, le CRH et les ordonnances s'adaptent automatiquement.</div>
+        <div id="doc-form"></div>
+      </div>
+      <div class="doc-foot">
+        <button class="doc-act doc-act-p" onclick="docGenerate()">Générer les documents →</button>
+      </div>
+    </div>
+
+    <div id="doc-step2" style="display:none;flex-direction:column;flex:1;min-height:0;">
+      <div id="doc-tabs" class="doc-tabsrow"></div>
+      <textarea id="doc-text" class="doc-text" oninput="docEdited()" spellcheck="false"></textarea>
+      <div class="doc-foot">
+        <button class="doc-act" onclick="docBackToForm()">‹ Options</button>
+        <button class="doc-act doc-act-p" onclick="docCopy()">Copier</button>
+        <button class="doc-act" onclick="docDocx()">.docx</button>
+        <button class="doc-act" onclick="docMail()">✉</button>
+      </div>
     </div>
   </div>
 </div>
