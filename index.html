@@ -637,8 +637,34 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
    --border, --text*, --accent, --warm, --purple…). Un seul système d'élévation. */
 #view-stats{--s-shadow:0 1px 2px rgba(40,36,28,0.05),0 14px 30px -18px rgba(40,36,28,0.20);
   --s-shadow-sm:0 1px 2px rgba(40,36,28,0.05);--s-r:18px;}
-.stats-page-h{padding:4px 20px 14px;border-bottom:0;}
-.stats-page-title{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-0.5px;color:var(--text);}
+.stats-page-h{padding:2px 16px 8px;border-bottom:0;}
+/* hub compact + verrou scroll */
+.stats-scroll.hub-lock{overflow:hidden !important;overscroll-behavior:none;}
+/* module documents */
+.doc-ov{position:fixed;inset:0;background:var(--bg);z-index:340;display:none;}
+.doc-ov.open{display:flex;}
+.doc-box{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;}
+.doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
+.doc-close{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:20px;line-height:1;cursor:pointer;flex-shrink:0;}
+.doc-tabsrow{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 8px;flex:0 0 auto;scrollbar-width:none;}
+.doc-tab{padding:7px 13px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;}
+.doc-tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.doc-text{flex:1 1 auto;min-height:0;margin:0 16px;padding:14px;border:0.5px solid var(--border);border-radius:14px;background:var(--bg2);color:var(--text);font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12.5px;line-height:1.6;resize:none;outline:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.doc-foot{flex:0 0 auto;display:flex;gap:8px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));}
+.doc-act{flex:1;padding:12px;border:0.5px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;}
+.doc-act-p{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+#sp-hub .shub-grid{gap:7px;padding:0 0 4px;}
+#sp-hub .shub-card{padding:9px 12px;border-radius:12px;}
+#sp-hub .shub-hero{padding:11px 13px;border-radius:13px;margin-bottom:7px;}
+#sp-hub .shub-t{font-size:14px;}
+#sp-hub .shub-s{font-size:11px;}
+#sp-hub .shub-num{font-size:16px;}
+#sp-hub .shub-hk-val{font-size:17px;}
+#sp-hub .shub-hk-lbl{font-size:10px;}
+#sp-hub .shub-viz{transform:scale(0.92);transform-origin:right center;}
+
+.stats-page-title{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-0.4px;color:var(--text);}
 .stats-sub-h{display:flex;align-items:center;gap:11px;}
 .stats-back{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;}
 .stats-back svg{width:17px;height:17px;}
@@ -690,12 +716,13 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .dash-splitlegend span{display:flex;align-items:center;gap:5px;}
 .dash-splitlegend i{width:7px;height:7px;border-radius:99px;flex-shrink:0;}
 #dash-hero{margin-bottom:14px;}
+#dash-hero>.dhero-card{margin:0 22px;width:auto;}
+.dhero-single{margin:0 22px;}
 .dhero-head{padding:0 22px 8px;display:flex;align-items:center;justify-content:space-between;}
 .dhero-eyebrow{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;}
 .dhero-rail{display:flex;gap:14px;overflow-x:auto;padding:0 22px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .dhero-rail::-webkit-scrollbar{display:none;}
-.dhero-card{flex:0 0 100%;scroll-snap-align:center;background:var(--accent);border-radius:18px;padding:16px 18px;color:#fff;box-shadow:0 14px 30px -18px color-mix(in srgb, var(--accent) 60%, transparent);cursor:pointer;}
-.dhero-single{margin:0 22px;}
+.dhero-card{flex:0 0 100%;scroll-snap-align:center;box-sizing:border-box;background:var(--accent);border-radius:18px;padding:16px 18px;color:#fff;box-shadow:0 14px 30px -18px color-mix(in srgb, var(--accent) 60%, transparent);cursor:pointer;}
 .dhero-top{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:0.78;}
 .dhero-title{font-family:var(--serif);font-size:20px;font-weight:600;margin-top:7px;letter-spacing:-0.01em;}
 .dhero-meta{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:13px;opacity:0.88;}
@@ -1616,8 +1643,8 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .bk-arrow{width:18px;height:18px;color:var(--text3);flex-shrink:0;}
 .bk-sep{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:22px 0 12px;}
 /* Filtre spécialité global (stats) */
-.stat-spec-filter{display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 14px;}
-.stat-spec-chip{padding:7px 15px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
+.stat-spec-filter{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden;padding:0 16px 8px;}
+.stat-spec-chip{padding:6px 11px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:0 1 auto;min-width:0;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
 .stat-spec-chip .sd{width:8px;height:8px;border-radius:999px;flex-shrink:0;}
 .stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:var(--bg);}
 .stat-spec-chip.on .sd{background:rgba(255,255,255,0.92) !important;}
@@ -2362,6 +2389,9 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
         </button>
         
+        <button onclick="openBlocDocs(detailBlocIdx)" class="atlas-iconbtn" aria-label="Documents">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </button>
         <button onclick="openEditModal()" class="atlas-iconbtn" aria-label="Modifier">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </button>
@@ -2781,6 +2811,10 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           <div class="regl-row">
             <div class="regl-label">Hôpital</div>
             <input class="regl-input" id="regl-hopital" type="text" placeholder="ex : CHU Lille — Hôpital Roger Salengro">
+          </div>
+          <div class="regl-row">
+            <div class="regl-label">N° RPPS (signature des documents)</div>
+            <input class="regl-input" id="regl-rpps" type="text" inputmode="numeric" placeholder="ex : 10102203147">
           </div>
           <div class="regl-row">
             <div class="regl-label">Chef de service</div>
@@ -4460,8 +4494,14 @@ function renderDashHome(){
     if(lt)lt.textContent='À venir';
     if(ll){ll.textContent='Planning';ll.setAttribute('onclick',"sw('planning')");}
     const d0=ups.length?ups[0].date:null;
-    const rest=ups.filter(p=>p.date!==d0).slice(0,4);
-    if(listEl)listEl.innerHTML=rest.length?rest.map(p=>{
+    const restP=ups.filter(p=>p.date!==d0).map(p=>({t:'p',date:p.date,p}));
+    const restJ=((typeof upcomingJournees==='function')?upcomingJournees():[]).map(j=>({t:'j',date:j.date,j}));
+    const rest=restP.concat(restJ).sort((a,b)=>a.date.localeCompare(b.date));
+    if(listEl)listEl.innerHTML=rest.length?rest.map(it=>{
+      if(it.t==='j'){const j=it.j;const cdj=countdown(j.date);const dj=new Date(j.date+'T12:00:00');
+        return '<button class="dash-wk" onclick="sw(\'planning\')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+dj.toLocaleDateString('fr-FR',{weekday:'short'})+'</span>'+dj.getDate()+'</span><span style="flex:1;min-width:0;text-align:left;"><span style="display:block;font-size:13.5px;font-weight:600;">Journée de bloc</span>'+(j.note?'<span style="display:block;font-size:11.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(j.note)+'</span>':'')+'</span>'+(cdj?'<span class="countdown '+cdj.cls+'">'+cdj.label+'</span>':'')+'</button>';
+      }
+      const p=it.p;
       const sc=getSpecConfig(p.spec),cd=countdown(p.date),d=new Date(p.date+'T12:00:00');
       return '<button class="dash-wk" onclick="openPlannedDetail('+planned.indexOf(p)+')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span><span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(p.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,esc(p.patient)||''].filter(Boolean).join(' · ')+'</span></span>'+(cd?'<span class="countdown '+cd.cls+'" style="flex-shrink:0;">'+cd.label+'</span>':'')+'</button>';
     }).join(''):'<div style="font-size:13px;color:var(--text3);padding:6px 0;">Rien d\'autre de programmé</div>';
@@ -6555,7 +6595,7 @@ function renderStatSpecFilter(){
   const host=document.getElementById('stat-spec-filter');if(!host)return;
   const specs=getActiveSpecs();
   let h=`<button type="button" class="stat-spec-chip${statSpecFilter.length===0?' on':''}" onclick="toggleStatSpec('__ALL__')">Tout</button>`;
-  h+=specs.map(s=>{const on=statSpecFilter.includes(s);const cfg=getSpecConfig(s);const lbl=(cfg&&cfg.label)||s;return `<button type="button" class="stat-spec-chip${on?' on':''}" style="--sc:${getSpecColor(s)};" onclick="toggleStatSpec('${s}')"><span class="sd" style="background:${getSpecColor(s)};"></span>${lbl}</button>`;}).join('');
+  h+=specs.map(s=>{const on=statSpecFilter.includes(s);const cfg=getSpecConfig(s);const lbl=((cfg&&cfg.label)||s).replace('Traumatologie','Trauma');return `<button type="button" class="stat-spec-chip${on?' on':''}" style="--sc:${getSpecColor(s)};" onclick="toggleStatSpec('${s}')"><span class="sd" style="background:${getSpecColor(s)};"></span>${lbl}</button>`;}).join('');
   host.innerHTML=h;
 }
 function toggleStatSpec(id){
@@ -6612,7 +6652,7 @@ function showStatsPage(){
   if(!hub){const t=document.getElementById('stats-sub-title');if(t)t.textContent=(STATS_PAGES[curStatsPage]||{}).title||'';}
   document.querySelectorAll('#view-stats .stats-panel').forEach(p=>p.classList.remove('on'));
   const p=document.getElementById(hub?'sp-hub':'sp-'+curStatsPage);if(p)p.classList.add('on');
-  const sc=document.querySelector('#view-stats .stats-scroll');if(sc)sc.scrollTop=0;
+  const sc=document.querySelector('#view-stats .stats-scroll');if(sc){sc.scrollTop=0;sc.classList.toggle('hub-lock',hub);}
   rerenderCurrentStatsTab();
 }
 function openStatsPage(id){curStatsPage=id;showStatsPage();}
@@ -7491,6 +7531,401 @@ function _syncStatusUI(){
   const c=getSyncCfg();
   el.textContent=c.last?('Dernière synchro : '+new Date(c.last).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(c.blind?' · non confirmée':'')+(c.dirty?' · en attente':'')):(c.url?'Jamais synchronisé':'');
 }
+function ptNom(f) { return `${f.civ || ""} ${f.nom?.toUpperCase() || "—"} ${f.prenom || ""}`.trim(); }
+function doc_dateStr(d) { if (!d) return "—"; const [y,m,j] = d.split("-"); return `${j}/${m}/${y}`; }
+function coteStr(f) { return f.cote || "—"; }
+function buildCRO_PTH(f) {
+  const rev = f._inter === "pth_revision";
+  const blocs = [];
+  if (f.renfortMetal) blocs.push("mise en place d'un renfort métallique acétabulaire (cage/augment)");
+  if (f.ablationMat || f.ablationVisCotyle) blocs.push("ablation du matériel préexistant (visserie / cerclages)");
+  if (f.greffeCotyle) blocs.push("greffe osseuse acétabulaire");
+  if (rev && f.cotyleCimente && f.ablationCimentCotyle) blocs.push("ablation du ciment cotyloïdien");
+  if (rev && f.tigeCimentee) {
+    let s = "ablation tige cimentée";
+    if (f.ciseauxAO) s += " aux ciseaux AO";
+    if (f.ablationCiment) s += " avec ablation ciment fémoral";
+    if (f.femoroclasie) s += " — fémoroclasie réalisée";
+    blocs.push(s);
+  }
+  if (rev && f.femoratomie) blocs.push(`fémorotomie ETO réalisée avec synthèse par ${f.nbCerclages || "?"} cerclages`);
+  if (f.cerclageProphy) blocs.push("cerclage prophylactique fémoral");
+  if (f.tenotomiePsoas) blocs.push("ténotomie du psoas");
+  if (f.bursectomie) blocs.push("bursectomie trochantérienne");
+  const blocsStr = blocs.length ? `\n\nGestes associés : ${blocs.join(", ")}.` : "";
+
+  return `COMPTE-RENDU OPÉRATOIRE
+${rev ? "PTH DE RÉVISION" : "PROTHÈSE TOTALE DE HANCHE"} — CÔTÉ ${coteStr(f).toUpperCase()}
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
+Date d'intervention : ${doc_dateStr(f.dateInter)}
+Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
+Anesthésie : ${f.anesthesie || "—"}
+
+INSTALLATION
+Décubitus latéral opposé. Champ opératoire selon protocole CHU.
+
+VOIE D'ABORD
+Voie postéro-latérale de Moore. Désinsertion des pelvitrochantériens. Arthrotomie postérieure.
+
+TEMPS COTYLOÏDIEN
+Luxation de la prothèse${rev ? " — dépose cup" : ""}. Fraisage acétabulaire progressif. ${f.cotyleModele || "Cotyle"} ${f.cotyleTaille || "—"} mm impacté en position satisfaisante (antéversion 15°, inclinaison 40°).${blocs.filter(b => b.includes("acétabu") || b.includes("cotyle") || b.includes("greffe")).length ? "\n[" + blocs.filter(b => b.includes("acétabu") || b.includes("cotyle") || b.includes("greffe")).join(" — ") + "]" : ""}
+
+TEMPS FÉMORAL
+Préparation du fémur. Râpe N°${f.rapeTaille || "—"}. Tige ${f.tigeModele || "—"} ${f.tigeTaille || "—"}${rev ? " (reprise — " + (f.typesTige || "") + ")" : " (" + (f.typesTige || "standard") + ")"}. Col ${f.col || "standard"}. Tête ${f.teteTaille || "—"} mm ${f.teteMat || "céramique"}.${blocsStr}
+
+RÉDUCTION — STABILITÉ
+Réduction de la prothèse. Test de stabilité satisfaisant — pas de conflit, amplitude complète. Infiltration péri-articulaire${f.infiltration ? " : " + f.infiltration : " selon protocole"}.
+
+FERMETURE
+Réinsertion des pelvitrochantériens. Fermeture plan par plan. Vicryl 2 + Stratafix. Agrafes cutanées. Pansement compressif.`;
+}
+function buildCRO_PTG(f) {
+  const def = f.deformation || "Varus";
+  const deg = f.degres ? ` de ${f.degres}°` : "";
+  const releaseStr = f.releaseMed ? " Release ligamentaire médial réalisée." : f.releaseLat ? " Release ligamentaire latéral réalisée." : "";
+  return `COMPTE-RENDU OPÉRATOIRE
+PROTHÈSE TOTALE DU GENOU — CÔTÉ ${coteStr(f).toUpperCase()}
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
+Date d'intervention : ${doc_dateStr(f.dateInter)}
+Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
+Anesthésie : ${f.anesthesie || "—"}
+
+INSTALLATION
+Décubitus dorsal. Garrot pneumatique. Champ opératoire selon protocole CHU.
+
+VOIE D'ABORD
+Voie médiale para-patellaire. Résection du Hoffa. Mise en place du pivot central.${f.ablationMatPTG ? "\n[Ablation matériel préexistant réalisée (agrafes / visserie).]" : ""}
+
+COUPES OSSEUSES
+Déformation en ${def}${deg}.${releaseStr} Coupe tibiale première (hémi-espaceur). Temps fémoral : guide Mehary puis faux espaceur. Coupes fémorales à 5 valgus. Mesure des espaces en flexion-extension — équilibre satisfaisant.
+
+IMPLANTS
+Fémur ACS N°${f.femurACS || "—"} · Plateau ACS N°${f.plateauACS || "—"} · Insert ${f.insert || "CR"} ${f.insertEp || "—"} mm.${f.resurfacageRotule ? `\nResurfaçage rotulien systématique : bouton ${f.boutonRotule || "—"}. No thumb test négatif.` : ""}${f.synovectomie ? "\nSynovectomie réalisée." : ""}
+
+CIMENTATION
+Cimentation composants tibial et fémoral en deux temps. Retrait des excès de ciment.
+
+FERMETURE
+Flexion obtenue : ${f.flexion || "—"}°. Vicryl 2 + Stratafix / Vicryl 0 capsule. Agrafes cutanées. Pansement compressif.${f.remarqueOp ? "\n\nREMARQUE : " + f.remarqueOp : ""}`;
+}
+function buildCRO_LCA(f) {
+  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
+  const innohep = suture ? "45 jours" : "21 jours";
+  const greffon = f.greffon || "DT3+2";
+  const retStr = f.retourExterne
+    ? `\nRetour externe de Lemaire modifié (${greffon === "DIDT" ? "sur DI" : greffon === "DT3+2" ? "sur brin accessoire DT" : "fascia lata"}). Tunnel 6 mm. Endobouton. Fixation en rotation neutre extension complète.`
+    : "";
+  return `COMPTE-RENDU OPÉRATOIRE
+LIGAMENTOPLASTIE LCA — CÔTÉ ${coteStr(f).toUpperCase()}
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)} (${f.age || "—"} ans)
+Date d'intervention : ${doc_dateStr(f.dateInter)}
+Chirurgien : ${_dSig()}${_dChefDash()} (aides : ${f.aides || "—"})
+Anesthésie : ${f.anesthesie || "—"} — Ressaut rotatoire : ${f.ressaut || "positif"}
+
+INSTALLATION
+Décubitus dorsal, flexion à 90°. Garrot pneumatique 300 mmHg. Champ opératoire selon protocole CHU.
+
+PRÉLÈVEMENT ${greffon}
+Voie patte d'oie. Stripper atraumatique. Préservation des vinculas. Compresse à la Vancomycine pédiculée sur le site de prélèvement. Préparation : TigerStick + XBRAID. Calibrage.
+
+EXPLORATION ARTHROSCOPIQUE
+Voie optique antéro-latérale puis antéro-médiale à l'aiguille. Section du ligament suspenseur de Hoffa — préservation du pied tibial. Exploration des 4 compartiments.${f.regMed ? "\nRégularisation méniscale médiale." : ""}${f.regLat ? "\nRégularisation méniscale latérale." : ""}${f.sutureMed ? "\nSuture méniscale médiale réalisée." : ""}${f.sutureLat ? "\nSuture méniscale latérale réalisée." : ""}${f.rampTrans ? "\nRamp lésion — suture transtibiale réalisée." : ""}${f.rampAllInside ? "\nRamp lésion — all-inside réalisée." : ""}${f.chondroplastie ? "\nChondroplastie réalisée." : ""}${f.microfractures ? `\nMicrofractures : ${f.microLoc || "—"}.` : ""}
+
+TEMPS TIBIAL
+Guide à 55°. Mèche 9 mm. Shaver. Tunnelisation tibiale.
+
+TEMPS FÉMORAL
+Contre-abord épicondyle latéral. Guide outside-in à 55°. Tunnelisation fémorale.
+
+FIXATION
+Montée des fils relais. Cyclage du greffon. Fixation fémur : vis d'interférence ${f.visFemorale || "—"}. Fixation tibiale à 30° de flexion : ${f.visTibiale || "—"}.${retStr}
+
+CONTRÔLE
+Lachman et tiroir antérieur négatifs. Ressaut absent.
+
+FERMETURE
+INNOHEP ${innohep}. Vicryl 2-0 / 3-0 rapide. Pansement sec.${f.remarqueOp ? "\n\nREMARQUE : " + f.remarqueOp : ""}`;
+}
+function buildCRH(f) {
+  const inter = f._inter;
+  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
+  const innohepDur = inter === "lca" ? (suture ? "45" : "21") : inter === "pth" || inter === "pth_revision" ? "35" : "21";
+
+  if (inter === "lca") {
+    return `Cher Confrère,
+
+Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, en ambulatoire le ${doc_dateStr(f.dateInter)} pour une ligamentoplastie du LCA ${coteStr(f)} sous ${f.anesthesie || "anesthésie loco-régionale"}.
+
+Le geste opératoire a consisté en une reconstruction du LCA par greffon ${f.greffon || "DT3+2"}${f.retourExterne ? " avec retour externe de Lemaire modifié" : ""}. ${suture ? "Un geste méniscal complémentaire (suture) a été réalisé." : ""}
+
+Les suites opératoires ont été simples. Sortie le jour même.
+
+CONSIGNES DE SORTIE
+— Appui autorisé ${suture ? "avec 2 cannes pendant 1 mois" : "complet d'emblée"}
+— Pansements à renouveler tous les 48h
+— Ablation des agrafes à J15
+— Kinésithérapie en urgence : protocole DT3+2 (prescription jointe)
+— INNOHEP 4000 UI pendant ${innohepDur} jours
+— Antalgiques selon prescription
+
+Rendez-vous de contrôle à 4 semaines avec radiographies.
+
+Nous restons à votre disposition pour tout renseignement complémentaire.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+  }
+
+  if (inter === "ptg") {
+    return `Cher Confrère,
+
+Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour la mise en place d'une prothèse totale du genou ${coteStr(f)} sous ${f.anesthesie || "rachianesthésie"}.
+
+L'intervention s'est parfaitement déroulée. Déformation initiale en ${f.deformation || "varus"} de ${f.degres || "—"}°. Flexion obtenue : ${f.flexion || "—"}°. Suites simples par ailleurs, sortie ce jour.
+
+CONSIGNES DE SORTIE
+— Kinésithérapie intensive — appui complet d'emblée
+— Pansements à renouveler tous les 4 jours
+— Ablation des agrafes à J15
+— INNOHEP 4000 UI pendant ${innohepDur} jours
+— Antalgiques selon prescription
+
+Rendez-vous de contrôle à 6 semaines avec pangonogramme.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+  }
+
+  const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
+  const isHip=(inter==="pth"||inter==="pth_revision");
+  return `Cher Confrère,
+
+Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||"une intervention orthopédique"} ${coteStr(f)} sous ${f.anesthesie || "rachianesthésie"}.
+
+L'intervention s'est parfaitement déroulée. Suites simples. Kinésithérapie avec reprise de la marche débutée dès J1.
+
+CONSIGNES DE SORTIE
+— Pansements à renouveler tous les 4 jours
+— Ablation des agrafes à J15
+— Kinésithérapie de rééducation
+${isHip?"— Appui complet autorisé + précautions anti-luxation pendant 6 semaines":"— Appui selon consignes opératoires"}
+— Antalgiques selon prescription
+— INNOHEP 4000 UI pendant ${innohepDur} jours
+
+Rendez-vous de contrôle à 6 semaines avec ${isHip?"radio bassin + hanche de face":"radiographies de contrôle"}.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+}
+function buildOrdoKineeLCA() {
+  return `ORDONNANCE KINÉSITHÉRAPIE — PROTOCOLE DT3+2
+
+LIGAMENTOPLASTIE LCA — PROTOCOLE DT3+2
+
+Phase 1 — S1 à S3
+Travail de cicatrisation, lutte contre l'épanchement. Mobilisation douce. Travail isométrique quadriceps. Électrostimulation.
+
+Phase 2 — S3 à M2
+Récupération des amplitudes articulaires. Renforcement musculaire en chaîne fermée. Proprioception de base. Marche sans cannes si non prescrites.
+
+Phase 3 — M2 à M4
+Renforcement musculaire progressif. Travail excentrique IJ. Proprioception avancée. Début vélo / natation.
+
+Phase 4 — Test isocinétique à M4
+Évaluation : rapport IJ/Q ≥ 60%, déficit ≤ 15%. Décision de poursuite selon résultat.
+
+Phase 5 — M4 à M6
+Course à pied sur terrain plat. Travail pliométrique débuté. Appui monopodal.
+
+Phase 6 — M6 à M9
+Course avec changements de direction. Exercices spécifiques sport. Travail de vitesse.
+
+Phase 7 — M9 à M12
+Reprise progressive de l'activité sportive. Reprise de la compétition autorisée à environ 1 an post-opératoire sous couvert d'un test isocinétique satisfaisant.
+
+Nombre de séances : non limité — à adapter selon progression clinique`;
+}
+function buildOrdoPharma(f) {
+  const inter = f._inter;
+  const suture = f.sutureMed || f.sutureLat || f.rampTrans || f.rampAllInside;
+  const innohepDur = inter === "lca" ? (suture ? 45 : 21) : inter?.includes("pth") ? 35 : 21;
+  return `ORDONNANCE PHARMACEUTIQUE
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
+
+— INNOHEP 4000 UI/0.4mL — 1 injection sous-cutanée par jour pendant ${innohepDur} jours
+— PARACETAMOL 1g — 1 comprimé toutes les 6h si douleur (max 4g/j)
+— IBUPROFENE 400mg — 1 comprimé toutes les 8h pendant 5 jours (si pas de contre-indication)
+— Protection gastrique si AINS prolongés
+
+Renouvellement non autorisé sauf avis médical.
+${_dSig()}${_dRpps()}`;
+}
+function buildOrdoIDE(f) {
+  return `ORDONNANCE INFIRMIÈRE
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
+
+— Injection INNOHEP 4000 UI SC 1x/jour pendant la durée prescrite
+— Surveillance et renouvellement pansement tous les 2-4 jours selon intervention
+— Contrôle point de ponction
+— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
+
+${_dSig()}${_dRpps()}`;
+}
+const DOCS_BY_INTER = {
+  pth: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné", "Ordo matériel"],
+  pth_revision: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné"],
+  ptg: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné", "Ordo matériel"],
+  lca: ["CRO", "CRH", "Ordo pharma", "Ordo IDE", "Ordo kiné LCA"],
+  arthroscopie: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
+  fracture: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
+  ablation: ["CRO", "CRH", "Ordo pharma", "Ordo IDE"],
+};
+const DEFAULT_FIELDS = {
+  civ: "M.", nom: "", prenom: "", ddn: "", age: "", dateInter: "", dateSortie: "",
+  cote: "Droit", anesthesie: "Rachianesthésie", medTraitant: "", indication: "", atcd: "", aides: "",
+  // PTH
+  cotyleModele: "", cotyleTaille: "", renfortMetal: false, ablationMat: false, greffeCotyle: false,
+  rapeTaille: "", typesTige: "Standard", tigeModele: "", tigeTaille: "",
+  col: "", teteMat: "Céramique", teteTaille: "", cerclageProphy: false, infiltration: "",
+  tenotomiePsoas: false, bursectomie: false,
+  // PTH révision spécifique
+  typeReprise: "Bipolaire (cup + tige)", cotyleCimente: false, ablationCimentCotyle: false,
+  ablationVisCotyle: false, tigeCimentee: false, ciseauxAO: false, ablationCiment: false,
+  femoroclasie: false, femoratomie: false, nbCerclages: "", cerclagesFemoratomie: false,
+  // PTG
+  deformation: "Varus", degres: "", releaseMed: false, releaseLat: false,
+  femurACS: "", plateauACS: "", insert: "CR — conservation LCP", insertEp: "",
+  resurfacageRotule: true, boutonRotule: "", ablationMatPTG: false, synovectomie: false, flexion: "",
+  // LCA
+  greffon: "DT3+2", diamTibial: "", diamFemoral: "", visTibiale: "", visFemorale: "",
+  ressaut: "Positif", regMed: false, regLat: false, sutureMed: false, sutureLat: false,
+  rampTrans: false, rampAllInside: false, chondroplastie: false, microfractures: false,
+  microLoc: "", retourExterne: true, lesionCart: "",
+  // Arthroscopie
+  regMenMed: false, regMenLat: false, sutureMen: false, corpsEtrangers: false,
+  detailOp: "",
+  // Ablation
+  voieAbord: "Reprise cicatrice antérieure", voieAbordDetail: "",
+  typeImplant: "Vis(s)", locImplant: "Cheville", ablationComplete: true, ablationPartielle: false, diffTechnique: false,
+  // Fractures
+  installation: "Décubitus dorsal", ampli: "Oui", garrot: "Non", garrotPression: "",
+  antibioprophylaxie: true, checklistOK: true,
+  locFracture: "Cheville", fixation: "Plaque-vis", greffe: false, geszteLig: false,
+  remarqueOp: "",
+};
+function detectInter(interv){
+  const s=(interv||'').toLowerCase();
+  if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
+  if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
+  if(/lca|ligamentoplastie|didt|dt4|dt3|kj\b/.test(s))return 'lca';
+  if(/arthroscopie|ménisc|menisc/.test(s))return 'arthroscopie';
+  if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
+  return 'fracture';
+}
+let _docxLoading=null;
+function loadDocx(){
+  if(window.docx)return Promise.resolve();
+  if(_docxLoading)return _docxLoading;
+  _docxLoading=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';s.onload=()=>res();s.onerror=()=>{_docxLoading=null;rej(new Error('docx load'));};document.head.appendChild(s);});
+  return _docxLoading;
+}
+async function generateDocxBlob(content){
+  await loadDocx();
+  const {Document,Packer,Paragraph,TextRun}=window.docx;
+  const paragraphs=content.split('\n').map(line=>{
+    if(!line.trim())return new Paragraph({});
+    const isBold=line===line.toUpperCase()&&line.length>4&&/^[A-ZÉÀÈÙÇ\s\-—:·']+$/.test(line.trim());
+    return new Paragraph({children:[new TextRun({text:line,bold:isBold,size:20,font:'Calibri'})]});
+  });
+  return Packer.toBlob(new Document({sections:[{properties:{},children:paragraphs}]}));
+}
+function fname(doc){const nom=(DOCF.nom||'Patient').toUpperCase();const date=(DOCF.dateInter||'date').replace(/-/g,'');return doc.replace(/\s/g,'_')+'_'+nom+'_'+date+'.docx';}
+
+// ═══════════ MODULE DOCUMENTS (CRO / CRH / ordonnances) — moteur OrthoDocs, profil-driven ═══════════
+function _dProfil(){return (typeof getProfil==='function')?getProfil():{};}
+function _dSig(){const p=_dProfil();return ((p.titre||'Dr')+' '+(p.nom||'')).trim();}
+function _dRpps(){const p=_dProfil();return p.rpps?(' — RPPS '+p.rpps):'';}
+function _dService(){const p=_dProfil();return p.service||'Service de Chirurgie Orthopédique';}
+function _dChefDash(){const p=_dProfil();return p.chef?(' — '+p.chef):'';}
+function _dChefHopLine(){const p=_dProfil();const l2=[p.chef,p.hopital].filter(Boolean).join(' — ');return l2?('\n'+l2):'';}
+
+let DOCF=null,docTabs=[],docIdx=0,docOverrides={};
+function docContent(doc){
+  const f=DOCF,inter=DOCF._inter;
+  if(doc==='CRO'){
+    if(inter==='pth'||inter==='pth_revision')return buildCRO_PTH(f);
+    if(inter==='ptg')return buildCRO_PTG(f);
+    if(inter==='lca')return buildCRO_LCA(f);
+    if(inter==='arthroscopie')return f.detailOp||'(Détail opératoire à compléter)';
+    if(inter==='fracture')return 'COMPTE-RENDU OPÉRATOIRE\nFRACTURE'+(f.locFracture?' — '+f.locFracture.toUpperCase():'')+'\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\n\n'+(f.detailOp||'(Description à compléter)');
+    if(inter==='ablation')return 'COMPTE-RENDU OPÉRATOIRE\nABLATION DE MATÉRIEL\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\n\n'+(f.detailOp||'(Description à compléter)');
+  }
+  if(doc==='CRH')return buildCRH(f);
+  if(doc==='Ordo pharma')return buildOrdoPharma(f);
+  if(doc==='Ordo IDE')return buildOrdoIDE(f);
+  if(doc==='Ordo kiné'||doc==='Ordo kiné LCA')return buildOrdoKineeLCA();
+  return '(Document non défini)';
+}
+function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
+function openBlocDocs(bi){
+  const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
+  const inter=detectInter(b.interv||'');
+  DOCF=Object.assign({},DEFAULT_FIELDS,{_inter:inter});
+  const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
+  const noms=[],prenoms=[];
+  parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
+  DOCF.nom=noms.join(' ')||parts[0]||'';DOCF.prenom=prenoms.join(' ');
+  DOCF.dateInter=b.date||'';DOCF.cote=(b.side==='Gauche')?'Gauche':'Droit';DOCF.age=b.age?String(b.age):'';
+  if(b.operateur)DOCF.aides=b.operateur;
+  if(b.ptgIndication)DOCF.indication=b.ptgIndication;
+  if(b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
+  const extras=[];if(b.implants)extras.push('Implants : '+b.implants);if(b.abord)extras.push("Voie d'abord : "+b.abord);
+  if(extras.length)DOCF.remarqueOp=extras.join('\n');
+  docTabs=(DOCS_BY_INTER[inter]||['CRO','CRH']).filter(d=>d!=='Ordo matériel');
+  docIdx=0;docOverrides={};
+  renderDocModal();
+  document.getElementById('doc-modal').classList.add('open');
+}
+function renderDocModal(){
+  const st=document.getElementById('doc-sub');
+  if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
+  const tb=document.getElementById('doc-tabs');
+  if(tb)tb.innerHTML=docTabs.map((d,i)=>'<button type="button" class="doc-tab'+(i===docIdx?' on':'')+'" onclick="docIdx='+i+';renderDocModal()">'+d+'</button>').join('');
+  const tx=document.getElementById('doc-text');
+  if(tx)tx.value=docTabs[docIdx]?docFinal(docTabs[docIdx]):'';
+}
+function docEdited(){const d=docTabs[docIdx];if(d)docOverrides[d]=document.getElementById('doc-text').value;}
+function closeDocModal(){document.getElementById('doc-modal').classList.remove('open');}
+function docCopy(){
+  const d=docTabs[docIdx];if(!d)return;
+  navigator.clipboard.writeText(docFinal(d)).then(()=>showToast(d+' copié — colle dans le DPI'),()=>showToast('Copie impossible'));
+}
+async function docDocx(){
+  const d=docTabs[docIdx];if(!d)return;
+  try{
+    const blob=await generateDocxBlob(docFinal(d));
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    a.href=url;a.download=fname(d);a.click();URL.revokeObjectURL(url);
+    showToast('↓ '+fname(d));
+  }catch(e){showToast('.docx impossible (connexion requise au 1er usage) — utilise Copier');}
+}
+function docMail(){
+  const p=_dProfil();
+  if(!p.secr1&&!p.secr2){showToast('Renseigne les emails secrétariat dans Réglages');return;}
+  const nom=ptNom(DOCF);
+  const subject='Documents post-opératoires — '+nom+' — '+doc_dateStr(DOCF.dateInter);
+  const body='Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+') :\n'+docTabs.map(d=>'• '+fname(d)).join('\n')+'\n\nCordialement,\n'+_dSig();
+  window.location.href='mailto:'+encodeURIComponent(p.secr1||p.secr2)+((p.secr1&&p.secr2)?('?cc='+encodeURIComponent(p.secr2)+'&'):'?')+'subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+
 // ── RÉGLAGES : persistance profil ──
 const PROFIL_KEY='atlas_profil';
 function getProfil(){try{return JSON.parse(localStorage.getItem(PROFIL_KEY)||'{}')||{};}catch(e){return{};}}
@@ -7498,7 +7933,7 @@ function getPrenom(){const p=getProfil();const n=(p.nom||'').trim();return n?n.s
 function reglLoad(){
   const p=getProfil();
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
-  set('regl-nom',p.nom);set('regl-titre',p.titre);set('regl-service',p.service);set('regl-hopital',p.hopital);set('regl-chef',p.chef);
+  set('regl-nom',p.nom);set('regl-titre',p.titre);set('regl-rpps',p.rpps);set('regl-service',p.service);set('regl-hopital',p.hopital);set('regl-chef',p.chef);
   set('regl-secr1-email',p.secr1);set('regl-secr2-email',p.secr2);set('regl-apikey',p.apikey);
   const sc=getSyncCfg();set('regl-sync-url',sc.url);const sm=document.getElementById('regl-sync-mode');if(sm)sm.value=sc.mode||'initiales';
   _syncStatusUI();
@@ -7506,7 +7941,7 @@ function reglLoad(){
 }
 function reglSave(){
   const get=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
-  const p={nom:get('regl-nom'),titre:get('regl-titre'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secr1:get('regl-secr1-email'),secr2:get('regl-secr2-email'),apikey:get('regl-apikey')};
+  const p={nom:get('regl-nom'),titre:get('regl-titre'),rpps:get('regl-rpps'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secr1:get('regl-secr1-email'),secr2:get('regl-secr2-email'),apikey:get('regl-apikey')};
   localStorage.setItem(PROFIL_KEY,JSON.stringify(p));
   const sc=getSyncCfg();sc.url=get('regl-sync-url');const smEl=document.getElementById('regl-sync-mode');sc.mode=smEl?smEl.value:'initiales';saveSyncCfg(sc);
   if(sc.url)syncPlanningNow(false);
@@ -7978,7 +8413,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v96',
+    version:'atlas-v97',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -9443,4 +9878,23 @@ function _triggerDashTutoOnUnlock(){
 </script>
 
 
+<!-- MODAL DOCUMENTS (CRO/CRH/ordos) -->
+<div class="doc-ov" id="doc-modal">
+  <div class="doc-box">
+    <div class="doc-head">
+      <div style="min-width:0;">
+        <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--text);">Documents</div>
+        <div id="doc-sub" style="font-size:11.5px;color:var(--text3);"></div>
+      </div>
+      <button class="doc-close" onclick="closeDocModal()" aria-label="Fermer">×</button>
+    </div>
+    <div id="doc-tabs" class="doc-tabsrow"></div>
+    <textarea id="doc-text" class="doc-text" oninput="docEdited()" spellcheck="false"></textarea>
+    <div class="doc-foot">
+      <button class="doc-act doc-act-p" onclick="docCopy()">Copier</button>
+      <button class="doc-act" onclick="docDocx()">.docx</button>
+      <button class="doc-act" onclick="docMail()">✉ Secrétariat</button>
+    </div>
+  </div>
+</div>
 </body></html>
