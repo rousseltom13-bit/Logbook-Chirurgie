@@ -7474,14 +7474,22 @@ async function syncPlanningNow(manual){
     _syncStatusUI();
     if(manual)showToast('Planning synchronisé ✓');
   }catch(e){
-    c.dirty=true;saveSyncCfg(c);_syncStatusUI();
-    if(manual)showToast('Échec synchro — vérifie URL et connexion');
+    // Repli Safari/CORS : envoi aveugle (la requête part, la réponse est illisible)
+    try{
+      await fetch(c.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({app:'atlas',updated_at:new Date().toISOString(),text:text})});
+      c.lastSig=sig;c.last=new Date().toISOString();c.dirty=false;c.blind=true;saveSyncCfg(c);
+      _syncStatusUI();
+      if(manual)showToast('Envoyé — vérifie la cellule A1 du Sheet');
+    }catch(e2){
+      c.dirty=true;saveSyncCfg(c);_syncStatusUI();
+      if(manual)showToast('Échec synchro — vérifie URL et connexion');
+    }
   }
 }
 function _syncStatusUI(){
   const el=document.getElementById('regl-sync-status');if(!el)return;
   const c=getSyncCfg();
-  el.textContent=c.last?('Dernière synchro : '+new Date(c.last).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(c.dirty?' · en attente':'')):(c.url?'Jamais synchronisé':'');
+  el.textContent=c.last?('Dernière synchro : '+new Date(c.last).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+(c.blind?' · non confirmée':'')+(c.dirty?' · en attente':'')):(c.url?'Jamais synchronisé':'');
 }
 // ── RÉGLAGES : persistance profil ──
 const PROFIL_KEY='atlas_profil';
@@ -7970,7 +7978,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v95',
+    version:'atlas-v96',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
