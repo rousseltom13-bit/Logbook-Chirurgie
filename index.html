@@ -7552,13 +7552,14 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004'};
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016'};
 const DOC_DOCS={
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   ptg:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   lca:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   menisc:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
+  cheville:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   arthroscopie:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   fracture:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   ablation:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel']
@@ -7657,6 +7658,22 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm'],def:'Sec'}].concat(_mat(['matCannes'])),
+  cheville:[..._COMMON,
+    {k:'chLesion',t:'seg',l:'Type de lésion',o:['Malléole latérale isolée','Bimalléolaire','Trimalléolaire','Équivalent bimalléolaire'],def:'Malléole latérale isolée'},
+    {k:'chCompr',t:'seg',l:'Compression du trait fibulaire',o:['Aucune','Vis antéro-postérieure','Nice knot'],def:'Aucune'},
+    {k:'chPlaqueModele',t:'selx',l:'Plaque latérale — modèle',def:''},
+    {k:'chNbVis',t:'num',l:'Plaque latérale — nombre de vis',def:'6'},
+    {k:'chFixMed',t:'check',l:'Ostéosynthèse malléole médiale (2 vis canulées)',def:false},
+    {k:'chFixPost',t:'seg',l:'Malléole postérieure',o:['Abstention (fragment < 25 %)','Plaque console tiers de tube','Plaque console + vis canulées','Vis canulées seules'],def:'Abstention (fragment < 25 %)'},
+    {k:'chSynd',t:'seg',l:'Syndesmose (après testing)',o:['Stable — abstention','Bouton type TightRope (Arthrex)','Vis quadricorticale'],def:'Stable — abstention'},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'immo',t:'seg',l:'Immobilisation',o:['Botte de marche','Attelle postérieure','Aucune'],def:'Botte de marche'},
+    {k:'appui',t:'seg',l:'Appui',o:['Botte + appui protégé à J15','Décharge stricte 6 semaines','Appui immédiat selon douleurs'],def:'Botte + appui protégé à J15'},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes','matBotte'])),
   arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat(['matCannes'])),
   fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([])),
   ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([]))
@@ -7672,6 +7689,7 @@ function detectInter(interv){
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
   if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/mall[ée]ol|bi-?mall|tri-?mall|cheville/.test(s))return 'cheville';
   if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
   return 'fracture';
 }
@@ -7926,10 +7944,111 @@ Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 ${_dSigBloc()}`;
 }
 
+const CH_TITRE={'Malléole latérale isolée':'FRACTURE DE LA MALLÉOLE LATÉRALE','Bimalléolaire':'FRACTURE BIMALLÉOLAIRE','Trimalléolaire':'FRACTURE TRIMALLÉOLAIRE','Équivalent bimalléolaire':'ÉQUIVALENT BIMALLÉOLAIRE'};
+const CH_INDIC={'Malléole latérale isolée':'Fracture isolée de la malléole latérale','Bimalléolaire':'Fracture bimalléolaire','Trimalléolaire':'Fracture trimalléolaire','Équivalent bimalléolaire':'Équivalent bimalléolaire'};
+function _coteAcc(f){const c=coteStrD(f);return ((f._inter==='pth'||f._inter==='pth_revision'||f._inter==='cheville')&&c==='droit')?'droite':c;}
+function _chPostFixed(f){return f.chFixPost&&f.chFixPost.indexOf('Abstention')!==0;}
+function _chComprLine(f){
+  if(f.chCompr==='Vis antéro-postérieure')return 'Vissage inter-fragmentaire en compression par vis antéro-postérieure.\n';
+  if(f.chCompr==='Nice knot')return 'Compression du trait par nice knot.\n';
+  return '';
+}
+function _chPlaqueLine(f){
+  return 'Ostéosynthèse par plaque verrouillée latérale'+(f.chPlaqueModele?' '+f.chPlaqueModele:'')+' fixée par '+(f.chNbVis||'—')+' vis.';
+}
+function _chPostLine(f){
+  if(f.chFixPost==='Plaque console + vis canulées')return 'Ostéosynthèse par plaque console tiers de tube complétée par vis spongieuses partiellement filetées canulées.';
+  if(f.chFixPost==='Vis canulées seules')return 'Ostéosynthèse par vis spongieuses partiellement filetées canulées.';
+  return 'Ostéosynthèse par plaque console tiers de tube.';
+}
+function _chMedBlock(f){
+  if(!f.chFixMed)return '';
+  return `
+Temps médial :
+Abord médial centré sur la malléole médiale.
+Exposition du foyer, évacuation de l'hématome, réduction anatomique satisfaisante.
+Ostéosynthèse par deux vis spongieuses partiellement filetées canulées.
+Contrôle scopique.
+`;
+}
+function _chSyndBlock(f){
+  let r='Syndesmose stable : abstention de stabilisation complémentaire.';
+  if(f.chSynd==='Bouton type TightRope (Arthrex)')r='Syndesmose instable : stabilisation par bouton dynamique type TightRope (Arthrex), cheville en position neutre.';
+  if(f.chSynd==='Vis quadricorticale')r='Syndesmose instable : stabilisation par vis de syndesmodèse quadricorticale, cheville en position neutre.';
+  return `
+Testing de la syndesmose :
+Test au crochet et stress en rotation externe sous contrôle scopique.
+${r}
+`;
+}
+function _chFin(f){
+  return `
+Contrôle scopique final de face et de profil : réduction anatomique, matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.${f.immo&&f.immo!=='Aucune'?'\n'+(f.immo==='Botte de marche'?'Botte de marche.':'Attelle postérieure.'):''}
+
+${_dSigBloc()}`;
+}
+function buildCRO_CHEVILLE(f){
+  const cote=coteStrD(f);
+  const head=`COMPTE-RENDU OPÉRATOIRE — ${CH_TITRE[f.chLesion]||'FRACTURE DE LA CHEVILLE'} ${(cote==='droit'?'droite':cote).toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${CH_INDIC[f.chLesion]||'Fracture'} de la cheville ${cote==='droit'?'droite':cote}.
+CCAM : ${f.ccam}
+`;
+  const prep=`Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'300'} mmHg.
+`;
+  if(_chPostFixed(f)){
+    return head+`
+Installation en décubitus ventral, coussin sous le cou-de-pied.
+`+prep+`
+Abord postéro-latéral.
+Hémostases sous-cutanées, respect du nerf sural.
+
+Temps tibial postérieur :
+Passage en dedans des tendons fibulaires.
+Exposition du fragment marginal postérieur, réduction anatomique satisfaisante.
+${_chPostLine(f)}
+Contrôle scopique.
+
+Temps fibulaire :
+Par le même abord, passage en dehors des tendons fibulaires.
+Exposition du foyer fibulaire, réduction anatomique satisfaisante maintenue à la pince.
+${_chComprLine(f)}${_chPlaqueLine(f)}
+Contrôle scopique.
+${_chMedBlock(f)}${_chSyndBlock(f)}${_chFin(f)}`;
+  }
+  return head+`
+Installation en décubitus dorsal, coussin sous la fesse homolatérale.
+`+prep+`
+Temps latéral :
+Abord latéral centré sur la fibula.
+Hémostases sous-cutanées, respect du nerf fibulaire superficiel.
+Exposition du foyer, évacuation de l'hématome, lavage.
+Réduction anatomique satisfaisante, maintenue à la pince.
+${_chComprLine(f)}${_chPlaqueLine(f)}
+Contrôle scopique : réduction et matériel en place.
+${_chMedBlock(f)}${_chSyndBlock(f)}${_chFin(f)}`;
+}
+
 // ── CRH / Ordonnances (paramétrés) ──
-const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
+const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
   const i=f._inter;
+  if(i==='cheville'){
+    if(f.appui==='Décharge stricte 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines sous couvert de cannes anglaises";
+    if(f.appui==='Appui immédiat selon douleurs')return "Appui autorisé selon douleurs sous protection de la botte de marche";
+    return "Décharge stricte pendant 15 jours, puis appui protégé sous botte de marche selon douleurs";
+  }
   if(i==='pth'||i==='pth_revision')return "Appui complet autorisé + précautions anti-luxation pendant 6 semaines";
   if(i==='ptg')return f.protectArthro?"Appui complet autorisé sous couvert de cannes anglaises — flexion limitée à 90° pendant 1 mois (protection de l'arthrotomie)":"Appui complet autorisé sous couvert de cannes anglaises";
   if(i==='lca'||i==='menisc')return docSuture(f)?"Appui avec 2 cannes anglaises pendant 1 mois, flexion limitée à 90° pendant 6 semaines (suture méniscale)":"Appui complet autorisé, mobilisation libre selon tolérance";
@@ -7937,7 +8056,9 @@ function _crhAppui(f){
 }
 function _crhFils(f){
   const i=f._inter;
-  return (i==='lca'||i==='menisc')?"Fils résorbables : pas d'ablation nécessaire":"Ablation des agrafes à J15";
+  if(i==='lca'||i==='menisc')return "Fils résorbables : pas d'ablation nécessaire";
+  if(f.fermeture==='Fils')return "Ablation des fils à J15";
+  return "Ablation des agrafes à J15";
 }
 function _crhMeniscLine(f){
   if(f._inter!=='lca')return '';
@@ -7956,7 +8077,7 @@ function buildCRH(f){
   const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
   return `Cher Confrère,
 
-Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||'une intervention orthopédique'} ${coteStrD(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||'une intervention orthopédique'} ${_coteAcc(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
 L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}.
 ${_crhMeniscLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
@@ -7967,7 +8088,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 — Antalgiques selon prescription
 ${antico}
-Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':'radiographies de contrôle'}.
+Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':'radiographies de contrôle')}.
 
 Nous restons à votre disposition.
 
@@ -8095,6 +8216,23 @@ Reprise sportive progressive à partir de S4-S6 selon évolution.`}
 Nombre de séances : 15, à adapter selon progression clinique
 ${_dSig()}${_dRpps()}`;
   }
+  if(inter==='cheville'){
+    return `ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA CHEVILLE
+
+À débuter à l'ablation de la botte (6e semaine post-opératoire).
+
+${intro}
+
+Récupération des amplitudes tibio-taliennes et sous-taliennes.
+Lutte contre l'œdème (drainage, cryothérapie) et travail cicatriciel.
+Reprise progressive de l'appui complet et du déroulé du pas.
+Renforcement des fibulaires et du triceps sural.
+Proprioception et équilibre unipodal.
+Réentraînement à la marche et aux escaliers ; reprise de la course à partir du 3e mois selon évolution.
+
+Nombre de séances : 20, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
   if(inter==='ptg'){
     const pa=f.protectArthro;
     return `ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE GENOU
@@ -8160,6 +8298,7 @@ function docContent(doc){
     if(inter==='ptg')return buildCRO_PTG(f);
     if(inter==='lca')return buildCRO_LCA(f);
     if(inter==='menisc')return buildCRO_MENISC(f);
+    if(inter==='cheville')return buildCRO_CHEVILLE(f);
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
@@ -8189,6 +8328,12 @@ function openBlocDocs(bi){
   document.getElementById('doc-modal').classList.add('open');
 }
 function setDocF(k,v){DOCF[k]=v;docOverrides={};
+  if(k==='chLesion'&&DOCF._inter==='cheville'){
+    DOCF.chFixMed=(v==='Bimalléolaire'||v==='Trimalléolaire');
+    if(v!=='Trimalléolaire')DOCF.chFixPost='Abstention (fragment < 25 %)';
+    else if(DOCF.chFixPost==='Abstention (fragment < 25 %)')DOCF.chFixPost='Plaque console tiers de tube';
+    DOCF.chSynd=(v==='Équivalent bimalléolaire')?'Bouton type TightRope (Arthrex)':'Stable — abstention';
+  }
   if((k==='menMed'||k==='menLat'||k==='menMedOut'||k==='menLatOut')&&docSuture(DOCF)&&(DOCF._inter==='lca'||DOCF._inter==='menisc')){if(!DOCF.antico||DOCF.antico==='Aucun')DOCF.antico='INNOHEP 4500 UI';if(!DOCF.anticoJours||+DOCF.anticoJours<45)DOCF.anticoJours='45';}
   docAutoCCAM();
   renderDocForm();
@@ -8199,6 +8344,10 @@ function docAutoCCAM(){
   const i=DOCF._inter;
   if(i==='ptg'){DOCF.ccam=(+DOCF.degres>10)?'NFKA008':'NFKA007';}
   else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
+  else if(i==='cheville'){
+    const l=DOCF.chLesion;
+    DOCF.ccam=(l==='Malléole latérale isolée')?'NCCA012':(l==='Trimalléolaire')?'NCCA017':'NCCA016';
+  }
   else if(i==='menisc'){
     const vals=[DOCF.menMed,DOCF.menLat];
     const su=vals.filter(v=>_MEN_REPAIR.test(v||'')).length;
@@ -8811,7 +8960,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v101',
+    version:'atlas-v102',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
