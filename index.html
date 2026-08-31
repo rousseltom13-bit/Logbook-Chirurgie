@@ -7552,7 +7552,7 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA021',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004'};
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004'};
 const DOC_DOCS={
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
@@ -7576,14 +7576,14 @@ const DOC_OPTS={
     {k:'indication',t:'text',l:'Indication',def:'Coxarthrose invalidante'},
     {k:'longueur',t:'seg',l:'Longueurs pré-opératoires',o:['Identiques','Raccourcissement'],def:'Identiques'},
     {k:'longueurMm',t:'num',l:'Raccourcissement (mm)',def:'10',show:f=>f.longueur==='Raccourcissement'},
-    {k:'cotyleModele',t:'text',l:'Cotyle — modèle',def:'CAPTIV'},
+    {k:'cotyleModele',t:'selx',l:'Cotyle — modèle',def:'CAPTIV'},
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52'},
-    {k:'tigeModele',t:'text',l:'Tige — modèle',def:'ECOFIT'},
+    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT'},
     {k:'tigeLat',t:'check',l:'Tige latéralisée',def:true},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12'},
     {k:'teteTaille',t:'seg',l:'Tête — diamètre',o:['22','28','32','36'],def:'28'},
     {k:'teteMat',t:'seg',l:'Tête — matériau',o:['inox','céramique'],def:'inox'},
-    {k:'teteCol',t:'seg',l:'Col',o:['standard','+4','+8','-4'],def:'standard'},
+    {k:'teteCol',t:'seg',l:'Col',o:['standard','court','long'],def:'standard'},
     {k:'drainage',t:'check',l:'Drain de Redon',def:false},
     {k:'infiltration',t:'check',l:'Infiltration péri-articulaire',def:false},
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
@@ -7593,8 +7593,9 @@ const DOC_OPTS={
     {k:'indication',t:'text',l:'Indication',def:'Gonarthrose tricompartimentale'},
     {k:'deformation',t:'seg',l:'Déformation',o:['Varus','Valgus'],def:'Varus'},
     {k:'degres',t:'num',l:'Degrés',def:'5'},
-    {k:'femurT',t:'num',l:'Fémur ACS — taille',def:'5'},
-    {k:'plateauT',t:'num',l:'Plateau ACS — taille',def:'4'},
+    {k:'modele',t:'selx',l:'Prothèse — modèle',def:'ACS'},
+    {k:'femurT',t:'num',l:'Fémur — taille',def:'5'},
+    {k:'plateauT',t:'num',l:'Plateau — taille',def:'4'},
     {k:'insertMm',t:'text',l:'Insert (mm)',def:'12,5'},
     {k:'rotule',t:'check',l:'Resurfaçage rotulien',def:true},
     {k:'boutonT',t:'num',l:'Bouton rotulien — taille',def:'32',show:f=>f.rotule},
@@ -7631,7 +7632,8 @@ const DOC_OPTS={
   fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''}],
   ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''}]
 };
-DOC_OPTS.pth_revision=DOC_OPTS.pth;
+DOC_OPTS.pth_revision=DOC_OPTS.pth.concat([{k:'revPieces',t:'seg',l:'Pièces changées',o:['Insert seul','1 pièce','2 pièces','2 pièces + reconstruction'],def:'2 pièces'}]);
+const REV_CCAM={'Insert seul':'NEKA004','1 pièce':'NEKA009','2 pièces':'NEKA003','2 pièces + reconstruction':'NEKA008'};
 function docSuture(f){return /Suture/.test(f.menMed||'')||/Suture/.test(f.menLat||'');}
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
@@ -7724,7 +7726,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : Arthroplastie totale de genou ${cote} dans le cadre d'une ${f.indication||'gonarthrose tricompartimentale'} avec déformation en ${(f.deformation||'varus').toLowerCase()} de ${f.degres}°.
 CCAM : ${f.ccam}
-Rappel des implants : Fémur ACS taille ${f.femurT} / Plateau ACS taille ${f.plateauT} / Insert ${f.insertMm} mm${f.rotule?' / Bouton rotulien taille '+f.boutonT:''}
+Rappel des implants : Fémur ${f.modele||'ACS'} taille ${f.femurT} / Plateau ${f.modele||'ACS'} taille ${f.plateauT} / Insert ${f.insertMm} mm${f.rotule?' / Bouton rotulien taille '+f.boutonT:''}
 
 Installation en décubitus dorsal.
 Badigeon et champage stérile.
@@ -7934,8 +7936,8 @@ function buildOrdoIDE(f){
 Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
 Date : ${doc_dateStr(f.dateInter)}
 
-${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) tous les 2-4 jours
-${_crhFils(f)==='Ablation des agrafes à J15'?'— Ablation des agrafes à J15\n':''}— Contrôle du point de ponction
+${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) tous les 4 jours
+${_crhFils(f)==='Ablation des agrafes à J15'?'— Ablation des agrafes à J15\n':''}— Surveillance de la cicatrice (rougeur, écoulement, désunion)
 — Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
 
 ${_dSig()}${_dRpps()}`;
@@ -8022,7 +8024,7 @@ function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:do
 function openBlocDocs(bi){
   const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
   const inter=detectInter(b.interv||'');
-  DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||DOC_CCAM[inter]||''};
+  DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!(b.ccam&&(b.ccam.code||b.ccam))};
   (DOC_OPTS[inter]||[]).forEach(o=>{DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
   const noms=[],prenoms=[];
@@ -8031,6 +8033,7 @@ function openBlocDocs(bi){
   if(b.operateur)DOCF.aides=b.operateur;
   if(b.ptgIndication)DOCF.indication=b.ptgIndication;
   if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
+  docAutoCCAM();
   docTabs=(DOC_DOCS[inter]||['CRO','CRH']).slice();
   docIdx=0;docOverrides={};docStep=1;
   renderDocStep();
@@ -8038,9 +8041,30 @@ function openBlocDocs(bi){
 }
 function setDocF(k,v){DOCF[k]=v;docOverrides={};
   if((k==='menMed'||k==='menLat')&&/Suture/.test(v)&&DOCF.anticoJours&&+DOCF.anticoJours<45&&DOCF._inter==='lca'){DOCF.anticoJours='45';}
+  docAutoCCAM();
   renderDocForm();
 }
-function setDocFT(k,v){DOCF[k]=v;docOverrides={};}
+function setDocFT(k,v){DOCF[k]=v;docOverrides={};docAutoCCAM();}
+function docAutoCCAM(){
+  if(!DOCF||!DOCF._ccamAuto)return;
+  const i=DOCF._inter;
+  if(i==='ptg'){DOCF.ccam=(+DOCF.degres>10)?'NFKA008':'NFKA007';}
+  else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
+  else if(i==='menisc'){
+    const vals=[DOCF.menMed,DOCF.menLat];
+    const su=vals.filter(v=>/Suture/.test(v||'')).length;
+    const me=vals.filter(v=>/Méniscectomie/.test(v||'')).length;
+    DOCF.ccam=su===2?'NFEC001':su===1?'NFEC002':me===2?'NFFC003':'NFFC004';
+  }
+}
+function docImplantOpts(o){
+  const out=[];
+  const add=v=>{const s=(v||'').trim();if(s&&!out.includes(s))out.push(s);};
+  add(o.def);
+  ((DOCF&&DOCF._implantModels)||[]).forEach(add);
+  try{if(typeof implantsForContext==='function')implantsForContext(DOCF._spec,DOCF._interv).forEach(c=>add(c.label));}catch(e){}
+  return out.slice(0,10);
+}
 function renderDocStep(){
   const s1=document.getElementById('doc-step1'),s2=document.getElementById('doc-step2');
   if(s1)s1.style.display=docStep===1?'flex':'none';
@@ -8058,6 +8082,12 @@ function renderDocForm(){
     }
     if(o.t==='seg'){
       return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><div class="doc-pills">'+o.o.map(v=>'<button type="button" class="doc-pill'+(DOCF[o.k]===v?' on':'')+'" onclick="setDocF(\''+o.k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>').join('')+'</div></div>';
+    }
+    if(o.t==='selx'){
+      const cur=DOCF[o.k]||'';
+      const list=docImplantOpts(o);
+      const pills=list.map(v=>'<button type="button" class="doc-pill'+(cur===v?' on':'')+'" onclick="setDocF(\''+o.k+'\',\''+v.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\')">'+esc(v)+'</button>').join('');
+      return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div>'+(pills?'<div class="doc-pills">'+pills+'</div>':'')+'<input class="doc-fin" type="text" value="'+esc(cur)+'" oninput="setDocFT(\''+o.k+'\',this.value)"></div>';
     }
     if(o.t==='area'){
       return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><textarea class="doc-fin" rows="5" oninput="setDocFT(\''+o.k+'\',this.value)">'+esc(DOCF[o.k]||'')+'</textarea></div>';
@@ -8108,12 +8138,28 @@ async function docDocx(){
     showToast('↓ '+fname(d));
   }catch(e){showToast('.docx impossible (connexion requise au 1er usage) — utilise Copier');}
 }
-function docMail(){
+async function docMail(){
   const p=_dProfil();
-  if(!p.secr1&&!p.secr2){showToast('Renseigne les emails secrétariat dans Réglages');return;}
   const nom=ptNom(DOCF);
   const subject='Documents post-opératoires — '+nom+' — '+doc_dateStr(DOCF.dateInter);
-  const body='Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+') :\n'+docTabs.map(d=>'• '+fname(d)).join('\n')+'\n\nCordialement,\n'+_dSig();
+  // 1) Partage natif avec les .docx en pièces jointes (iOS/Android : choisir Mail dans la feuille de partage)
+  try{
+    if(navigator.canShare){
+      showToast('Préparation des documents…');
+      const files=[];
+      for(const d of docTabs){
+        const blob=await generateDocxBlob(docFinal(d));
+        files.push(new File([blob],fname(d),{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
+      }
+      const payload={files,title:subject,text:'Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+').\n\nÀ adresser à : '+[p.secr1,p.secr2].filter(Boolean).join(', ')+'\n\nCordialement,\n'+_dSig()};
+      if(navigator.canShare(payload)){await navigator.share(payload);return;}
+    }
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  // 2) Repli : mailto pré-adressé + textes complets copiés dans le presse-papier
+  if(!p.secr1&&!p.secr2){showToast('Renseigne les emails secrétariat dans Réglages');return;}
+  const full=docTabs.map(d=>'────── '+d+' ──────\n\n'+docFinal(d)).join('\n\n');
+  try{await navigator.clipboard.writeText(full);showToast('Textes copiés — colle-les dans le mail');}catch(e){}
+  const body='Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+').\n\nCordialement,\n'+_dSig();
   window.location.href='mailto:'+encodeURIComponent(p.secr1||p.secr2)+((p.secr1&&p.secr2)?('?cc='+encodeURIComponent(p.secr2)+'&'):'?')+'subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 }
 
@@ -8604,7 +8650,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v98',
+    version:'atlas-v99',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
