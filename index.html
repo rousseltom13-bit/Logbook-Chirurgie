@@ -7569,6 +7569,7 @@ const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle
 function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,''),def:defs.indexOf(k)>=0})));}
 const _AINS={k:'ains',t:'check',l:'AINS (ibuprofène 5 j) + IPP associé',def:true};
 const _COMMON=[
+  {k:'civ',t:'seg',l:'Patient(e)',o:['M.','Mme'],def:'M.'},
   {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
@@ -7619,8 +7620,10 @@ const DOC_OPTS={
     {k:'diamFem',t:'num',l:'Ø tunnel fémoral (mm)',def:'9'},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
     {k:'ressaut',t:'check',l:'Ressaut rotatoire pré-opératoire',def:true},
-    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture ramp transtibiale'],def:'RAS'},
-    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'RAS'},
+    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Lésion de rampe (RAMP)','Racine méniscale'],def:'RAS'},
+    {k:'menMedOut',t:'check',l:'+ points outside-in associés (médial)',def:false,show:f=>f.menMed==='Suture all-inside'},
+    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Racine méniscale'],def:'RAS'},
+    {k:'menLatOut',t:'check',l:'+ points outside-in associés (latéral)',def:false,show:f=>f.menLat==='Suture all-inside'},
     {k:'retourExterne',t:'check',l:'Retour externe (Gerdy, endobouton)',def:true},
     {k:'visFem',t:'num',l:'Vis interférence fémorale',def:'9'},
     {k:'visTib',t:'num',l:'Vis interférence tibiale',def:'9'},
@@ -7637,8 +7640,10 @@ const DOC_OPTS={
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes','matCryo'])),
   menisc:[..._COMMON,
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
-    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'Méniscectomie partielle'},
-    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside'],def:'RAS'},
+    {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Lésion de rampe (RAMP)','Racine méniscale'],def:'Méniscectomie partielle'},
+    {k:'menMedOut',t:'check',l:'+ points outside-in associés (médial)',def:false,show:f=>f.menMed==='Suture all-inside'},
+    {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Racine méniscale'],def:'RAS'},
+    {k:'menLatOut',t:'check',l:'+ points outside-in associés (latéral)',def:false,show:f=>f.menLat==='Suture all-inside'},
     {k:'chondroplastie',t:'check',l:'Chondroplastie',def:false},
     {k:'synovectomie',t:'check',l:'Synovectomie partielle',def:false},
     {k:'lesionMed',t:'text',l:'Lésion méniscale médiale — description',ph:'zone, type, taille…',show:f=>f.menMed&&f.menMed!=='RAS'},
@@ -7658,7 +7663,8 @@ const DOC_OPTS={
 };
 DOC_OPTS.pth_revision=DOC_OPTS.pth.concat([{k:'revPieces',t:'seg',l:'Pièces changées',o:['Insert seul','1 pièce','2 pièces','2 pièces + reconstruction'],def:'2 pièces'}]);
 const REV_CCAM={'Insert seul':'NEKA004','1 pièce':'NEKA009','2 pièces':'NEKA003','2 pièces + reconstruction':'NEKA008'};
-function docSuture(f){return /Suture/.test(f.menMed||'')||/Suture/.test(f.menLat||'');}
+const _MEN_REPAIR=/Suture|rampe|Racine/i;
+function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.menLat||'')||!!f.menMedOut||!!f.menLatOut;}
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
@@ -7669,26 +7675,34 @@ function detectInter(interv){
   if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
   return 'fracture';
 }
-function _menMedTxt(v){
-  if(v==='Méniscectomie partielle')return 'Lésion méniscale médiale.\nMéniscectomie partielle médiale.';
-  if(v==='Suture all-inside')return 'Lésion méniscale médiale.\nSuture méniscale all-inside.';
-  if(v==='Suture ramp transtibiale')return 'Lésion de rampe méniscale médiale.\nSuture par point transtibial.';
-  return 'RAS';
+function _menLesionLine(v,sname){
+  if(!v||v==='RAS')return '';
+  if(/rampe/i.test(v))return 'Lésion de rampe du ménisque '+sname+'.';
+  if(/Racine/i.test(v))return 'Lésion de la racine du ménisque '+sname+'.';
+  return 'Lésion méniscale '+(sname==='médial'?'médiale':'latérale')+'.';
 }
-function _menLatTxt(v){
-  if(v==='Méniscectomie partielle')return 'Lésion méniscale latérale.\nMéniscectomie partielle latérale.';
-  if(v==='Suture all-inside')return 'Lésion méniscale latérale.\nSuture méniscale all-inside.';
-  return 'RAS';
+function _menGesteLine(v,out,isolMenisc,sname){
+  if(!v||v==='RAS')return '';
+  if(v==='Méniscectomie partielle')return isolMenisc?'Lésion non réparable, décision de réaliser une méniscectomie partielle au shaver.':('Méniscectomie partielle '+(sname==='médial'?'médiale':'latérale')+'.');
+  if(v==='Suture all-inside')return out?'Suture méniscale all-inside complétée par des points outside-in.':'Suture méniscale all-inside.';
+  if(v==='Suture outside-in')return 'Suture méniscale par points outside-in.';
+  if(/rampe/i.test(v))return 'Suture de la rampe par point transtibial.';
+  if(/Racine/i.test(v))return 'Suture transtibiale de la racine avec fixation par endobouton.';
+  return v;
+}
+function _menBlock(f,side){
+  const v=side==='med'?f.menMed:f.menLat;
+  if(!v||v==='RAS'){const c=_cartLine(side==='med'?f.cartMed:f.cartLat);return c||'RAS';}
+  const sname=side==='med'?'médial':'latéral';
+  const desc=side==='med'?f.lesionMed:f.lesionLat;
+  const l1=(desc&&String(desc).trim())?String(desc).trim():_menLesionLine(v,sname);
+  const l2=_menGesteLine(v,(side==='med'?f.menMedOut:f.menLatOut),f._inter==='menisc',sname);
+  const parts=[l1,l2];
+  const c=_cartLine(side==='med'?f.cartMed:f.cartLat);if(c)parts.push(c);
+  return parts.filter(Boolean).join('\n');
 }
 
 function _cartLine(v){return (v&&v!=='Sain')?'Chondropathie '+v+'.':'';}
-function _compartTxt(menTxt,lesion,cart){
-  const parts=[];
-  if(menTxt&&menTxt!=='RAS')parts.push(menTxt);
-  if(lesion&&String(lesion).trim())parts.push(String(lesion).trim());
-  const c=_cartLine(cart);if(c)parts.push(c);
-  return parts.length?parts.join('\n'):'RAS';
-}
 function _sutureMatLine(f){
   return docSuture(f)?('Réparation méniscale par '+(f.nbAncres||'')+' implant(s) '+(f.ancreType||'')+'.\n').replace('  ',' '):'';
 }
@@ -7834,8 +7848,8 @@ Temps arthroscopique :
 Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
 Exploration systématique du genou :
 - Compartiment fémoro-patellaire : ${_cartLine(f.cartFP)||'RAS'}
-- Compartiment médial : ${_compartTxt(_menMedTxt(f.menMed),f.lesionMed,f.cartMed)}
-- Compartiment latéral : ${_compartTxt(_menLatTxt(f.menLat),f.lesionLat,f.cartLat)}
+- Compartiment médial : ${_menBlock(f,'med')}
+- Compartiment latéral : ${_menBlock(f,'lat')}
 - Échancrure : LCA rompu / LCP intact
 ${_sutureMatLine(f)}
 Section du ligament suspenseur du Hoffa et ablation du reliquat de LCA en prenant soin de préserver son pied au niveau de son insertion tibiale.
@@ -7880,9 +7894,6 @@ ${_dSigBloc()}`;
 }
 function buildCRO_MENISC(f){
   const cote=coteStrD(f);
-  const gestes=[];
-  if(f.menMed!=='RAS')gestes.push(_menMedTxt(f.menMed));
-  if(f.menLat!=='RAS')gestes.push(_menLatTxt(f.menLat));
   return `COMPTE-RENDU OPÉRATOIRE — ARTHROSCOPIE DU GENOU ${cote.toUpperCase()}
 
 Date opératoire : ${doc_dateStr(f.dateInter)}
@@ -7903,8 +7914,8 @@ Temps arthroscopique :
 Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
 Exploration systématique du genou :
 - Compartiment fémoro-patellaire : ${_cartLine(f.cartFP)||'RAS'}
-- Compartiment médial : ${_compartTxt(_menMedTxt(f.menMed),f.lesionMed,f.cartMed)}
-- Compartiment latéral : ${_compartTxt(_menLatTxt(f.menLat),f.lesionLat,f.cartLat)}
+- Compartiment médial : ${_menBlock(f,'med')}
+- Compartiment latéral : ${_menBlock(f,'lat')}
 - Échancrure : pivot central intact
 ${_sutureMatLine(f)}
 ${f.chondroplastie?'Chondroplastie de régularisation.\n':''}${f.synovectomie?'Synovectomie partielle.\n':''}Lavage articulaire abondant.
@@ -7928,16 +7939,28 @@ function _crhFils(f){
   const i=f._inter;
   return (i==='lca'||i==='menisc')?"Fils résorbables : pas d'ablation nécessaire":"Ablation des agrafes à J15";
 }
+function _crhMeniscLine(f){
+  if(f._inter!=='lca')return '';
+  const out=[];
+  [['menMed','lesionMed','menMedOut','interne'],['menLat','lesionLat','menLatOut','externe']].forEach(x=>{
+    const v=f[x[0]];if(!v||v==='RAS')return;
+    const geste=(v==='Méniscectomie partielle')?'de méniscectomie partielle':'de réparation méniscale';
+    let les=(f[x[1]]&&String(f[x[1]]).trim())?String(f[x[1]]).trim().replace(/\.+$/,''):'';
+    if(!les)les=/rampe/i.test(v)?'de rampe':(/Racine/i.test(v)?'de la racine':'méniscale');
+    out.push('Un geste '+geste+' a été réalisé en complément pour lésion '+les+' du ménisque '+x[3]+'.');
+  });
+  return out.length?out.join('\n')+'\n':'';
+}
 function buildCRH(f){
   const inter=f._inter;
   const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
   return `Cher Confrère,
 
-Nous avons eu le plaisir de prendre en charge votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||'une intervention orthopédique'} ${coteStrD(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${CRH_ACTE[inter]||'une intervention orthopédique'} ${coteStrD(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}.
+${_crhMeniscLine(f)}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-L'intervention s'est parfaitement déroulée. Suites simples. Kinésithérapie avec ${inter==='pth'||inter==='pth_revision'||inter==='ptg'?'reprise de la marche débutée dès J1':'mobilisation débutée précocement'}.
-
-CONSIGNES DE SORTIE
 — Pansements à renouveler tous les 4 jours
 — ${_crhFils(f)}
 — Kinésithérapie de rééducation
@@ -8166,7 +8189,7 @@ function openBlocDocs(bi){
   document.getElementById('doc-modal').classList.add('open');
 }
 function setDocF(k,v){DOCF[k]=v;docOverrides={};
-  if((k==='menMed'||k==='menLat')&&/Suture/.test(v)&&(DOCF._inter==='lca'||DOCF._inter==='menisc')){if(!DOCF.antico||DOCF.antico==='Aucun')DOCF.antico='INNOHEP 4500 UI';if(!DOCF.anticoJours||+DOCF.anticoJours<45)DOCF.anticoJours='45';}
+  if((k==='menMed'||k==='menLat'||k==='menMedOut'||k==='menLatOut')&&docSuture(DOCF)&&(DOCF._inter==='lca'||DOCF._inter==='menisc')){if(!DOCF.antico||DOCF.antico==='Aucun')DOCF.antico='INNOHEP 4500 UI';if(!DOCF.anticoJours||+DOCF.anticoJours<45)DOCF.anticoJours='45';}
   docAutoCCAM();
   renderDocForm();
 }
@@ -8178,7 +8201,7 @@ function docAutoCCAM(){
   else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
   else if(i==='menisc'){
     const vals=[DOCF.menMed,DOCF.menLat];
-    const su=vals.filter(v=>/Suture/.test(v||'')).length;
+    const su=vals.filter(v=>_MEN_REPAIR.test(v||'')).length;
     const me=vals.filter(v=>/Méniscectomie/.test(v||'')).length;
     DOCF.ccam=su===2?'NFEC001':su===1?'NFEC002':me===2?'NFFC003':'NFFC004';
   }
@@ -8267,11 +8290,18 @@ async function docDocx(){
     showToast('↓ '+fname(d));
   }catch(e){showToast('.docx impossible (connexion requise au 1er usage) — utilise Copier');}
 }
+function _docMailMsg(){
+  const civ=(DOCF.civ==='Mme')?'Mme':'Mr';
+  const nomPat=((DOCF.nom||'')+(DOCF.prenom?' '+DOCF.prenom:'')).trim()||'—';
+  const prenomSig=(typeof getPrenom==='function'&&getPrenom())||_dSig();
+  return 'Bonjour,\n\nVoilà les documents post-opératoires de '+civ+' '+nomPat+'.\n\nMerci beaucoup,\n\n'+prenomSig;
+}
 async function docMail(){
   const p=_dProfil();
   const nom=ptNom(DOCF);
   const subject='Documents post-opératoires — '+nom+' — '+doc_dateStr(DOCF.dateInter);
-  // 1) Partage natif avec les .docx en pièces jointes (iOS/Android : choisir Mail dans la feuille de partage)
+  const dests=[p.secr1,p.secr2].filter(Boolean).join(', ');
+  // 1) Partage natif avec les .docx en pièces jointes (iOS/Android : choisir Mail/Gmail dans la feuille de partage)
   try{
     if(navigator.canShare){
       showToast('Préparation des documents…');
@@ -8280,16 +8310,18 @@ async function docMail(){
         const blob=await generateDocxBlob(docFinal(d));
         files.push(new File([blob],fname(d),{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
       }
-      const payload={files,title:subject,text:'Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+').\n\nÀ adresser à : '+[p.secr1,p.secr2].filter(Boolean).join(', ')+'\n\nCordialement,\n'+_dSig()};
-      if(navigator.canShare(payload)){await navigator.share(payload);return;}
+      const payload={files,title:subject,text:_docMailMsg()};
+      if(navigator.canShare(payload)){
+        if(dests){try{await navigator.clipboard.writeText(dests);showToast('Adresses secrétariat copiées — colle-les dans « À : »');}catch(e){}}
+        await navigator.share(payload);return;
+      }
     }
   }catch(e){if(e&&e.name==='AbortError')return;}
   // 2) Repli : mailto pré-adressé + textes complets copiés dans le presse-papier
   if(!p.secr1&&!p.secr2){showToast('Renseigne les emails secrétariat dans Réglages');return;}
   const full=docTabs.map(d=>'────── '+d+' ──────\n\n'+docFinal(d)).join('\n\n');
   try{await navigator.clipboard.writeText(full);showToast('Textes copiés — colle-les dans le mail');}catch(e){}
-  const body='Bonjour,\n\nDocuments post-opératoires pour '+nom+' ('+doc_dateStr(DOCF.dateInter)+').\n\nCordialement,\n'+_dSig();
-  window.location.href='mailto:'+encodeURIComponent(p.secr1||p.secr2)+((p.secr1&&p.secr2)?('?cc='+encodeURIComponent(p.secr2)+'&'):'?')+'subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  window.location.href='mailto:'+encodeURIComponent(p.secr1||p.secr2)+((p.secr1&&p.secr2)?('?cc='+encodeURIComponent(p.secr2)+'&'):'?')+'subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(_docMailMsg());
 }
 
 // ── RÉGLAGES : persistance profil ──
@@ -8779,7 +8811,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v100',
+    version:'atlas-v101',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
