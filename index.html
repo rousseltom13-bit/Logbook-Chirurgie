@@ -3698,8 +3698,10 @@ const INTERV_HIER = {
       'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long','Clou rétrograde','Fémur distal (plaque)','Pseudarthrose fémur'],
       'Genou': ['Fracture de rotule','Tendon rotulien (réinsertion)','Tendon quadricipital'],
       'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial','Plaque tibia distal','Fixateur externe tibia','Pseudarthrose tibia'],
-      'Cheville': ['Malléole latérale','Malléole médiale isolée','Fracture bi-malléolaire','Équivalent bimalléolaire','Fracture tri-malléolaire','Rupture du tendon d\'Achille'],
+      'Cheville': ['Malléole latérale','Malléole médiale isolée','Fracture bi-malléolaire','Équivalent bimalléolaire','Fracture tri-malléolaire','Rupture du tendon d\'Achille','Pseudarthrose cheville'],
       'Pied': ['Calcanéum','Talus','Lisfranc','Métatarsiens','Phalanges / orteils','Luxation péri-talienne'],
+      'Amputation': ['Trans-fémorale','Sous-gonale','Trans-métatarsienne','Orteils'],
+      'Reconstruction': ['Masquelet 1er temps','Masquelet 2e temps','Lambeau / couverture'],
       'Autre': '__LIBRE__'
     },
     'Membre supérieur': {
@@ -3710,10 +3712,15 @@ const INTERV_HIER = {
       'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire','2 os de l\'avant-bras'],
       'Poignet': ['Plaque radius distal','Plaque ulna distal','Kapandji','Scaphoïde','Luxation périlunaire','Fixateur externe poignet'],
       'Main': ['5e métacarpien (boxeur)','Métacarpiens','Phalanges','Bennett','Tendons fléchisseurs','Tendons extenseurs'],
+      'Reconstruction': ['Changement de PTC sur descellement'],
       'Autre': '__LIBRE__'
     },
     'Péri-prothétiques': {
-      '': ['Péri-PTH Vancouver A — crochet','Péri-PTH Vancouver A — plaque','Péri-PTH Vancouver B — plaque + cerclages','Péri-PTH Vancouver B — changement PTH + cerclages','Péri-PTH Vancouver C — plaque','Péri-PTG fémur — plaque','Péri-PTG — PTG de reconstruction ± plaque','Péri-PTC — plaque','Péri-PTC — changement PTC + plaque','Fracture péri-PTE','Fracture sur matériel d\'ostéosynthèse']
+      'Fracture péri-PTH': ['Changement de PTH','Plaque crochet','Plaque fémur proximal','Ostéosynthèse par cerclages'],
+      'Fracture péri-PTG': ['Plaque fémur distal','PTG de reconstruction'],
+      'Fracture péri-PTC': ['Plaque humérus distal','Changement de PTC'],
+      'Fracture péri-PTE': ['Plaque humérus','RePTE'],
+      'Autre': ['Fracture sur matériel d\'ostéosynthèse','__LIBRE__']
     }
   }
 };
@@ -7092,8 +7099,9 @@ function showStatsPage(){
   const sc=document.querySelector('#view-stats .stats-scroll');if(sc){sc.scrollTop=0;sc.classList.toggle('hub-lock',hub);}
   rerenderCurrentStatsTab();
 }
-function openStatsPage(id){curStatsPage=id;if(id==='interventions')statTraumaSeg=null;showStatsPage();}
+function openStatsPage(id){curStatsPage=id;if(id==='interventions'){statTraumaSeg=null;statTraumaSub=null;}showStatsPage();}
 function backToStatsHub(){
+  if(curStatsPage==='interventions'&&statTraumaSub){statTraumaSub=null;renderTopInterventions();return;}
   if(curStatsPage==='interventions'&&statTraumaSeg){statTraumaSeg=null;renderTopInterventions();return;}
   curStatsPage=null;showStatsPage();
 }
@@ -7610,15 +7618,20 @@ function setTopFilter(filter,btn){
   btn.classList.add('on');renderTopInterventions();
 }
 
-let statTraumaSeg=null;
+let statTraumaSeg=null,statTraumaSub=null;
+function traumaFamOf(iv){const p=String(iv||'').split(' — ');return p.length>=2?p[1]:'Autre';}
 function traumaSegOf(iv){
   const parts=String(iv||'').split(' — ');
   if(parts[0]==='Péri-prothétiques')return 'Péri-prothétiques';
   if(parts[0]==='Membre inférieur'||parts[0]==='Membre supérieur')return parts.length>=2?parts[1]:'Autre';
   return 'Autre';
 }
-function openTraumaSeg(seg){statTraumaSeg=seg;renderTopInterventions();}
-function closeTraumaSeg(){statTraumaSeg=null;renderTopInterventions();}
+function openTraumaSeg(seg){statTraumaSeg=seg;statTraumaSub=null;renderTopInterventions();}
+function openTraumaFam(i){const r=(window._famRows||[])[i];if(!r)return;statTraumaSub=r.name;renderTopInterventions();}
+function closeTraumaSeg(){
+  if(statTraumaSub){statTraumaSub=null;renderTopInterventions();return;}
+  statTraumaSeg=null;renderTopInterventions();
+}
 function _septPill(list){const n=list.filter(hasSeptTag).length;return n?'<span class="s-tagpill" style="background:color-mix(in srgb, #b3593a 14%, transparent);color:#b3593a;">Septique '+n+'</span>':'';}
 function _rankRow(rank,label,v,max,color,onclick,extraMeta){
   return`<div class="s-rank" onclick="${onclick}">
@@ -7632,7 +7645,31 @@ function renderTopInterventions(){
   const subset=statFilteredBlocs();
   const warm=cssColor('var(--warm)');
   if(statTraumaSeg){
-    const list=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
+    const segBlocs=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
+    const isPeri=statTraumaSeg==='Péri-prothétiques';
+    const head=(title)=>'<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="closeTraumaSeg()">'
+      +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
+      +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">'+title+'</span></div>';
+    if(isPeri&&!statTraumaSub){
+      // Niveau familles : péri-PTH, péri-PTG, péri-PTC, péri-PTE, Autre
+      const groups={};
+      segBlocs.forEach(b=>{
+        const k=traumaFamOf(b.interv);
+        if(!groups[k])groups[k]={total:0,principal:0,aide:0,blocs:[]};
+        groups[k].total++;groups[k].blocs.push(b);
+        if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
+      });
+      const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
+      const max=sorted.length?sorted[0][1].total:1;
+      window._famRows=sorted.map(([name,v])=>({name,v}));
+      el.innerHTML=head('Traumatologie — Péri-prothétiques')
+        +(sorted.length?sorted.map(([name,v],i)=>{
+          const nT=new Set(v.blocs.map(b=>b.interv)).size;
+          return _rankRow(i+1,esc(name),v,max,warm,`openTraumaFam(${i})`,'<span class="s-tagpill">'+nT+' type'+(nT>1?'s':'')+'</span>');
+        }).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
+      return;
+    }
+    const list=isPeri?segBlocs.filter(b=>traumaFamOf(b.interv)===statTraumaSub):segBlocs;
     const groups={};
     list.forEach(b=>{
       const k=b.interv||'';
@@ -7643,10 +7680,13 @@ function renderTopInterventions(){
     const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
     const max=sorted.length?sorted[0][1].total:1;
     window._drillRows=sorted.map(([name,v])=>({name,v}));
-    el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="closeTraumaSeg()">'
-      +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
-      +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">Traumatologie — '+esc(statTraumaSeg)+'</span></div>'
-      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>',v,max,warm,`_topClickDrill(${i})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
+    const lbl=name=>{
+      if(!name)return '<i style="color:var(--text3);">(Sans intitulé)</i>';
+      if(isPeri){const p=String(name).split(' — ');return esc(p[p.length-1].trim())||esc(name);}
+      return esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>';
+    };
+    el.innerHTML=head(isPeri?('Péri-prothétiques — '+esc(statTraumaSub)):('Traumatologie — '+esc(statTraumaSeg)))
+      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,lbl(name),v,max,warm,`_topClickDrill(${i})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
     return;
   }
   const groups={};
@@ -8332,7 +8372,7 @@ function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
   if(/péri-pt|peri-pt|périproth|periproth/.test(s))return 'fracture';
-  if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage/.test(s))return 'fracture';
+  if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement/.test(s))return 'fracture';
   if(/tendon/.test(s))return 'fracture';
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
   if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
@@ -10226,7 +10266,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v119',
+    version:'atlas-v120',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -10615,6 +10655,8 @@ function dataURLByteSize(dataURL){
 function displayInterv(label){
   if(!label) return '';
   const parts = String(label).split(' — ');
+  // Péri-prothétiques : garder le contexte fracture (« Fracture péri-PTH — Changement de PTH »)
+  if(parts[0]==='Péri-prothétiques'&&parts.length>=3&&/p[ée]ri-?PT/i.test(parts[1]))return parts[1]+' — '+parts[parts.length-1].trim();
   let last = parts[parts.length-1].trim();
   if(last.endsWith(' (libre)')) last = last.slice(0, -' (libre)'.length).trim();
   return last;
