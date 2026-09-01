@@ -7552,7 +7552,7 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005'};
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010'};
 const DOC_DOCS={
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -7561,6 +7561,7 @@ const DOC_DOCS={
   menisc:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   cheville:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   radius:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
+  femur:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   arthroscopie:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   fracture:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   ablation:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel']
@@ -7575,7 +7576,7 @@ const _COMMON=[
   {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
-  {k:'anesthesie',t:'seg',l:'Anesthésie',o:['Rachianesthésie','Anesthésie générale','Rachi + sédation'],def:'Rachianesthésie'}
+  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&f._inter==='radius')?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
 ];
 const DOC_OPTS={
   pth:[..._COMMON,
@@ -7680,6 +7681,7 @@ const DOC_OPTS={
     {k:'kapandji',t:'check',l:'Réduction par embrochage selon Kapandji',def:false},
     {k:'brochesGardees',t:'check',l:'Broches laissées en place (recourbées et enfouies)',def:false,show:f=>f.kapandji},
     {k:'rxPlaqueModele',t:'selx',l:'Plaque antérieure — modèle',def:''},
+    {k:'rxNbVis',t:'num',l:'Vis épiphysaires — nombre',def:'4'},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250'},
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Attelle amovible 3 semaines (antalgique)','Manchette plâtrée'],def:'Attelle amovible 3 semaines (antalgique)'},
@@ -7688,6 +7690,24 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matAttellePoignet'])),
+  femur:[..._COMMON,
+    {k:'fmGeste',t:'seg',l:'Ostéosynthèse',o:['Clou Gamma court','Clou Gamma long','Clou T2 antérograde'],def:'Clou Gamma court'},
+    {k:'fmAngle',t:'seg',l:'Angulation cervico-diaphysaire',o:['120°','125°','130°'],def:'125°',show:f=>/Gamma/.test(f.fmGeste)},
+    {k:'fmVisCervLong',t:'num',l:'Vis cervico-céphalique — longueur (mm)',def:'',ph:'mm',show:f=>/Gamma/.test(f.fmGeste)},
+    {k:'fmDiam',t:'num',l:'Clou — diamètre (mm)',def:'',ph:'mm',show:f=>f.fmGeste!=='Clou Gamma court'},
+    {k:'fmLong',t:'num',l:'Clou — longueur (mm)',def:'',ph:'mm',show:f=>f.fmGeste!=='Clou Gamma court'},
+    {k:'fmAlesage',t:'check',l:'Alésage',def:false},
+    {k:'fmVerrProx',t:'seg',l:'Verrouillage proximal',o:['1 vis','2 vis'],def:'2 vis',show:f=>f.fmGeste==='Clou T2 antérograde'},
+    {k:'fmVerrDist',t:'seg',l:'Verrouillage distal',o:['Statique','Dynamique'],def:'Statique'},
+    {k:'fmNbVisDist',t:'num',l:'Verrouillage distal — nombre de vis',def:'2',show:f=>f.fmGeste!=='Clou Gamma court'},
+    {k:'fmAbord',t:'check',l:'Abord du foyer pour réduction',def:false},
+    {k:'fmCerclages',t:'num',l:'Nombre de cerclages',def:'0',show:f=>f.fmAbord},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Agrafes','Fils'],def:'Agrafes'},
+    {k:'appui',t:'seg',l:'Appui',o:['Appui complet immédiat selon douleurs','Appui partiel 6 semaines','Décharge 6 semaines'],def:'Appui complet immédiat selon douleurs'},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matDeambulateur'])),
   arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat(['matCannes'])),
   fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},{k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC — membre supérieur)',def:false},_AINS].concat(_mat([])),
   ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([]))
@@ -7703,6 +7723,7 @@ function detectInter(interv){
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
   if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/gamma|pertroch|f[ée]mur|clou t2/.test(s))return 'femur';
   if(/radius|poignet|kapandji|pouteau|goyrand/.test(s))return 'radius';
   if(/mall[ée]ol|bi-?mall|tri-?mall|cheville/.test(s))return 'cheville';
   if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
@@ -8080,7 +8101,7 @@ Voie d'abord antérieure de Henry.
 Ouverture de la gaine du fléchisseur radial du carpe, refoulement du paquet vasculaire radial.
 Désinsertion du carré pronateur au ras de son bord radial.
 Exposition du foyer de fracture, réduction anatomique satisfaisante sous contrôle scopique.
-Ostéosynthèse par plaque verrouillée antérieure${f.rxPlaqueModele?' '+f.rxPlaqueModele:''}, vis épiphysaires verrouillées et vis diaphysaires.
+Ostéosynthèse par plaque verrouillée antérieure${f.rxPlaqueModele?' '+f.rxPlaqueModele:''}, ${f.rxNbVis||'—'} vis épiphysaires verrouillées et vis diaphysaires.
 ${f.kapandji?(f.brochesGardees?'Broches de Kapandji laissées en place, recourbées et enfouies en sous-cutané.':'Ablation des broches de réduction.')+'\n':''}Contrôle scopique final de face et de profil : réduction et matériel en place, absence de vis intra-articulaire.
 Rinçage abondant. Réinsertion du carré pronateur.
 Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
@@ -8090,10 +8111,70 @@ ${f.immo==='Manchette plâtrée'?'Immobilisation par manchette plâtrée.':'Atte
 ${_dSigBloc()}`;
 }
 
+function buildCRO_FEMUR(f){
+  const cote=coteStrD(f);
+  const gamma=/Gamma/.test(f.fmGeste);
+  const long_=f.fmGeste!=='Clou Gamma court';
+  const titre=f.fmGeste==='Clou T2 antérograde'?'ENCLOUAGE CENTROMÉDULLAIRE DU FÉMUR':('FRACTURE '+(f.fmGeste==='Clou Gamma court'?'PERTROCHANTÉRIENNE':'TROCHANTÉRO-DIAPHYSAIRE')+' DU FÉMUR');
+  const indic=f.fmGeste==='Clou T2 antérograde'?('Fracture de la diaphyse fémorale '+(cote==='droit'?'droite':cote)):((f.fmGeste==='Clou Gamma court'?'Fracture pertrochantérienne':'Fracture trochantéro-diaphysaire')+' du fémur '+cote);
+  const dims=(f.fmDiam||f.fmLong)?((f.fmDiam?', diamètre '+f.fmDiam+' mm':'')+(f.fmLong?', longueur '+f.fmLong+' mm':'')):'';
+  const abord=f.fmAbord?('Abord direct du foyer pour aide à la réduction.\n'+((+f.fmCerclages>0)?('Mise en place de '+f.fmCerclages+' cerclage'+(+f.fmCerclages>1?'s':'')+'.\n'):'')):'';
+  const alesage=f.fmAlesage?'Alésage progressif.\n':'';
+  let temps;
+  if(gamma){
+    const verr=long_
+      ?('Verrouillage distal '+(f.fmVerrDist||'statique').toLowerCase()+' par '+(f.fmNbVisDist||'2')+' vis, trous ronds réalisés à main levée sous contrôle scopique.')
+      :('Verrouillage distal '+(f.fmVerrDist||'statique').toLowerCase()+" à l'aide de l'ancillaire.");
+    temps=`Point d'entrée à la pointe carrée, légèrement médial au sommet du grand trochanter.
+Mise en place du guide, position contrôlée en scopie.
+${alesage}Enchâssement du clou Gamma (Stryker) angulation ${f.fmAngle||'125°'}${dims}.
+Mise en place de la broche de Kirschner cervico-céphalique à l'aide de l'ancillaire, position contrôlée en scopie de face et de profil.
+Mesure, méchage et mise en place de la vis cervico-céphalique de ${f.fmVisCervLong||'—'} mm, mise en compression du foyer.
+Mise en place de la contre-vis.
+${verr}`;
+  }else{
+    temps=`Point d'entrée dans la fossette piriforme à la pointe carrée.
+Mise en place du guide, position contrôlée en scopie.
+${alesage}Enchâssement du clou T2 (Stryker) antérograde${dims}.
+Verrouillage proximal par ${f.fmVerrProx||'2 vis'} à l'aide de l'ancillaire.
+Verrouillage distal ${(f.fmVerrDist||'statique').toLowerCase()} par ${f.fmNbVisDist||'2'} vis, trous ronds réalisés à main levée sous contrôle scopique.`;
+  }
+  return `COMPTE-RENDU OPÉRATOIRE — ${titre} ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${indic}.
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal sur table orthopédique.
+Réduction par traction sous contrôle scopique de face et de profil.
+${f.fmGeste==='Clou Gamma long'?'Réduction en rotation externe pour prévenir un trouble de rotation.\n':''}Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+${abord}Incision proximale centrée sur le grand trochanter.
+${temps}
+
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. ${f.fermeture==='Fils'?'Fils.':'Agrafes.'}
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+
+${_dSigBloc()}`;
+}
+
 // ── CRH / Ordonnances (paramétrés) ──
 const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
   const i=f._inter;
+  if(i==='femur'){
+    if(f.appui==='Appui partiel 6 semaines')return "Appui partiel pendant 6 semaines sous couvert de cannes anglaises ou déambulateur";
+    if(f.appui==='Décharge 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines";
+    return "Appui complet immédiat autorisé selon douleurs, sous couvert de cannes anglaises ou déambulateur";
+  }
   if(i==='radius'){
     const immo=(f.immo==='Manchette plâtrée')?'Immobilisation par manchette plâtrée pendant 3 semaines':'Attelle amovible à visée antalgique pendant 3 semaines';
     return immo+" — mobilisation immédiate des doigts, du coude et de l'épaule";
@@ -8118,6 +8199,11 @@ function _crhMotif(f){
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
   if(i==='radius')return 'sa fracture du radius distal '+c;
+  if(i==='femur'){
+    if(f.fmGeste==='Clou Gamma court')return 'sa fracture pertrochantérienne du fémur '+c;
+    if(f.fmGeste==='Clou Gamma long')return 'sa fracture trochantéro-diaphysaire du fémur '+c;
+    return 'sa fracture de la diaphyse fémorale '+cf;
+  }
   if(i==='pth')return 'sa '+((f.indication||'coxarthrose').trim().toLowerCase());
   if(i==='ptg')return 'sa '+((f.indication||'gonarthrose').trim().toLowerCase());
   if(i==='pth_revision')return 'la reprise de sa prothèse totale de hanche '+cf;
@@ -8136,6 +8222,11 @@ function _crhActe(f){
     if(f.chSynd==='Bouton type TightRope (Arthrex)')s+=', avec stabilisation de la syndesmose par bouton dynamique';
     else if(f.chSynd==='Vis quadricorticale')s+=', avec stabilisation de la syndesmose par vis quadricorticale';
     return s;
+  }
+  if(i==='femur'){
+    if(f.fmGeste==='Clou Gamma court')return 'un enclouage par clou Gamma court';
+    if(f.fmGeste==='Clou Gamma long')return 'un enclouage par clou Gamma long';
+    return 'un enclouage centromédullaire antérograde du fémur par clou T2';
   }
   if(i==='radius')return 'une ostéosynthèse par plaque verrouillée antérieure par voie de Henry'+(f.kapandji?', après réduction par embrochage selon la technique de Kapandji':'');
   if(i==='pth')return "la mise en place d'une prothèse totale de hanche "+cf+(f.cupType==='Double mobilité'?' à cotyle double mobilité':'');
@@ -8183,7 +8274,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 — Antalgiques selon prescription
 ${antico}
-Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':'radiographies de contrôle'))}.
+Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':'radiographies de contrôle')))}.
 
 Nous restons à votre disposition.
 
@@ -8312,6 +8403,20 @@ Reprise sportive progressive à partir de S4-S6 selon évolution.`}
 Nombre de séances : 15, à adapter selon progression clinique
 ${_dSig()}${_dRpps()}`;
   }
+  if(inter==='femur'){
+    return `ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DU FÉMUR
+
+${intro}
+
+Reprise de la marche selon les consignes d'appui : ${_crhAppui(f).toLowerCase()}.
+Verticalisation précoce et travail des transferts.
+Renforcement du quadriceps et des muscles fessiers.
+Entretien des amplitudes de hanche et de genou.
+Travail de l'équilibre et prévention des chutes.
+
+Nombre de séances : 30, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
   if(inter==='radius'){
     const platre=f.immo==='Manchette plâtrée';
     return `ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU RADIUS DISTAL
@@ -8413,6 +8518,7 @@ function docContent(doc){
     if(inter==='menisc')return buildCRO_MENISC(f);
     if(inter==='cheville')return buildCRO_CHEVILLE(f);
     if(inter==='radius')return buildCRO_RADIUS(f);
+    if(inter==='femur')return buildCRO_FEMUR(f);
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
@@ -8423,11 +8529,13 @@ function docContent(doc){
   return '(Document non défini)';
 }
 function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
-function openBlocDocs(bi){
+function openBlocDocs(bi,forcedInter){
   const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
-  const inter=detectInter(b.interv||'');
+  const inter=forcedInter||detectInter(b.interv||'');
   DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!(b.ccam&&(b.ccam.code||b.ccam))};
+  DOCF._bi=bi;
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
+  if(inter==='radius')DOCF.anesthesie='ALR (bloc axillaire)';
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
   const noms=[],prenoms=[];
   parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
@@ -8458,6 +8566,11 @@ function docAutoCCAM(){
   const i=DOCF._inter;
   if(i==='ptg'){DOCF.ccam=(+DOCF.degres>10)?'NFKA008':'NFKA007';}
   else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
+  else if(i==='femur'){
+    if(DOCF.fmGeste==='Clou Gamma court')DOCF.ccam='NBCA010';
+    else if(DOCF.fmGeste==='Clou Gamma long')DOCF.ccam='NBCA006';
+    else DOCF.ccam=DOCF.fmAbord?'NBCA007':'NBCB004';
+  }
   else if(i==='cheville'){
     const l=DOCF.chLesion;
     DOCF.ccam=(l==='Malléole latérale isolée')?'NCCA012':(l==='Trimalléolaire')?'NCCA017':'NCCA016';
@@ -8485,10 +8598,19 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
+const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',radius:'Radius distal',femur:'Fémur',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+function docSetTrame(k){
+  if(!DOCF||DOCF._inter===k)return;
+  const keep={ddn:DOCF.ddn,dateSortie:DOCF.dateSortie,aides:DOCF.aides,civ:DOCF.civ};
+  openBlocDocs(DOCF._bi,k);
+  Object.assign(DOCF,keep);
+  renderDocForm();
+}
 function renderDocForm(){
   const host=document.getElementById('doc-form');if(!host)return;
   const opts=DOC_OPTS[DOCF._inter]||[];
-  host.innerHTML=opts.filter(o=>!o.show||o.show(DOCF)).map(o=>{
+  const trameBar='<div class="doc-frow"><div class="doc-flabel">Trame détectée — corrige si besoin</div><div class="doc-pills">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div></div>';
+  host.innerHTML=trameBar+opts.filter(o=>!o.show||o.show(DOCF)).map(o=>{
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:11px;color:var(--text3);">'+o.l+'</div>';
     }
@@ -8496,7 +8618,8 @@ function renderDocForm(){
       return '<div class="doc-cb'+(DOCF[o.k]?' on':'')+'" onclick="setDocF(\''+o.k+'\',!DOCF[\''+o.k+'\'])"><span class="doc-cbx">'+(DOCF[o.k]?'✓':'')+'</span><span>'+o.l+'</span></div>';
     }
     if(o.t==='seg'){
-      return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><div class="doc-pills">'+o.o.map(v=>'<button type="button" class="doc-pill'+(DOCF[o.k]===v?' on':'')+'" onclick="setDocF(\''+o.k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>').join('')+'</div></div>';
+      const oo=(typeof o.o==='function')?o.o(DOCF):o.o;
+      return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><div class="doc-pills">'+oo.map(v=>'<button type="button" class="doc-pill'+(DOCF[o.k]===v?' on':'')+'" onclick="setDocF(\''+o.k+'\',\''+v.replace(/'/g,"\\'")+'\')">'+v+'</button>').join('')+'</div></div>';
     }
     if(o.t==='selx'){
       const cur=DOCF[o.k]||'';
@@ -9074,7 +9197,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v103',
+    version:'atlas-v104',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
