@@ -2629,6 +2629,14 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           </div>
         </div>
 
+        <!-- Contexte septique -->
+        <div class="field-group quick-hide">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:2px 0;">
+            <input type="checkbox" id="f-septique" onchange="toggleSeptique(this.checked)" style="width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;">
+            <span style="font-size:14px;color:var(--text);">Contexte septique <span style="color:var(--text3);font-size:12px;">(reprise infectieuse, lavage…)</span></span>
+          </label>
+        </div>
+
         <!-- Tags -->
         <div class="field-group quick-hide">
           <div class="field">
@@ -3509,6 +3517,13 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <textarea id="e-remarques" placeholder="Notes libres, contact…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:80px;resize:vertical;font-size:16px;"></textarea>
           </div>
           <div class="ed-row">
+            <span class="ed-k">Contexte septique</span>
+            <label style="display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;">
+              <input type="checkbox" id="e-septique" onchange="toggleSeptiqueEdit(this.checked)" style="width:18px;height:18px;accent-color:var(--accent);">
+              <span style="font-size:14px;color:var(--text);">Reprise / contexte septique</span>
+            </label>
+          </div>
+          <div class="ed-row">
             <span class="ed-k">Tags</span>
             <div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()">
               <input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags">
@@ -3598,10 +3613,10 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 // Trauma a une structure hiérarchique (sections) — la liste plate est générée pour rétrocompat
 const INTERV_HIER = {
   Genou: {
-    '': ['PTG','RePTG','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Ostéotomie','TTA + MPFL','Autre']
+    '': ['PTG','RePTG','PUC','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Ostéotomie','TTA + MPFL','Ablation de matériel','Autre']
   },
   Hanche: {
-    '': ['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH','PTH de révision','Autre']
+    '': ['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH','PTH de révision','Changement d\'insert ± tête','Ablation de matériel','Autre']
   },
   Epaule: {
     '': ['Réparation de coiffe','Acromioplastie','Bankart','Butée coracoïdienne','PTEi','PTE anatomique','Ténodèse/ténotomie long biceps','Révision PTE','Résection acromio-claviculaire','Autre']
@@ -3616,34 +3631,37 @@ const INTERV_HIER = {
     '': ['Canal lombaire étroit','Discectomie pour hernie discale','Arthrodèse lombaire dégénérative','Arthrodèse cervicale','Scoliose','Décompression cervicale','Reprise arthrodèse','Kyphoplastie/vertébroplastie','Autre']
   },
   Pediatrie: {
-    '': ['Autre']
+    '': ['Supracondylienne (embrochage)','Deux os avant-bras (ECMES)','ECMES fémur','ECMES tibia','Épiphysiolyse (vissage)','Autre']
   },
   Coude: {
-    '': ['Autre']
+    '': ['Prothèse totale de coude','Arthrolyse','Neurolyse ulnaire au coude','Arthroscopie de coude','Épicondylite','Autre']
+  },
+  Septique: {
+    '': ['Lavage articulaire natif','Lavage de prothèse (DAIR)','Dépose de prothèse — spacer','Parage de plaie','Autre']
   },
   Traumatologie: {
     'Membre inférieur': {
-      'Bassin': '__LIBRE__',
-      'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage'],
-      'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long'],
-      'Genou': ['Fracture de rotule'],
-      'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial'],
-      'Cheville': ['Malléole latérale','Fracture bi-malléolaire','Fracture tri-malléolaire'],
-      'Pied': '__LIBRE__',
+      'Bassin': ['Paroi postérieure','Colonne antérieure','Colonne postérieure','Bi-colonne','Transverse ± paroi','Symphyse pubienne','Sacrum / anneau postérieur','Fixateur externe bassin'],
+      'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage','DHS','Prothèse intermédiaire'],
+      'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long','Clou rétrograde','Fémur distal (plaque)','Pseudarthrose fémur'],
+      'Genou': ['Fracture de rotule','Tendon rotulien (réinsertion)','Tendon quadricipital'],
+      'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial','Plaque tibia distal','Fixateur externe tibia','Pseudarthrose tibia'],
+      'Cheville': ['Malléole latérale','Malléole médiale isolée','Fracture bi-malléolaire','Équivalent bimalléolaire','Fracture tri-malléolaire','Rupture du tendon d\'Achille'],
+      'Pied': ['Calcanéum','Talus','Lisfranc','Métatarsiens','Phalanges / orteils','Luxation péri-talienne'],
       'Autre': '__LIBRE__'
     },
     'Membre supérieur': {
       'Épaule': ['PTEI','Plaque humérus proximal','Clou humérus court'],
-      'Clavicule': '__LIBRE__',
+      'Clavicule': ['Diaphyse clavicule','Quart externe clavicule','Luxation acromio-claviculaire','Pseudarthrose clavicule'],
       'Humérus': ['Plaque humérus diaphyse','Clou long humérus'],
-      'Coude': ['Palette humérale','Terrible triade','Tête radiale','Olécrane'],
-      'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire'],
-      'Poignet': ['Plaque radius distal','Plaque ulna distal','Kapandji'],
-      'Main': '__LIBRE__',
+      'Coude': ['Palette humérale','Terrible triade','Tête radiale','Olécrane','Réinsertion biceps distal','Luxation de coude','Fixateur externe coude'],
+      'Avant bras': ['Galeazzi','Monteggia','Diaphyse radiale','Diaphyse ulnaire','2 os de l\'avant-bras'],
+      'Poignet': ['Plaque radius distal','Plaque ulna distal','Kapandji','Scaphoïde','Luxation périlunaire','Fixateur externe poignet'],
+      'Main': ['5e métacarpien (boxeur)','Métacarpiens','Phalanges','Bennett','Tendons fléchisseurs','Tendons extenseurs'],
       'Autre': '__LIBRE__'
     },
     'Péri-prothétiques': {
-      '': ['Fracture péri-PTH','Fracture péri-PTG','Fracture péri-PTE']
+      '': ['Péri-PTH Vancouver A — crochet','Péri-PTH Vancouver A — plaque','Péri-PTH Vancouver B — plaque + cerclages','Péri-PTH Vancouver B — changement PTH + cerclages','Péri-PTH Vancouver C — plaque','Péri-PTG fémur — plaque','Péri-PTG — PTG de reconstruction ± plaque','Péri-PTC — plaque','Péri-PTC — changement PTC + plaque','Fracture péri-PTE','Fracture sur matériel d\'ostéosynthèse']
     }
   }
 };
@@ -3912,6 +3930,7 @@ const ALL_SPECS = [
   { id:'Rachis',       label:'Rachis',        color:'#8a6a7a',       icon:'<path d="M12 2.5V21.5"/><path d="M8.5 5.5h7"/><path d="M8.5 9h7"/><path d="M8.5 12.5h7"/><path d="M8.5 16h7"/><path d="M9.5 19.5h5"/>'},
   { id:'Traumatologie',label:'Trauma',        color:'var(--warm)',   icon:'<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>'},
   { id:'Pediatrie',    label:'Pediatrique',   color:'#6aaa8a',       icon:'<circle cx="12" cy="6" r="3.2"/><path d="M12 9.2v6.3"/><path d="M7.5 12h9"/><path d="M12 15.5 8.8 21"/><path d="M12 15.5 15.2 21"/>'},
+  { id:'Septique',     label:'Septique',      color:'#b3593a',       icon:'<path d="M12 2.7 6.8 10.2a6.4 6.4 0 1 0 10.4 0Z"/><path d="M9.3 14.2a2.8 2.8 0 0 0 2.6 2.7"/>'},
   { id:'Autre',        label:'Autre',         color:'var(--text3)',  icon:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>'},
 ];
 
@@ -3926,7 +3945,7 @@ function getActiveSpecs(){
 function setActiveSpecs(arr){localStorage.setItem(SPECS_KEY,JSON.stringify(arr));}
 
 function isOrthoSpec(specId){
-  return ['Genou','Hanche','Epaule','Coude','Main','Cheville','Rachis','Pediatrie','Autre'].includes(specId);
+  return ['Genou','Hanche','Epaule','Coude','Main','Cheville','Rachis','Pediatrie','Septique','Autre'].includes(specId);
 }
 function getSpecConfig(specId){
   return ALL_SPECS.find(s=>s.id===specId)||{id:specId,label:specId,color:'var(--text3)',icon:''};
@@ -5005,8 +5024,8 @@ function toggleEditImplantPill(el){
 function openSaveModal(){openModal('save-modal');}
 function openImplantCatalog(){sw('implants');}
 function renderImplantCatalog(){renderImplantsList();}
-const IMP_TYPES=[['tige','Tige'],['cotyle','Cotyle'],['insert','Insert'],['prothese','Prothèse'],['plaque','Plaque'],['clou','Clou'],['ancre','Ancre'],['vis','Vis'],['autre','Autre']];
-const IMP_TYPES_PLURAL={tige:'Tiges',cotyle:'Cotyles',insert:'Inserts',prothese:'Prothèses',plaque:'Plaques',clou:'Clous',ancre:'Ancres',vis:'Vis',autre:'Autres','':'Sans type'};
+const IMP_TYPES=[['tige','Tige'],['cotyle','Cotyle'],['insert','Insert'],['prothese','Prothèse'],['plaque','Plaque'],['clou','Clou'],['ancre','Ancre'],['vis','Vis'],['renfort','Renfort'],['autre','Autre']];
+const IMP_TYPES_PLURAL={tige:'Tiges',cotyle:'Cotyles',insert:'Inserts',prothese:'Prothèses',plaque:'Plaques',clou:'Clous',ancre:'Ancres',vis:'Vis',renfort:'Renforts',autre:'Autres','':'Sans type'};
 function impTypeLabel(t){const e=IMP_TYPES.find(x=>x[0]===t);return e?e[1]:'';}
 function implUsage(label){
   let n=0,year=0,last='';
@@ -6120,7 +6139,8 @@ function saveEdit(){
   const _eSelVal = document.getElementById('e-interv').value || '';
   const _eLibre = (document.getElementById('e-interv-libre').value||'').trim();
   let _eIv = _eSelVal;
-  if(_eSelVal.includes('__LIBRE__')){
+  if(_eLibre&&/^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(_eLibre)){_eIv=_eLibre;}
+  else if(_eSelVal.includes('__LIBRE__')){
     if(!_eLibre){showToast('Préciser l\'intervention');return;}
     _eIv = _eSelVal === '__LIBRE__' ? _eLibre : _eSelVal.replace(' — __LIBRE__', ' — ' + _eLibre);
   }
@@ -6175,6 +6195,7 @@ function handleEditTag(e){
 }
 function removeEditTag(t){editTags=editTags.filter(x=>x!==t);renderEditTags();}
 function renderEditTags(){
+  const _sc=document.getElementById('e-septique');if(_sc)_sc.checked=editTags.includes('Septique');
   const c=document.getElementById('e-tag-wrap');if(!c)return;
   const f=document.getElementById('etf');c.innerHTML='';
   editTags.forEach(t=>{const el=document.createElement('span');el.className='tag';const rm=document.createElement('span');rm.className='tag-rm';rm.textContent='×';rm.onclick=()=>removeEditTag(t);el.textContent=t;el.appendChild(rm);c.appendChild(el);});
@@ -6456,7 +6477,18 @@ function handleTag(e){
   else if(e.key==='Backspace'&&!e.target.value&&formTags.length){formTags.pop();renderTags();}
 }
 function removeTag(t){formTags=formTags.filter(x=>x!==t);renderTags();}
+function toggleSeptique(on){
+  if(on){if(!formTags.includes('Septique'))formTags.push('Septique');}
+  else formTags=formTags.filter(t=>t!=='Septique');
+  renderTags();
+}
+function toggleSeptiqueEdit(on){
+  if(on){if(!editTags.includes('Septique'))editTags.push('Septique');}
+  else editTags=editTags.filter(t=>t!=='Septique');
+  renderEditTags();
+}
 function renderTags(){
+  const _sc=document.getElementById('f-septique');if(_sc)_sc.checked=formTags.includes('Septique');
   // New saisie: f-tags-display
   const disp=document.getElementById('f-tags-display');
   if(disp){disp.innerHTML=formTags.map(t=>`<span style="font-size:11px;background:var(--accent-l);color:var(--accent);padding:3px 9px;border-radius:99px;font-weight:500;display:inline-flex;align-items:center;gap:4px;">${esc(t)} <span onclick="removeTag('${t}')" style="cursor:pointer;opacity:0.7;">×</span></span>`).join('');return;}
@@ -6477,6 +6509,20 @@ function runHospitMigration(){
     }
   });
   if(count>0){saveLocal();console.info('[Atlas] Migration hospit : '+count+' bloc(s) mis à jour');}
+  localStorage.setItem(FLAG,'1');
+}
+// v116 : répare les intitulés trauma dupliqués (« Membre inférieur — X — Membre inférieur — Y — … »)
+function runPathDupMigration(){
+  const FLAG='atlas_pathdup_migrated_v1';
+  if(localStorage.getItem(FLAG))return;
+  const R='(?:Membre inférieur|Membre supérieur|Péri-prothétiques)';
+  const re=new RegExp('^'+R+' — .*?('+R+' — .+)$');
+  let n=0;
+  blocs.forEach(b=>{
+    const m=re.exec(b.interv||'');
+    if(m&&m[1]&&m[1]!==b.interv){b.interv=m[1];n++;}
+  });
+  if(n>0){saveLocal();console.info('[Atlas] Migration chemins : '+n+' intitulé(s) réparé(s)');}
   localStorage.setItem(FLAG,'1');
 }
 // ── PTG / HOSPIT helpers ──
@@ -6508,6 +6554,7 @@ function onSpecChange(spec){
   // Reset PTG fields si on change de spécialité
   const ptgFields=document.getElementById('ptg-fields');
   if(ptgFields)ptgFields.style.display='none';
+  if(spec==='Septique'&&!formTags.includes('Septique')){formTags.push('Septique');renderTags();}
   renderAbordPills(spec);
 }
 // Retourne l'ID d'un patient existant ou en crée un nouveau
@@ -6561,6 +6608,8 @@ function saveBloc(){
   const libreEl=document.getElementById('f-interv-libre');
   const libreVal=(libreEl?libreEl.value:'').trim();
   let iv=(intervH?intervH.value:'').trim()||libreVal;
+  // v116 : texte libre déjà canonique (pré-rempli depuis planning/édition) → ne pas re-préfixer
+  if(libreVal&&/^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(libreVal))iv=libreVal;
   // Si f-interv contient __LIBRE__ → substituer par le texte saisi, en conservant le contexte région
   if(iv.includes('__LIBRE__')){
     if(libreVal){
@@ -7332,7 +7381,7 @@ function renderTopInterventions(){
     return`<div class="s-rank" onclick="showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})">
       <div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-no${rank<=3?' top':''}">${rank}</span><span class="s-rank-label">${esc(displayInterv(name))}</span></div><span class="s-rank-count">${v.total}<span class="s-chev">›</span></span></div>
       <div class="s-rank-bar"><s style="width:${Math.round(v.total/max*100)}%;background:${color};"></s></div>
-      <div class="s-rank-meta"><span class="s-tagpill p">Principal ${v.principal}</span><span class="s-tagpill a">Aide ${v.aide}</span></div>
+      <div class="s-rank-meta"><span class="s-tagpill p">Principal ${v.principal}</span><span class="s-tagpill a">Aide ${v.aide}</span>${(n=>n?'<span class="s-tagpill" style="background:color-mix(in srgb, #b3593a 14%, transparent);color:#b3593a;">Septique '+n+'</span>':'')(v.blocs.filter(b=>(b.tags||[]).some(t=>normalizeTag(t)==='Septique')).length)}</div>
     </div>`;
   }).join('');
 }
@@ -7742,6 +7791,9 @@ const DOC_OPTS={
     {k:'cotyleModele',t:'selx',l:'Cotyle — modèle',def:'CAPTIV',impType:'cotyle'},
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52'},
     {k:'insertMat',t:'seg',l:'Insert acétabulaire',o:['Polyéthylène','Céramique'],def:'Polyéthylène',show:f=>f.cupType==='Simple mobilité'},
+    {k:'renfort',t:'check',l:'Renfort acétabulaire',def:false},
+    {k:'renfortModele',t:'selx',l:'Renfort — modèle',def:'',impType:'renfort',show:f=>f.renfort},
+    {k:'renfortNbVis',t:'num',l:'Renfort — nombre de vis',def:'2',show:f=>f.renfort},
     {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige'},
     {k:'tigeLat',t:'check',l:'Tige latéralisée',def:true},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12'},
@@ -7985,11 +8037,14 @@ const _MEN_REPAIR=/Suture|rampe|Racine/i;
 function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.menLat||'')||!!f.menMedOut||!!f.menLatOut;}
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
+  if(/péri-pt|peri-pt|périproth|periproth/.test(s))return 'fracture';
+  if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage/.test(s))return 'fracture';
+  if(/tendon/.test(s))return 'fracture';
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
   if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
-  if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/arthroscopie/.test(s))return /cheville|poignet|coude|hanche|épaule|epaule/.test(s)?'fracture':'arthroscopie';
   if(/(clou|enclouage).{0,14}hum[ée]rus|hum[ée]rus.{0,14}(clou|enclouage)|clou (long )?hum|diaphyse hum/.test(s))return 'humerus';
   if(/(clou|enclouage).{0,14}tibia|tibia.{0,14}(clou|enclouage)|diaphyse tibiale/.test(s))return 'tibia';
   if(/plaque.{0,14}f[ée]mur|f[ée]mur.{0,14}plaque|f[ée]mur distal|supracondyl/.test(s))return 'femurplaque';
@@ -8046,7 +8101,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -8069,8 +8124,10 @@ Exposition du cotyle.
 Ablation du labrum.
 Ablation du reliquat du ligament rond de la tête fémorale.
 Repérage du ligament transverse.
-Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
-La tenue primaire est excellente.
+${f.renfort?`Fraisages de tailles croissantes.
+Mise en place d'un renfort acétabulaire${f.renfortModele?' '+f.renfortModele:''}, fixé par ${f.renfortNbVis||'—'} vis.
+Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille} dans le renfort, légèrement plus antéversé que le transverse.`:`Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.`}
 
 Temps fémoral :
 Exposition du fût fémoral jambe au zénith.
@@ -8760,8 +8817,8 @@ function _crhActe(f){
     return 'un enclouage centromédullaire antérograde du fémur par clou T2';
   }
   if(i==='radius')return 'une ostéosynthèse par plaque verrouillée antérieure par voie de Henry'+(f.kapandji?', après réduction par embrochage selon la technique de Kapandji':'');
-  if(i==='pth')return "la mise en place d'une prothèse totale de hanche "+cf+(f.cupType==='Double mobilité'?' à cotyle double mobilité':'')+(f.crochet?' avec crochet trochantérien':'');
-  if(i==='pth_revision')return "un changement de prothèse totale de hanche ("+String(f.revPieces||'').toLowerCase()+")";
+  if(i==='pth')return "la mise en place d'une prothèse totale de hanche "+cf+(f.cupType==='Double mobilité'?' à cotyle double mobilité':'')+(f.crochet?' avec crochet trochantérien':'')+(f.renfort?' avec renfort acétabulaire':'');
+  if(i==='pth_revision')return "un changement de prothèse totale de hanche ("+String(f.revPieces||'').toLowerCase()+")"+(f.renfort?" avec renfort acétabulaire":"");
   if(i==='ptg')return "la mise en place d'une prothèse totale de genou "+c;
   if(i==='lca')return "une ligamentoplastie du ligament croisé antérieur selon la technique du "+(f.greffon||'DT3+2');
   if(i==='menisc'){
@@ -9875,7 +9932,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v115',
+    version:'atlas-v116',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -10193,6 +10250,7 @@ function showApp(){
   try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
   try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
   try{runHospitMigration();}catch(e){console.warn('migration hospit échouée:',e);}
+  try{runPathDupMigration();}catch(e){console.warn('migration chemins échouée:',e);}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
