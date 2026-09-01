@@ -7552,7 +7552,7 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010'};
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006'};
 const DOC_DOCS={
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -7562,6 +7562,7 @@ const DOC_DOCS={
   cheville:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   radius:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   femur:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
+  tibia:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   arthroscopie:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   fracture:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   ablation:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel']
@@ -7622,7 +7623,9 @@ const DOC_OPTS={
     {k:'greffon',t:'seg',l:'Greffon',o:['DT3+2','DIDT','DT4'],def:'DT3+2'},
     {k:'diamTib',t:'num',l:'Ø tunnel tibial (mm)',def:'9'},
     {k:'diamFem',t:'num',l:'Ø tunnel fémoral (mm)',def:'9'},
-    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'ressaut',t:'check',l:'Ressaut rotatoire pré-opératoire',def:true},
     {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Lésion de rampe (RAMP)','Racine méniscale'],def:'RAS'},
     {k:'menMedOut',t:'check',l:'+ points outside-in associés (médial)',def:false,show:f=>f.menMed==='Suture all-inside'},
@@ -7643,7 +7646,9 @@ const DOC_OPTS={
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'21',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes','matCryo'])),
   menisc:[..._COMMON,
-    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'menMed',t:'seg',l:'Ménisque médial',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Lésion de rampe (RAMP)','Racine méniscale'],def:'Méniscectomie partielle'},
     {k:'menMedOut',t:'check',l:'+ points outside-in associés (médial)',def:false,show:f=>f.menMed==='Suture all-inside'},
     {k:'menLat',t:'seg',l:'Ménisque latéral',o:['RAS','Méniscectomie partielle','Suture all-inside','Suture outside-in','Racine méniscale'],def:'RAS'},
@@ -7665,11 +7670,14 @@ const DOC_OPTS={
     {k:'chLesion',t:'seg',l:'Type de lésion',o:['Malléole latérale isolée','Bimalléolaire','Trimalléolaire','Équivalent bimalléolaire'],def:'Malléole latérale isolée'},
     {k:'chCompr',t:'seg',l:'Compression du trait fibulaire',o:['Aucune','Vis antéro-postérieure','Nice knot'],def:'Aucune'},
     {k:'chPlaqueModele',t:'selx',l:'Plaque latérale — modèle',def:''},
-    {k:'chNbVis',t:'num',l:'Plaque latérale — nombre de vis',def:'6'},
+    {k:'chNbVisEpi',t:'num',l:'Plaque latérale — vis épiphysaires',def:'3'},
+    {k:'chNbVisDia',t:'num',l:'Plaque latérale — vis diaphysaires',def:'3'},
     {k:'chFixMed',t:'check',l:'Ostéosynthèse malléole médiale (2 vis canulées)',def:false},
     {k:'chFixPost',t:'seg',l:'Malléole postérieure',o:['Abstention (fragment < 25 %)','Plaque console tiers de tube','Plaque console + vis canulées','Vis canulées seules'],def:'Abstention (fragment < 25 %)'},
     {k:'chSynd',t:'seg',l:'Syndesmose (après testing)',o:['Stable — abstention','Bouton type TightRope (Arthrex)','Vis quadricorticale'],def:'Stable — abstention'},
-    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300'},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Botte de marche','Attelle postérieure','Aucune'],def:'Botte de marche'},
     {k:'appui',t:'seg',l:'Appui',o:['Botte + appui protégé à J15','Décharge stricte 6 semaines','Appui immédiat selon douleurs'],def:'Botte + appui protégé à J15'},
@@ -7682,7 +7690,10 @@ const DOC_OPTS={
     {k:'brochesGardees',t:'check',l:'Broches laissées en place (recourbées et enfouies)',def:false,show:f=>f.kapandji},
     {k:'rxPlaqueModele',t:'selx',l:'Plaque antérieure — modèle',def:''},
     {k:'rxNbVis',t:'num',l:'Vis épiphysaires — nombre',def:'4'},
-    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250'},
+    {k:'rxNbVisDia',t:'num',l:'Vis diaphysaires — nombre',def:'3'},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Attelle amovible 3 semaines (antalgique)','Manchette plâtrée'],def:'Attelle amovible 3 semaines (antalgique)'},
     {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
@@ -7708,6 +7719,25 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matDeambulateur'])),
+  tibia:[..._COMMON,
+    {k:'tbDiam',t:'num',l:'Clou — diamètre (mm)',def:'',ph:'mm'},
+    {k:'tbLong',t:'num',l:'Clou — longueur (mm)',def:'',ph:'mm'},
+    {k:'tbAlesage',t:'check',l:'Alésage',def:false},
+    {k:'tbPoller',t:'check',l:'Vis de Poller',def:false},
+    {k:'tbVerrProx',t:'num',l:'Verrouillage proximal — nombre de vis',def:'2'},
+    {k:'tbVerrDist',t:'seg',l:'Verrouillage distal',o:['Statique','Dynamique'],def:'Statique'},
+    {k:'tbNbVisDist',t:'num',l:'Verrouillage distal — nombre de vis',def:'2'},
+    {k:'tbAbord',t:'check',l:'Abord du foyer pour réduction',def:false},
+    {k:'tbCerclages',t:'num',l:'Nombre de cerclages',def:'0',show:f=>f.tbAbord},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'appui',t:'seg',l:'Appui',o:['Appui complet immédiat selon douleurs','Appui partiel 6 semaines','Décharge 6 semaines'],def:'Appui complet immédiat selon douleurs'},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'30',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes'])),
   arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat(['matCannes'])),
   fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},{k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC — membre supérieur)',def:false},_AINS].concat(_mat([])),
   ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([]))
@@ -7723,6 +7753,7 @@ function detectInter(interv){
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
   if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/(clou|enclouage).{0,14}tibia|tibia.{0,14}(clou|enclouage)|diaphyse tibiale/.test(s))return 'tibia';
   if(/gamma|pertroch|f[ée]mur|clou t2/.test(s))return 'femur';
   if(/radius|poignet|kapandji|pouteau|goyrand/.test(s))return 'radius';
   if(/mall[ée]ol|bi-?mall|tri-?mall|cheville/.test(s))return 'cheville';
@@ -7896,8 +7927,7 @@ Check-list.
 Prélèvement du greffon :
 ${prel}
 
-Gonflage du garrot pneumatique à la racine du membre à ${f.garrot} mmHg.
-
+${_garrotLine(f)}
 Temps arthroscopique :
 Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
 Exploration systématique du genou :
@@ -7940,7 +7970,7 @@ Test de Lachman négatif.
 Tiroir antérieur négatif.
 Isométrie satisfaisante en fin d'intervention.
 
-Fermeture des plans sous-cutanés au Vicryl 2-0.
+${_garrotFin(f)}Fermeture des plans sous-cutanés au Vicryl 2-0.
 Fermeture plan cutané au Vicryl 3-0 rapide.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
@@ -7962,8 +7992,7 @@ Installation en décubitus dorsal, genou fléchi à 90°.
 Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
-Gonflage du garrot pneumatique à la racine du membre à ${f.garrot} mmHg.
-
+${_garrotLine(f)}
 Temps arthroscopique :
 Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
 Exploration systématique du genou :
@@ -7974,7 +8003,7 @@ Exploration systématique du genou :
 ${_sutureMatLine(f)}
 ${f.chondroplastie?'Chondroplastie de régularisation.\n':''}${f.synovectomie?'Synovectomie partielle.\n':''}Lavage articulaire abondant.
 
-Fermeture des voies d'abord par points séparés.
+${_garrotFin(f)}Fermeture des voies d'abord par points séparés.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -7983,6 +8012,8 @@ ${_dSigBloc()}`;
 const CH_TITRE={'Malléole latérale isolée':'FRACTURE DE LA MALLÉOLE LATÉRALE','Bimalléolaire':'FRACTURE BIMALLÉOLAIRE','Trimalléolaire':'FRACTURE TRIMALLÉOLAIRE','Équivalent bimalléolaire':'ÉQUIVALENT BIMALLÉOLAIRE'};
 const CH_INDIC={'Malléole latérale isolée':'Fracture isolée de la malléole latérale','Bimalléolaire':'Fracture bimalléolaire','Trimalléolaire':'Fracture trimalléolaire','Équivalent bimalléolaire':'Équivalent bimalléolaire'};
 function _coteAcc(f){const c=coteStrD(f);return ((f._inter==='pth'||f._inter==='pth_revision'||f._inter==='cheville')&&c==='droit')?'droite':c;}
+function _garrotLine(f){return f.garrotOn?('Gonflage du garrot pneumatique à la racine du membre à '+(f.garrot||'300')+' mmHg.\n'):'';}
+function _garrotFin(f){return (f.garrotOn&&f.garrotMin)?('Temps de garrot : '+f.garrotMin+' minutes.\n'):'';}
 function _chPostFixed(f){return f.chFixPost&&f.chFixPost.indexOf('Abstention')!==0;}
 function _chComprLine(f){
   if(f.chCompr==='Vis antéro-postérieure')return 'Vissage inter-fragmentaire en compression par vis antéro-postérieure.\n';
@@ -7990,7 +8021,7 @@ function _chComprLine(f){
   return '';
 }
 function _chPlaqueLine(f){
-  return 'Ostéosynthèse par plaque verrouillée latérale'+(f.chPlaqueModele?' '+f.chPlaqueModele:'')+' fixée par '+(f.chNbVis||'—')+' vis.';
+  return 'Ostéosynthèse par plaque verrouillée latérale'+(f.chPlaqueModele?' '+f.chPlaqueModele:'')+' fixée par '+(f.chNbVisEpi||'—')+' vis épiphysaires et '+(f.chNbVisDia||'—')+' vis diaphysaires.';
 }
 function _chPostLine(f){
   if(f.chFixPost==='Plaque console + vis canulées')return 'Ostéosynthèse par plaque console tiers de tube complétée par vis spongieuses partiellement filetées canulées.';
@@ -8020,7 +8051,7 @@ ${r}
 function _chFin(f){
   return `
 Contrôle scopique final de face et de profil : réduction anatomique, matériel en place.
-Rinçage abondant.
+${_garrotFin(f)}Rinçage abondant.
 Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.${f.immo&&f.immo!=='Aucune'?'\n'+(f.immo==='Botte de marche'?'Botte de marche.':'Attelle postérieure.'):''}
 
@@ -8041,8 +8072,8 @@ CCAM : ${f.ccam}
   const prep=`Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
-Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'300'} mmHg.
-`;
+${f.garrotOn?`Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'300'} mmHg.
+`:''}`;
   if(_chPostFixed(f)){
     return head+`
 Installation en décubitus ventral, coussin sous le cou-de-pied.
@@ -8092,8 +8123,8 @@ Installation en décubitus dorsal, membre supérieur sur table à bras.
 Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
-Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'250'} mmHg.
-${f.kapandji?`
+${f.garrotOn?`Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'250'} mmHg.
+`:''}${f.kapandji?`
 Réduction première par manœuvres externes sous contrôle scopique.
 Embrochage intrafocal selon la technique de Kapandji.
 `:''}
@@ -8101,9 +8132,9 @@ Voie d'abord antérieure de Henry.
 Ouverture de la gaine du fléchisseur radial du carpe, refoulement du paquet vasculaire radial.
 Désinsertion du carré pronateur au ras de son bord radial.
 Exposition du foyer de fracture, réduction anatomique satisfaisante sous contrôle scopique.
-Ostéosynthèse par plaque verrouillée antérieure${f.rxPlaqueModele?' '+f.rxPlaqueModele:''}, ${f.rxNbVis||'—'} vis épiphysaires verrouillées et vis diaphysaires.
+Ostéosynthèse par plaque verrouillée antérieure${f.rxPlaqueModele?' '+f.rxPlaqueModele:''}, ${f.rxNbVis||'—'} vis épiphysaires verrouillées et ${f.rxNbVisDia||'—'} vis diaphysaires.
 ${f.kapandji?(f.brochesGardees?'Broches de Kapandji laissées en place, recourbées et enfouies en sous-cutané.':'Ablation des broches de réduction.')+'\n':''}Contrôle scopique final de face et de profil : réduction et matériel en place, absence de vis intra-articulaire.
-Rinçage abondant. Réinsertion du carré pronateur.
+${_garrotFin(f)}Rinçage abondant. Réinsertion du carré pronateur.
 Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 ${f.immo==='Manchette plâtrée'?'Immobilisation par manchette plâtrée.':'Attelle amovible de poignet à visée antalgique.'}
@@ -8166,11 +8197,45 @@ Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 ${_dSigBloc()}`;
 }
 
+function buildCRO_TIBIA(f){
+  const cote=coteStrD(f);
+  const dims=(f.tbDiam||f.tbLong)?((f.tbDiam?', diamètre '+f.tbDiam+' mm':'')+(f.tbLong?', longueur '+f.tbLong+' mm':'')):'';
+  const abord=f.tbAbord?('Abord direct du foyer pour aide à la réduction.\n'+((+f.tbCerclages>0)?('Mise en place de '+f.tbCerclages+' cerclage'+(+f.tbCerclages>1?'s':'')+'.\n'):'')):'';
+  return `COMPTE-RENDU OPÉRATOIRE — ENCLOUAGE CENTROMÉDULLAIRE DU TIBIA ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Fracture de la diaphyse tibiale ${cote==='droit'?'droite':cote}.
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal, jambe pendante.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+${_garrotLine(f)}
+${abord}Abord trans-tendineux patellaire.
+Point d'entrée à la pointe carrée, position contrôlée en scopie de face et de profil.
+Mise en place du guide, réduction sous contrôle scopique.
+${f.tbAlesage?'Alésage progressif.\n':''}Enchâssement du clou T2 (Stryker)${dims}.
+${f.tbPoller?'Mise en place d\'une vis de Poller pour contrôle de la réduction.\n':''}Verrouillage proximal par ${f.tbVerrProx||'2'} vis à l'aide de l'ancillaire.
+Verrouillage distal ${(f.tbVerrDist||'statique').toLowerCase()} par ${f.tbNbVisDist||'2'} vis, trous ronds réalisés à main levée sous contrôle scopique.
+
+Contrôle scopique final de face et de profil : réduction et matériel en place, absence de trouble de rotation.
+${_garrotFin(f)}Rinçage abondant.
+Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+
+${_dSigBloc()}`;
+}
+
 // ── CRH / Ordonnances (paramétrés) ──
 const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
   const i=f._inter;
-  if(i==='femur'){
+  if(i==='femur'||i==='tibia'){
     if(f.appui==='Appui partiel 6 semaines')return "Appui partiel pendant 6 semaines sous couvert de cannes anglaises ou déambulateur";
     if(f.appui==='Décharge 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines";
     return "Appui complet immédiat autorisé selon douleurs, sous couvert de cannes anglaises ou déambulateur";
@@ -8199,6 +8264,7 @@ function _crhMotif(f){
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
   if(i==='radius')return 'sa fracture du radius distal '+c;
+  if(i==='tibia')return 'sa fracture de la diaphyse tibiale '+cf;
   if(i==='femur'){
     if(f.fmGeste==='Clou Gamma court')return 'sa fracture pertrochantérienne du fémur '+c;
     if(f.fmGeste==='Clou Gamma long')return 'sa fracture trochantéro-diaphysaire du fémur '+c;
@@ -8223,6 +8289,7 @@ function _crhActe(f){
     else if(f.chSynd==='Vis quadricorticale')s+=', avec stabilisation de la syndesmose par vis quadricorticale';
     return s;
   }
+  if(i==='tibia')return 'un enclouage centromédullaire du tibia par clou T2';
   if(i==='femur'){
     if(f.fmGeste==='Clou Gamma court')return 'un enclouage par clou Gamma court';
     if(f.fmGeste==='Clou Gamma long')return 'un enclouage par clou Gamma long';
@@ -8274,7 +8341,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 — Antalgiques selon prescription
 ${antico}
-Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':'radiographies de contrôle')))}.
+Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':'radiographies de contrôle'))))}.
 
 Nous restons à votre disposition.
 
@@ -8403,6 +8470,20 @@ Reprise sportive progressive à partir de S4-S6 selon évolution.`}
 Nombre de séances : 15, à adapter selon progression clinique
 ${_dSig()}${_dRpps()}`;
   }
+  if(inter==='tibia'){
+    return `ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DU TIBIA
+
+${intro}
+
+Reprise de la marche selon les consignes d'appui : ${_crhAppui(f).toLowerCase()}.
+Entretien des amplitudes du genou et de la cheville.
+Renforcement du quadriceps et du triceps sural.
+Lutte contre l'œdème (surélévation, drainage).
+Proprioception et reprise progressive des activités selon consolidation.
+
+Nombre de séances : 20, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
   if(inter==='femur'){
     return `ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DU FÉMUR
 
@@ -8519,6 +8600,7 @@ function docContent(doc){
     if(inter==='cheville')return buildCRO_CHEVILLE(f);
     if(inter==='radius')return buildCRO_RADIUS(f);
     if(inter==='femur')return buildCRO_FEMUR(f);
+    if(inter==='tibia')return buildCRO_TIBIA(f);
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
@@ -8533,7 +8615,7 @@ function openBlocDocs(bi,forcedInter){
   const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
   const inter=forcedInter||detectInter(b.interv||'');
   DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!(b.ccam&&(b.ccam.code||b.ccam))};
-  DOCF._bi=bi;
+  DOCF._bi=bi;window._trameEdit=false;
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   if(inter==='radius')DOCF.anesthesie='ALR (bloc axillaire)';
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
@@ -8566,6 +8648,7 @@ function docAutoCCAM(){
   const i=DOCF._inter;
   if(i==='ptg'){DOCF.ccam=(+DOCF.degres>10)?'NFKA008':'NFKA007';}
   else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
+  else if(i==='tibia'){DOCF.ccam=DOCF.tbAbord?'NCCA002':'NCCB006';}
   else if(i==='femur'){
     if(DOCF.fmGeste==='Clou Gamma court')DOCF.ccam='NBCA010';
     else if(DOCF.fmGeste==='Clou Gamma long')DOCF.ccam='NBCA006';
@@ -8598,9 +8681,10 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',radius:'Radius distal',femur:'Fémur',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',radius:'Radius distal',femur:'Fémur',tibia:'Tibia (clou)',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
-  if(!DOCF||DOCF._inter===k)return;
+  window._trameEdit=false;
+  if(!DOCF||DOCF._inter===k){renderDocForm();return;}
   const keep={ddn:DOCF.ddn,dateSortie:DOCF.dateSortie,aides:DOCF.aides,civ:DOCF.civ};
   openBlocDocs(DOCF._bi,k);
   Object.assign(DOCF,keep);
@@ -8609,7 +8693,9 @@ function docSetTrame(k){
 function renderDocForm(){
   const host=document.getElementById('doc-form');if(!host)return;
   const opts=DOC_OPTS[DOCF._inter]||[];
-  const trameBar='<div class="doc-frow"><div class="doc-flabel">Trame détectée — corrige si besoin</div><div class="doc-pills">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div></div>';
+  const trameBar=window._trameEdit
+    ?('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div></div>')
+    :('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills"><button type="button" class="doc-pill on">'+(TRAME_LABELS[DOCF._inter]||DOCF._inter)+'</button><button type="button" class="doc-pill" onclick="window._trameEdit=true;renderDocForm()">Modifier</button></div></div>');
   host.innerHTML=trameBar+opts.filter(o=>!o.show||o.show(DOCF)).map(o=>{
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:11px;color:var(--text3);">'+o.l+'</div>';
@@ -9197,7 +9283,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v104',
+    version:'atlas-v105',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
