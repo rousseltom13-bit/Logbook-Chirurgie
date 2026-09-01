@@ -6131,10 +6131,11 @@ function saveEdit(){
   const _eSelVal = document.getElementById('e-interv').value || '';
   const _eLibre = (document.getElementById('e-interv-libre').value||'').trim();
   let _eIv = _eSelVal;
-  if(_eLibre&&/^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(_eLibre)){_eIv=_eLibre;}
-  else if(_eSelVal.includes('__LIBRE__')){
+  if(_eSelVal.includes('__LIBRE__')){
     if(!_eLibre){showToast('Préciser l\'intervention');return;}
-    _eIv = _eSelVal === '__LIBRE__' ? _eLibre : _eSelVal.replace(' — __LIBRE__', ' — ' + _eLibre);
+    // v118 : texte libre déjà canonique → repris tel quel ; sinon substitution avec le contexte région
+    _eIv = /^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(_eLibre) ? _eLibre
+         : (_eSelVal === '__LIBRE__' ? _eLibre : _eSelVal.replace(' — __LIBRE__', ' — ' + _eLibre));
   }
   b.date=document.getElementById('e-date').value;
   b.spec=document.getElementById('e-spec').value;
@@ -6600,12 +6601,12 @@ function saveBloc(){
   const libreEl=document.getElementById('f-interv-libre');
   const libreVal=(libreEl?libreEl.value:'').trim();
   let iv=(intervH?intervH.value:'').trim()||libreVal;
-  // v116 : texte libre déjà canonique (pré-rempli depuis planning/édition) → ne pas re-préfixer
-  if(libreVal&&/^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(libreVal))iv=libreVal;
   // Si f-interv contient __LIBRE__ → substituer par le texte saisi, en conservant le contexte région
+  // v118 : un texte libre déjà canonique est repris tel quel (jamais re-préfixé), mais seulement quand le champ libre est actif
   if(iv.includes('__LIBRE__')){
     if(libreVal){
-      iv = iv.replace(' — __LIBRE__', ' — ' + libreVal).replace('__LIBRE__', libreVal);
+      iv = /^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(libreVal) ? libreVal
+         : iv.replace(' — __LIBRE__', ' — ' + libreVal).replace('__LIBRE__', libreVal);
     } else {
       showToast("Précisez l'intervention dans le champ texte"); return;
     }
@@ -9960,7 +9961,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v117',
+    version:'atlas-v118',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
