@@ -180,9 +180,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;padding-bottom:var(--safe-bot);}
 .modal-overlay.show{display:flex;}
 .modal{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;}
-#edit-modal,#consult-modal,#settings-modal,#implant-modal,#score-modal{align-items:stretch;padding:0;background:var(--bg);}
-#edit-modal>.modal,#consult-modal>.modal,#settings-modal>.modal,#implant-modal>.modal,#score-modal>.modal{max-width:100%;max-height:100%;height:100%;border-radius:0;padding-top:max(16px,env(safe-area-inset-top));}
-#edit-modal .modal-handle,#consult-modal .modal-handle,#settings-modal .modal-handle,#implant-modal .modal-handle,#score-modal .modal-handle{display:none;}
+#edit-modal,#consult-modal,#implant-modal,#score-modal{align-items:stretch;padding:0;background:var(--bg);}
+#edit-modal>.modal,#consult-modal>.modal,#implant-modal>.modal,#score-modal>.modal{max-width:100%;max-height:100%;height:100%;border-radius:0;padding-top:max(16px,env(safe-area-inset-top));}
+#edit-modal .modal-handle,#consult-modal .modal-handle,#implant-modal .modal-handle,#score-modal .modal-handle{display:none;}
 .ms-score-btn{width:100%;padding:9px 10px;font-size:15px;font-weight:600;border:1px dashed var(--accent);border-radius:10px;background:color-mix(in srgb,var(--accent) 6%,var(--bg));color:var(--accent);font-family:inherit;cursor:pointer;text-align:left;}
 .ms-score-btn.filled{border-style:solid;background:var(--accent);color:#fff;}
 .ox-q{padding:14px 0;border-bottom:1px solid var(--border);}
@@ -2233,14 +2233,8 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="brand-mark">Atlas</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button class="head-icon" id="btn-reglages" onclick="showSpecModal()" aria-label="Mes spécialités">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 4.5l7 7-2.8 2.8-7-7z"></path><path d="M15.2 2.9l5.9 5.9"></path><path d="M10.4 9.4l-6.6 6.6a2.2 2.2 0 0 0 3.1 3.1l6.6-6.6"></path></svg>
-      </button>
-      <button class="head-icon" onclick="openToolsModal()" aria-label="Outils">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </button>
-      <button class="head-icon" onclick="openSaveModal()" aria-label="Sauvegarde">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+      <button class="head-icon" id="btn-reglages" onclick="sw('options')" aria-label="Options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </button>
       <button class="head-icon" id="theme-btn" onclick="toggleTheme()" aria-label="Mode nuit">
         <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -2256,9 +2250,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="dash-greeting" style="position:relative;">
         <div class="dash-greeting-eyebrow" id="d-eyebrow"></div>
         <h1 class="dash-greeting-title" id="dash-greeting-name">Bonjour.</h1>
-        <button onclick="sw('reglages')" aria-label="Réglages" style="position:absolute;top:14px;right:18px;width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </button>
+        
       </div>
       <div id="dash-hero"></div>
       <div id="dash-steps" style="display:none;margin:0 22px 8px;"></div>
@@ -2795,9 +2787,46 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     </div>
 
     <!-- RÉGLAGES -->
-    <div class="view" id="view-reglages" style="flex-direction:column;height:100%;">
+    <div class="view" id="view-options" style="flex-direction:column;height:100%;">
       <div class="regl-hero" style="position:relative;">
         <button onclick="sw('dashboard')" aria-label="Retour" style="position:absolute;top:14px;left:16px;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:17px;cursor:pointer;">‹</button>
+        <div class="courr-eyebrow">Configuration</div>
+        <h1 class="courr-title">Options</h1>
+      </div>
+      <div class="regl-scroll">
+        <div class="bk-grid" style="margin-top:8px;">
+          <button class="bk-card" onclick="sw('reglages')">
+            <div class="bk-ic">👤</div>
+            <div class="bk-tx"><div class="bk-t">Réglages</div><div class="bk-s">Nom, service, secrétariat, synchronisation</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button class="bk-card" onclick="openSaveModal()">
+            <div class="bk-ic">💾</div>
+            <div class="bk-tx"><div class="bk-t">Sauvegarde</div><div class="bk-s">Exporter / importer les données</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button class="bk-card" onclick="showSpecModal()">
+            <div class="bk-ic">🩺</div>
+            <div class="bk-tx"><div class="bk-t">Mes spécialités</div><div class="bk-s">Spécialités affichées dans l'app</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button class="bk-card" onclick="migrateCCAM()">
+            <div class="bk-ic">⚕️</div>
+            <div class="bk-tx"><div class="bk-t">Codage automatique</div><div class="bk-s">Attribution CCAM · préserve l'existant</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button class="bk-card" onclick="openImplantCatalog()">
+            <div class="bk-ic">🦴</div>
+            <div class="bk-tx"><div class="bk-t">Mes implants</div><div class="bk-s">Marque / modèle par intervention</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-reglages" style="flex-direction:column;height:100%;">
+      <div class="regl-hero" style="position:relative;">
+        <button onclick="sw('options')" aria-label="Retour" style="position:absolute;top:14px;left:16px;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:17px;cursor:pointer;">‹</button>
         <div class="courr-eyebrow">Configuration</div>
         <h1 class="courr-title">Réglages</h1>
       </div>
@@ -3214,31 +3243,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 
 <!-- MODAL OUTILS (écrou) -->
-<div class="modal-overlay" id="tools-modal" onclick="if(event.target===this)closeModal('tools-modal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('tools-modal')">×</button>
-    <div class="modal-title">Outils</div>
-    <div class="bk-grid" style="margin-top:8px;">
-      <button class="bk-card" onclick="openImplantCatalog()">
-        <div class="bk-ic">🦴</div>
-        <div class="bk-tx"><div class="bk-t">Mes implants</div><div class="bk-s">Marque / modèle par intervention</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      <button class="bk-card" onclick="openOxfordConfig()">
-        <div class="bk-ic">📋</div>
-        <div class="bk-tx"><div class="bk-t">Scores fonctionnels</div><div class="bk-s">Libellés Oxford genou / hanche</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      <button class="bk-card" onclick="closeModal('tools-modal');migrateCCAM()">
-        <div class="bk-ic">⚕️</div>
-        <div class="bk-tx"><div class="bk-t">Coder automatiquement mes anciens blocs</div><div class="bk-s">Attribution CCAM automatique · préserve l'existant</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL SAUVEGARDE (disquette) -->
 <div class="modal-overlay" id="save-modal" onclick="if(event.target===this)closeModal('save-modal')">
   <div class="modal">
@@ -3274,17 +3278,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 </div>
 
 <!-- MODAL SETTINGS -->
-<div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('settings-modal')">×</button>
-    <div class="modal-title">Options</div>
-
-    <div style="font-size:11px;color:var(--text3);margin-top:22px;line-height:1.5;" id="settings-stats"></div>
-    <button class="btn-primary" style="width:100%;margin-top:16px;" onclick="closeModal('settings-modal')">Fermer</button>
-  </div>
-</div>
-
 <!-- MODAL SPÉCIALITÉS (écrou) -->
 <div class="modal-overlay" id="spec-modal" onclick="if(event.target===this)closeModal('spec-modal')">
   <div class="modal">
@@ -3294,24 +3287,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     <div style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.45;">Choisis les spécialités affichées dans l'app. Tape un badge pour l'activer ou le désactiver.</div>
     <div id="spec-badges-grid" class="spec-badges-grid"></div>
     <button class="btn-primary" style="width:100%;margin-top:22px;" onclick="closeModal('spec-modal')">Terminé</button>
-  </div>
-</div>
-
-<!-- MODAL EXPORT iOS -->
-<div class="modal-overlay" id="export-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('export-modal')">×</button>
-    <div class="modal-title">Exporter les données</div>
-    <div id="export-modal-info" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></div>
-    <button class="btn-primary" style="margin-bottom:10px;" onclick="copyExportData()">📋 Copier le JSON</button>
-    <div id="export-copy-status" style="display:none;padding:8px 12px;border-radius:var(--radius);font-size:12px;margin-bottom:10px;"></div>
-    <div style="font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:12px;">
-      Colle le contenu dans <strong>Notes</strong> ou <strong>Mail</strong>, puis sauvegarde ou envoie-le vers ton Mac.
-    </div>
-    <div style="position:relative;">
-      <textarea id="export-json-area" readonly="" style="width:100%;height:120px;font-size:10px;font-family:monospace;padding:8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text3);resize:none;"></textarea>
-    </div>
   </div>
 </div>
 
@@ -4355,12 +4330,6 @@ async function scanLabel(ev){
   }finally{if(btn)btn.disabled=false;}
 }
 
-function showSettings(){
-  const statsEl=document.getElementById('settings-stats');
-  if(statsEl)statsEl.textContent=blocs.length+' blocs stockés localement sur cet appareil';
-  openModal('settings-modal');
-}
-
 // ── NAVIGATION ──
 function sw(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
@@ -4988,10 +4957,8 @@ function toggleEditImplantPill(el){
 }
 
 // ── Modal catalogue ──
-function openToolsModal(){openModal('tools-modal');}
 function openSaveModal(){openModal('save-modal');}
 function openImplantCatalog(){
-  closeModal('settings-modal');closeModal('tools-modal');
   window._impNewSpec='';window._impNewIntervs=new Set();
   const inp=document.getElementById('imp-new-label');if(inp)inp.value='';
   renderImplantCatalog();
@@ -5387,7 +5354,7 @@ function saveOxford(){
 
 // ── Éditeur de libellés Oxford (config) ──
 let _oxCfgKey='knee';
-function openOxfordConfig(){closeModal('settings-modal');closeModal('tools-modal');_oxCfgKey='knee';renderOxfordConfig();openModal('oxcfg-modal');}
+function openOxfordConfig(){_oxCfgKey='knee';renderOxfordConfig();openModal('oxcfg-modal');}
 function oxCfgTab(k){_oxCfgKey=k;renderOxfordConfig();}
 function renderOxfordConfig(){
   const cfg=OXFORD_CFG[_oxCfgKey];
@@ -7578,6 +7545,20 @@ function anticoIsHBPM(a){return /INNOHEP|LOVENOX/i.test(a||'');}
 const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge',matGilet:"Un gilet orthopédique d'immobilisation / écharpe",matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet',matDujarrier:"Une attelle d'immobilisation coude au corps type Dujarrier",matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
 function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,''),def:defs.indexOf(k)>=0})));}
 const _AINS={k:'ains',t:'check',l:'AINS (ibuprofène 5 j) + IPP associé',def:true};
+function _amp(on,d1,s1,d2,s2){return [
+  {k:'ampOn',t:'check',l:"Limitation d'amplitudes",def:!!on},
+  {k:'amp1Deg',t:'num',l:'Phase 1 — flexion max (°)',def:d1||'60',show:f=>f.ampOn},
+  {k:'amp1Sem',t:'num',l:'Phase 1 — durée (semaines)',def:s1||'3',show:f=>f.ampOn},
+  {k:'amp2Deg',t:'num',l:'Phase 2 — flexion max (°)',def:d2||'',show:f=>f.ampOn},
+  {k:'amp2Sem',t:'num',l:'Phase 2 — durée (semaines)',def:s2||'',show:f=>f.ampOn&&!!f.amp2Deg}
+];}
+function _ampTxt(f){
+  if(!f.ampOn||!f.amp1Deg)return '';
+  let s='Amplitudes limitées : 0–'+f.amp1Deg+'° pendant '+(f.amp1Sem||'3')+' semaine'+((+(f.amp1Sem||3))>1?'s':'');
+  if(f.amp2Deg)s+=', puis 0–'+f.amp2Deg+'°'+(f.amp2Sem?(' pendant '+f.amp2Sem+' semaine'+(+f.amp2Sem>1?'s':'')):'');
+  s+=', puis mobilisation libre progressive.';
+  return s;
+}
 const _COMMON=[
   {k:'civ',t:'seg',l:'Patient(e)',o:['M.','Mme'],def:'M.'},
   {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
@@ -7609,7 +7590,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matRehausseur','matBas'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_amp(false)).concat(_mat(['matCannes','matRehausseur','matBas'])),
   ptg:[..._COMMON,
     {k:'indication',t:'text',l:'Indication',def:'Gonarthrose tricompartimentale'},
     {k:'deformation',t:'seg',l:'Déformation',o:['Varus','Valgus'],def:'Varus'},
@@ -7628,7 +7609,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'14',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matCryo','matBas'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_amp(false)).concat(_mat(['matCannes','matCryo','matBas'])),
   lca:[..._COMMON,
     {k:'greffon',t:'seg',l:'Greffon',o:['DT3+2','DIDT','DT4'],def:'DT3+2'},
     {k:'diamTib',t:'num',l:'Ø tunnel tibial (mm)',def:'9'},
@@ -7654,7 +7635,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'21',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes','matCryo'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matCryo'])),
   menisc:[..._COMMON,
     {k:'garrotOn',t:'check',l:'Garrot',def:true},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
@@ -7675,7 +7656,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm'],def:'Sec'}].concat(_mat(['matCannes'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes'])),
   cheville:[..._COMMON,
     {k:'chLesion',t:'seg',l:'Type de lésion',o:['Malléole latérale isolée','Bimalléolaire','Trimalléolaire','Équivalent bimalléolaire'],def:'Malléole latérale isolée'},
     {k:'chCompr',t:'seg',l:'Compression du trait fibulaire',o:['Aucune','Vis antéro-postérieure','Nice knot'],def:'Aucune'},
@@ -7694,7 +7675,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes','matBotte'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matBotte'])),
   radius:[..._COMMON,
     {k:'kapandji',t:'check',l:'Réduction par embrochage selon Kapandji',def:false},
     {k:'brochesGardees',t:'check',l:'Broches laissées en place (recourbées et enfouies)',def:false,show:f=>f.kapandji},
@@ -7710,7 +7691,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matAttellePoignet'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matAttellePoignet'])),
   femur:[..._COMMON,
     {k:'fmGeste',t:'seg',l:'Ostéosynthèse',o:['Clou Gamma court','Clou Gamma long','Clou T2 antérograde'],def:'Clou Gamma court'},
     {k:'fmAngle',t:'seg',l:'Angulation cervico-diaphysaire',o:['120°','125°','130°'],def:'125°',show:f=>/Gamma/.test(f.fmGeste)},
@@ -7728,7 +7709,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matDeambulateur'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_amp(false)).concat(_mat(['matCannes','matDeambulateur'])),
   tibia:[..._COMMON,
     {k:'tbDiam',t:'num',l:'Clou — diamètre (mm)',def:'',ph:'mm'},
     {k:'tbLong',t:'num',l:'Clou — longueur (mm)',def:'',ph:'mm'},
@@ -7747,7 +7728,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'30',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes'])),
   humerus:[..._COMMON,
     {k:'hmDiam',t:'num',l:'Clou — diamètre (mm)',def:'',ph:'mm'},
     {k:'hmLong',t:'num',l:'Clou — longueur (mm)',def:'',ph:'mm'},
@@ -7763,7 +7744,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matDujarrier'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matDujarrier'])),
   femurplaque:[..._COMMON,
     {k:'fpGeste',t:'seg',l:'Localisation',o:['Plaque fémur distal','Plaque diaphysaire'],def:'Plaque fémur distal'},
     {k:'fpArtic',t:'seg',l:'Trait articulaire',o:['Extra-articulaire','Articulaire simple','Articulaire complexe'],def:'Extra-articulaire',show:f=>f.fpGeste==='Plaque fémur distal'},
@@ -7783,10 +7764,11 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'30',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_amp(false)).concat(_mat(['matCannes'])),
   rotule:[..._COMMON,
     {k:'visNovastep',t:'check',l:'Vis perdues (fragments multiples)',def:false},
     {k:'nbVisNova',t:'num',l:'Vis perdues — nombre',def:'2',show:f=>f.visNovastep},
+    {k:'crashDeg',t:'num',l:'Crash test — flexion testée (°)',def:'90'},
     {k:'garrotOn',t:'check',l:'Garrot',def:true},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
@@ -7796,7 +7778,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'30',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_mat(['matCannes','matAttelle'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Aquacel Duoderm','Sec','Mepilex Border'],def:'Aquacel Duoderm'}].concat(_amp(true,'60','3','90','3')).concat(_mat(['matCannes','matAttelle'])),
   olecrane:[..._COMMON,
     {k:'olGeste',t:'seg',l:'Ostéosynthèse',o:['Haubanage','Plaque verrouillée'],def:'Haubanage'},
     {k:'olTrait',t:'seg',l:'Trait',o:['Simple','Complexe'],def:'Simple'},
@@ -7812,7 +7794,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matDujarrier'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matDujarrier'])),
   clavicule:[..._COMMON,
     {k:'clLoc',t:'seg',l:'Localisation',o:['Diaphysaire','Quart externe','Tiers proximal'],def:'Diaphysaire'},
     {k:'clCompr',t:'seg',l:'Compression du trait',o:['Aucune','Vis antéro-postérieure','Nice knot'],def:'Aucune'},
@@ -7825,10 +7807,10 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matDujarrier'])),
-  arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat(['matCannes'])),
-  fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},{k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC — membre supérieur)',def:false},_AINS].concat(_mat([])),
-  ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([]))
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matDujarrier'])),
+  arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_amp(false)).concat(_mat(['matCannes'])),
+  fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},{k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC — membre supérieur)',def:false},_AINS].concat(_amp(false)).concat(_mat([])),
+  ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_amp(false)).concat(_mat([]))
 };
 DOC_OPTS.pth_revision=DOC_OPTS.pth.concat([{k:'revPieces',t:'seg',l:'Pièces changées',o:['Insert seul','1 pièce','2 pièces','2 pièces + reconstruction'],def:'2 pièces'}]);
 const REV_CCAM={'Insert seul':'NEKA004','1 pièce':'NEKA009','2 pièces':'NEKA003','2 pièces + reconstruction':'NEKA008'};
@@ -8433,7 +8415,7 @@ ${f.visNovastep?'Fixation des fragments intermédiaires par '+(f.nbVisNova||'—
 Passage du fil de cerclage au ras des broches et réalisation d'une figure en 8 selon la technique du haubanage.
 Serrage du cerclage.
 Recoupe des broches.
-Test de flexion à degrés variables : montage stable, absence de déplacement du foyer.
+Test de flexion jusqu'à ${f.crashDeg||'—'}° : montage stable, absence de déplacement du foyer.
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 ${_garrotFin(f)}Rinçage abondant.
@@ -8654,7 +8636,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhFils(f)}
 — Kinésithérapie de rééducation
 — ${_crhAppui(f)}
-— Antalgiques selon prescription
+${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
 Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))}.
 
@@ -9001,7 +8983,12 @@ function docContent(doc){
   if(doc==='Ordo pharma')return buildOrdoPharma(f);
   if(doc==='Ordo IDE')return buildOrdoIDE(f);
   if(doc==='Ordo matériel')return buildOrdoMateriel(f);
-  if(doc==='Ordo kiné')return buildOrdoKine(f);
+  if(doc==='Ordo kiné'){
+    let t=buildOrdoKine(f);
+    const a=_ampTxt(f);
+    if(a){const K='Rééducation au cabinet conseillée.';t=t.indexOf(K)>=0?t.replace(K,K+'\n\n'+a):(a+'\n\n'+t);}
+    return t;
+  }
   return '(Document non défini)';
 }
 function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
@@ -9273,7 +9260,7 @@ function renderJourneesPlanning(){
   const past=journees.filter(j=>j.date<t).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
   if(pa)pa.innerHTML=past.length?past.map(j=>fmtRow(j,true)).join(''):'<div style="font-size:13px;color:var(--text3);padding:4px 0;">Rien pour l\'instant.</div>';
 }
-function replayIntro(){localStorage.removeItem('atlas_ob_done');location.reload();}
+function replayIntro(){try{sessionStorage.setItem('atlas_replay_intro','1');}catch(e){}location.reload();}
 function renderPlanningView(){
   renderJourneesPlanning();
   if(getPratique()==='interne')return;
@@ -9677,7 +9664,7 @@ function esc(s){if(s===null||s===undefined)return'';return String(s).replace(/&/
 function escNl(s){return esc(s).replace(/\n/g,'<br>');}
 function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},excellent:{dc:'sv',tc:'tv',sl:'Excellent résultat'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
+function closeModal(id){const e=document.getElementById(id);if(e)e.classList.remove('show');}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 const BKP_KEY='atlas_backup_snap';
 function _suiviCount(){try{return blocs.reduce((n,b)=>n+((b.consultations||[]).length)+((b.evenements||[]).length),0);}catch(e){return 0;}}
@@ -9710,7 +9697,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v108',
+    version:'atlas-v111',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -9771,22 +9758,6 @@ async function exportRadiosOnly(){
 }
 
 
-async function copyExportData(){
-  if(!_exportPayloadJson){showToast('Aucune donnée à copier');return;}
-  try{
-    await navigator.clipboard.writeText(_exportPayloadJson);
-    const st=document.getElementById('export-copy-status');
-    st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
-    st.textContent='✓ Copié — colle dans Notes ou Mail pour sauvegarder';
-  }catch(e){
-    const area=document.getElementById('export-json-area');
-    area.value=_exportPayloadJson;
-    area.select();
-    const st=document.getElementById('export-copy-status');
-    st.style.display='block';st.style.background='var(--amber-l)';st.style.color='var(--amber-d)';
-    st.textContent='Sélectionne tout le texte ci-dessous et copie manuellement';
-  }
-}
 function importData(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
@@ -9913,7 +9884,7 @@ function importData(e){
         summary = `Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
       }
       st.textContent = summary;
-      setTimeout(()=>{st.style.display='none';closeModal('settings-modal');},4000);
+      setTimeout(()=>{st.style.display='none';},4000);
     }catch(err){
       console.error('[OrLog import] Stack:', err);
       const st=document.getElementById('import-status');
@@ -10820,8 +10791,9 @@ function obInit() {
   const prenom  = localStorage.getItem(OB_PRENOM_KEY);
   const license = localStorage.getItem(OB_LICENSE_KEY);
 
-  // Si onboarding complété ET licence valide → lockscreen normal
-  if(done && prenom && license && isLicenseValid(license)) {
+  let _replay=false;try{_replay=sessionStorage.getItem('atlas_replay_intro')==='1';}catch(e){}
+  // Si onboarding complété ET licence valide → lockscreen normal (sauf replay de l'intro)
+  if(done && prenom && license && isLicenseValid(license) && !_replay) {
     document.getElementById('onboarding').style.display = 'none';
     return;
   }
@@ -11149,9 +11121,15 @@ function _triggerDashTutoOnUnlock(){
   function wire(){
     const host=$('ob2-tut-host');
     if(host && !$('ob2-tut-img')){ const w=document.createElement('div'); w.id='ob2-tut-img'; host.insertBefore(w, $('ob2-tut-spot')); }
+    let REPLAY=false;try{REPLAY=sessionStorage.getItem('atlas_replay_intro')==='1';}catch(e){}
+    function endReplay(){
+      try{sessionStorage.removeItem('atlas_replay_intro');}catch(e){}
+      const ob=document.getElementById('onboarding');
+      if(ob){ob.classList.remove('visible');ob.style.display='none';}
+    }
     $('ob2-splash-start').addEventListener('click', startTutorial);
-    $('ob2-tut-next').addEventListener('click', ()=>{ if(step<TUT.length-1){ step++; renderTut(); } else setScreen('licence'); });
-    $('ob2-tut-skip').addEventListener('click', ()=> setScreen('licence'));
+    $('ob2-tut-next').addEventListener('click', ()=>{ if(step<TUT.length-1){ step++; renderTut(); } else { if(REPLAY) endReplay(); else setScreen('licence'); } });
+    $('ob2-tut-skip').addEventListener('click', ()=>{ if(REPLAY) endReplay(); else setScreen('licence'); });
     const lic=$('ob2-lic-key');
     lic.addEventListener('input', ()=>{ try{ obFormatLicenseKey(lic); }catch(e){} lic.classList.remove('err','ok'); $('ob2-lic-error').textContent=''; });
     $('ob2-lic-activate').addEventListener('click', activate);
