@@ -7552,7 +7552,7 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006'};
+const DOC_CCAM={pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002'};
 const DOC_DOCS={
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -7563,13 +7563,14 @@ const DOC_DOCS={
   radius:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   femur:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   tibia:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
+  humerus:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   arthroscopie:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   fracture:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel'],
   ablation:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel']
 };
 const ANTICO_OPTS=['INNOHEP 4500 UI','LOVENOX 4000 UI','XARELTO 10 mg','ELIQUIS 2,5 mg','Aucun'];
 function anticoIsHBPM(a){return /INNOHEP|LOVENOX/i.test(a||'');}
-const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge',matGilet:"Un gilet orthopédique d'immobilisation / écharpe",matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet',matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
+const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge',matGilet:"Un gilet orthopédique d'immobilisation / écharpe",matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet',matDujarrier:"Une attelle d'immobilisation coude au corps type Dujarrier",matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
 function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,''),def:defs.indexOf(k)>=0})));}
 const _AINS={k:'ains',t:'check',l:'AINS (ibuprofène 5 j) + IPP associé',def:true};
 const _COMMON=[
@@ -7577,7 +7578,7 @@ const _COMMON=[
   {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
-  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&f._inter==='radius')?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
+  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&f._inter==='radius')?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&f._inter==='humerus')?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
 ];
 const DOC_OPTS={
   pth:[..._COMMON,
@@ -7738,6 +7739,22 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'30',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matCannes'])),
+  humerus:[..._COMMON,
+    {k:'hmDiam',t:'num',l:'Clou — diamètre (mm)',def:'',ph:'mm'},
+    {k:'hmLong',t:'num',l:'Clou — longueur (mm)',def:'',ph:'mm'},
+    {k:'hmAlesage',t:'check',l:'Alésage',def:false},
+    {k:'hmVerrProx',t:'num',l:'Verrouillage proximal — nombre de vis',def:'2'},
+    {k:'hmVerrDist',t:'seg',l:'Verrouillage distal',o:['Statique','Dynamique'],def:'Statique'},
+    {k:'hmNbVisDist',t:'num',l:'Verrouillage distal — nombre de vis',def:'2'},
+    {k:'hmAbord',t:'check',l:'Abord du foyer pour réduction',def:false},
+    {k:'hmCerclages',t:'num',l:'Nombre de cerclages',def:'0',show:f=>f.hmAbord},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'immo',t:'seg',l:'Immobilisation',o:['Dujarrier à visée antalgique','Dujarrier strict'],def:'Dujarrier à visée antalgique'},
+    {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_mat(['matDujarrier'])),
   arthroscopie:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat(['matCannes'])),
   fracture:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},{k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC — membre supérieur)',def:false},_AINS].concat(_mat([])),
   ablation:[..._COMMON,{k:'detailOp',t:'area',l:'Description opératoire',def:''},_AINS].concat(_mat([]))
@@ -7753,6 +7770,7 @@ function detectInter(interv){
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
   if(/arthroscopie/.test(s))return 'arthroscopie';
+  if(/(clou|enclouage).{0,14}hum[ée]rus|hum[ée]rus.{0,14}(clou|enclouage)|clou (long )?hum|diaphyse hum/.test(s))return 'humerus';
   if(/(clou|enclouage).{0,14}tibia|tibia.{0,14}(clou|enclouage)|diaphyse tibiale/.test(s))return 'tibia';
   if(/gamma|pertroch|f[ée]mur|clou t2/.test(s))return 'femur';
   if(/radius|poignet|kapandji|pouteau|goyrand/.test(s))return 'radius';
@@ -8231,6 +8249,45 @@ Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 ${_dSigBloc()}`;
 }
 
+function buildCRO_HUMERUS(f){
+  const cote=coteStrD(f);
+  const dims=(f.hmDiam||f.hmLong)?((f.hmDiam?', diamètre '+f.hmDiam+' mm':'')+(f.hmLong?', longueur '+f.hmLong+' mm':'')):'';
+  const abord=f.hmAbord?('Abord direct du foyer pour aide à la réduction.\n'+((+f.hmCerclages>0)?('Mise en place de '+f.hmCerclages+' cerclage'+(+f.hmCerclages>1?'s':'')+'.\n'):'')):'';
+  return `COMPTE-RENDU OPÉRATOIRE — ENCLOUAGE CENTROMÉDULLAIRE DE L'HUMÉRUS ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Fracture de la diaphyse humérale ${cote==='droit'?'droite':cote}.
+CCAM : ${f.ccam}
+
+Installation en position demi-assise (beach chair).
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+${abord}Abord de la partie antérieure de l'acromion.
+Ouverture du deltoïde dans le sens de ses fibres.
+Ouverture de la coiffe des rotateurs, mise sur fils repères.
+Point d'entrée à la pointe carrée, position contrôlée en scopie de face et de profil.
+Mise en place du guide, réduction sous contrôle scopique.
+${f.hmAlesage?'Alésage progressif.\n':''}Enchâssement du clou T2 (Stryker) antérograde${dims}.
+Vérification de l'enfouissement de l'extrémité proximale du clou sous l'os sous-chondral.
+Verrouillage proximal par ${f.hmVerrProx||'2'} vis à l'aide de l'ancillaire.
+Verrouillage distal ${(f.hmVerrDist||'statique').toLowerCase()} par ${f.hmNbVisDist||'2'} vis postéro-antérieures, trous ronds réalisés à main levée sous contrôle scopique.
+Fermeture de la coiffe des rotateurs sur les fils repères.
+
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+Attelle de Dujarrier${f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'}.
+
+${_dSigBloc()}`;
+}
+
 // ── CRH / Ordonnances (paramétrés) ──
 const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
@@ -8239,6 +8296,11 @@ function _crhAppui(f){
     if(f.appui==='Appui partiel 6 semaines')return "Appui partiel pendant 6 semaines sous couvert de cannes anglaises ou déambulateur";
     if(f.appui==='Décharge 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines";
     return "Appui complet immédiat autorisé selon douleurs, sous couvert de cannes anglaises ou déambulateur";
+  }
+  if(i==='humerus'){
+    return f.immo==='Dujarrier strict'
+      ?"Immobilisation stricte coude au corps par attelle de Dujarrier pendant 3 semaines — mobilisation de la main autorisée"
+      :"Attelle de Dujarrier à visée antalgique — mobilisation pendulaire précoce selon douleurs, coude et main libres";
   }
   if(i==='radius'){
     const immo=(f.immo==='Manchette plâtrée')?'Immobilisation par manchette plâtrée pendant 3 semaines':'Attelle amovible à visée antalgique pendant 3 semaines';
@@ -8265,6 +8327,7 @@ function _crhMotif(f){
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
   if(i==='radius')return 'sa fracture du radius distal '+c;
   if(i==='tibia')return 'sa fracture de la diaphyse tibiale '+cf;
+  if(i==='humerus')return 'sa fracture de la diaphyse humérale '+cf;
   if(i==='femur'){
     if(f.fmGeste==='Clou Gamma court')return 'sa fracture pertrochantérienne du fémur '+c;
     if(f.fmGeste==='Clou Gamma long')return 'sa fracture trochantéro-diaphysaire du fémur '+c;
@@ -8290,6 +8353,7 @@ function _crhActe(f){
     return s;
   }
   if(i==='tibia')return 'un enclouage centromédullaire du tibia par clou T2';
+  if(i==='humerus')return "un enclouage centromédullaire antérograde de l'humérus par clou T2";
   if(i==='femur'){
     if(f.fmGeste==='Clou Gamma court')return 'un enclouage par clou Gamma court';
     if(f.fmGeste==='Clou Gamma long')return 'un enclouage par clou Gamma long';
@@ -8341,7 +8405,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 — Antalgiques selon prescription
 ${antico}
-Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':'radiographies de contrôle'))))}.
+Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":'radiographies de contrôle')))))}.
 
 Nous restons à votre disposition.
 
@@ -8468,6 +8532,23 @@ Renforcement quadricipital et proprioception dès la sédation des douleurs.
 Reprise sportive progressive à partir de S4-S6 selon évolution.`}
 
 Nombre de séances : 15, à adapter selon progression clinique
+${_dSig()}${_dRpps()}`;
+  }
+  if(inter==='humerus'){
+    const strict=f.immo==='Dujarrier strict';
+    return `ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DE L'HUMÉRUS
+
+${strict?"À débuter à l'ablation de l'immobilisation (3e semaine post-opératoire).":"À débuter précocement selon douleurs."}
+
+${intro}
+
+Mobilisation pendulaire de l'épaule${strict?" à partir de l'ablation de l'immobilisation":' précoce'}.
+Mobilisation active du coude, du poignet et de la main dès J1.
+Récupération progressive des amplitudes de l'épaule (auto-passif puis actif).
+Renforcement de la coiffe des rotateurs et du deltoïde à partir de la 6e semaine.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 20, à renouveler selon évolution
 ${_dSig()}${_dRpps()}`;
   }
   if(inter==='tibia'){
@@ -8601,6 +8682,7 @@ function docContent(doc){
     if(inter==='radius')return buildCRO_RADIUS(f);
     if(inter==='femur')return buildCRO_FEMUR(f);
     if(inter==='tibia')return buildCRO_TIBIA(f);
+    if(inter==='humerus')return buildCRO_HUMERUS(f);
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
@@ -8618,6 +8700,7 @@ function openBlocDocs(bi,forcedInter){
   DOCF._bi=bi;window._trameEdit=false;
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   if(inter==='radius')DOCF.anesthesie='ALR (bloc axillaire)';
+  if(inter==='humerus')DOCF.anesthesie='Anesthésie générale';
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
   const noms=[],prenoms=[];
   parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
@@ -8649,6 +8732,7 @@ function docAutoCCAM(){
   if(i==='ptg'){DOCF.ccam=(+DOCF.degres>10)?'NFKA008':'NFKA007';}
   else if(i==='pth_revision'){DOCF.ccam=REV_CCAM[DOCF.revPieces]||'NEKA003';}
   else if(i==='tibia'){DOCF.ccam=DOCF.tbAbord?'NCCA002':'NCCB006';}
+  else if(i==='humerus'){DOCF.ccam=DOCF.hmAbord?'MBCA011':'MBCB002';}
   else if(i==='femur'){
     if(DOCF.fmGeste==='Clou Gamma court')DOCF.ccam='NBCA010';
     else if(DOCF.fmGeste==='Clou Gamma long')DOCF.ccam='NBCA006';
@@ -8681,7 +8765,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',radius:'Radius distal',femur:'Fémur',tibia:'Tibia (clou)',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',radius:'Radius distal',femur:'Fémur',tibia:'Tibia (clou)',humerus:'Humérus (clou)',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||DOCF._inter===k){renderDocForm();return;}
@@ -9283,7 +9367,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v105',
+    version:'atlas-v106',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
