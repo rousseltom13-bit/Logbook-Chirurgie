@@ -3359,6 +3359,16 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .ed-more-btn.open .chev{transform:rotate(90deg);}
 .ed-more-body{display:none;}
 .ed-more-body.open{display:block;}
+.edc{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
+.edc.open{border-color:var(--border2);}
+.edc-head{display:flex;align-items:center;gap:10px;width:100%;padding:14px 15px;background:none;border:none;font-family:inherit;cursor:pointer;text-align:left;}
+.edc-t{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0;}
+.edc-sum{flex:1;font-size:12.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right;min-width:0;}
+.edc-chev{width:14px;height:14px;color:var(--text3);flex-shrink:0;transition:transform .2s;}
+.edc.open .edc-chev{transform:rotate(180deg);}
+.edc-dot{width:18px;height:18px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg3);}
+.edc-body{display:none;border-top:0.5px solid var(--border);}
+.edc.open .edc-body{display:block;}
 </style>
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
@@ -3375,131 +3385,177 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     </div>
 
     <!-- Scroll body -->
-    <div id="e-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:10px 18px 0;">
+    <div id="e-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:12px 16px 0;">
 
       <!-- ░ INTERVENTION ░ -->
-      <div class="ed-sec-t">Intervention</div>
-      <div class="ed-group">
-        <div class="ed-row">
-          <span class="ed-k">Spécialité</span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-spec-pills"><!-- rendu via renderEditSpecPills() --></div>
-        </div>
-        <div class="ed-row">
-          <span class="ed-k">Acte <span class="req">*</span></span>
-          <select id="e-trauma-region" style="display:none;margin-bottom:8px;width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="onTraumaRegionChange('e')">
-            <option value="">Choisir une région…</option>
-            <option value="Membre inférieur">Membre inférieur</option>
-            <option value="Membre supérieur">Membre supérieur</option>
-            <option value="Péri-prothétiques">Péri-prothétiques</option>
-          </select>
-          <select id="e-interv" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;" onchange="toggleIntervLibre('e')"></select>
-          <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention…" style="display:none;width:100%;padding:10px;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" autocomplete="off">
-        </div>
-        <div class="ed-row">
-          <span class="ed-k">Côté</span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" class="e-side-pill" onclick="selectEditSide('Gauche',this)">Gauche</button>
-            <button type="button" class="e-side-pill" onclick="selectEditSide('Droit',this)">Droit</button>
-            <button type="button" class="e-side-pill" onclick="selectEditSide('Bilatéral',this)">Bilatéral</button>
-            <button type="button" class="e-side-pill" onclick="selectEditSide('',this)">—</button>
+      <div class="edc open" id="edc-interv">
+        <button type="button" class="edc-head" onclick="toggleEdc('interv')">
+          <span class="edc-dot" id="edc-dot-interv"></span><span class="edc-t">Intervention</span><span class="edc-sum" id="edc-sum-interv"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
+          <div class="ed-row">
+            <span class="ed-k">Spécialité</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-spec-pills"><!-- rendu via renderEditSpecPills() --></div>
           </div>
-        </div>
-        <div class="ed-row">
-          <span class="ed-k">Rôle <span class="req">*</span></span>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <button type="button" class="e-role-pill on" id="e-role-principal" onclick="selectEditRole('Principal')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              Principal
-            </button>
-            <button type="button" class="e-role-pill" id="e-role-aide" onclick="selectEditRole('Aide')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Aide
-            </button>
+          <div class="ed-row">
+            <span class="ed-k">Acte <span class="req">*</span></span>
+            <div id="e-interv-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+            <input type="text" id="e-interv-libre" placeholder="Décrire l'intervention…" style="display:none;width:100%;padding:10px 0;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;margin-top:8px;" autocomplete="off">
+            <input type="hidden" id="e-interv" value="">
           </div>
-          <input type="hidden" id="e-spec" value="">
-          <input type="hidden" id="e-side" value="">
-          <input type="hidden" id="e-role" value="Principal">
-          <div id="e-operateur-row" style="display:none;margin-top:10px;">
-            <input type="text" id="e-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs" style="font-size:15px;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;">
+          <div class="ed-row">
+            <span class="ed-k">Côté</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="e-side-pill" onclick="selectEditSide('Gauche',this)">Gauche</button>
+              <button type="button" class="e-side-pill" onclick="selectEditSide('Droit',this)">Droit</button>
+              <button type="button" class="e-side-pill" onclick="selectEditSide('Bilatéral',this)">Bilatéral</button>
+              <button type="button" class="e-side-pill" onclick="selectEditSide('',this)">—</button>
+            </div>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Rôle <span class="req">*</span></span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button type="button" class="e-role-pill on" id="e-role-principal" onclick="selectEditRole('Principal')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Principal
+              </button>
+              <button type="button" class="e-role-pill" id="e-role-aide" onclick="selectEditRole('Aide')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Aide
+              </button>
+            </div>
+            <input type="hidden" id="e-spec" value="">
+            <input type="hidden" id="e-side" value="">
+            <input type="hidden" id="e-role" value="Principal">
+            <div id="e-operateur-row" style="display:none;margin-top:10px;">
+              <input type="text" id="e-operateur" class="f-input" placeholder="Nom du chirurgien..." autocomplete="off" list="dl-operateurs" style="font-size:15px;padding:12px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);width:100%;">
+            </div>
+          </div>
+          <div class="ed-row">
+            <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;">
+              <span>
+                <span class="ed-k" style="margin-bottom:3px;">Contexte septique</span>
+                <span style="font-size:12px;color:var(--text3);">Compté dans les stats septiques</span>
+              </span>
+              <input type="checkbox" id="e-septique" onchange="toggleSeptiqueEdit(this.checked)" style="width:20px;height:20px;accent-color:var(--accent);flex-shrink:0;">
+            </label>
           </div>
         </div>
       </div>
 
       <!-- ░ PATIENT & CONTEXTE ░ -->
-      <div class="ed-sec-t">Patient &amp; contexte</div>
-      <div class="ed-group">
-        <div class="ed-row">
-          <span class="ed-k">Patient</span>
-          <input type="text" id="e-patient" autocomplete="off" list="dl-patients" placeholder="Nom ou initiales…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
-        </div>
-        <div class="ed-grid2">
-          <div class="ed-cell">
-            <span class="ed-k">Date</span>
-            <input type="date" id="e-date" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+      <div class="edc" id="edc-patient">
+        <button type="button" class="edc-head" onclick="toggleEdc('patient')">
+          <span class="edc-dot" id="edc-dot-patient"></span><span class="edc-t">Patient &amp; contexte</span><span class="edc-sum" id="edc-sum-patient"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
+          <div class="ed-row">
+            <span class="ed-k">Patient</span>
+            <input type="text" id="e-patient" autocomplete="off" list="dl-patients" placeholder="Nom ou initiales…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
           </div>
-          <div class="ed-cell">
-            <span class="ed-k">Durée (min)</span>
-            <input type="number" id="e-duree" inputmode="numeric" placeholder="90" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          <div class="ed-grid2">
+            <div class="ed-cell">
+              <span class="ed-k">Date</span>
+              <input type="date" id="e-date" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            </div>
+            <div class="ed-cell">
+              <span class="ed-k">Durée (min)</span>
+              <input type="number" id="e-duree" inputmode="numeric" placeholder="90" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            </div>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Établissement</span>
+            <input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          </div>
+          <div class="ed-grid2">
+            <div class="ed-cell">
+              <span class="ed-k">Âge</span>
+              <input type="number" id="e-age" inputmode="numeric" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            </div>
+            <div class="ed-cell">
+              <span class="ed-k">IMC</span>
+              <input type="number" id="e-imc" step="0.1" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            </div>
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Hospitalisation</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <button type="button" class="e-side-pill" id="e-hospit-ambu" onclick="setEditHospit('Ambulatoire')">Ambulatoire</button>
+              <button type="button" class="e-side-pill" id="e-hospit-hosp" onclick="setEditHospit('Hospitalisation')">Hospitalisation</button>
+              <input type="number" id="e-hospit-duree" inputmode="numeric" placeholder="nuits" style="display:none;width:70px;padding:8px;font-size:14px;border:0.5px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text);font-family:inherit;outline:none;">
+            </div>
+            <input type="hidden" id="e-hospit-mode" value="">
+          </div>
+          <div class="ed-row">
+            <span class="ed-k">Difficulté technique</span>
+            <div id="e-stars" style="display:flex;align-items:center;gap:4px;"></div>
           </div>
         </div>
-        <div class="ed-row">
-          <span class="ed-k">Établissement</span>
-          <input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
-        </div>
-        <div class="ed-grid2">
-          <div class="ed-cell">
-            <span class="ed-k">Âge</span>
-            <input type="number" id="e-age" inputmode="numeric" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
-          </div>
-          <div class="ed-cell">
-            <span class="ed-k">IMC</span>
-            <input type="number" id="e-imc" step="0.1" inputmode="decimal" placeholder="—" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+      </div>
+
+      <!-- ░ IMPLANTS ░ -->
+      <div class="edc" id="edc-implants">
+        <button type="button" class="edc-head" onclick="toggleEdc('implants')">
+          <span class="edc-dot" id="edc-dot-implants"></span><span class="edc-t">Implants</span><span class="edc-sum" id="edc-sum-implants"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
+          <div class="ed-row">
+            <div id="e-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;"></div>
+            <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
+            <textarea id="e-implants" placeholder="Autre matériel (libre)…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:60px;resize:vertical;"></textarea>
           </div>
         </div>
       </div>
 
       <!-- ░ CODAGE ░ -->
-      <div class="ed-sec-t">Codage</div>
-      <div class="ed-group">
-        <div class="ed-row">
-          <span class="ed-k">Code CCAM <span style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;">· valorisation</span></span>
-          <input type="text" id="e-ccam-search" placeholder="Rechercher un acte ou un code CCAM…" autocomplete="off" oninput="ccamSearch(this.value,'e')" style="width:100%;padding:6px 0;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
-          <div id="e-ccam-suggestions" style="display:none;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg);max-height:280px;overflow-y:auto;"></div>
-          <div id="e-ccam-selected" style="display:none;margin-top:8px;"></div>
-          <input type="hidden" id="e-ccam-code" value=""><input type="hidden" id="e-ccam-tarif" value=""><input type="hidden" id="e-ccam-libelle" value="">
-        </div>
-      </div>
-
-      <!-- ░ STATUT ░ -->
-      <div class="ed-sec-t">Statut</div>
-      <div class="ed-group">
-        <div class="ed-row">
-          <span class="ed-k">Statut actuel</span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-statut-pills">
-            <button type="button" class="e-statut-pill" onclick="selectEditStatut('gris',this)" data-val="gris">En attente</button>
-            <button type="button" class="e-statut-pill bon" onclick="selectEditStatut('vert',this)" data-val="vert">Bon résultat</button>
-            <button type="button" class="e-statut-pill vigilance" onclick="selectEditStatut('orange',this)" data-val="orange">Vigilance</button>
-            <button type="button" class="e-statut-pill compli" onclick="selectEditStatut('rouge',this)" data-val="rouge">Complication</button>
-            <button type="button" class="e-statut-pill" onclick="selectEditStatut('pdv',this)" data-val="pdv">Perdu de vue</button>
-            <button type="button" class="e-statut-pill" onclick="selectEditStatut('deces',this)" data-val="deces">Décès</button>
-          </div>
-          <input type="hidden" id="e-statut" value="gris">
-        </div>
-      </div>
-
-      <!-- ░ PLUS DE DÉTAILS (repliable) ░ -->
-      <button type="button" class="ed-more-btn" id="ed-more-btn" onclick="this.classList.toggle('open');document.getElementById('ed-more-body').classList.toggle('open');">
-        <span>Plus de détails<span style="color:var(--text3);font-weight:400;"> · implants, voie d'abord, notes, tags</span></span>
-        <span class="chev">›</span>
-      </button>
-      <div class="ed-more-body" id="ed-more-body">
-        <div class="ed-group" style="margin-top:12px;">
+      <div class="edc" id="edc-codage">
+        <button type="button" class="edc-head" onclick="toggleEdc('codage')">
+          <span class="edc-dot" id="edc-dot-codage"></span><span class="edc-t">Codage</span><span class="edc-sum" id="edc-sum-codage"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
           <div class="ed-row">
-            <span class="ed-k">Implants</span>
-            <div id="e-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;"></div>
-            <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
-            <textarea id="e-implants" placeholder="Détail des implants…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:70px;resize:vertical;"></textarea>
+            <span class="ed-k">Code CCAM <span style="color:var(--text3);font-weight:400;letter-spacing:0;text-transform:none;">· valorisation</span></span>
+            <input type="text" id="e-ccam-search" placeholder="Rechercher un acte ou un code CCAM…" autocomplete="off" oninput="ccamSearch(this.value,'e')" style="width:100%;padding:6px 0;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            <div id="e-ccam-suggestions" style="display:none;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg);max-height:280px;overflow-y:auto;"></div>
+            <div id="e-ccam-selected" style="display:none;margin-top:8px;"></div>
+            <input type="hidden" id="e-ccam-code" value=""><input type="hidden" id="e-ccam-tarif" value=""><input type="hidden" id="e-ccam-libelle" value="">
           </div>
+        </div>
+      </div>
+
+      <!-- ░ SUIVI ░ -->
+      <div class="edc" id="edc-suivi">
+        <button type="button" class="edc-head" onclick="toggleEdc('suivi')">
+          <span class="edc-dot" id="edc-dot-suivi"></span><span class="edc-t">Suivi</span><span class="edc-sum" id="edc-sum-suivi"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
+          <div class="ed-row">
+            <span class="ed-k">Statut actuel</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="e-statut-pills">
+              <button type="button" class="e-statut-pill" onclick="selectEditStatut('gris',this)" data-val="gris">En attente</button>
+              <button type="button" class="e-statut-pill bon" onclick="selectEditStatut('vert',this)" data-val="vert">Bon résultat</button>
+              <button type="button" class="e-statut-pill vigilance" onclick="selectEditStatut('orange',this)" data-val="orange">Vigilance</button>
+              <button type="button" class="e-statut-pill compli" onclick="selectEditStatut('rouge',this)" data-val="rouge">Complication</button>
+              <button type="button" class="e-statut-pill" onclick="selectEditStatut('pdv',this)" data-val="pdv">Perdu de vue</button>
+              <button type="button" class="e-statut-pill" onclick="selectEditStatut('deces',this)" data-val="deces">Décès</button>
+            </div>
+            <input type="hidden" id="e-statut" value="gris">
+          </div>
+        </div>
+      </div>
+
+      <!-- ░ NOTES & TAGS ░ -->
+      <div class="edc" id="edc-notes">
+        <button type="button" class="edc-head" onclick="toggleEdc('notes')">
+          <span class="edc-dot" id="edc-dot-notes"></span><span class="edc-t">Notes &amp; tags</span><span class="edc-sum" id="edc-sum-notes"></span>
+          <svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="edc-body">
           <div class="ed-row">
             <span class="ed-k">Voie d'abord</span>
             <select id="e-abord" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
@@ -3515,19 +3571,17 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <textarea id="e-remarques" placeholder="Notes libres, contact…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:80px;resize:vertical;font-size:16px;"></textarea>
           </div>
           <div class="ed-row">
-            <span class="ed-k">Contexte septique</span>
-            <label style="display:flex;align-items:center;gap:8px;padding:10px;cursor:pointer;">
-              <input type="checkbox" id="e-septique" onchange="toggleSeptiqueEdit(this.checked)" style="width:18px;height:18px;accent-color:var(--accent);">
-              <span style="font-size:14px;color:var(--text);">Reprise / contexte septique</span>
-            </label>
-          </div>
-          <div class="ed-row">
             <span class="ed-k">Tags</span>
             <div class="tag-wrap" id="e-tag-wrap" onclick="document.getElementById('etf').focus()">
               <input class="tag-field" id="etf" placeholder="Ajouter un tag..." onkeydown="handleEditTag(event)" list="dl-tags">
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- ░ SUPPRESSION ░ -->
+      <div style="text-align:center;padding:6px 0 18px;">
+        <button type="button" onclick="closeModal('edit-modal');confirmDelete()" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--red);cursor:pointer;padding:8px 14px;">Supprimer ce bloc</button>
       </div>
 
     </div>
@@ -4965,13 +5019,10 @@ function renderImplantPills(){
   if(!window._selImplants)window._selImplants=new Set();
   if(!sp){box.innerHTML='';return;}
   const list=implantsForContext(sp,iv);
-  let html=list.map(c=>{
-    const on=window._selImplants.has(c.label);
-    return '<button type="button" class="imp-pill'+(on?' on':'')+'" data-id="'+c.id+'" onclick="toggleImplantPill(this)">'+esc(c.label)+'</button>';
-  }).join('');
+  let html=_impPillsGrouped(list,window._selImplants,'toggleImplantPill');
   // Implants sélectionnés hors contexte (garde-fou)
   window._selImplants.forEach(l=>{
-    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleImplantPill(this)">'+esc(l)+'</button>';
+    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleImplantPill(this)">'+esc(impModelOnly(l))+'</button>';
   });
   html+='<button type="button" class="imp-pill ghost" onclick="openImplantCatalog()">＋ Gérer</button>';
   box.innerHTML=html;
@@ -4990,14 +5041,14 @@ function toggleImplantPill(el){
 function renderEditImplantPills(b){
   const box=document.getElementById('e-implant-pills');if(!box)return;
   if(!window._selImplantsEdit)window._selImplantsEdit=new Set(b&&b.implantModels||[]);
-  const sp=b?b.spec:'';const iv=b?(b.interv||''):'';
+  const sp=((document.getElementById('e-spec')||{}).value)||(b?b.spec:'');
+  let iv=((document.getElementById('e-interv')||{}).value)||'';
+  const lib=((document.getElementById('e-interv-libre')||{}).value)||'';
+  if(!iv||iv.includes('__LIBRE__'))iv=lib||(b?(b.interv||''):'');
   const list=implantsForContext(sp,iv);
-  let html=list.map(c=>{
-    const on=window._selImplantsEdit.has(c.label);
-    return '<button type="button" class="imp-pill'+(on?' on':'')+'" data-id="'+c.id+'" onclick="toggleEditImplantPill(this)">'+esc(c.label)+'</button>';
-  }).join('');
+  let html=_impPillsGrouped(list,window._selImplantsEdit,'toggleEditImplantPill');
   window._selImplantsEdit.forEach(l=>{
-    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleEditImplantPill(this)">'+esc(l)+'</button>';
+    if(!list.find(c=>c.label===l))html+='<button type="button" class="imp-pill on" data-raw="'+esc(l)+'" onclick="toggleEditImplantPill(this)">'+esc(impModelOnly(l))+'</button>';
   });
   box.innerHTML=html;
 }
@@ -6000,30 +6051,8 @@ function openEditModal(){
   if(heroTitle)heroTitle.textContent=displayInterv(b.interv)||'—';
   // Spec pills
   selectEditSpec(b.spec||'', null, true);
-  // Rebuild interv dropdown
-  const eInterv=document.getElementById('e-interv');
-  const eLibre=document.getElementById('e-interv-libre');
-  const eRegion=document.getElementById('e-trauma-region');
-  if(b.spec==='Traumatologie'){
-    const parts=(b.interv||'').split(' — ');
-    if(eRegion){eRegion.style.display='block';eRegion.value=parts[0]||'';}
-    buildIntervSelectForEdit(b.spec, parts[0]||'');
-  } else {
-    if(eRegion)eRegion.style.display='none';
-    buildIntervSelectForEdit(b.spec||'','');
-  }
-  setTimeout(()=>{
-    if(eInterv){
-      const opts=Array.from(eInterv.options).map(o=>o.value);
-      if(opts.includes(b.interv)){eInterv.value=b.interv;}
-      else if(b.interv){
-        const libreOpt=Array.from(eInterv.options).find(o=>o.value==='__LIBRE__')||Array.from(eInterv.options).find(o=>o.value.includes('__LIBRE__'));
-        if(libreOpt)eInterv.value=libreOpt.value;
-        if(eLibre)eLibre.value=b.interv;
-      }
-    }
-    toggleIntervLibre('e');
-  },50);
+  // v119 : picker d'acte à pastilles, identique à la saisie
+  ePreselectInterv(b);
   // Côté pills
   selectEditSide(b.side||'', null, true);
   // Rôle pills
@@ -6052,18 +6081,23 @@ function openEditModal(){
   selectEditStatut(b.statut||'gris', null, true);
   // Tags
   editTags=[...(b.tags||[])];renderEditTags();
+  setEditHospit(b.hospitMode||'',true);
+  const _ehd=document.getElementById('e-hospit-duree');if(_ehd)_ehd.value=(b.hospitDuree!=null?b.hospitDuree:'');
+  eStar=+b.diff||0;renderEditStars();
   syncEditMore();
   openModal('edit-modal');
   setTimeout(()=>{const s=document.getElementById('e-scroll');if(s)s.scrollTop=0;},50);
 }
 function syncEditMore(){
-  const ids=['e-implants','e-astuces','e-remarques','e-abord'];
-  let has=ids.some(id=>{const el=document.getElementById(id);return el&&el.value&&String(el.value).trim();});
-  if(!has && typeof editTags!=='undefined' && editTags && editTags.length)has=true;
-  const btn=document.getElementById('ed-more-btn'), body=document.getElementById('ed-more-body');
-  if(!btn||!body)return;
-  if(has){btn.classList.add('open');body.classList.add('open');}
-  else{btn.classList.remove('open');body.classList.remove('open');}
+  ['interv','patient','implants','codage','suivi','notes'].forEach(id=>{
+    const c=document.getElementById('edc-'+id);if(c)c.classList.toggle('open',id==='interv');
+  });
+  updateEdcSummaries();
+}
+function toggleEdc(id){
+  const c=document.getElementById('edc-'+id);if(!c)return;
+  c.classList.toggle('open');
+  updateEdcSummaries();
 }
 // Helpers pills edit
 function renderEditSpecPills(){
@@ -6084,14 +6118,217 @@ function selectEditSpec(val, btn, silent){
   if(btn){btn.classList.add('on');}
   else{document.querySelectorAll('.e-spec-pill').forEach(p=>{const txt=p.textContent.trim();if(txt===val||(val==='Traumatologie'&&txt==='Trauma'))p.classList.add('on');});}
   const hidden=document.getElementById('e-spec');if(hidden)hidden.value=val;
-  if(!silent){buildIntervSelectForEdit(val,'');const region=document.getElementById('e-trauma-region');if(region)region.style.display=val==='Traumatologie'?'block':'none';}
+  if(!silent){eUpInterv();}
 }
-function buildIntervSelectForEdit(spec,region){
-  const sel=document.getElementById('e-interv');const libre=document.getElementById('e-interv-libre');
-  if(!sel)return;
-  sel.innerHTML=buildIntervSelectHTML(spec,region);
-  sel.onchange=()=>toggleIntervLibre('e');
-  if(libre)libre.style.display='none';
+function buildIntervSelectForEdit(spec,region){eUpInterv();}
+// ── v119 : picker d'acte de l'édition (miroir de la saisie) ──
+function eUpInterv(){
+  const sp=(document.getElementById('e-spec')||{}).value||'';
+  const container=document.getElementById('e-interv-pills');
+  const libre=document.getElementById('e-interv-libre');
+  const intervH=document.getElementById('e-interv');
+  if(!container)return;
+  if(intervH)intervH.value='';
+  if(libre){libre.style.display='none';libre.value='';}
+  if(!sp){container.innerHTML='<span style="font-size:13px;color:var(--text3);font-style:italic;">Sélectionner une spécialité d\'abord</span>';return;}
+  if(sp==='Traumatologie'){
+    const regions=Object.keys(INTERV_HIER.Traumatologie||{});
+    container.innerHTML=regions.map(r=>`<button type="button" class="interv-pill" onclick="ePickTraumaRegion('${r}')">${r}</button>`).join('');
+    return;
+  }
+  const items=(INTERV_HIER[sp]&&INTERV_HIER[sp][''])||[];
+  container.innerHTML=items.map(iv=>{
+    const isLibre=iv==='Autre';
+    const val=isLibre?'__LIBRE__':iv;
+    return`<button type="button" class="interv-pill${isLibre?' autre':''}" data-val="${esc(val)}" onclick="ePickInterv(this,'${val.replace(/'/g,"\\'")}')">${iv}</button>`;
+  }).join('');
+}
+function ePickTraumaRegion(region,subSel){
+  const container=document.getElementById('e-interv-pills');
+  const libre=document.getElementById('e-interv-libre');
+  const intervH=document.getElementById('e-interv');
+  if(intervH)intervH.value='';
+  if(libre){libre.style.display='none';libre.value='';}
+  const sub=INTERV_HIER.Traumatologie[region];
+  if(!sub||!container){return;}
+  const eq=s=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  let html='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;align-items:center;margin-bottom:8px;">'
+    +'<button type="button" class="interv-pill" onclick="eUpInterv()" aria-label="Retour" style="min-width:34px;">&#8249;</button>'
+    +'<span style="font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">'+region+'</span></div>';
+  if(Array.isArray(sub)){
+    html+=sub.map(item=>{
+      const canonical=region+' — '+item;
+      return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="ePickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+    }).join('');
+    container.innerHTML=html;
+    return;
+  }
+  if(sub&&typeof sub==='object'&&Object.keys(sub).length===1&&Array.isArray(sub[''])){
+    html+=sub[''].map(item=>{
+      const canonical=region+' — '+item;
+      return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="ePickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+    }).join('');
+    container.innerHTML=html;
+    return;
+  }
+  const names=Object.keys(sub);
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-bottom:8px;">'
+    +names.map(n=>{
+      const on=subSel===n;
+      return '<button type="button" class="interv-pill" style="font-size:11px;padding:6px 10px;text-transform:uppercase;letter-spacing:0.04em;'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;':'background:var(--bg3);color:var(--text2);')+'" onclick="ePickTraumaRegion(\''+eq(region)+'\',\''+eq(n)+'\')">'+n+'</button>';
+    }).join('')+'</div>';
+  if(subSel&&sub[subSel]!==undefined){
+    html+='<div style="width:100%;height:1px;background:var(--border);margin:2px 0 8px;"></div>';
+    const items=sub[subSel];
+    if(items==='__LIBRE__'){
+      const canonical=region+' — '+subSel+' — __LIBRE__';
+      html+='<button type="button" class="interv-pill autre" onclick="ePickIntervLibre(\''+eq(canonical)+'\')">'+subSel+'…</button>';
+    } else if(Array.isArray(items)){
+      html+=items.map(item=>{
+        if(item==='__LIBRE__'||String(item).includes('__LIBRE__')){
+          const canonical=region+' — '+subSel+' — __LIBRE__';
+          return '<button type="button" class="interv-pill autre" onclick="ePickIntervLibre(\''+eq(canonical)+'\')">Autre…</button>';
+        }
+        const canonical=region+' — '+subSel+' — '+item;
+        return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="ePickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+      }).join('');
+    }
+  }
+  container.innerHTML=html;
+}
+function ePickInterv(btn,val){
+  document.querySelectorAll('#e-interv-pills .interv-pill').forEach(p=>p.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const h=document.getElementById('e-interv');if(h)h.value=val;
+  const libre=document.getElementById('e-interv-libre');
+  if(val.includes('__LIBRE__')){
+    if(libre){libre.style.display='block';libre.value='';setTimeout(()=>{try{libre.focus();}catch(e){}},50);}
+  } else {
+    if(libre){libre.style.display='none';libre.value='';}
+  }
+  try{const b=(typeof detailBlocIdx==='number'&&detailBlocIdx>=0)?blocs[detailBlocIdx]:null;renderEditImplantPills(b);}catch(e){}
+  updateEdcSummaries();
+}
+function ePickIntervLibre(canonical){
+  const h=document.getElementById('e-interv');if(h)h.value=canonical;
+  const libre=document.getElementById('e-interv-libre');
+  if(libre){libre.style.display='block';try{libre.focus();}catch(e){}}
+  updateEdcSummaries();
+}
+function ePreselectInterv(b){
+  const iv=b.interv||'';const spec=b.spec||'';
+  eUpInterv();
+  const h=document.getElementById('e-interv');
+  const libre=document.getElementById('e-interv-libre');
+  if(!iv)return;
+  const markOn=val=>{let found=false;document.querySelectorAll('#e-interv-pills .interv-pill').forEach(p=>{if(p.getAttribute('data-val')===val){p.classList.add('on');found=true;}});return found;};
+  const toLibre=()=>{if(libre){libre.style.display='block';libre.value=iv;}if(h)h.value='__LIBRE__';};
+  if(spec==='Traumatologie'){
+    const parts=iv.split(' — ');
+    const node=INTERV_HIER.Traumatologie[parts[0]];
+    if(node){
+      if(Array.isArray(node)||(typeof node==='object'&&Object.keys(node).length===1&&Array.isArray(node['']))){
+        ePickTraumaRegion(parts[0]);
+      } else if(parts.length>=2&&node[parts[1]]!==undefined){
+        ePickTraumaRegion(parts[0],parts[1]);
+      } else {
+        ePickTraumaRegion(parts[0]);
+      }
+      if(markOn(iv)){if(h)h.value=iv;}
+      else toLibre();
+    } else toLibre();
+  } else {
+    if(markOn(iv)){if(h)h.value=iv;}
+    else toLibre();
+  }
+}
+function setEditHospit(mode,silent){
+  const hm=document.getElementById('e-hospit-mode');if(hm)hm.value=mode||'';
+  const a=document.getElementById('e-hospit-ambu'),o=document.getElementById('e-hospit-hosp');
+  if(a)a.classList.toggle('on',mode==='Ambulatoire');
+  if(o)o.classList.toggle('on',mode==='Hospitalisation');
+  const d=document.getElementById('e-hospit-duree');
+  if(d)d.style.display=mode==='Hospitalisation'?'inline-block':'none';
+  if(!silent)updateEdcSummaries();
+}
+let eStar=0;
+function renderEditStars(){
+  const c=document.getElementById('e-stars');if(!c)return;
+  const lbls=['Non évalué','Simple','Modéré','Difficile','Très difficile','Exceptionnel'];
+  let html='';
+  for(let i=1;i<=5;i++){
+    html+='<button type="button" onclick="setEditStar('+i+')" style="width:30px;height:30px;background:none;border:none;cursor:pointer;font-size:21px;padding:0;color:'+(i<=eStar?'var(--amber)':'var(--bg4)')+';">★</button>';
+  }
+  html+='<span style="font-size:12px;color:var(--text3);font-style:italic;margin-left:6px;">'+lbls[eStar]+'</span>';
+  c.innerHTML=html;
+}
+function setEditStar(n){eStar=(eStar===n?0:n);renderEditStars();}
+function impModelOnly(label){
+  try{const c=implantCatalog.find(x=>x.label===label);return c?(((c.modele||'').trim())||c.label):label;}catch(e){return label;}
+}
+function _impPillsGrouped(list,selSet,toggleName){
+  const order=IMP_TYPES.map(t=>t[0]).concat(['']);
+  const groups={};
+  list.forEach(c=>{const t=(c.type&&order.includes(c.type))?c.type:'';(groups[t]=groups[t]||[]).push(c);});
+  const keys=order.filter(t=>groups[t]&&groups[t].length);
+  const multi=keys.length>1||(keys.length===1&&keys[0]!=='');
+  let html='';
+  keys.forEach(t=>{
+    if(multi)html+='<div style="width:100%;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin:6px 0 2px;">'+esc(IMP_TYPES_PLURAL[t]||'Sans type')+'</div>';
+    html+=groups[t].map(c=>{
+      const on=selSet.has(c.label);
+      const lbl=((c.modele||'').trim())||c.label;
+      return '<button type="button" class="imp-pill'+(on?' on':'')+'" data-id="'+c.id+'" onclick="'+toggleName+'(this)">'+esc(lbl)+'</button>';
+    }).join('');
+  });
+  return html;
+}
+function updateEdcSummaries(){
+  const g=id=>{const el=document.getElementById(id);return el?String(el.value||'').trim():'';};
+  const setSum=(id,txt)=>{const el=document.getElementById('edc-sum-'+id);if(el)el.textContent=txt;};
+  const setDot=(id,ok,color)=>{
+    const d=document.getElementById('edc-dot-'+id);if(!d)return;
+    if(color){d.style.background='transparent';d.innerHTML='<i style="width:9px;height:9px;border-radius:99px;background:'+color+';display:inline-block;"></i>';return;}
+    d.style.background=ok?'var(--green-l)':'var(--bg3)';
+    d.innerHTML=ok?'<svg viewBox="0 0 24 24" fill="none" stroke="var(--green-d)" stroke-width="3" style="width:10px;height:10px;"><polyline points="20 6 9 17 4 12"></polyline></svg>':'';
+  };
+  // Intervention
+  const ivRaw=g('e-interv'),lib=g('e-interv-libre');
+  const ivDisp=ivRaw.includes('__LIBRE__')?(lib?displayInterv(lib):'—'):(ivRaw?displayInterv(ivRaw):'—');
+  const side=g('e-side'),role=g('e-role');
+  const sept=(typeof editTags!=='undefined'&&editTags.some(t=>normalizeTag(t)==='Septique'));
+  setSum('interv',[ivDisp,side?side.charAt(0):null,role||null,sept?'septique':null].filter(Boolean).join(' · '));
+  setDot('interv',!!(ivRaw||lib));
+  // Patient
+  const pat=g('e-patient'),age=g('e-age'),dur=g('e-duree'),etab=g('e-etablissement');
+  setSum('patient',[pat||'—',age?age+' ans':null,dur?dur+' min':null,etab||null].filter(Boolean).join(' · '));
+  setDot('patient',!!pat);
+  // Implants
+  let impTxt='—';
+  try{
+    const sel=window._selImplantsEdit?Array.from(window._selImplantsEdit):[];
+    if(sel.length){const names=sel.map(impModelOnly);impTxt=names.slice(0,3).join(' · ')+(names.length>3?' +'+(names.length-3):'');}
+    else if(g('e-implants'))impTxt='libre';
+  }catch(e){}
+  setSum('implants',impTxt);
+  setDot('implants',impTxt!=='—');
+  // Codage
+  const code=g('e-ccam-code'),tarif=g('e-ccam-tarif');
+  setSum('codage',code?(code+(tarif?' · '+tarif+' €':'')):'—');
+  setDot('codage',!!code);
+  // Suivi
+  const st=g('e-statut')||'gris';
+  const stLbl={gris:'En attente',vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',pdv:'Perdu de vue',deces:'Décès',excellent:'Excellent'};
+  const stCol={gris:'var(--st-wait)',vert:'var(--green)',orange:'var(--amber)',rouge:'var(--red)',pdv:'var(--st-pdv)',deces:'var(--st-deces)',excellent:'var(--green-d)'};
+  setSum('suivi',stLbl[st]||st);
+  setDot('suivi',true,stCol[st]||'var(--st-wait)');
+  // Notes
+  const nParts=[];
+  if(g('e-abord'))nParts.push(g('e-abord'));
+  if(g('e-astuces'))nParts.push('astuces');
+  if(typeof editTags!=='undefined'&&editTags.length)nParts.push(editTags.length+' tag'+(editTags.length>1?'s':''));
+  setSum('notes',nParts.length?nParts.join(' · '):'—');
+  setDot('notes',nParts.length>0);
 }
 function selectEditSide(val, btn, silent){
   document.querySelectorAll('.e-side-pill').forEach(p=>p.classList.remove('on'));
@@ -6163,6 +6400,12 @@ function saveEdit(){
   b.statut=document.getElementById('e-statut').value;
   b.operateur=document.getElementById('e-operateur').value;
   b.tags=[...editTags];
+  const _ehm=document.getElementById('e-hospit-mode');
+  if(_ehm&&_ehm.value){
+    b.hospitMode=_ehm.value;
+    b.hospitDuree=_ehm.value==='Hospitalisation'?(parseInt((document.getElementById('e-hospit-duree')||{}).value)||null):null;
+  }
+  b.diff=eStar;
   if(b)b.toComplete=false;
   saveLocal();closeModal('edit-modal');openBlocDetail(detailBlocIdx);showToast('Bloc modifié');
 }
@@ -6367,6 +6610,14 @@ function pickTraumaRegion(region,subSel){
     +'<span style="font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">'+region+'</span></div>';
   if(Array.isArray(sub)){
     html+=sub.map(item=>{
+      const canonical=region+' — '+item;
+      return '<button class="interv-pill" onclick="pickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+    }).join('');
+    container.innerHTML=html;
+    return;
+  }
+  if(sub&&typeof sub==='object'&&Object.keys(sub).length===1&&Array.isArray(sub[''])){
+    html+=sub[''].map(item=>{
       const canonical=region+' — '+item;
       return '<button class="interv-pill" onclick="pickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
     }).join('');
@@ -6842,7 +7093,10 @@ function showStatsPage(){
   rerenderCurrentStatsTab();
 }
 function openStatsPage(id){curStatsPage=id;if(id==='interventions')statTraumaSeg=null;showStatsPage();}
-function backToStatsHub(){curStatsPage=null;showStatsPage();}
+function backToStatsHub(){
+  if(curStatsPage==='interventions'&&statTraumaSeg){statTraumaSeg=null;renderTopInterventions();return;}
+  curStatsPage=null;showStatsPage();
+}
 function renderStatsHub(){
   const host=document.getElementById('shub-grid');if(!host)return;
   const B=statFilteredBlocs();const now=new Date();
@@ -7381,23 +7635,24 @@ function renderTopInterventions(){
     const list=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
     const groups={};
     list.forEach(b=>{
-      const k=b.interv||'—';
+      const k=b.interv||'';
       if(!groups[k])groups[k]={total:0,principal:0,aide:0,blocs:[]};
       groups[k].total++;groups[k].blocs.push(b);
       if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
     });
     const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
     const max=sorted.length?sorted[0][1].total:1;
+    window._drillRows=sorted.map(([name,v])=>({name,v}));
     el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="closeTraumaSeg()">'
       +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
       +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">Traumatologie — '+esc(statTraumaSeg)+'</span></div>'
-      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,esc(displayInterv(name)),v,max,warm,`showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
+      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>',v,max,warm,`_topClickDrill(${i})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
     return;
   }
   const groups={};
   subset.forEach(b=>{
     const isTr=b.spec==='Traumatologie';
-    const k=isTr?('__SEG__'+traumaSegOf(b.interv)):(b.interv||'—');
+    const k=isTr?('__SEG__'+traumaSegOf(b.interv)):(b.interv||'');
     if(!groups[k])groups[k]={total:0,principal:0,aide:0,spec:b.spec,blocs:[],seg:isTr?traumaSegOf(b.interv):null};
     groups[k].total++;groups[k].blocs.push(b);
     if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
@@ -7405,16 +7660,26 @@ function renderTopInterventions(){
   const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
   const max=sorted.length?sorted[0][1].total:1;
   if(!sorted.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>';return;}
+  window._topRows=sorted.map(([name,v])=>({name,v}));
   el.innerHTML=sorted.map(([name,v],i)=>{
     if(v.seg){
       const nTypes=new Set(v.blocs.map(b=>b.interv)).size;
-      return _rankRow(i+1,esc(v.seg),v,max,warm,`openTraumaSeg('${v.seg.replace(/'/g,"\\'")}')`,'<span class="s-tagpill">'+nTypes+' type'+(nTypes>1?'s':'')+'</span>');
+      return _rankRow(i+1,esc(v.seg),v,max,warm,`_topClickL1(${i})`,'<span class="s-tagpill">'+nTypes+' type'+(nTypes>1?'s':'')+'</span>');
     }
     const color=cssColor(getSpecColor(v.spec));
-    return _rankRow(i+1,esc(displayInterv(name)),v,max,color,`showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})`);
+    return _rankRow(i+1,esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>',v,max,color,`_topClickL1(${i})`);
   }).join('');
 }
 
+function _topClickL1(i){
+  const r=(window._topRows||[])[i];if(!r)return;
+  if(r.v.seg){openTraumaSeg(r.v.seg);return;}
+  openBlocsListModal((displayInterv(r.name)||'(Sans intitulé)')+' — '+r.v.total+' bloc'+(r.v.total>1?'s':''),r.v.blocs);
+}
+function _topClickDrill(i){
+  const r=(window._drillRows||[])[i];if(!r)return;
+  openBlocsListModal((displayInterv(r.name)||'(Sans intitulé)')+' — '+r.v.total+' bloc'+(r.v.total>1?'s':''),r.v.blocs);
+}
 function showBlocsForInterv(name, count){
   const subset=statTopFilter==='ortho'?blocs.filter(b=>getActiveSpecs().filter(s=>s!=='Traumatologie').includes(b.spec)):
                statTopFilter==='trauma'?blocs.filter(b=>b.spec==='Traumatologie'):blocs;
@@ -9961,7 +10226,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v118',
+    version:'atlas-v119',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
