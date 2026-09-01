@@ -3665,7 +3665,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 // Trauma a une structure hiérarchique (sections) — la liste plate est générée pour rétrocompat
 const INTERV_HIER = {
   Genou: {
-    '': ['PTG','RePTG','PUC','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Ostéotomie','TTA + MPFL','Ablation de matériel','Autre']
+    '': ['PTG','RePTG','PUC','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Jumper\'s knee','Cyclope','Ablation de corps étranger','Pridie','Ostéotomie','TTA + MPFL','Ablation de matériel','Autre']
   },
   Hanche: {
     '': ['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH','PTH de révision','Changement d\'insert ± tête','Ablation de matériel','Autre']
@@ -3695,7 +3695,7 @@ const INTERV_HIER = {
     'Membre inférieur': {
       'Bassin': ['Paroi postérieure','Colonne antérieure','Colonne postérieure','Bi-colonne','Transverse ± paroi','Symphyse pubienne','Sacrum / anneau postérieur','Fixateur externe bassin'],
       'Hanche': ['PTH','PTH + Crochet','Clou Gamma','Triple vissage','DHS','Prothèse intermédiaire'],
-      'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long','Clou rétrograde','Fémur distal (plaque)','Pseudarthrose fémur'],
+      'Fémur': ['Plaque fémur','Clou fémur T2','Clou Gamma Long','Clou rétrograde','Fémur distal (plaque)','PTG de reconstruction','Pseudarthrose fémur'],
       'Genou': ['Fracture de rotule','Tendon rotulien (réinsertion)','Tendon quadricipital'],
       'Tibia': ['Plateau tibial','Clou tibia','Pilon tibial','Plaque tibia distal','Fixateur externe tibia','Pseudarthrose tibia'],
       'Cheville': ['Malléole latérale','Malléole médiale isolée','Fracture bi-malléolaire','Équivalent bimalléolaire','Fracture tri-malléolaire','Rupture du tendon d\'Achille','Pseudarthrose cheville'],
@@ -7099,8 +7099,9 @@ function showStatsPage(){
   const sc=document.querySelector('#view-stats .stats-scroll');if(sc){sc.scrollTop=0;sc.classList.toggle('hub-lock',hub);}
   rerenderCurrentStatsTab();
 }
-function openStatsPage(id){curStatsPage=id;if(id==='interventions'){statTraumaSeg=null;statTraumaSub=null;}showStatsPage();}
+function openStatsPage(id){curStatsPage=id;if(id==='interventions'){statTraumaSeg=null;statTraumaSub=null;statGroupId=null;}showStatsPage();}
 function backToStatsHub(){
+  if(curStatsPage==='interventions'&&statGroupId){statGroupId=null;renderTopInterventions();return;}
   if(curStatsPage==='interventions'&&statTraumaSub){statTraumaSub=null;renderTopInterventions();return;}
   if(curStatsPage==='interventions'&&statTraumaSeg){statTraumaSeg=null;renderTopInterventions();return;}
   curStatsPage=null;showStatsPage();
@@ -7618,7 +7619,14 @@ function setTopFilter(filter,btn){
   btn.classList.add('on');renderTopInterventions();
 }
 
-let statTraumaSeg=null,statTraumaSub=null;
+let statTraumaSeg=null,statTraumaSub=null,statGroupId=null;
+const STAT_GROUPS=[
+  {id:'grp_pth',spec:'Hanche',label:'PTH',ivs:['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH']},
+  {id:'grp_arthro_genou',spec:'Genou',label:'Arthroscopie',ivs:['Méniscectomie','Suture méniscale',"Jumper's knee",'Cyclope','Ablation de corps étranger','Pridie']}
+];
+function statGroupOf(b){return STAT_GROUPS.find(g=>g.spec===b.spec&&g.ivs.includes(b.interv))||null;}
+function openStatGroup(id){statGroupId=id;renderTopInterventions();}
+function closeStatGroup(){statGroupId=null;renderTopInterventions();}
 function traumaFamOf(iv){const p=String(iv||'').split(' — ');return p.length>=2?p[1]:'Autre';}
 function traumaSegOf(iv){
   const parts=String(iv||'').split(' — ');
@@ -7644,6 +7652,26 @@ function renderTopInterventions(){
   const el=document.getElementById('top-interventions');if(!el)return;
   const subset=statFilteredBlocs();
   const warm=cssColor('var(--warm)');
+  if(statGroupId){
+    const grp=STAT_GROUPS.find(g=>g.id===statGroupId);
+    const list=grp?subset.filter(b=>{const x=statGroupOf(b);return x&&x.id===grp.id;}):[];
+    const groups={};
+    list.forEach(b=>{
+      const k=b.interv||'';
+      if(!groups[k])groups[k]={total:0,principal:0,aide:0,blocs:[]};
+      groups[k].total++;groups[k].blocs.push(b);
+      if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
+    });
+    const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
+    const max=sorted.length?sorted[0][1].total:1;
+    window._drillRows=sorted.map(([name,v])=>({name,v}));
+    const gc=grp?cssColor(getSpecColor(grp.spec)):warm;
+    el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="closeStatGroup()">'
+      +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
+      +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">'+(grp?esc(grp.spec)+' — '+esc(grp.label):'')+'</span></div>'
+      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>',v,max,gc,`_topClickDrill(${i})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
+    return;
+  }
   if(statTraumaSeg){
     const segBlocs=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
     const isPeri=statTraumaSeg==='Péri-prothétiques';
@@ -7692,8 +7720,9 @@ function renderTopInterventions(){
   const groups={};
   subset.forEach(b=>{
     const isTr=b.spec==='Traumatologie';
-    const k=isTr?('__SEG__'+traumaSegOf(b.interv)):(b.interv||'');
-    if(!groups[k])groups[k]={total:0,principal:0,aide:0,spec:b.spec,blocs:[],seg:isTr?traumaSegOf(b.interv):null};
+    const grp=isTr?null:statGroupOf(b);
+    const k=isTr?('__SEG__'+traumaSegOf(b.interv)):(grp?('__GRP__'+grp.id):(b.interv||''));
+    if(!groups[k])groups[k]={total:0,principal:0,aide:0,spec:b.spec,blocs:[],seg:isTr?traumaSegOf(b.interv):null,grp:grp||null};
     groups[k].total++;groups[k].blocs.push(b);
     if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
   });
@@ -7707,6 +7736,10 @@ function renderTopInterventions(){
       return _rankRow(i+1,esc(v.seg),v,max,warm,`_topClickL1(${i})`,'<span class="s-tagpill">'+nTypes+' type'+(nTypes>1?'s':'')+'</span>');
     }
     const color=cssColor(getSpecColor(v.spec));
+    if(v.grp){
+      const nTypes=new Set(v.blocs.map(b=>b.interv)).size;
+      return _rankRow(i+1,esc(v.grp.label),v,max,color,`_topClickL1(${i})`,'<span class="s-tagpill">'+nTypes+' type'+(nTypes>1?'s':'')+'</span>');
+    }
     return _rankRow(i+1,esc(displayInterv(name))||'<i style="color:var(--text3);">(Sans intitulé)</i>',v,max,color,`_topClickL1(${i})`);
   }).join('');
 }
@@ -7714,6 +7747,7 @@ function renderTopInterventions(){
 function _topClickL1(i){
   const r=(window._topRows||[])[i];if(!r)return;
   if(r.v.seg){openTraumaSeg(r.v.seg);return;}
+  if(r.v.grp){openStatGroup(r.v.grp.id);return;}
   openBlocsListModal((displayInterv(r.name)||'(Sans intitulé)')+' — '+r.v.total+' bloc'+(r.v.total>1?'s':''),r.v.blocs);
 }
 function _topClickDrill(i){
@@ -8372,7 +8406,8 @@ function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
   if(/péri-pt|peri-pt|périproth|periproth/.test(s))return 'fracture';
-  if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement/.test(s))return 'fracture';
+  if(/jumper|cyclope|pridie|corps [ée]tranger/.test(s))return 'arthroscopie';
+  if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement|reconstruction/.test(s))return 'fracture';
   if(/tendon/.test(s))return 'fracture';
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
   if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
@@ -10266,7 +10301,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v120',
+    version:'atlas-v121',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
