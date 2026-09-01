@@ -2798,7 +2798,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       </div>
       <div class="regl-scroll">
         <div style="padding:0 0 12px;">
-          <input id="impv-search" type="text" placeholder="Rechercher une référence" style="width:100%;padding:11px 14px;font-size:15px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);color:var(--text);font-family:inherit;outline:none;" oninput="renderImplantsList()">
+          <input id="impv-search" type="text" placeholder="Rechercher une référence" style="width:100%;box-sizing:border-box;padding:11px 14px;font-size:15px;border:1px solid var(--border);border-radius:12px;background:var(--bg2);color:var(--text);font-family:inherit;outline:none;" oninput="renderImplantsList()">
         </div>
         <div id="impv-list"></div>
         <div style="height:88px;"></div>
@@ -5061,6 +5061,7 @@ function openImplantSheet(id){
   window._impNewIntervs=new Set((c&&c.intervs)||[]);
   window._impNewType=(c&&c.type)||'';
   window._impDelArmed=false;
+  window._impTraumaRegion='';
   let mq='',md='';
   if(c){
     if(c.marque!==undefined||c.modele!==undefined){mq=c.marque||'';md=c.modele||'';}
@@ -5107,21 +5108,43 @@ function impSelectSpec(sid){
   window._impNewIntervs=new Set(Array.from(window._impNewIntervs||[]).filter(iv=>allowed.has(iv)));
   renderImplantSheet();
 }
+function impPickTraumaRegion(r){window._impTraumaRegion=(window._impTraumaRegion===r)?'':r;renderImpIntervPills();}
 function renderImpIntervPills(){
   const box=document.getElementById('imp-interv-pills');if(!box)return;
   const wrap=document.getElementById('imp-interv-wrap');
   const specs=getActiveSpecs().filter(sid=>window._impNewSpecs&&window._impNewSpecs.has(sid));
   if(!specs.length){box.innerHTML='';if(wrap)wrap.style.display='none';return;}
   if(wrap)wrap.style.display='flex';
+  const eq=s=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const ivBtn=iv=>{const on=window._impNewIntervs.has(iv);return '<button type="button" class="imp-pill sm'+(on?' on':'')+'" data-iv="'+esc(iv)+'" onclick="impToggleInterv(this)">'+esc(iv)+'</button>';};
   box.innerHTML=specs.map(sid=>{
     const s=getSpecConfig(sid)||{label:sid};
-    const ivs=flattenIntervsForSpec(sid);
-    if(!ivs.length)return '';
+    const node=INTERV_HIER[sid];
+    let inner='';
+    if(sid==='Traumatologie'&&node&&!Array.isArray(node)){
+      const regions=Object.keys(node);
+      const sel=(window._impTraumaRegion&&node[window._impTraumaRegion]!==undefined)?window._impTraumaRegion:'';
+      inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">'
+        +regions.map(r=>{const on=sel===r;return '<button type="button" class="imp-pill sm" style="font-size:10px;text-transform:uppercase;letter-spacing:0.04em;'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;':'background:var(--bg3);color:var(--text2);')+'" onclick="impPickTraumaRegion(\''+eq(r)+'\')">'+esc(r)+'</button>';}).join('')
+        +'</div>';
+      const shown=new Set();
+      if(sel){
+        const leaves=[];
+        const walk=v=>{if(Array.isArray(v)){v.forEach(x=>{if(x&&x!=='Autre'&&!String(x).includes('__LIBRE__')){shown.add(x);if(!leaves.includes(x))leaves.push(x);}});}else if(v&&typeof v==='object'){Object.values(v).forEach(walk);}};
+        walk(node[sel]);
+        if(leaves.length)inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;">'+leaves.map(ivBtn).join('')+'</div>';
+      }
+      const all=flattenIntervsForSpec(sid);
+      const extra=Array.from(window._impNewIntervs||[]).filter(iv=>!shown.has(iv)&&all.includes(iv));
+      if(extra.length)inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'+extra.map(ivBtn).join('')+'</div>';
+    }else{
+      const ivs=flattenIntervsForSpec(sid);
+      if(!ivs.length)return '';
+      inner='<div style="display:flex;flex-wrap:wrap;gap:6px;">'+ivs.map(ivBtn).join('')+'</div>';
+    }
     return '<div style="display:flex;flex-direction:column;gap:5px;">'
       +(specs.length>1?'<span style="font-size:11px;color:var(--text3);font-weight:600;">'+esc(s.label)+'</span>':'')
-      +'<div style="display:flex;flex-wrap:wrap;gap:6px;">'
-      +ivs.map(iv=>{const on=window._impNewIntervs.has(iv);return '<button type="button" class="imp-pill sm'+(on?' on':'')+'" data-iv="'+esc(iv)+'" onclick="impToggleInterv(this)">'+esc(iv)+'</button>';}).join('')
-      +'</div></div>';
+      +inner+'</div>';
   }).join('');
 }
 function impToggleInterv(el){
@@ -6340,9 +6363,10 @@ function pickTraumaRegion(region,subSel){
   html+='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-bottom:8px;">'
     +names.map(n=>{
       const on=subSel===n;
-      return '<button class="interv-pill" style="'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);':'')+'" onclick="pickTraumaRegion(\''+eq(region)+'\',\''+eq(n)+'\')">'+n+'</button>';
+      return '<button class="interv-pill" style="font-size:11px;padding:6px 10px;text-transform:uppercase;letter-spacing:0.04em;'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;':'background:var(--bg3);color:var(--text2);')+'" onclick="pickTraumaRegion(\''+eq(region)+'\',\''+eq(n)+'\')">'+n+'</button>';
     }).join('')+'</div>';
   if(subSel&&sub[subSel]!==undefined){
+    html+='<div style="width:100%;height:1px;background:var(--border);margin:2px 0 8px;"></div>';
     const items=sub[subSel];
     if(items==='__LIBRE__'){
       const canonical=region+' — '+subSel+' — __LIBRE__';
@@ -7705,14 +7729,15 @@ const _COMMON=[
   {k:'civ',t:'seg',l:'Patient(e)',o:['M.','Mme'],def:'M.'},
   {k:'ddn',t:'date',l:'Date de naissance (CRH/ordos)'},
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
+  {k:'consultSem',t:'num',l:'Consultation de contrôle (semaines)',def:'6'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
   {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&(f._inter==='radius'||f._inter==='olecrane'))?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&(f._inter==='humerus'||f._inter==='clavicule'))?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
 ];
 const DOC_OPTS={
   pth:[..._COMMON,
-    {k:'indication',t:'text',l:'Indication',def:'Coxarthrose invalidante'},
-    {k:'longueur',t:'seg',l:'Longueurs pré-opératoires',o:['Identiques','Raccourcissement'],def:'Identiques'},
-    {k:'longueurMm',t:'num',l:'Raccourcissement (mm)',def:'10',show:f=>f.longueur==='Raccourcissement'},
+    {k:'indication',t:'text',l:'Indication',def:'Coxarthrose'},
+    {k:'longueur',t:'seg',l:'Longueurs pré-opératoires',o:['Identiques','Raccourcissement','Rallongement'],def:'Identiques'},
+    {k:'longueurMm',t:'num',l:'Inégalité (mm)',def:'10',show:f=>f.longueur&&f.longueur!=='Identiques'},
     {k:'cupType',t:'seg',l:'Type de cotyle',o:['Double mobilité','Simple mobilité'],def:'Double mobilité'},
     {k:'cotyleModele',t:'selx',l:'Cotyle — modèle',def:'CAPTIV',impType:'cotyle'},
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52'},
@@ -8021,7 +8046,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur==='Raccourcissement'?'Inégalité de longueur pré-opératoire : raccourcissement de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -8780,7 +8805,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
-Rendez-vous de contrôle à 6 semaines avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))}.
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))}, ou plus tôt si vous le jugez nécessaire.
 
 Nous restons à votre disposition.
 
@@ -9149,6 +9174,11 @@ function openBlocDocs(bi,forcedInter){
   if(b.operateur)DOCF.aides=b.operateur;
   if(b.ptgIndication)DOCF.indication=b.ptgIndication;
   if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
+  if(inter==='pth'||inter==='pth_revision'){
+    const ivt=((b.interv||'')).toLowerCase();
+    if(/crochet/.test(ivt)){DOCF.crochet=true;if(!b.ptgIndication)DOCF.indication='Fracture pertrochantérienne';}
+    else if((b.spec||'')==='Traumatologie'&&inter==='pth'&&!b.ptgIndication){DOCF.indication='Fracture du col fémoral';}
+  }
   docAutoCCAM();
   docTabs=(DOC_DOCS[inter]||['CRO','CRH']).slice();
   docIdx=0;docOverrides={};docStep=1;
@@ -9200,8 +9230,14 @@ function docImplantOpts(o){
   const out=[];
   const add=v=>{const s=(v||'').trim();if(s&&!out.includes(s))out.push(s);};
   add(o.def);
-  ((DOCF&&DOCF._implantModels)||[]).forEach(add);
-  try{if(typeof implantsForContext==='function')implantsForContext(DOCF._spec,DOCF._interv).filter(c=>!o.impType||!c.type||c.type===o.impType).forEach(c=>add(c.label));}catch(e){}
+  ((DOCF&&DOCF._implantModels)||[]).forEach(v=>{
+    try{
+      const c=implantCatalog.find(x=>x.label===v);
+      if(c&&o.impType&&c.type&&c.type!==o.impType)return;
+      add(c?(((c.modele||'').trim())||c.label):v);
+    }catch(e){add(v);}
+  });
+  try{if(typeof implantsForContext==='function')implantsForContext(DOCF._spec,DOCF._interv).filter(c=>!o.impType||!c.type||c.type===o.impType).forEach(c=>add((((c.modele||'').trim())||c.label)));}catch(e){}
   return out.slice(0,10);
 }
 function renderDocStep(){
@@ -9839,7 +9875,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v114',
+    version:'atlas-v115',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
