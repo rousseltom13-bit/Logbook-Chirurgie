@@ -1656,7 +1656,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .bk-sep{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:22px 0 12px;}
 /* Filtre spécialité global (stats) */
 .stat-spec-filter{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden;padding:0 16px 8px;}
-.stat-spec-chip{padding:6px 11px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;flex:0 1 auto;min-width:0;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
+.stat-spec-chip{padding:6px 11px;border-radius:999px;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:5px;white-space:nowrap;flex:0 1 auto;min-width:0;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
 .stat-spec-chip .sd{width:8px;height:8px;border-radius:999px;flex-shrink:0;}
 .stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:var(--bg);}
 .stat-spec-chip.on .sd{background:rgba(255,255,255,0.92) !important;}
@@ -2359,7 +2359,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
         </div>
         <div class="filters-row" id="bloc-filters"><!-- dynamique via renderBlocFilters() --></div>
         <div class="filters-row" id="role-filters">
-          <button class="filter-pill on" onclick="filterRole(this,'all')">Tous rôles</button>
           <button class="filter-pill" onclick="filterRole(this,'Principal')">Principal</button>
           <button class="filter-pill" onclick="filterRole(this,'Aide')">Aide</button>
           <button id="tags-toggle-btn" onclick="toggleTagsPanel()" class="filter-pill" style="margin-left:auto;">
@@ -2368,7 +2367,6 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           </button>
         </div>
         <div class="filters-row" id="status-filters" style="border-top:none;padding-top:4px;">
-          <button class="filter-pill on" onclick="filterStatus(this,'all')">Tous statuts</button>
           <button class="filter-pill" onclick="filterStatus(this,'vert')" style="color:var(--green-d);">● Bon résultat</button>
           <button class="filter-pill" onclick="filterStatus(this,'orange')" style="color:var(--amber-d);">● Vigilance</button>
           <button class="filter-pill" onclick="filterStatus(this,'rouge')" style="color:var(--red-d);">● Complication</button>
@@ -3967,22 +3965,15 @@ function renderSpecPills(){
 function renderBlocFilters(){
   const container=document.getElementById('bloc-filters');
   if(!container)return;
-  const active=getActiveSpecs();
-  const allBtn=`<button class="filter-pill on" onclick="filterB(this,'all')">Tous</button>`;
-  const specBtns=active.map(sid=>{
+  const active=getActiveSpecs().slice();
+  if(!active.includes('Septique')&&blocs.some(hasSeptTag))active.push('Septique');
+  container.innerHTML=active.map(sid=>{
     const s=getSpecConfig(sid);
-    return `<button class="filter-pill" onclick="filterB(this,'${sid}')">
+    return `<button class="filter-pill${curSpecFilters.includes(sid)?' on':''}" onclick="filterB(this,'${sid}')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${s.icon}</svg>
       ${s.label}
     </button>`;
   }).join('');
-  container.innerHTML=allBtn+specBtns;
-  container.querySelectorAll('.filter-pill').forEach(b=>{
-    const val=b.getAttribute('onclick')||'';
-    if(curFilter==='all'&&val.includes("'all'"))b.classList.add('on');
-    else if(val.includes("'"+curFilter+"'"))b.classList.add('on');
-    else b.classList.remove('on');
-  });
 }
 
 function renderSpecsConfig(){
@@ -4214,7 +4205,7 @@ function ccamClear(prefix){
 const CC={accent:'#1B4D5A',accent2:'#C97864',blue:'#1B4D5A',purple:'#7A5687',amber:'#C58A21',red:'#B23B34',green:'#6FA05C',gray:'#7B8290',warm:'#C97864'};
 
 let blocs=[],planned=[],patients=[],cStar=0,formTags=[],editTags=[],rCtx={},lbImgs=[],lbIdx=0;
-let curRTab='Préopératoire',curFilter='all',curRoleFilter='all',curStatusFilter='all',complCtx={},consultCtx={};
+let curRTab='Préopératoire',curSpecFilters=[],curRoleFilters=[],curStatusFilters=[],complCtx={},consultCtx={};
 let activeTagFilters=new Set();
 let chartActivity=null,chartLearning=null,chartRole=null,chartEvol=null,chartLearningTrauma=null;
 let detailBlocIdx=-1,curDetTab='info';
@@ -4610,9 +4601,9 @@ function toggleCompact(){
   if(btn)btn.style.color=compactMode?'white':'var(--text2)';
   renderBlocs();
 }
-function filterB(btn,spec){document.querySelectorAll('#bloc-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curFilter=spec;renderBlocs();}
-function filterRole(btn,role){document.querySelectorAll('#role-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curRoleFilter=role;renderBlocs();}
-function filterStatus(btn,status){document.querySelectorAll('#status-filters .filter-pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curStatusFilter=status;renderBlocs();}
+function filterB(btn,spec){if(curSpecFilters.includes(spec))curSpecFilters=curSpecFilters.filter(x=>x!==spec);else curSpecFilters.push(spec);renderBlocs();}
+function filterRole(btn,role){if(curRoleFilters.includes(role))curRoleFilters=curRoleFilters.filter(x=>x!==role);else curRoleFilters.push(role);btn.classList.toggle('on',curRoleFilters.includes(role));renderBlocs();}
+function filterStatus(btn,status){if(curStatusFilters.includes(status))curStatusFilters=curStatusFilters.filter(x=>x!==status);else curStatusFilters.push(status);btn.classList.toggle('on',curStatusFilters.includes(status));renderBlocs();}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').style.display='none';renderBlocs();}
 function toggleTagFilter(tag){if(activeTagFilters.has(tag))activeTagFilters.delete(tag);else activeTagFilters.add(tag);renderTagFilters();renderBlocs();}
 let tagsOpen=false;
@@ -4624,6 +4615,7 @@ function toggleTagsPanel(){
   renderTagFilters();
 }
 function normalizeTag(t){return t.trim().charAt(0).toUpperCase()+t.trim().slice(1).toLowerCase();}
+function hasSeptTag(b){return (b.tags||[]).some(t=>normalizeTag(t)==='Septique');}
 function renderTagFilters(){
   const allTags=new Set();
   blocs.forEach(b=>(b.tags||[]).forEach(t=>allTags.add(normalizeTag(t))));
@@ -4652,13 +4644,13 @@ function renderBlocs(){
   renderBlocFilters();
   const searchRaw=(document.getElementById('search-input')?.value||'').toLowerCase().trim();
   const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchRaw?'flex':'none';
-  let filtered=curFilter==='all'?blocs:blocs.filter(b=>b.spec===curFilter);
-  if(curRoleFilter!=='all')filtered=filtered.filter(b=>b.role===curRoleFilter);
-  if(curStatusFilter!=='all')filtered=filtered.filter(b=>
-    curStatusFilter==='rouge'
+  let filtered=curSpecFilters.length?blocs.filter(b=>curSpecFilters.includes(b.spec)||(curSpecFilters.includes('Septique')&&hasSeptTag(b))):blocs;
+  if(curRoleFilters.length)filtered=filtered.filter(b=>curRoleFilters.includes(b.role||'Principal'));
+  if(curStatusFilters.length)filtered=filtered.filter(b=>curStatusFilters.some(st=>
+    st==='rouge'
       ? ((b.statut||'gris')==='rouge' || getBlocHasComplication(b))
-      : (b.statut||'gris')===curStatusFilter
-  );
+      : (b.statut||'gris')===st
+  ));
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
   if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
@@ -6781,11 +6773,12 @@ function trendBadge(diff, isGoodWhenDown=false){
 let statPeriodActivity=6, statLearning='PTH', statTopFilter='all', statStatutScope='all';
 
 let statSpecFilter=[];
-function statFilteredBlocs(){return statSpecFilter.length?blocs.filter(b=>statSpecFilter.includes(b.spec)):blocs;}
+function statFilteredBlocs(){return statSpecFilter.length?blocs.filter(b=>statSpecFilter.includes(b.spec)||(statSpecFilter.includes('Septique')&&hasSeptTag(b))):blocs;}
 function cssColor(v){if(!v)return'#888';v=(''+v).trim();if(v.startsWith('var(')){const n=v.slice(4,-1).trim();return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#888';}return v;}
 function renderStatSpecFilter(){
   const host=document.getElementById('stat-spec-filter');if(!host)return;
-  const specs=getActiveSpecs();
+  const specs=getActiveSpecs().slice();
+  if(!specs.includes('Septique')&&blocs.some(hasSeptTag))specs.push('Septique');
   let h=`<button type="button" class="stat-spec-chip${statSpecFilter.length===0?' on':''}" onclick="toggleStatSpec('__ALL__')">Tout</button>`;
   h+=specs.map(s=>{const on=statSpecFilter.includes(s);const cfg=getSpecConfig(s);const lbl=((cfg&&cfg.label)||s).replace('Traumatologie','Trauma');return `<button type="button" class="stat-spec-chip${on?' on':''}" style="--sc:${getSpecColor(s)};" onclick="toggleStatSpec('${s}')"><span class="sd" style="background:${getSpecColor(s)};"></span>${lbl}</button>`;}).join('');
   host.innerHTML=h;
@@ -6847,7 +6840,7 @@ function showStatsPage(){
   const sc=document.querySelector('#view-stats .stats-scroll');if(sc){sc.scrollTop=0;sc.classList.toggle('hub-lock',hub);}
   rerenderCurrentStatsTab();
 }
-function openStatsPage(id){curStatsPage=id;showStatsPage();}
+function openStatsPage(id){curStatsPage=id;if(id==='interventions')statTraumaSeg=null;showStatsPage();}
 function backToStatsHub(){curStatsPage=null;showStatsPage();}
 function renderStatsHub(){
   const host=document.getElementById('shub-grid');if(!host)return;
@@ -7362,27 +7355,62 @@ function setTopFilter(filter,btn){
   btn.classList.add('on');renderTopInterventions();
 }
 
+let statTraumaSeg=null;
+function traumaSegOf(iv){
+  const parts=String(iv||'').split(' — ');
+  if(parts[0]==='Péri-prothétiques')return 'Péri-prothétiques';
+  if(parts[0]==='Membre inférieur'||parts[0]==='Membre supérieur')return parts.length>=2?parts[1]:'Autre';
+  return 'Autre';
+}
+function openTraumaSeg(seg){statTraumaSeg=seg;renderTopInterventions();}
+function closeTraumaSeg(){statTraumaSeg=null;renderTopInterventions();}
+function _septPill(list){const n=list.filter(hasSeptTag).length;return n?'<span class="s-tagpill" style="background:color-mix(in srgb, #b3593a 14%, transparent);color:#b3593a;">Septique '+n+'</span>':'';}
+function _rankRow(rank,label,v,max,color,onclick,extraMeta){
+  return`<div class="s-rank" onclick="${onclick}">
+      <div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-no${rank<=3?' top':''}">${rank}</span><span class="s-rank-label">${label}</span></div><span class="s-rank-count">${v.total}<span class="s-chev">›</span></span></div>
+      <div class="s-rank-bar"><s style="width:${Math.round(v.total/max*100)}%;background:${color};"></s></div>
+      <div class="s-rank-meta"><span class="s-tagpill p">Principal ${v.principal}</span><span class="s-tagpill a">Aide ${v.aide}</span>${extraMeta||''}${_septPill(v.blocs)}</div>
+    </div>`;
+}
 function renderTopInterventions(){
+  const el=document.getElementById('top-interventions');if(!el)return;
   const subset=statFilteredBlocs();
+  const warm=cssColor('var(--warm)');
+  if(statTraumaSeg){
+    const list=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
+    const groups={};
+    list.forEach(b=>{
+      const k=b.interv||'—';
+      if(!groups[k])groups[k]={total:0,principal:0,aide:0,blocs:[]};
+      groups[k].total++;groups[k].blocs.push(b);
+      if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
+    });
+    const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
+    const max=sorted.length?sorted[0][1].total:1;
+    el.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;" onclick="closeTraumaSeg()">'
+      +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
+      +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">Traumatologie — '+esc(statTraumaSeg)+'</span></div>'
+      +(sorted.length?sorted.map(([name,v],i)=>_rankRow(i+1,esc(displayInterv(name)),v,max,warm,`showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})`)).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>');
+    return;
+  }
   const groups={};
   subset.forEach(b=>{
-    const k=b.interv||'—';
-    if(!groups[k])groups[k]={total:0,principal:0,aide:0,spec:b.spec,blocs:[]};
+    const isTr=b.spec==='Traumatologie';
+    const k=isTr?('__SEG__'+traumaSegOf(b.interv)):(b.interv||'—');
+    if(!groups[k])groups[k]={total:0,principal:0,aide:0,spec:b.spec,blocs:[],seg:isTr?traumaSegOf(b.interv):null};
     groups[k].total++;groups[k].blocs.push(b);
     if(b.role==='Principal')groups[k].principal++;else groups[k].aide++;
   });
   const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
   const max=sorted.length?sorted[0][1].total:1;
-  const el=document.getElementById('top-interventions');if(!el)return;
   if(!sorted.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc</div>';return;}
   el.innerHTML=sorted.map(([name,v],i)=>{
-    const rank=i+1;
+    if(v.seg){
+      const nTypes=new Set(v.blocs.map(b=>b.interv)).size;
+      return _rankRow(i+1,esc(v.seg),v,max,warm,`openTraumaSeg('${v.seg.replace(/'/g,"\\'")}')`,'<span class="s-tagpill">'+nTypes+' type'+(nTypes>1?'s':'')+'</span>');
+    }
     const color=cssColor(getSpecColor(v.spec));
-    return`<div class="s-rank" onclick="showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})">
-      <div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-no${rank<=3?' top':''}">${rank}</span><span class="s-rank-label">${esc(displayInterv(name))}</span></div><span class="s-rank-count">${v.total}<span class="s-chev">›</span></span></div>
-      <div class="s-rank-bar"><s style="width:${Math.round(v.total/max*100)}%;background:${color};"></s></div>
-      <div class="s-rank-meta"><span class="s-tagpill p">Principal ${v.principal}</span><span class="s-tagpill a">Aide ${v.aide}</span>${(n=>n?'<span class="s-tagpill" style="background:color-mix(in srgb, #b3593a 14%, transparent);color:#b3593a;">Septique '+n+'</span>':'')(v.blocs.filter(b=>(b.tags||[]).some(t=>normalizeTag(t)==='Septique')).length)}</div>
-    </div>`;
+    return _rankRow(i+1,esc(displayInterv(name)),v,max,color,`showBlocsForInterv('${name.replace(/'/g,"\\'")}',${v.total})`);
   }).join('');
 }
 
@@ -9932,7 +9960,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v116',
+    version:'atlas-v117',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
