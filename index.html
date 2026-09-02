@@ -8301,8 +8301,9 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
+const DOC_CCAM={bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
 const DOC_DOCS={
+  bassin:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   plateau:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pth_revision:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -8462,6 +8463,39 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matBotte'])),
+  bassin:[..._COMMON,
+    {k:'lesion',t:'seg',l:'Lésion',o:['Symphyse pubienne','Paroi postérieure','Colonne postérieure','Colonne antérieure','Bi-colonne'],def:'Colonne antérieure'},
+    {k:'voies',t:'seg',l:'Voies (bi-colonne)',o:["Double voie — antérieure d'abord","Double voie — postérieure d'abord",'Voie antérieure seule','Voie postérieure seule'],def:"Double voie — antérieure d'abord",show:f=>f.lesion==='Bi-colonne'},
+    {k:'strategie',t:'seg',l:'Stratégie',o:['Ostéosynthèse isolée','Fix and replace (PTH + renfort)'],def:'Ostéosynthèse isolée',show:f=>f.lesion!=='Symphyse pubienne'},
+    {k:'colAssoc',t:'check',l:'Fracture du col fémoral associée',def:false,show:f=>_bsFix(f)},
+    {k:'synthAssoc',t:'check',l:'Synthèse associée à la prothèse',def:true,show:f=>_bsFix(f)},
+    {k:'plaqueSymModele',t:'selx',l:'Plaque symphysaire — modèle',def:'',impType:'plaque',show:f=>f.lesion==='Symphyse pubienne'},
+    {k:'visSymNb',t:'num',l:'Plaque symphysaire — vis',def:'4',show:f=>f.lesion==='Symphyse pubienne'},
+    {k:'plaqueAntModele',t:'selx',l:'Plaque supra-pectinéale — modèle',def:'',impType:'plaque',show:f=>_bsVoies(f).ant&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'visAntNb',t:'num',l:'Plaque supra-pectinéale — vis',def:'6',show:f=>_bsVoies(f).ant&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'fenetreIliaque',t:'check',l:'Fenêtre iliaque latérale (plaque de crête)',def:false,show:f=>_bsVoies(f).ant&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'visQuadri',t:'check',l:"Vis d'appui de la lame quadrilatère",def:false,show:f=>_bsVoies(f).ant&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'visRameau',t:'check',l:'Vis rétrograde percutanée du rameau pubien',def:false,show:f=>_bsVoies(f).ant&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'impaction',t:'check',l:"Relèvement d'impaction marginale + comblement",def:false,show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'visLag',t:'num',l:'Vis inter-fragmentaires 3,5',def:'2',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'plaquePostModele',t:'selx',l:'Plaque de reconstruction — modèle',def:'',impType:'plaque',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'visPostNb',t:'num',l:'Plaque de reconstruction — vis',def:'6',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
+    {k:'renfortModele',t:'selx',l:'Renfort — modèle',def:'BURSCH',impType:'renfort',show:f=>_bsFix(f)},
+    {k:'renfortNbVis',t:'num',l:'Renfort — nombre de vis',def:'4',show:f=>_bsFix(f)},
+    {k:'cotyleModele',t:'selx',l:'Cotyle cimenté DM — modèle',def:'CAPTIV DM',impType:'cotyle',show:f=>_bsFix(f)},
+    {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52',show:f=>_bsFix(f)},
+    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige',show:f=>_bsFix(f)},
+    {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12',show:f=>_bsFix(f)},
+    {k:'teteTaille',t:'seg',l:'Tête — diamètre',o:['22','28','32','36'],def:'28',show:f=>_bsFix(f)},
+    {k:'teteCol',t:'seg',l:'Col',o:['standard','court','long'],def:'standard',show:f=>_bsFix(f)},
+    {k:'greffeTete',t:'check',l:'Greffe autologue de tête fémorale morcelée',def:true,show:f=>_bsFix(f)},
+    {k:'redon',t:'check',l:'Drain de Redon',def:true},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'dechargeSem',t:'num',l:'Décharge (semaines)',def:'6',show:f=>!_bsFix(f)},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'35',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matDeambulateur','matRehausseur','matBas'])),
   plateau:[..._COMMON,
     {k:'schatzker',t:'seg',l:'Classification de Schatzker',o:['I','II','III','IV','V','VI'],def:'II'},
     {k:'montage',t:'seg',l:'Montage',o:['Vissage percutané','Vissage percutané + greffe','Plaque latérale','Plaque médiale','Plaque latérale + postéro-médiale','Plaque latérale + médiale'],def:'Plaque latérale'},
@@ -8639,6 +8673,7 @@ function detectInter(interv){
   if(/plateau tibial|schatzker/.test(s))return 'plateau';
   if(/pseudarthrose|masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement|reconstruction/.test(s))return 'fracture';
   if(/tendon/.test(s))return 'fracture';
+  if(!/sacrum/.test(s)&&/bassin —|symphyse pubienne|bi-?colonne|ac[ée]tabul|paroi post|colonne ant|colonne post|transverse ± paroi/.test(s))return 'bassin';
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
   if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
   if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
@@ -9004,6 +9039,129 @@ Réduction anatomique satisfaisante, maintenue à la pince.
 ${_chComprLine(f)}${_chPlaqueLine(f)}
 Contrôle scopique : réduction et matériel en place.
 ${_chMedBlock(f)}${_chSyndBlock(f)}${_chFin(f)}`;
+}
+
+// ── CRO — Bassin / acétabulum ──
+function _bsVoies(f){
+  const l=f.lesion||'';
+  if(l==='Symphyse pubienne')return {sym:true,ant:false,post:false,antFirst:true};
+  if(l==='Colonne antérieure')return {sym:false,ant:true,post:false,antFirst:true};
+  if(l==='Paroi postérieure'||l==='Colonne postérieure')return {sym:false,ant:false,post:true,antFirst:false};
+  const v=f.voies||"Double voie — antérieure d'abord";
+  return {sym:false,ant:v!=='Voie postérieure seule',post:v!=='Voie antérieure seule',antFirst:!/postérieure d'abord/.test(v)};
+}
+function _bsFix(f){return /Fix and replace/.test(f.strategie||'');}
+function buildCRO_BASSIN(f){
+  const cote=coteStrD(f);
+  const v=_bsVoies(f);
+  const fix=_bsFix(f);
+  const synth=!fix||f.synthAssoc;
+  const lesion=f.lesion||'';
+  const titre=v.sym?'DISJONCTION DE LA SYMPHYSE PUBIENNE':("FRACTURE DE L'ACÉTABULUM — "+lesion.toUpperCase()+' '+cote.toUpperCase());
+  const indic=(v.sym?'Disjonction de la symphyse pubienne':("Fracture de l'acétabulum type "+lesion.toLowerCase()+' '+cote))
+    +(f.colAssoc?', associée à une fracture du col fémoral':'')
+    +(fix?'. Décision d\'arthroplastie totale de hanche avec renfort de reconstruction ("fix and replace")'+(synth?' associée à une ostéosynthèse':'')+' compte tenu du terrain et du type fracturaire':'')+'.';
+  const head=`COMPTE-RENDU OPÉRATOIRE — ${titre}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${indic}
+CCAM : ${f.ccam}${fix?' + NEKA020 en association (arthroplastie totale de hanche)':''}
+
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+`;
+  const blocSym=`
+Temps antérieur — symphyse pubienne :
+Sondage vésical préalable.
+Installation en décubitus dorsal.
+Badigeon et champage stérile.
+Incision de Pfannenstiel, deux travers de doigt au-dessus de la symphyse.
+Ouverture de la ligne blanche entre les muscles droits de l'abdomen.
+Accès à l'espace de Retzius, vessie refoulée et protégée par un écarteur malléable.
+Exposition de la symphyse et des branches pubiennes.
+Réduction par davier de Jungbluth appuyé sur les tubercules pubiens.
+Mise en place d'une plaque symphysaire pré-moulée ${f.plaqueSymModele||''} fixée par ${f.visSymNb||'4'} vis bicorticales.
+Contrôle scopique : face, inlet, outlet — réduction et matériel satisfaisants.
+`;
+  const blocAnt=`
+${(v.post&&synth)||v.sym?'Temps antérieur — voie de Stoppa modifiée :\n':''}Sondage vésical préalable.
+Installation en décubitus dorsal, hanche homolatérale légèrement fléchie (détente du psoas et des vaisseaux).
+Badigeon et champage stérile.
+Incision de Pfannenstiel. Ouverture de la ligne blanche entre les muscles droits de l'abdomen.
+Accès à l'espace de Retzius, vessie refoulée et protégée par un écarteur malléable.
+Exposition de la branche ilio-pubienne.
+Recherche systématique d'une corona mortis : ligature-coagulation.
+Dissection sous-périostée le long de la ligne innominée, pédicule obturateur repéré et protégé, vaisseaux iliaques externes refoulés à l'écarteur malléable.
+Exposition de la lame quadrilatère jusqu'à la grande échancrure sciatique.
+${f.fenetreIliaque?`Fenêtre iliaque latérale associée : décollement de la fosse iliaque interne depuis la crête iliaque, exposition de l'aile.
+`:''}Réduction par davier colinéaire et poussoir appuyé sur la lame quadrilatère, stabilisation provisoire par broches.
+Mise en place d'une plaque supra-pectinéale moulée le long du détroit supérieur ${f.plaqueAntModele||''}, fixée par ${f.visAntNb||'6'} vis.
+${f.visQuadri?`Vis d'appui de la lame quadrilatère.
+`:''}${f.fenetreIliaque?`Plaque de crête iliaque complémentaire par la fenêtre latérale.
+`:''}${f.visRameau?`Vis rétrograde percutanée du rameau pubien sous contrôle scopique.
+`:''}Contrôle scopique : face, inlet, outlet, ¾ obturateur, ¾ alaire — réduction et matériel satisfaisants.
+`;
+  const blocPost=`
+${(v.ant&&synth)||v.sym?'Temps postérieur — voie de Kocher-Langenbeck :\n':''}Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}, genou fléchi et hanche étendue pendant toute l'intervention pour détendre le nerf sciatique.
+Badigeon et champage stérile.
+Incision centrée sur le grand trochanter, remontant vers l'épine iliaque postéro-supérieure.
+Ouverture du fascia lata, discision des fibres du grand fessier.
+Repérage et protection du nerf sciatique.
+Ténotomie du piriforme et de l'obturateur interne à 1,5 cm de leur insertion (protection de la vascularisation céphalique), écarteurs placés dans la petite échancrure au contact osseux.
+Exposition de la ${lesion==='Colonne postérieure'?'colonne postérieure':'paroi postérieure et de la colonne postérieure'}.
+${f.impaction?`Relèvement de l'impaction marginale, comblement par substitut osseux.
+`:''}Réduction par davier à pointes et davier de Matta, stabilisation provisoire par broches.
+${(+f.visLag>0)?`Mise en place de ${f.visLag} vis inter-fragmentaire(s) 3,5 en compression.
+`:''}Mise en place d'une plaque de reconstruction moulée en console ${f.plaquePostModele||''}, fixée par ${f.visPostNb||'6'} vis.
+Contrôle de la stabilité et de la mobilité de hanche.
+Contrôle scopique : face, ¾ obturateur, ¾ alaire — réduction et matériel satisfaisants, absence de vis intra-articulaire.
+Contrôle du nerf sciatique en fin de temps opératoire.
+${fix?'':`Réinsertion des muscles pelvi-trochantériens.
+`}`;
+  const blocPTH=`
+Temps d'arthroplastie :
+${v.post&&synth?`Poursuite par la même voie postérieure.
+`:`Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
+Badigeon et champage stérile.
+Voie d'abord postéro-latérale, ténotomie des pelvi-trochantériens sur fils repères.
+`}Capsulotomie. Luxation de la hanche, coupe du col fémoral à l'emporte-pièce et extraction de la tête.
+${f.greffeTete?`La tête fémorale est conservée : greffon morcelé préparé pour comblement acétabulaire.
+`:''}Fraisage prudent de l'acétabulum jusqu'au fond du cotyle, sans compromettre les fragments synthésés.
+${f.greffeTete?`Comblement des défects osseux par la greffe autologue morcelée, impactée.
+`:''}Mise en place d'un renfort de reconstruction ${f.renfortModele||'type Burch-Schneider'}, fixé par ${f.renfortNbVis||'4'} vis dans l'ilion${lesion!=='Symphyse pubienne'?' et la patte ischiatique':''}.
+Cimentation d'un cotyle double mobilité ${f.cotyleModele||''} taille ${f.cotyleTaille||'52'} dans le renfort, orienté à 45° d'inclinaison et légèrement antéversé.
+Exposition du fût fémoral, préparation aux râpes de tailles successives jusqu'à la taille ${f.tigeTaille||'12'}.
+Essais : stabilité satisfaisante, longueurs restaurées.
+Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
+Réduction. Stabilité et mobilité satisfaisantes.
+Réinsertion des muscles pelvi-trochantériens et de la capsule par points trans-osseux.
+`;
+  let corps='';
+  const seq=[];
+  if(synth){
+    if(v.sym)seq.push(blocSym);
+    else{
+      if(v.antFirst){if(v.ant)seq.push(blocAnt);if(v.post)seq.push(blocPost);}
+      else{if(v.post)seq.push(blocPost);if(v.ant)seq.push(blocAnt);}
+    }
+  }
+  if(fix)seq.push(blocPTH);
+  corps=seq.join('');
+  const fin=`
+Lavage abondant.
+${f.redon?`Mise en place d'un drain de Redon aspiratif${seq.length>1?' par voie':''}.
+`:''}Fermeture plan par plan.
+Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Pansement ${(f.pansement||'sec').toLowerCase()}.
+
+Consignes : ${fix?'appui autorisé selon douleurs sous couvert de cannes ou déambulateur, précautions anti-luxation pendant 6 semaines':'décharge stricte du membre inférieur pendant '+(f.dechargeSem||'6')+' semaines'}.
+
+${_dSigBloc()}`;
+  return head+corps+fin;
 }
 
 // ── CRO — Plateau tibial ──
@@ -9447,6 +9605,7 @@ function _crhAppui(f){
     const immo=(f.immo==='Manchette plâtrée')?'Immobilisation par manchette plâtrée pendant 3 semaines':'Attelle amovible à visée antalgique pendant 3 semaines';
     return immo+" — mobilisation immédiate des doigts, du coude et de l'épaule";
   }
+  if(i==='bassin')return _bsFix(f)?"Appui autorisé selon douleurs sous couvert de cannes ou déambulateur — précautions anti-luxation pendant 6 semaines":"Décharge stricte du membre inférieur pendant "+(f.dechargeSem||'6')+" semaines sous couvert de cannes anglaises ou déambulateur";
   if(i==='plateau')return "Décharge stricte du membre inférieur pendant "+(f.dechargeSem||'6')+" semaines sous couvert de cannes anglaises — mobilisation du genou autorisée sans limitation d'amplitude";
   if(i==='cheville'){
     if(f.appui==='Décharge stricte 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines sous couvert de cannes anglaises";
@@ -9467,6 +9626,7 @@ function _crhFils(f){
 function _crhMotif(f){
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
+  if(i==='bassin')return (f.lesion==='Symphyse pubienne')?'sa disjonction de la symphyse pubienne':("sa fracture de l'acétabulum "+c+(f.lesion?' ('+f.lesion.toLowerCase()+')':''));
   if(i==='plateau')return 'sa fracture du plateau tibial '+c+(f.schatzker?' (Schatzker '+f.schatzker+')':'');
   if(i==='radius')return 'sa fracture du radius distal '+c;
   if(i==='tibia')return 'sa fracture de la diaphyse tibiale '+cf;
@@ -9497,6 +9657,16 @@ function _crhActe(f){
     if(_chPostFixed(f))s+=' et ostéosynthèse de la malléole postérieure';
     if(f.chSynd==='Bouton type TightRope (Arthrex)')s+=', avec stabilisation de la syndesmose par bouton dynamique';
     else if(f.chSynd==='Vis quadricorticale')s+=', avec stabilisation de la syndesmose par vis quadricorticale';
+    return s;
+  }
+  if(i==='bassin'){
+    const v=_bsVoies(f);const fix=_bsFix(f);
+    let s;
+    if(v.sym)s='une ostéosynthèse de la symphyse pubienne par plaque';
+    else if(v.ant&&v.post)s="une ostéosynthèse de l'acétabulum par double voie (Stoppa modifiée et Kocher-Langenbeck)";
+    else if(v.ant)s="une ostéosynthèse de l'acétabulum par voie antérieure de Stoppa modifiée (plaque supra-pectinéale)";
+    else s="une ostéosynthèse de l'acétabulum par voie postérieure de Kocher-Langenbeck";
+    if(fix)s=(f.synthAssoc?s+', associée à':'')+" une arthroplastie totale de hanche avec renfort de reconstruction (fix and replace)",s=f.synthAssoc?s:"une arthroplastie totale de hanche avec renfort de reconstruction (fix and replace)";
     return s;
   }
   if(i==='plateau'){
@@ -9573,7 +9743,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
-Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))}, ou plus tôt si vous le jugez nécessaire.
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))))}, ou plus tôt si vous le jugez nécessaire.
 
 Nous restons à votre disposition.
 
@@ -9838,6 +10008,28 @@ Réentraînement à la marche et aux escaliers ; reprise de la course à partir 
 Nombre de séances : 20, à renouveler selon évolution
 ${_dSig()}${_dRpps()}`;
   }
+  if(inter==='bassin'){
+    const fix=_bsFix(f);
+    return `ORDONNANCE KINÉSITHÉRAPIE — ${fix?'FIX AND REPLACE (ACÉTABULUM + PTH)':'OSTÉOSYNTHÈSE DU BASSIN / ACÉTABULUM'}
+
+À débuter immédiatement.
+
+${intro}
+${fix?`
+Appui autorisé selon douleurs sous couvert de cannes ou déambulateur.
+⚠ PRÉCAUTIONS ANTI-LUXATION pendant 6 semaines : pas de flexion de hanche > 90°, pas d'adduction ni de rotation forcée.
+Travail de la marche et sevrage progressif des aides.
+Renforcement du moyen fessier et du quadriceps en chaîne fermée.
+`:`
+⚠ DÉCHARGE STRICTE du membre inférieur pendant ${f.dechargeSem||'6'} semaines (cannes ou déambulateur).
+Mobilisation douce de la hanche selon tolérance, sans secteur forcé.
+Entretien musculaire isométrique (quadriceps, fessiers), mobilisation de la cheville.
+Prévention des complications de décubitus, verticalisation précoce.
+À la reprise d'appui : remise en charge progressive, travail de la marche, renforcement, équilibre.
+`}
+Nombre de séances : 20, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
   if(inter==='plateau'){
     return `ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU PLATEAU TIBIAL
 
@@ -9922,6 +10114,7 @@ function docContent(doc){
     if(inter==='menisc')return buildCRO_MENISC(f);
     if(inter==='cheville')return buildCRO_CHEVILLE(f);
     if(inter==='plateau')return buildCRO_PLATEAU(f);
+    if(inter==='bassin')return buildCRO_BASSIN(f);
     if(inter==='radius')return buildCRO_RADIUS(f);
     if(inter==='femur')return buildCRO_FEMUR(f);
     if(inter==='tibia')return buildCRO_TIBIA(f);
@@ -9960,6 +10153,10 @@ function openBlocDocs(bi,forcedInter){
   if(b.operateur)DOCF.aides=b.operateur;
   if(b.ptgIndication)DOCF.indication=b.ptgIndication;
   if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
+  if(inter==='bassin'){
+    const last=((b.interv||'').split(' — ').pop()||'').trim();
+    if(['Symphyse pubienne','Paroi postérieure','Colonne postérieure','Colonne antérieure','Bi-colonne'].includes(last))DOCF.lesion=last;
+  }
   if(inter==='pth'||inter==='pth_revision'){
     const ivt=((b.interv||'')).toLowerCase();
     if(/crochet/.test(ivt)){DOCF.crochet=true;if(!b.ptgIndication)DOCF.indication='Fracture pertrochantérienne';}
@@ -10001,6 +10198,12 @@ function docAutoCCAM(){
     else if(DOCF.fmGeste==='Clou Gamma long')DOCF.ccam='NBCA006';
     else DOCF.ccam=DOCF.fmAbord?'NBCA007':'NBCB004';
   }
+  else if(i==='bassin'){
+    const l=DOCF.lesion||'';
+    if(l==='Symphyse pubienne')DOCF.ccam='NACA001';
+    else if(l==='Bi-colonne')DOCF.ccam='NACA004';
+    else DOCF.ccam=_bsVoies(DOCF).post?'NACA005':'NACA003';
+  }
   else if(i==='plateau'){
     const m=DOCF.montage||'';
     if(/^Vissage/.test(m))DOCF.ccam='NCCB002';
@@ -10039,7 +10242,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={pth:'PTH',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||DOCF._inter===k){renderDocForm();return;}
@@ -11153,7 +11356,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v126',
+    version:'atlas-v127',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,

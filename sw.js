@@ -1,4 +1,4 @@
-const CACHE = 'atlas-v126';
+const CACHE = 'atlas-v127';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(
   caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
