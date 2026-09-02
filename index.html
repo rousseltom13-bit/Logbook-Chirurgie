@@ -2303,7 +2303,11 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
         </div>
       </div>
       <div class="view-scroll" id="planning-astuces" style="display:none;padding:16px 16px 80px;">
-        <input type="text" id="ast-search" class="f-input" placeholder="Rechercher un geste, un chirurgien…" oninput="renderAstuces()" style="width:100%;box-sizing:border-box;margin-bottom:10px;">
+        <div id="carnet-tabs">
+          <button type="button" class="seg-btn on" data-tab="astuces" onclick="setCarnetTab('astuces')">Astuces</button>
+          <button type="button" class="seg-btn" data-tab="patho" onclick="setCarnetTab('patho')">Pathologies</button>
+        </div>
+        <input type="text" id="ast-search" class="f-input" placeholder="Rechercher…" oninput="renderCarnet()" style="width:100%;box-sizing:border-box;margin-bottom:10px;">
         <div id="ast-chir-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"></div>
         <div id="ast-list"></div>
       </div>
@@ -3374,6 +3378,9 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 .edc-dot{width:18px;height:18px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg3);}
 .edc-body{display:none;border-top:0.5px solid var(--border);}
 .edc.open .edc-body{display:block;}
+#carnet-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:10px;padding:3px;margin-bottom:10px;}
+#carnet-tabs .seg-btn{flex:1;text-align:center;padding:8px 4px;font-size:12.5px;font-weight:600;color:var(--text3);border-radius:8px;border:none;background:none;font-family:inherit;cursor:pointer;}
+#carnet-tabs .seg-btn.on{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(40,36,28,0.10);}
 </style>
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
@@ -3677,8 +3684,15 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <div class="ed-sec-t">Contexte</div>
       <div class="ed-group">
         <div class="ed-row">
+          <span class="ed-k">Spécialité</span>
+          <div id="ast-spec-pills" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+          <input type="hidden" id="ast-spec" value="">
+        </div>
+        <div class="ed-row">
           <span class="ed-k">Intervention</span>
-          <input type="text" id="ast-interv" list="dl-astuce-intervs" autocomplete="off" placeholder="ex. Clou Gamma, PTH…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+          <div id="ast-interv-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          <input type="text" id="ast-interv-libre" placeholder="Décrire l'intervention…" style="display:none;width:100%;padding:10px 0;font-size:15px;border:none;border-top:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;margin-top:8px;" autocomplete="off">
+          <input type="hidden" id="ast-interv" value="">
         </div>
         <div class="ed-row">
           <span class="ed-k">Chirurgien</span>
@@ -3725,7 +3739,75 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 <div id="ast-photo-view" onclick="astClosePhoto()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
   <img id="ast-photo-img" style="max-width:96vw;max-height:92vh;object-fit:contain;border-radius:6px;">
 </div>
-<datalist id="dl-astuce-intervs"></datalist>
+
+<div class="modal-overlay" id="patho-modal">
+  <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
+    <div style="padding:16px 20px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="closePathoSheet()" class="atlas-iconbtn" aria-label="Fermer" style="flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:2px;">Fiche pathologie</div>
+          <div id="patho-sheet-title" style="font-family:var(--serif);font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nouvelle fiche</div>
+        </div>
+        <button onclick="savePathoSheet()" style="flex-shrink:0;background:var(--accent);color:#fff;border:none;border-radius:99px;padding:9px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+    <div id="patho-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:12px 16px 30px;">
+      <div class="ed-sec-t">Pathologie</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Titre <span class="req">*</span></span>
+          <input type="text" id="patho-titre" autocomplete="off" placeholder="ex. Fracture du plateau tibial, entorse de Lisfranc…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Spécialité</span>
+          <div id="patho-spec-pills" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+          <input type="hidden" id="patho-spec" value="">
+        </div>
+      </div>
+      <div class="ed-sec-t">Fiche</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Classification</span>
+          <textarea id="patho-classif" placeholder="Schatzker, Vancouver, Weber…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Examen clinique</span>
+          <textarea id="patho-clinique" placeholder="Signes à chercher, pièges…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Imagerie</span>
+          <textarea id="patho-imagerie" placeholder="Incidences, TDM, critères…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Prise en charge</span>
+          <textarea id="patho-pec" placeholder="Indications, options, consignes…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Astuces</span>
+          <textarea id="patho-astuces" placeholder="Réponses aux questions des chefs, points à retenir…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="ed-sec-t">Photos</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <div id="patho-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px dashed var(--border2);border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text2);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Ajouter des photos
+            <input type="file" accept="image/*" multiple onchange="pthAddPhotos(this)" style="display:none;">
+          </label>
+          <div style="font-size:11.5px;color:var(--text3);margin-top:8px;">Schémas, clichés types, classifications — incluses dans tes sauvegardes radios.</div>
+        </div>
+      </div>
+      <div id="patho-delete-row" style="display:none;text-align:center;padding:14px 0 6px;">
+        <button type="button" onclick="deletePathoSheet()" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--red);cursor:pointer;padding:8px 14px;">Supprimer cette fiche</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <datalist id="dl-operateurs"></datalist>
 <datalist id="dl-patients"></datalist>
@@ -9941,12 +10023,148 @@ function syncNavPratique(){
   const isInt=getPratique()==='interne';
   const txt=document.getElementById('bn-planning-txt');
   const ico=document.getElementById('bn-planning-icon');
-  if(txt)txt.textContent=isInt?'Astuces':'Planning';
+  if(txt)txt.textContent=isInt?'Carnet':'Planning';
   if(ico)ico.innerHTML=isInt
-    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6"></path><path d="M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.2 2.2h4.8c.1-.8.5-1.6 1.2-2.2A6 6 0 0 0 12 3z"></path></svg>'
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>'
     :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path></svg>';
 }
-let astChirFilter='';
+// ── v124 : picker d'acte des fiches astuces (miroir de la saisie) ──
+function aRenderSpecPills(){
+  const c=document.getElementById('ast-spec-pills');if(!c)return;
+  const cur=(document.getElementById('ast-spec')||{}).value||'';
+  c.innerHTML=getActiveSpecs().map(sid=>{
+    const s=getSpecConfig(sid);
+    return '<button type="button" class="e-spec-pill'+(cur===sid?' on':'')+'" onclick="selectAstSpec(\''+sid+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">'+s.icon+'</svg> '+esc(s.label)+'</button>';
+  }).join('');
+}
+function selectAstSpec(sid){
+  const h=document.getElementById('ast-spec');if(!h)return;
+  h.value=(h.value===sid)?'':sid;
+  aRenderSpecPills();
+  aUpInterv();
+}
+function aUpInterv(){
+  const sp=(document.getElementById('ast-spec')||{}).value||'';
+  const container=document.getElementById('ast-interv-pills');
+  const libre=document.getElementById('ast-interv-libre');
+  const intervH=document.getElementById('ast-interv');
+  if(!container)return;
+  if(intervH)intervH.value='';
+  if(libre){libre.style.display='none';libre.value='';}
+  if(!sp){container.innerHTML='<span style="font-size:13px;color:var(--text3);font-style:italic;">Choisis une spécialité pour lier un geste (optionnel)</span>';return;}
+  if(sp==='Traumatologie'){
+    const regions=Object.keys(INTERV_HIER.Traumatologie||{});
+    container.innerHTML=regions.map(r=>'<button type="button" class="interv-pill" onclick="aPickTraumaRegion(\''+r+'\')">'+r+'</button>').join('');
+    return;
+  }
+  const items=(INTERV_HIER[sp]&&INTERV_HIER[sp][''])||[];
+  container.innerHTML=items.map(iv=>{
+    const isLibre=iv==='Autre';
+    const val=isLibre?'__LIBRE__':iv;
+    return '<button type="button" class="interv-pill'+(isLibre?' autre':'')+'" data-val="'+esc(val)+'" onclick="aPickInterv(this,\''+val.replace(/'/g,"\\'")+'\')">'+iv+'</button>';
+  }).join('');
+}
+function aPickTraumaRegion(region,subSel){
+  const container=document.getElementById('ast-interv-pills');
+  const libre=document.getElementById('ast-interv-libre');
+  const intervH=document.getElementById('ast-interv');
+  if(intervH)intervH.value='';
+  if(libre){libre.style.display='none';libre.value='';}
+  const sub=INTERV_HIER.Traumatologie[region];
+  if(!sub||!container){return;}
+  const eq=s=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  let html='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;align-items:center;margin-bottom:8px;">'
+    +'<button type="button" class="interv-pill" onclick="aUpInterv()" aria-label="Retour" style="min-width:34px;">&#8249;</button>'
+    +'<span style="font-size:10px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">'+region+'</span></div>';
+  if(Array.isArray(sub)){
+    html+=sub.map(item=>{
+      const canonical=region+' — '+item;
+      return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="aPickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+    }).join('');
+    container.innerHTML=html;
+    return;
+  }
+  if(sub&&typeof sub==='object'&&Object.keys(sub).length===1&&Array.isArray(sub[''])){
+    html+=sub[''].map(item=>{
+      const canonical=region+' — '+item;
+      return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="aPickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+    }).join('');
+    container.innerHTML=html;
+    return;
+  }
+  const names=Object.keys(sub);
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-bottom:8px;">'
+    +names.map(n=>{
+      const on=subSel===n;
+      return '<button type="button" class="interv-pill" style="font-size:11px;padding:6px 10px;text-transform:uppercase;letter-spacing:0.04em;'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;':'background:var(--bg3);color:var(--text2);')+'" onclick="aPickTraumaRegion(\''+eq(region)+'\',\''+eq(n)+'\')">'+n+'</button>';
+    }).join('')+'</div>';
+  if(subSel&&sub[subSel]!==undefined){
+    html+='<div style="width:100%;height:1px;background:var(--border);margin:2px 0 8px;"></div>';
+    const items=sub[subSel];
+    if(items==='__LIBRE__'){
+      const canonical=region+' — '+subSel+' — __LIBRE__';
+      html+='<button type="button" class="interv-pill autre" onclick="aPickIntervLibre(\''+eq(canonical)+'\')">'+subSel+'…</button>';
+    } else if(Array.isArray(items)){
+      html+=items.map(item=>{
+        if(item==='__LIBRE__'||String(item).includes('__LIBRE__')){
+          const canonical=region+' — '+subSel+' — __LIBRE__';
+          return '<button type="button" class="interv-pill autre" onclick="aPickIntervLibre(\''+eq(canonical)+'\')">Autre…</button>';
+        }
+        const canonical=region+' — '+subSel+' — '+item;
+        return '<button type="button" class="interv-pill" data-val="'+esc(canonical)+'" onclick="aPickInterv(this,\''+eq(canonical)+'\')">'+item+'</button>';
+      }).join('');
+    }
+  }
+  container.innerHTML=html;
+}
+function aPickInterv(btn,val){
+  document.querySelectorAll('#ast-interv-pills .interv-pill').forEach(p=>p.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  const h=document.getElementById('ast-interv');if(h)h.value=val;
+  const libre=document.getElementById('ast-interv-libre');
+  if(val.includes('__LIBRE__')){
+    if(libre){libre.style.display='block';libre.value='';setTimeout(()=>{try{libre.focus();}catch(e){}},50);}
+  } else {
+    if(libre){libre.style.display='none';libre.value='';}
+  }
+}
+function aPickIntervLibre(canonical){
+  const h=document.getElementById('ast-interv');if(h)h.value=canonical;
+  const libre=document.getElementById('ast-interv-libre');
+  if(libre){libre.style.display='block';try{libre.focus();}catch(e){}}
+}
+function aPreselectInterv(spec,iv){
+  const sh=document.getElementById('ast-spec');if(sh)sh.value=spec||'';
+  aRenderSpecPills();
+  aUpInterv();
+  const h=document.getElementById('ast-interv');
+  const libre=document.getElementById('ast-interv-libre');
+  if(!iv)return;
+  const markOn=val=>{let found=false;document.querySelectorAll('#ast-interv-pills .interv-pill').forEach(p=>{if(p.getAttribute('data-val')===val){p.classList.add('on');found=true;}});return found;};
+  const toLibre=()=>{if(libre){libre.style.display='block';libre.value=iv;}if(h)h.value='__LIBRE__';};
+  if(spec==='Traumatologie'){
+    const parts=iv.split(' — ');
+    const node=INTERV_HIER.Traumatologie[parts[0]];
+    if(node){
+      if(Array.isArray(node)||(typeof node==='object'&&Object.keys(node).length===1&&Array.isArray(node['']))){
+        aPickTraumaRegion(parts[0]);
+      } else if(parts.length>=2&&node[parts[1]]!==undefined){
+        aPickTraumaRegion(parts[0],parts[1]);
+      } else {
+        aPickTraumaRegion(parts[0]);
+      }
+      if(markOn(iv)){if(h)h.value=iv;}
+      else toLibre();
+    } else toLibre();
+  } else if(spec){
+    if(markOn(iv)){if(h)h.value=iv;}
+    else toLibre();
+  } else {
+    toLibre();
+  }
+}
+
+let astChirFilter='';let astOpenIv=null;
 function astToggleChir(c){astChirFilter=(astChirFilter===c)?'':c;renderAstuces();}
 const AST_RUBRIQUES=[['installation','Installation'],['abord',"Voie d'abord"],['synthese','Réduction & synthèse'],['divers','Astuces diverses']];
 function renderAstuces(){
@@ -9962,41 +10180,66 @@ function renderAstuces(){
     list.innerHTML='<div class="empty-cta"><div class="empty-cta-ico">💡</div><div class="empty-cta-title">'+(astuces.length?'Aucune fiche ne correspond':'Aucune fiche astuce')+'</div><div class="empty-cta-sub">'+(astuces.length?'Modifie ta recherche ou tes filtres.':'Note ici ce que tu apprends au bloc — installation, voie d\'abord, synthèse — avec photos, par geste et par chirurgien.')+'</div>'+(astuces.length?'':'<button class="empty-cta-btn" onclick="openAstuceSheet(null)">+ Première fiche</button>')+'</div>';
     return;
   }
-  const groups={};
-  items.forEach(a=>{const k=(a.interv||'').trim()?displayInterv(a.interv):'Général';(groups[k]=groups[k]||[]).push(a);});
-  list.innerHTML=Object.entries(groups).sort((x,y)=>x[0].localeCompare(y[0],'fr')).map(([g,arr])=>{
-    const cards=arr.map(a=>{
-      const first=AST_RUBRIQUES.map(([k,l])=>a[k]&&String(a[k]).trim()?{l,t:String(a[k]).trim()}:null).filter(Boolean);
-      const filled=first.map(r=>r.l).join(' · ');
-      const preview=first.length?first[0].t:'';
-      const nPh=+a.photos||0;
-      return '<div class="atlas-info-card" style="cursor:pointer;margin-bottom:8px;" onclick="openAstuceSheet(\''+a.id+'\')">'
-        +'<div style="display:flex;align-items:center;gap:8px;">'
-        +'<div style="flex:1;min-width:0;">'
-        +(a.chirurgien?'<div style="font-size:13.5px;font-weight:700;">'+esc(a.chirurgien)+'</div>':'<div style="font-size:13.5px;font-weight:700;color:var(--text3);">Sans chirurgien</div>')
-        +(filled?'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-top:2px;">'+esc(filled)+'</div>':'')
-        +(preview?'<div style="font-family:var(--serif);font-size:14px;color:var(--text2);margin-top:5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(preview)+'</div>':'')
-        +'</div>'
-        +(nPh?'<span style="flex-shrink:0;font-size:11px;background:var(--accent-l);color:var(--accent);padding:4px 9px;border-radius:99px;font-weight:600;">📷 '+nPh+'</span>':'')
+  const astCard=a=>{
+    const first=AST_RUBRIQUES.map(([k,l])=>a[k]&&String(a[k]).trim()?{l,t:String(a[k]).trim()}:null).filter(Boolean);
+    const filled=first.map(r=>r.l).join(' · ');
+    const preview=first.length?first[0].t:'';
+    const nPh=+a.photos||0;
+    return '<div class="atlas-info-card" style="cursor:pointer;margin-bottom:8px;" onclick="openAstuceSheet(\''+a.id+'\')">'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<div style="flex:1;min-width:0;">'
+      +(a.chirurgien?'<div style="font-size:13.5px;font-weight:700;">'+esc(a.chirurgien)+'</div>':'<div style="font-size:13.5px;font-weight:700;color:var(--text3);">Sans chirurgien</div>')
+      +(filled?'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-top:2px;">'+esc(filled)+'</div>':'')
+      +(preview?'<div style="font-family:var(--serif);font-size:14px;color:var(--text2);margin-top:5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(preview)+'</div>':'')
+      +'</div>'
+      +(nPh?'<span style="flex-shrink:0;font-size:11px;background:var(--accent-l);color:var(--accent);padding:4px 9px;border-radius:99px;font-weight:600;">📷 '+nPh+'</span>':'')
+      +'<span style="color:var(--text3);flex-shrink:0;">›</span></div></div>';
+  };
+  const ivKey=a=>((a.interv||'').trim()||'__NONE__');
+  const ivName=a=>((a.interv||'').trim()?displayInterv(a.interv):'Fiches générales');
+  // Recherche active : résultats à plat
+  if(q){
+    list.innerHTML='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+items.length+' résultat'+(items.length>1?'s':'')+'</div>'
+      +items.map(a=>'<div style="font-size:11px;color:var(--text3);margin:0 2px 3px;">'+esc(ivName(a))+'</div>'+astCard(a)).join('');
+    return;
+  }
+  // Niveau 2 : fiches d'une intervention
+  if(astOpenIv!==null){
+    const arr=items.filter(a=>ivKey(a)===astOpenIv);
+    const name=arr.length?ivName(arr[0]):'';
+    list.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:2px 2px 10px;cursor:pointer;" onclick="astOpenIv=null;renderAstuces();">'
+      +'<span style="font-size:16px;color:var(--text2);line-height:1;">‹</span>'
+      +'<span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);">'+esc(name||'Retour')+'</span></div>'
+      +(arr.length?arr.map(astCard).join(''):'<div class="s-empty" style="padding:14px 16px;">Aucune fiche</div>');
+    return;
+  }
+  // Niveau 1 : spécialités → interventions
+  const bySpec={};
+  items.forEach(a=>{const sp=(a.spec||'').trim()||'Autre';(bySpec[sp]=bySpec[sp]||{})[ivKey(a)]=(bySpec[sp][ivKey(a)]||[]).concat([a]);});
+  const specOrder=getActiveSpecs().concat(Object.keys(bySpec).filter(s=>!getActiveSpecs().includes(s)));
+  list.innerHTML=specOrder.filter(sp=>bySpec[sp]).map(sp=>{
+    const cfg=getSpecConfig(sp);
+    const rows=Object.entries(bySpec[sp]).sort((x,y)=>y[1].length-x[1].length).map(([k,arr])=>{
+      const nPh=arr.reduce((s,a)=>s+(+a.photos||0),0);
+      return '<div class="atlas-info-card" style="cursor:pointer;margin-bottom:7px;padding:12px 14px;" onclick="astOpenIv=\''+k.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\';renderAstuces();">'
+        +'<div style="display:flex;align-items:center;gap:9px;">'
+        +'<i style="width:8px;height:8px;border-radius:99px;background:'+(cfg.color||'var(--text3)')+';flex-shrink:0;"></i>'
+        +'<span style="flex:1;min-width:0;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(ivName(arr[0]))+'</span>'
+        +(nPh?'<span style="font-size:11px;color:var(--text3);flex-shrink:0;">📷 '+nPh+'</span>':'')
+        +'<span style="font-size:12.5px;color:var(--text3);flex-shrink:0;">'+arr.length+'</span>'
         +'<span style="color:var(--text3);flex-shrink:0;">›</span></div></div>';
     }).join('');
-    return '<div style="margin-bottom:16px;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+esc(g)+' <span style="font-weight:400;">· '+arr.length+'</span></div>'+cards+'</div>';
+    return '<div style="margin-bottom:18px;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+esc(cfg.label||sp)+'</div>'+rows+'</div>';
   }).join('');
-}
-function astAllIntervs(){
-  const out=[];
-  try{Object.keys(INTERV_HIER).forEach(sp=>flattenIntervsForSpec(sp).forEach(iv=>{if(!out.includes(iv))out.push(iv);}));}catch(e){}
-  return out;
 }
 function openAstuceSheet(id){
   const isNew=!id;
   const a=isNew?{id:'a_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),interv:'',chirurgien:'',installation:'',abord:'',synthese:'',divers:'',created:new Date().toISOString(),photos:0}:astuces.find(x=>x.id===id);
   if(!a)return;
   window._astEditId=a.id;window._astIsNew=isNew;window._astPhotosAdded=false;
-  const dl=document.getElementById('dl-astuce-intervs');
-  if(dl)dl.innerHTML=astAllIntervs().map(iv=>'<option value="'+esc(iv)+'"></option>').join('');
   const set=(eid,v)=>{const el=document.getElementById(eid);if(el)el.value=v||'';};
-  set('ast-interv',a.interv);set('ast-chir',a.chirurgien);
+  aPreselectInterv(a.spec||'',a.interv||'');
+  set('ast-chir',a.chirurgien);
   set('ast-installation',a.installation);set('ast-abord',a.abord);set('ast-synthese',a.synthese);set('ast-divers',a.divers);
   const del=document.getElementById('ast-delete-row');if(del)del.style.display=isNew?'none':'block';
   const ttl=document.getElementById('ast-sheet-title');if(ttl)ttl.textContent=isNew?'Nouvelle astuce':(displayInterv(a.interv)||a.chirurgien||'Fiche astuce');
@@ -10011,7 +10254,12 @@ async function closeAstuceSheet(){
 }
 async function saveAstuceSheet(){
   const g=id=>((document.getElementById(id)||{}).value||'').trim();
-  const data={interv:g('ast-interv'),chirurgien:g('ast-chir'),installation:g('ast-installation'),abord:g('ast-abord'),synthese:g('ast-synthese'),divers:g('ast-divers')};
+  let iv=g('ast-interv');
+  const libreVal=g('ast-interv-libre');
+  if(iv.includes('__LIBRE__')){
+    iv=libreVal?(/^(Membre inférieur|Membre supérieur|Péri-prothétiques) — /.test(libreVal)?libreVal:iv.replace(' — __LIBRE__',' — '+libreVal).replace('__LIBRE__',libreVal)):'';
+  } else if(!iv&&libreVal){iv=libreVal;}
+  const data={spec:g('ast-spec'),interv:iv,chirurgien:g('ast-chir'),installation:g('ast-installation'),abord:g('ast-abord'),synthese:g('ast-synthese'),divers:g('ast-divers')};
   const hasContent=Object.values(data).some(v=>v)||window._astPhotosAdded;
   if(!hasContent){showToast('Fiche vide — ajoute au moins une info');return;}
   let nPh=0;
@@ -10094,6 +10342,159 @@ async function astDeletePhoto(i){
   window._astPhotosAdded=true;
   astRenderThumbs();
 }
+// ── FICHES PATHOLOGIE (volet Carnet) ──
+let pathos=[];try{pathos=JSON.parse(localStorage.getItem('atlas_pathos')||'[]');}catch(e){pathos=[];}
+function savePathos(){try{localStorage.setItem('atlas_pathos',JSON.stringify(pathos));}catch(e){}}
+let carnetTab='astuces';
+function setCarnetTab(t){
+  carnetTab=t;
+  document.querySelectorAll('#carnet-tabs .seg-btn').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  const addBtn=document.getElementById('plan-add-btn');
+  if(addBtn&&getPratique()==='interne'){addBtn.textContent=t==='patho'?'+ Nouvelle fiche':'+ Nouvelle astuce';addBtn.onclick=t==='patho'?function(){openPathoSheet(null);}:function(){openAstuceSheet(null);};}
+  renderCarnet();
+}
+function renderCarnet(){
+  if(carnetTab==='patho')renderPathos();
+  else renderAstuces();
+}
+const PTH_RUBRIQUES=[['classif','Classification'],['clinique','Examen clinique'],['imagerie','Imagerie'],['pec','Prise en charge'],['astuces','Astuces']];
+function renderPathos(){
+  const list=document.getElementById('ast-list');if(!list)return;
+  const cf=document.getElementById('ast-chir-filters');if(cf)cf.innerHTML='';
+  const q=((document.getElementById('ast-search')||{}).value||'').toLowerCase().trim();
+  let items=pathos.slice();
+  if(q)items=items.filter(p=>[p.titre,p.spec,p.classif,p.clinique,p.imagerie,p.pec,p.astuces].join(' ').toLowerCase().includes(q));
+  const card=p=>{
+    const nPh=+p.photos||0;
+    const filled=PTH_RUBRIQUES.filter(([k])=>p[k]&&String(p[k]).trim()).map(([,l])=>l).join(' · ');
+    return '<div class="atlas-info-card" style="cursor:pointer;margin-bottom:7px;padding:12px 14px;" onclick="openPathoSheet(\''+p.id+'\')">'
+      +'<div style="display:flex;align-items:center;gap:9px;">'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(p.titre||'Sans titre')+'</div>'
+      +(filled?'<div style="font-size:10.5px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-top:2px;">'+esc(filled)+'</div>':'')
+      +'</div>'
+      +(nPh?'<span style="font-size:11px;color:var(--text3);flex-shrink:0;">📷 '+nPh+'</span>':'')
+      +'<span style="color:var(--text3);flex-shrink:0;">›</span></div></div>';
+  };
+  if(!items.length){
+    list.innerHTML='<div class="empty-cta"><div class="empty-cta-ico">📖</div><div class="empty-cta-title">'+(pathos.length?'Aucune fiche ne correspond':'Aucune fiche pathologie')+'</div><div class="empty-cta-sub">'+(pathos.length?'Modifie ta recherche.':'Note ici ce que tu apprends sur les pathologies — classification, clinique, imagerie, prise en charge.')+'</div>'+(pathos.length?'':'<button class="empty-cta-btn" onclick="openPathoSheet(null)">+ Première fiche</button>')+'</div>';
+    return;
+  }
+  if(q){
+    list.innerHTML='<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+items.length+' résultat'+(items.length>1?'s':'')+'</div>'+items.map(card).join('');
+    return;
+  }
+  const bySpec={};
+  items.forEach(p=>{const sp=(p.spec||'').trim()||'Autre';(bySpec[sp]=bySpec[sp]||[]).push(p);});
+  const specOrder=getActiveSpecs().concat(Object.keys(bySpec).filter(s=>!getActiveSpecs().includes(s)));
+  list.innerHTML=specOrder.filter(sp=>bySpec[sp]).map(sp=>{
+    const cfg=getSpecConfig(sp);
+    const rows=bySpec[sp].sort((a,b)=>(a.titre||'').localeCompare(b.titre||'','fr')).map(card).join('');
+    return '<div style="margin-bottom:18px;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+esc(cfg.label||sp)+'</div>'+rows+'</div>';
+  }).join('');
+}
+function pthRenderSpecPills(){
+  const c=document.getElementById('patho-spec-pills');if(!c)return;
+  const cur=(document.getElementById('patho-spec')||{}).value||'';
+  c.innerHTML=getActiveSpecs().map(sid=>{
+    const s=getSpecConfig(sid);
+    return '<button type="button" class="e-spec-pill'+(cur===sid?' on':'')+'" onclick="selectPathoSpec(\''+sid+'\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">'+s.icon+'</svg> '+esc(s.label)+'</button>';
+  }).join('');
+}
+function selectPathoSpec(sid){
+  const h=document.getElementById('patho-spec');if(!h)return;
+  h.value=(h.value===sid)?'':sid;
+  pthRenderSpecPills();
+}
+function openPathoSheet(id){
+  const isNew=!id;
+  const p=isNew?{id:'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),titre:'',spec:'',classif:'',clinique:'',imagerie:'',pec:'',astuces:'',created:new Date().toISOString(),photos:0}:pathos.find(x=>x.id===id);
+  if(!p)return;
+  window._pthEditId=p.id;window._pthIsNew=isNew;window._pthPhotosAdded=false;
+  const set=(eid,v)=>{const el=document.getElementById(eid);if(el)el.value=v||'';};
+  set('patho-titre',p.titre);set('patho-spec',p.spec);
+  set('patho-classif',p.classif);set('patho-clinique',p.clinique);set('patho-imagerie',p.imagerie);set('patho-pec',p.pec);set('patho-astuces',p.astuces);
+  pthRenderSpecPills();
+  const del=document.getElementById('patho-delete-row');if(del)del.style.display=isNew?'none':'block';
+  const ttl=document.getElementById('patho-sheet-title');if(ttl)ttl.textContent=isNew?'Nouvelle fiche':(p.titre||'Fiche pathologie');
+  pthRenderThumbs();
+  openModal('patho-modal');
+  setTimeout(()=>{const s=document.getElementById('patho-scroll');if(s)s.scrollTop=0;},50);
+}
+async function closePathoSheet(){
+  if(window._pthIsNew&&window._pthPhotosAdded){try{await purgeRadiosForBloc(window._pthEditId);}catch(e){}}
+  window._pthEditId=null;
+  closeModal('patho-modal');
+}
+async function savePathoSheet(){
+  const g=id=>((document.getElementById(id)||{}).value||'').trim();
+  const data={titre:g('patho-titre'),spec:g('patho-spec'),classif:g('patho-classif'),clinique:g('patho-clinique'),imagerie:g('patho-imagerie'),pec:g('patho-pec'),astuces:g('patho-astuces')};
+  if(!data.titre){showToast('Donne un titre à la fiche (la pathologie)');return;}
+  let nPh=0;
+  try{const ex=await getRadiosForBloc(window._pthEditId);nPh=(ex['Patho']||[]).filter(Boolean).length;}catch(e){}
+  let p=pathos.find(x=>x.id===window._pthEditId);
+  if(!p){p={id:window._pthEditId,created:new Date().toISOString()};pathos.push(p);}
+  Object.assign(p,data,{photos:nPh,updated:new Date().toISOString()});
+  savePathos();
+  window._pthIsNew=false;window._pthEditId=null;
+  closeModal('patho-modal');
+  renderCarnet();
+  showToast('Fiche enregistrée');
+}
+async function deletePathoSheet(){
+  const p=pathos.find(x=>x.id===window._pthEditId);
+  if(!p)return;
+  if(!confirm('Supprimer la fiche « '+(p.titre||'Sans titre')+' »'+(p.photos?' et ses '+p.photos+' photo(s)':'')+' ?'))return;
+  try{await purgeRadiosForBloc(p.id);}catch(e){}
+  pathos=pathos.filter(x=>x.id!==p.id);
+  savePathos();
+  window._pthEditId=null;
+  closeModal('patho-modal');
+  renderCarnet();
+  showToast('Fiche supprimée');
+}
+async function pthAddPhotos(input){
+  const files=Array.from(input.files||[]);input.value='';
+  if(!files.length||!window._pthEditId)return;
+  showToast(files.length>1?'Ajout des photos…':'Ajout de la photo…');
+  let arr=[];
+  try{const ex=await getRadiosForBloc(window._pthEditId);arr=(ex['Patho']||[]).filter(Boolean);}catch(e){}
+  for(const f of files){
+    try{
+      const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
+      let final=dataURL;
+      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c)final=c;}catch(e){}
+      await saveRadio(window._pthEditId,'Patho',arr.length,final,f.name||'photo',new Date().toISOString());
+      arr.push({data:final});
+      window._pthPhotosAdded=true;
+    }catch(e){console.warn('photo fiche échouée',e);}
+  }
+  pthRenderThumbs();
+}
+async function pthRenderThumbs(){
+  const box=document.getElementById('patho-thumbs');if(!box)return;
+  let arr=[];
+  try{const ex=await getRadiosForBloc(window._pthEditId);arr=(ex['Patho']||[]).filter(Boolean);}catch(e){}
+  window._pthThumbCache=arr;
+  box.innerHTML=arr.map((r,i)=>'<div style="position:relative;flex-shrink:0;">'
+    +'<img src="'+r.data+'" style="width:76px;height:76px;object-fit:cover;border-radius:10px;border:0.5px solid var(--border2);display:block;" onclick="pthViewPhoto('+i+')">'
+    +'<button onclick="pthDeletePhoto('+i+')" aria-label="Supprimer" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:99px;background:var(--text);color:var(--bg);border:none;font-size:12px;line-height:1;cursor:pointer;">×</button>'
+    +'</div>').join('');
+}
+function pthViewPhoto(i){
+  const r=(window._pthThumbCache||[])[i];if(!r)return;
+  const img=document.getElementById('ast-photo-img');if(img)img.src=r.data;
+  const ov=document.getElementById('ast-photo-view');if(ov)ov.style.display='flex';
+}
+async function pthDeletePhoto(i){
+  const arr=(window._pthThumbCache||[]).slice();
+  if(!arr[i])return;
+  arr.splice(i,1);
+  try{await reindexRadios(window._pthEditId,'Patho',arr);}catch(e){}
+  window._pthPhotosAdded=true;
+  pthRenderThumbs();
+}
+
 
 function upcomingJournees(){const t=todayStr();return journees.filter(j=>j.date>=t).sort((a,b)=>a.date.localeCompare(b.date));}
 function pendingJournees(){
@@ -10119,10 +10520,13 @@ function renderJourneesPlanning(){
   if(sen)sen.style.display=isInt?'none':'';
   if(int)int.style.display='none';
   if(ast)ast.style.display=isInt?'':'none';
-  const ttl=document.getElementById('planning-title');if(ttl)ttl.textContent=isInt?'Astuces chirurgicales':'Planning';
-  if(addBtn){addBtn.style.display='';addBtn.textContent=isInt?'+ Nouvelle astuce':'+ Nouveau bloc';addBtn.onclick=isInt?function(){openAstuceSheet(null);}:function(){openNewPlannedModal();};}
+  const ttl=document.getElementById('planning-title');if(ttl)ttl.textContent=isInt?'Carnet':'Planning';
+  if(addBtn){addBtn.style.display='';
+    if(isInt){addBtn.textContent=carnetTab==='patho'?'+ Nouvelle fiche':'+ Nouvelle astuce';addBtn.onclick=carnetTab==='patho'?function(){openPathoSheet(null);}:function(){openAstuceSheet(null);};}
+    else{addBtn.textContent='+ Nouveau bloc';addBtn.onclick=function(){openNewPlannedModal();};}
+  }
   try{syncNavPratique();}catch(e){}
-  if(isInt){try{renderAstuces();}catch(e){}return;}
+  if(isInt){astOpenIv=null;try{renderCarnet();}catch(e){}return;}
   if(!isInt)return;
   const up=document.getElementById('jr-upcoming'),pa=document.getElementById('jr-past');
   const fmtRow=(j,past)=>{
@@ -10582,7 +10986,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v123',
+    version:'atlas-v125',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -10592,6 +10996,7 @@ async function exportData(){
     patients:patients||[],
     journees:(typeof journees!=='undefined'?journees:[]),
     astuces:(typeof astuces!=='undefined'?astuces:[]),
+    pathos:(typeof pathos!=='undefined'?pathos:[]),
     implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
     oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null)
   };
@@ -10720,6 +11125,13 @@ function importData(e){
         const seenA=new Set(astuces.map(a=>a.id));
         importedAst.forEach(a=>{if(a&&a.id&&!seenA.has(a.id)){astuces.push(a);seenA.add(a.id);}});
         saveAstuces();
+      }
+      // Merge fiches pathologie par id
+      const importedPth=parsed.pathos||[];
+      if(importedPth.length&&typeof pathos!=='undefined'){
+        const seenP2=new Set(pathos.map(p=>p.id));
+        importedPth.forEach(p=>{if(p&&p.id&&!seenP2.has(p.id)){pathos.push(p);seenP2.add(p.id);}});
+        savePathos();
       }
       // Merge patients par ID
       const importedPatients = parsed.patients || [];
