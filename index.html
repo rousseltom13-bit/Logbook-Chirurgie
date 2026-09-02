@@ -3820,7 +3820,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 // Trauma a une structure hiérarchique (sections) — la liste plate est générée pour rétrocompat
 const INTERV_HIER = {
   Genou: {
-    '': ['PTG','RePTG','PUC','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Jumper\'s knee','Cyclope','Ablation de corps étranger','Pridie','Ostéotomie','TTA + MPFL','Ablation de matériel','Autre']
+    '': ['PTG','RePTG','PUC','LCA (DT3+2)','Reprise LCA','Méniscectomie','Suture méniscale','Jumper\'s knee','Cyclope','Ablation de corps étranger','Pridie','Ostéotomie','TTA + MPFL','Fulkerson','Ablation de matériel','Autre']
   },
   Hanche: {
     '': ['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH','PTH de révision','Changement d\'insert ± tête','Ablation de matériel','Autre']
@@ -4273,7 +4273,79 @@ const CCAM_MAP={
  "Discectomie pour hernie discale":"LFFA002",
  "Arthrodèse lombaire dégénérative":"LFDA004",
  "Décompression cervicale":"LDAA002",
- "Kyphoplastie/vertébroplastie":"LHMH027"
+ "Kyphoplastie/vertébroplastie":"LHMH027",
+ "PUC":"NFKA006",
+ "Fulkerson":"NCPA001",
+ "Jumper's knee":"NJEA007",
+ "Cyclope":"NFJC001",
+ "Ablation de corps étranger":"NFJC001",
+ "Pridie":"NFCC408",
+ "Tendon rotulien (réinsertion)":"NJEA007",
+ "Tendon quadricipital":"NJEA002",
+ "PTG de reconstruction":"NFKA009",
+ "Changement d'insert ± tête":"NEKA004",
+ "DHS":"NBCA010",
+ "Prothèse intermédiaire":"NEKA011",
+ "Malléole médiale isolée":"NCCA005",
+ "Équivalent bimalléolaire":"NCCA012",
+ "Rupture du tendon d'Achille":"NJMB001",
+ "Pseudarthrose fémur":"NBPA005",
+ "Pseudarthrose tibia":"NCPA008",
+ "Pseudarthrose cheville":"NCPA008",
+ "Clou rétrograde":"NBCB004",
+ "Fémur distal (plaque)":"NBCA014",
+ "Plaque tibia distal":"NCCA011",
+ "Fixateur externe tibia":"NCCA010",
+ "Fixateur externe bassin":"NACB001",
+ "Calcanéum":"NDCA004",
+ "Talus":"NDCA005",
+ "Lisfranc":"NDCB001",
+ "Métatarsiens":"NDCA002",
+ "Phalanges / orteils":"NDCB003",
+ "Luxation péri-talienne":"NGEP001",
+ "Trans-métatarsienne":"NZFA005",
+ "Orteils":"NZFA004",
+ "Symphyse pubienne":"NACA001",
+ "Paroi postérieure":"NACA005",
+ "Colonne postérieure":"NACA005",
+ "Colonne antérieure":"NACA003",
+ "Bi-colonne":"NACA004",
+ "Transverse ± paroi":"NACA005",
+ "Sacrum / anneau postérieur":"NACB001",
+ "Réinsertion biceps distal":"MJEA019",
+ "2 os de l'avant-bras":"MCCA008",
+ "Scaphoïde":"MDCA001",
+ "Luxation acromio-claviculaire":"MEEA004",
+ "Diaphyse clavicule":"MACA001",
+ "Quart externe clavicule":"MACA001",
+ "Luxation de coude":"MFEP002",
+ "Fixateur externe coude":"MBCA007",
+ "Fixateur externe poignet":"MCCB002",
+ "Bennett":"MDCA012",
+ "Tendons fléchisseurs":"MJCA001",
+ "Tendons extenseurs":"MJCA012",
+ "Changement de PTC sur descellement":"MFKA001",
+ "Prothèse totale de coude":"MFKA003",
+ "Arthroscopie de coude":"MFQC001",
+ "Épicondylite":"MJPA012",
+ "Arthrolyse":"MFPC001",
+ "Supracondylienne (embrochage)":"MBCB001",
+ "Deux os avant-bras (ECMES)":"MCCB007",
+ "ECMES fémur":"NBCB002",
+ "ECMES tibia":"NCCB004",
+ "Épiphysiolyse (vissage)":"NBCA005",
+ "Changement de PTH":"NEKA005",
+ "Plaque crochet":"NBCA007",
+ "Plaque fémur proximal":"NBCA007",
+ "Ostéosynthèse par cerclages":"NBCA007",
+ "Plaque fémur distal":"NBCA014",
+ "Plaque humérus distal":"MBCA008",
+ "Plaque humérus":"MBCA011",
+ "Changement de PTC":"MFKA001",
+ "RePTE":"MEKA001",
+ "Lavage articulaire natif":"NFJC002",
+ "Lavage de prothèse (DAIR)":"NFJA002",
+ "Dépose de prothèse — spacer":"NEGA002"
 };
 function migrateCCAM(){
   const total=blocs.length;
@@ -7819,9 +7891,14 @@ function setTopFilter(filter,btn){
 let statTraumaSeg=null,statTraumaSub=null,statGroupId=null;
 const STAT_GROUPS=[
   {id:'grp_pth',spec:'Hanche',label:'PTH',ivs:['PTH voie postérieure','PTH Hueter','Ablation de matériel + PTH']},
-  {id:'grp_arthro_genou',spec:'Genou',label:'Arthroscopie',ivs:['Méniscectomie','Suture méniscale',"Jumper's knee",'Cyclope','Ablation de corps étranger','Pridie']}
+  {id:'grp_arthro_genou',spec:'Genou',label:'Arthroscopie',ivs:['Méniscectomie','Suture méniscale',"Jumper's knee",'Cyclope','Ablation de corps étranger','Pridie']},
+  {id:'grp_prot_genou',spec:'Genou',label:'Prothèses',ivs:['PTG','RePTG','PUC']},
+  {id:'grp_osteo_genou',spec:'Genou',label:'Ostéotomies',ivs:['Ostéotomie','TTA + MPFL','Fulkerson']}
 ];
-function statGroupOf(b){return STAT_GROUPS.find(g=>g.spec===b.spec&&g.ivs.includes(b.interv))||null;}
+function statGroupOf(b){
+  const iv=String(b.interv||'').trim().toLowerCase();
+  return STAT_GROUPS.find(g=>g.spec===b.spec&&g.ivs.some(x=>x.toLowerCase()===iv))||null;
+}
 function openStatGroup(id){statGroupId=id;renderTopInterventions();}
 function closeStatGroup(){statGroupId=null;renderTopInterventions();}
 function traumaFamOf(iv){const p=String(iv||'').split(' — ');return p.length>=2?p[1]:'Autre';}
@@ -11356,7 +11433,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v127',
+    version:'atlas-v128',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
