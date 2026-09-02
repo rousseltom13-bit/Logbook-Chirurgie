@@ -2726,7 +2726,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
             <div class="s-card" id="top-interventions"></div>
           </div>
           <div class="s-section">
-            <div class="s-section-h"><h2 class="s-section-title">Par implant</h2></div>
+            <div class="s-section-h"><h2 class="s-section-title" id="stat-implants-title">Implants utilisés</h2></div>
             <div class="s-card" id="stat-implants"></div>
           </div>
         </div>
@@ -5177,7 +5177,8 @@ function impSelectSpec(sid){
   window._impNewIntervs=new Set(Array.from(window._impNewIntervs||[]).filter(iv=>allowed.has(iv)));
   renderImplantSheet();
 }
-function impPickTraumaRegion(r){window._impTraumaRegion=(window._impTraumaRegion===r)?'':r;renderImpIntervPills();}
+function impPickTraumaRegion(r){window._impTraumaRegion=(window._impTraumaRegion===r)?'':r;window._impTraumaSub='';renderImpIntervPills();}
+function impPickTraumaSub(s){window._impTraumaSub=(window._impTraumaSub===s)?'':s;renderImpIntervPills();}
 function renderImpIntervPills(){
   const box=document.getElementById('imp-interv-pills');if(!box)return;
   const wrap=document.getElementById('imp-interv-wrap');
@@ -5198,10 +5199,25 @@ function renderImpIntervPills(){
         +'</div>';
       const shown=new Set();
       if(sel){
+        const subNode=node[sel];
         const leaves=[];
         const walk=v=>{if(Array.isArray(v)){v.forEach(x=>{if(x&&x!=='Autre'&&!String(x).includes('__LIBRE__')){shown.add(x);if(!leaves.includes(x))leaves.push(x);}});}else if(v&&typeof v==='object'){Object.values(v).forEach(walk);}};
-        walk(node[sel]);
-        if(leaves.length)inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;">'+leaves.map(ivBtn).join('')+'</div>';
+        const singleEmpty=subNode&&typeof subNode==='object'&&!Array.isArray(subNode)&&Object.keys(subNode).length===1&&Array.isArray(subNode['']);
+        if(Array.isArray(subNode)||singleEmpty){
+          walk(singleEmpty?subNode['']:subNode);
+          if(leaves.length)inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;">'+leaves.map(ivBtn).join('')+'</div>';
+        } else if(subNode&&typeof subNode==='object'){
+          // v122 : étage segments (Hanche, Fémur, …) avant les pastilles
+          const subs=Object.keys(subNode);
+          const subSel=(window._impTraumaSub&&subNode[window._impTraumaSub]!==undefined)?window._impTraumaSub:'';
+          inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;">'
+            +subs.map(n2=>{const on=subSel===n2;return '<button type="button" class="imp-pill sm" style="font-size:10px;text-transform:uppercase;letter-spacing:0.04em;'+(on?'background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;':'background:var(--bg3);color:var(--text2);')+'" onclick="impPickTraumaSub(\''+eq(n2)+'\')">'+esc(n2)+'</button>';}).join('')
+            +'</div>';
+          if(subSel){
+            walk(subNode[subSel]);
+            if(leaves.length)inner+='<div style="display:flex;flex-wrap:wrap;gap:6px;">'+leaves.map(ivBtn).join('')+'</div>';
+          }
+        }
       }
       const all=flattenIntervsForSpec(sid);
       const extra=Array.from(window._impNewIntervs||[]).filter(iv=>!shown.has(iv)&&all.includes(iv));
@@ -5399,9 +5415,31 @@ function blocHasComplication(b){
   if(evts.some(e=>e.type==='complication'||e.type==='reprise_chir'))return true;
   return getBlocStatutFinal(b)==='rouge';
 }
+function statIntervScope(){
+  let subset=(typeof statFilteredBlocs==='function'?statFilteredBlocs():blocs);
+  try{
+    if(statGroupId){const grp=STAT_GROUPS.find(g=>g.id===statGroupId);if(grp)return subset.filter(b=>{const x=statGroupOf(b);return x&&x.id===grp.id;});}
+    if(statTraumaSeg){
+      subset=subset.filter(b=>b.spec==='Traumatologie'&&traumaSegOf(b.interv)===statTraumaSeg);
+      if(statTraumaSub)subset=subset.filter(b=>traumaFamOf(b.interv)===statTraumaSub);
+    }
+  }catch(e){}
+  return subset;
+}
+function statScopeLabel(){
+  try{
+    if(statGroupId){const grp=STAT_GROUPS.find(g=>g.id===statGroupId);return grp?grp.label:'';}
+    if(statTraumaSub)return statTraumaSub;
+    if(statTraumaSeg)return statTraumaSeg;
+  }catch(e){}
+  return '';
+}
 function renderStatImplants(){
   const el=document.getElementById('stat-implants');if(!el)return;
-  const subset=(typeof statFilteredBlocs==='function'?statFilteredBlocs():blocs);
+  const ttl=document.getElementById('stat-implants-title');
+  const scope=statScopeLabel();
+  if(ttl)ttl.textContent='Implants utilisés'+(scope?' — '+scope:'');
+  const subset=statIntervScope();
   const groups={};
   subset.forEach(b=>{(b.implantModels||[]).forEach(l=>{
     if(!groups[l])groups[l]={total:0,compl:0,spec:b.spec};
@@ -5410,7 +5448,9 @@ function renderStatImplants(){
   });});
   const sorted=Object.entries(groups).sort((a,b)=>b[1].total-a[1].total);
   if(!sorted.length){
-    el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc avec implant coché.<br><span style="font-size:12px;color:var(--text3);">Configure ton catalogue dans Réglages → Mes implants, puis coche l\'implant à la saisie du bloc.</span></div>';
+    el.innerHTML=scope
+      ?'<div class="s-empty" style="padding:14px 16px;">Aucun implant coché dans cette catégorie.</div>'
+      :'<div class="s-empty" style="padding:14px 16px;">Aucun bloc avec implant coché.<br><span style="font-size:12px;color:var(--text3);">Configure ton catalogue dans Réglages → Mes implants, puis coche l\'implant à la saisie du bloc.</span></div>';
     return;
   }
   const max=sorted[0][1].total;
@@ -5419,7 +5459,7 @@ function renderStatImplants(){
     const pct=v.total?Math.round(v.compl/v.total*100):0;
     const guard=v.total<20?'<span class="imp-guard">n&lt;20 — non interprétable</span>':'';
     return '<div class="s-rank" onclick="showBlocsForImplant(\''+name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'
-      +'<div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-label">'+esc(name)+'</span></div><span class="s-rank-count">'+v.total+'<span class="s-chev">›</span></span></div>'
+      +'<div class="s-rank-h"><div class="s-rank-name"><span class="s-rank-label">'+esc(impModelOnly(name))+'</span></div><span class="s-rank-count">'+v.total+'<span class="s-chev">›</span></span></div>'
       +'<div class="s-rank-bar"><s style="width:'+Math.round(v.total/max*100)+'%;background:'+color+';"></s></div>'
       +'<div class="s-rank-meta"><span class="s-tagpill '+(v.compl?'a':'p')+'">Complications '+v.compl+' ('+pct+'%)</span>'+guard+'</div>'
       +'</div>';
@@ -7650,6 +7690,7 @@ function _rankRow(rank,label,v,max,color,onclick,extraMeta){
 }
 function renderTopInterventions(){
   const el=document.getElementById('top-interventions');if(!el)return;
+  try{renderStatImplants();}catch(e){}
   const subset=statFilteredBlocs();
   const warm=cssColor('var(--warm)');
   if(statGroupId){
@@ -10301,7 +10342,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v121',
+    version:'atlas-v122',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
