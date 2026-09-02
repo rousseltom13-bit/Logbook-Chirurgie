@@ -2298,9 +2298,14 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
     <div class="view" id="view-planning" style="padding:0;">
       <div class="view-blocs-head">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 0;">
-          <h1 style="font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);margin:0;">Planning</h1>
+          <h1 id="planning-title" style="font-family:var(--serif);font-size:28px;font-weight:500;letter-spacing:-0.02em;color:var(--text);margin:0;">Planning</h1>
           <button id="plan-add-btn" onclick="openNewPlannedModal()" style="background:var(--accent);color:white;border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">+ Nouveau bloc</button>
         </div>
+      </div>
+      <div class="view-scroll" id="planning-astuces" style="display:none;padding:16px 16px 80px;">
+        <input type="text" id="ast-search" class="f-input" placeholder="Rechercher un geste, un chirurgien…" oninput="renderAstuces()" style="width:100%;box-sizing:border-box;margin-bottom:10px;">
+        <div id="ast-chir-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"></div>
+        <div id="ast-list"></div>
       </div>
       <div class="view-scroll" id="planning-senior" style="padding:16px 16px 80px;">
         <div class="cal-card">
@@ -2980,8 +2985,8 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
       <span>Accueil</span>
     </button>
     <button class="bnav-item" onclick="sw('planning')" id="bn-planning">
-      <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path></svg></span>
-      <span>Planning</span>
+      <span class="bnav-icon" id="bn-planning-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path></svg></span>
+      <span id="bn-planning-txt">Planning</span>
     </button>
     <button class="bnav-item bnav-fab" onclick="sw('saisie')" id="bn-saisie">
       <span class="bnav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></span>
@@ -3654,6 +3659,74 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 <div class="toast" id="toast"></div>
 <!-- v13-rescue : datalists d'autocomplete -->
 <datalist id="dl-implants"></datalist>
+<div class="modal-overlay" id="astuce-modal">
+  <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
+    <div style="padding:16px 20px 12px;border-bottom:0.5px solid var(--border);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="closeAstuceSheet()" class="atlas-iconbtn" aria-label="Fermer" style="flex-shrink:0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:2px;">Fiche astuce</div>
+          <div id="ast-sheet-title" style="font-family:var(--serif);font-size:20px;font-weight:600;color:var(--text);letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Nouvelle astuce</div>
+        </div>
+        <button onclick="saveAstuceSheet()" style="flex-shrink:0;background:var(--accent);color:#fff;border:none;border-radius:99px;padding:9px 16px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;">Enregistrer</button>
+      </div>
+    </div>
+    <div id="ast-scroll" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;padding:12px 16px 30px;">
+      <div class="ed-sec-t">Contexte</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Intervention</span>
+          <input type="text" id="ast-interv" list="dl-astuce-intervs" autocomplete="off" placeholder="ex. Clou Gamma, PTH…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Chirurgien</span>
+          <input type="text" id="ast-chir" list="dl-operateurs" autocomplete="off" placeholder="Chef ou senior observé…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+        </div>
+      </div>
+      <div class="ed-sec-t">Astuces</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <span class="ed-k">Installation</span>
+          <textarea id="ast-installation" placeholder="Position, appuis, garrot, scopie…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Voie d'abord</span>
+          <textarea id="ast-abord" placeholder="Repères, plans, pièges…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Réduction &amp; synthèse</span>
+          <textarea id="ast-synthese" placeholder="Manœuvres, ordre des vis, contrôles…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+        <div class="ed-row">
+          <span class="ed-k">Astuces diverses</span>
+          <textarea id="ast-divers" placeholder="Tout le reste — fermeture, consignes, matériel…" style="width:100%;padding:10px;font-size:16px;border:none;background:transparent;color:var(--text);font-family:var(--serif);outline:none;min-height:60px;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="ed-sec-t">Photos</div>
+      <div class="ed-group">
+        <div class="ed-row">
+          <div id="ast-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border:1px dashed var(--border2);border-radius:10px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text2);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="width:16px;height:16px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            Ajouter des photos
+            <input type="file" accept="image/*" multiple onchange="astAddPhotos(this)" style="display:none;">
+          </label>
+          <div style="font-size:11.5px;color:var(--text3);margin-top:8px;">Installation, écran de scopie, montage… compressées et incluses dans tes sauvegardes radios.</div>
+        </div>
+      </div>
+      <div id="ast-delete-row" style="display:none;text-align:center;padding:14px 0 6px;">
+        <button type="button" onclick="deleteAstuceSheet()" style="background:none;border:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--red);cursor:pointer;padding:8px 14px;">Supprimer cette fiche</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="ast-photo-view" onclick="astClosePhoto()" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;">
+  <img id="ast-photo-img" style="max-width:96vw;max-height:92vh;object-fit:contain;border-radius:6px;">
+</div>
+<datalist id="dl-astuce-intervs"></datalist>
+
 <datalist id="dl-operateurs"></datalist>
 <datalist id="dl-patients"></datalist>
 <datalist id="dl-tags"></datalist>
@@ -4534,6 +4607,8 @@ const PRATIQUE_KEY='atlas_pratique';
 function getPratique(){return localStorage.getItem(PRATIQUE_KEY)||'senior';}
 function setPratique(v,silent){
   localStorage.setItem(PRATIQUE_KEY,v);syncPratiqueUI();
+  try{syncNavPratique();}catch(e){}
+  try{if(document.getElementById('view-planning').classList.contains('active'))renderJourneesPlanning();}catch(e){}
   try{renderDashHome();}catch(e){}
   if(!silent)try{showToast(v==='interne'?'Profil : interne / en formation':'Profil : chirurgien sénior');}catch(e){}
 }
@@ -9859,6 +9934,167 @@ function reglToggleKey(){
 // ── JOURNÉES DE BLOC (mode interne) ──
 let journees=[];try{journees=JSON.parse(localStorage.getItem('atlas_journees')||'[]');}catch(e){journees=[];}
 function saveJournees(){localStorage.setItem('atlas_journees',JSON.stringify(journees));try{schedulePlanningSync();}catch(e){}}
+// ── ASTUCES CHIRURGICALES (mode interne) ──
+let astuces=[];try{astuces=JSON.parse(localStorage.getItem('atlas_astuces')||'[]');}catch(e){astuces=[];}
+function saveAstuces(){try{localStorage.setItem('atlas_astuces',JSON.stringify(astuces));}catch(e){}}
+function syncNavPratique(){
+  const isInt=getPratique()==='interne';
+  const txt=document.getElementById('bn-planning-txt');
+  const ico=document.getElementById('bn-planning-icon');
+  if(txt)txt.textContent=isInt?'Astuces':'Planning';
+  if(ico)ico.innerHTML=isInt
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6"></path><path d="M10 21h4"></path><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.2 2.2h4.8c.1-.8.5-1.6 1.2-2.2A6 6 0 0 0 12 3z"></path></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"></path></svg>';
+}
+let astChirFilter='';
+function astToggleChir(c){astChirFilter=(astChirFilter===c)?'':c;renderAstuces();}
+const AST_RUBRIQUES=[['installation','Installation'],['abord',"Voie d'abord"],['synthese','Réduction & synthèse'],['divers','Astuces diverses']];
+function renderAstuces(){
+  const list=document.getElementById('ast-list');if(!list)return;
+  const q=((document.getElementById('ast-search')||{}).value||'').toLowerCase().trim();
+  const chirs=[...new Set(astuces.map(a=>(a.chirurgien||'').trim()).filter(Boolean))].sort();
+  const cf=document.getElementById('ast-chir-filters');
+  if(cf)cf.innerHTML=chirs.map(c=>'<button class="filter-pill'+(astChirFilter===c?' on':'')+'" onclick="astToggleChir(\''+c.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\')">'+esc(c)+'</button>').join('');
+  let items=astuces.slice();
+  if(astChirFilter)items=items.filter(a=>(a.chirurgien||'').trim()===astChirFilter);
+  if(q)items=items.filter(a=>[a.interv,a.chirurgien,a.installation,a.abord,a.synthese,a.divers].join(' ').toLowerCase().includes(q));
+  if(!items.length){
+    list.innerHTML='<div class="empty-cta"><div class="empty-cta-ico">💡</div><div class="empty-cta-title">'+(astuces.length?'Aucune fiche ne correspond':'Aucune fiche astuce')+'</div><div class="empty-cta-sub">'+(astuces.length?'Modifie ta recherche ou tes filtres.':'Note ici ce que tu apprends au bloc — installation, voie d\'abord, synthèse — avec photos, par geste et par chirurgien.')+'</div>'+(astuces.length?'':'<button class="empty-cta-btn" onclick="openAstuceSheet(null)">+ Première fiche</button>')+'</div>';
+    return;
+  }
+  const groups={};
+  items.forEach(a=>{const k=(a.interv||'').trim()?displayInterv(a.interv):'Général';(groups[k]=groups[k]||[]).push(a);});
+  list.innerHTML=Object.entries(groups).sort((x,y)=>x[0].localeCompare(y[0],'fr')).map(([g,arr])=>{
+    const cards=arr.map(a=>{
+      const first=AST_RUBRIQUES.map(([k,l])=>a[k]&&String(a[k]).trim()?{l,t:String(a[k]).trim()}:null).filter(Boolean);
+      const filled=first.map(r=>r.l).join(' · ');
+      const preview=first.length?first[0].t:'';
+      const nPh=+a.photos||0;
+      return '<div class="atlas-info-card" style="cursor:pointer;margin-bottom:8px;" onclick="openAstuceSheet(\''+a.id+'\')">'
+        +'<div style="display:flex;align-items:center;gap:8px;">'
+        +'<div style="flex:1;min-width:0;">'
+        +(a.chirurgien?'<div style="font-size:13.5px;font-weight:700;">'+esc(a.chirurgien)+'</div>':'<div style="font-size:13.5px;font-weight:700;color:var(--text3);">Sans chirurgien</div>')
+        +(filled?'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-top:2px;">'+esc(filled)+'</div>':'')
+        +(preview?'<div style="font-family:var(--serif);font-size:14px;color:var(--text2);margin-top:5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">'+esc(preview)+'</div>':'')
+        +'</div>'
+        +(nPh?'<span style="flex-shrink:0;font-size:11px;background:var(--accent-l);color:var(--accent);padding:4px 9px;border-radius:99px;font-weight:600;">📷 '+nPh+'</span>':'')
+        +'<span style="color:var(--text3);flex-shrink:0;">›</span></div></div>';
+    }).join('');
+    return '<div style="margin-bottom:16px;"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:700;margin:0 2px 7px;">'+esc(g)+' <span style="font-weight:400;">· '+arr.length+'</span></div>'+cards+'</div>';
+  }).join('');
+}
+function astAllIntervs(){
+  const out=[];
+  try{Object.keys(INTERV_HIER).forEach(sp=>flattenIntervsForSpec(sp).forEach(iv=>{if(!out.includes(iv))out.push(iv);}));}catch(e){}
+  return out;
+}
+function openAstuceSheet(id){
+  const isNew=!id;
+  const a=isNew?{id:'a_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),interv:'',chirurgien:'',installation:'',abord:'',synthese:'',divers:'',created:new Date().toISOString(),photos:0}:astuces.find(x=>x.id===id);
+  if(!a)return;
+  window._astEditId=a.id;window._astIsNew=isNew;window._astPhotosAdded=false;
+  const dl=document.getElementById('dl-astuce-intervs');
+  if(dl)dl.innerHTML=astAllIntervs().map(iv=>'<option value="'+esc(iv)+'"></option>').join('');
+  const set=(eid,v)=>{const el=document.getElementById(eid);if(el)el.value=v||'';};
+  set('ast-interv',a.interv);set('ast-chir',a.chirurgien);
+  set('ast-installation',a.installation);set('ast-abord',a.abord);set('ast-synthese',a.synthese);set('ast-divers',a.divers);
+  const del=document.getElementById('ast-delete-row');if(del)del.style.display=isNew?'none':'block';
+  const ttl=document.getElementById('ast-sheet-title');if(ttl)ttl.textContent=isNew?'Nouvelle astuce':(displayInterv(a.interv)||a.chirurgien||'Fiche astuce');
+  astRenderThumbs();
+  openModal('astuce-modal');
+  setTimeout(()=>{const s=document.getElementById('ast-scroll');if(s)s.scrollTop=0;},50);
+}
+async function closeAstuceSheet(){
+  if(window._astIsNew&&window._astPhotosAdded){try{await purgeRadiosForBloc(window._astEditId);}catch(e){}}
+  window._astEditId=null;
+  closeModal('astuce-modal');
+}
+async function saveAstuceSheet(){
+  const g=id=>((document.getElementById(id)||{}).value||'').trim();
+  const data={interv:g('ast-interv'),chirurgien:g('ast-chir'),installation:g('ast-installation'),abord:g('ast-abord'),synthese:g('ast-synthese'),divers:g('ast-divers')};
+  const hasContent=Object.values(data).some(v=>v)||window._astPhotosAdded;
+  if(!hasContent){showToast('Fiche vide — ajoute au moins une info');return;}
+  let nPh=0;
+  try{const ex=await getRadiosForBloc(window._astEditId);nPh=(ex['Astuce']||[]).filter(Boolean).length;}catch(e){}
+  let a=astuces.find(x=>x.id===window._astEditId);
+  if(!a){a={id:window._astEditId,created:new Date().toISOString()};astuces.push(a);}
+  Object.assign(a,data,{photos:nPh,updated:new Date().toISOString()});
+  saveAstuces();
+  window._astIsNew=false;window._astEditId=null;
+  closeModal('astuce-modal');
+  renderAstuces();
+  showToast('Fiche enregistrée');
+}
+async function purgeRadiosForBloc(blocId){
+  const db=await openRadioDB();
+  return new Promise((resolve)=>{
+    const tx=db.transaction('radios','readwrite');
+    const store=tx.objectStore('radios');
+    const req=store.openCursor();
+    req.onsuccess=e=>{
+      const cursor=e.target.result;
+      if(cursor){if(cursor.value.blocId===blocId)store.delete(cursor.value.key);cursor.continue();}
+    };
+    tx.oncomplete=resolve;tx.onerror=resolve;
+  });
+}
+async function deleteAstuceSheet(){
+  const a=astuces.find(x=>x.id===window._astEditId);
+  if(!a)return;
+  if(!confirm('Supprimer cette fiche astuce'+(a.photos?' et ses '+a.photos+' photo(s)':'')+' ?'))return;
+  try{await purgeRadiosForBloc(a.id);}catch(e){}
+  astuces=astuces.filter(x=>x.id!==a.id);
+  saveAstuces();
+  window._astEditId=null;
+  closeModal('astuce-modal');
+  renderAstuces();
+  showToast('Fiche supprimée');
+}
+async function astAddPhotos(input){
+  const files=Array.from(input.files||[]);input.value='';
+  if(!files.length||!window._astEditId)return;
+  showToast(files.length>1?'Ajout des photos…':'Ajout de la photo…');
+  let arr=[];
+  try{const ex=await getRadiosForBloc(window._astEditId);arr=(ex['Astuce']||[]).filter(Boolean);}catch(e){}
+  for(const f of files){
+    try{
+      const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
+      let final=dataURL;
+      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c)final=c;}catch(e){}
+      await saveRadio(window._astEditId,'Astuce',arr.length,final,f.name||'photo',new Date().toISOString());
+      arr.push({data:final});
+      window._astPhotosAdded=true;
+    }catch(e){console.warn('photo astuce échouée',e);}
+  }
+  astRenderThumbs();
+}
+async function astRenderThumbs(){
+  const box=document.getElementById('ast-thumbs');if(!box)return;
+  let arr=[];
+  try{const ex=await getRadiosForBloc(window._astEditId);arr=(ex['Astuce']||[]).filter(Boolean);}catch(e){}
+  window._astThumbCache=arr;
+  box.innerHTML=arr.map((r,i)=>'<div style="position:relative;flex-shrink:0;">'
+    +'<img src="'+r.data+'" style="width:76px;height:76px;object-fit:cover;border-radius:10px;border:0.5px solid var(--border2);display:block;" onclick="astViewPhoto('+i+')">'
+    +'<button onclick="astDeletePhoto('+i+')" aria-label="Supprimer" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:99px;background:var(--text);color:var(--bg);border:none;font-size:12px;line-height:1;cursor:pointer;">×</button>'
+    +'</div>').join('');
+}
+function astViewPhoto(i){
+  const r=(window._astThumbCache||[])[i];if(!r)return;
+  const ov=document.getElementById('ast-photo-view');
+  const img=document.getElementById('ast-photo-img');
+  if(img)img.src=r.data;
+  if(ov)ov.style.display='flex';
+}
+function astClosePhoto(){const ov=document.getElementById('ast-photo-view');if(ov)ov.style.display='none';}
+async function astDeletePhoto(i){
+  const arr=(window._astThumbCache||[]).slice();
+  if(!arr[i])return;
+  arr.splice(i,1);
+  try{await reindexRadios(window._astEditId,'Astuce',arr);}catch(e){}
+  window._astPhotosAdded=true;
+  astRenderThumbs();
+}
+
 function upcomingJournees(){const t=todayStr();return journees.filter(j=>j.date>=t).sort((a,b)=>a.date.localeCompare(b.date));}
 function pendingJournees(){
   const t=todayStr();const lim=new Date();lim.setDate(lim.getDate()-14);
@@ -9877,12 +10113,16 @@ function delJournee(id){journees=journees.filter(j=>j.id!==id);saveJournees();re
 function dismissJournee(id){const j=journees.find(x=>x.id===id);if(j){j.dismissed=true;saveJournees();try{renderDash();}catch(e){}showToast('Rappel ignoré');}}
 function saisirJournee(date){sw('saisie');setTimeout(()=>{const f=document.getElementById('f-date');if(f)f.value=date;},80);}
 function renderJourneesPlanning(){
-  const sen=document.getElementById('planning-senior'),int=document.getElementById('planning-interne');
+  const sen=document.getElementById('planning-senior'),int=document.getElementById('planning-interne'),ast=document.getElementById('planning-astuces');
   const addBtn=document.getElementById('plan-add-btn');
   const isInt=getPratique()==='interne';
   if(sen)sen.style.display=isInt?'none':'';
-  if(int)int.style.display=isInt?'':'none';
-  if(addBtn)addBtn.style.display=isInt?'none':'';
+  if(int)int.style.display='none';
+  if(ast)ast.style.display=isInt?'':'none';
+  const ttl=document.getElementById('planning-title');if(ttl)ttl.textContent=isInt?'Astuces chirurgicales':'Planning';
+  if(addBtn){addBtn.style.display='';addBtn.textContent=isInt?'+ Nouvelle astuce':'+ Nouveau bloc';addBtn.onclick=isInt?function(){openAstuceSheet(null);}:function(){openNewPlannedModal();};}
+  try{syncNavPratique();}catch(e){}
+  if(isInt){try{renderAstuces();}catch(e){}return;}
   if(!isInt)return;
   const up=document.getElementById('jr-upcoming'),pa=document.getElementById('jr-past');
   const fmtRow=(j,past)=>{
@@ -10342,7 +10582,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v122',
+    version:'atlas-v123',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -10351,6 +10591,7 @@ async function exportData(){
     planned:planned||[],
     patients:patients||[],
     journees:(typeof journees!=='undefined'?journees:[]),
+    astuces:(typeof astuces!=='undefined'?astuces:[]),
     implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
     oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null)
   };
@@ -10472,6 +10713,13 @@ function importData(e){
         const seenJr=new Set(journees.map(j=>j.date));
         importedJr.forEach(j=>{if(j&&j.date&&!seenJr.has(j.date)){journees.push(j);seenJr.add(j.date);}});
         saveJournees();
+      }
+      // Merge astuces par id
+      const importedAst=parsed.astuces||[];
+      if(importedAst.length&&typeof astuces!=='undefined'){
+        const seenA=new Set(astuces.map(a=>a.id));
+        importedAst.forEach(a=>{if(a&&a.id&&!seenA.has(a.id)){astuces.push(a);seenA.add(a.id);}});
+        saveAstuces();
       }
       // Merge patients par ID
       const importedPatients = parsed.patients || [];
@@ -10661,6 +10909,7 @@ function showApp(){
   try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
   try{runHospitMigration();}catch(e){console.warn('migration hospit échouée:',e);}
   try{runPathDupMigration();}catch(e){console.warn('migration chemins échouée:',e);}
+  try{syncNavPratique();}catch(e){}
   try{refreshDatalists();}catch(e){}
   try{applyQuickModePref();}catch(e){}
   renderAll();
