@@ -353,6 +353,14 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .atlas-iconbtn{width:34px;height:34px;border-radius:6px;background:transparent;border:1px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .atlas-iconbtn svg{width:16px;height:16px;}
 .atlas-iconbtn:active{background:var(--bg2);}
+/* v136 — topbar fiche bloc (option B) : bouton Documents + menu ⋯ */
+.det-docs-btn{display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:12px;background:var(--accent);border:none;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;flex-shrink:0;}
+.det-docs-btn svg{width:16px;height:16px;flex-shrink:0;}
+.det-menu{position:absolute;top:40px;right:0;width:204px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;box-shadow:0 8px 24px rgba(22,24,29,0.14);overflow:hidden;z-index:60;}
+.det-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px;background:none;border:none;font-size:14px;font-weight:500;color:var(--text);text-align:left;font-family:inherit;cursor:pointer;}
+.det-menu button+button{border-top:1px solid var(--border);}
+.det-menu button svg{width:16px;height:16px;flex-shrink:0;}
+.det-menu button:active{background:var(--bg3);}
 .atlas-det-hero{padding:22px 22px 18px;border-bottom:1px solid var(--border);}
 .atlas-det-eyebrow{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);font-weight:500;margin-bottom:6px;}
 .atlas-det-patient{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.025em;color:var(--text);line-height:1.1;margin-bottom:4px;}
@@ -2396,19 +2404,29 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"></polyline></svg>
         </button>
         <div style="flex:1;"></div>
-        <button onclick="openLinkedBlocForm()" class="atlas-iconbtn" aria-label="Ajouter un bloc lié" title="Nouveau bloc — même patient">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-        </button>
-        
-        <button onclick="openBlocDocs(detailBlocIdx)" class="atlas-iconbtn" aria-label="Documents">
+        <button onclick="openBlocDocs(detailBlocIdx)" class="det-docs-btn" aria-label="Documents">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Documents
         </button>
-        <button onclick="openEditModal()" class="atlas-iconbtn" aria-label="Modifier">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-        </button>
-        <button onclick="confirmDelete()" class="atlas-iconbtn" aria-label="Supprimer" style="color:var(--red);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
-        </button>
+        <div style="position:relative;flex-shrink:0;">
+          <button onclick="toggleDetMenu(event)" class="atlas-iconbtn" id="det-menu-btn" aria-label="Plus d'actions">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.6" fill="currentColor"></circle><circle cx="12" cy="12" r="1.6" fill="currentColor"></circle><circle cx="19" cy="12" r="1.6" fill="currentColor"></circle></svg>
+          </button>
+          <div id="det-menu" class="det-menu" style="display:none;">
+            <button onclick="closeDetMenu();openEditModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              Modifier le bloc
+            </button>
+            <button onclick="closeDetMenu();openLinkedBlocForm()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              Nouveau bloc li&eacute;
+            </button>
+            <button onclick="closeDetMenu();confirmDelete()" style="color:var(--red);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
+              Supprimer
+            </button>
+          </div>
+        </div>
       </div>
       <!-- Hero éditorial -->
       <div class="atlas-det-hero" id="det-hero">
@@ -4516,7 +4534,10 @@ let chartActivity=null,chartLearning=null,chartRole=null,chartEvol=null,chartLea
 let detailBlocIdx=-1,curDetTab='info';
 let detailReturn=null,lastBlocsListModal=null;
 function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlocsListModal.title,lastBlocsListModal.blocsList);}
-function backFromDetail(){if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;document.getElementById('view-detail').classList.remove('active');f();}else{sw('blocs');}}
+function toggleDetMenu(e){if(e)e.stopPropagation();const m=document.getElementById('det-menu');if(!m)return;m.style.display=(m.style.display==='none')?'block':'none';}
+function closeDetMenu(){const m=document.getElementById('det-menu');if(m)m.style.display='none';}
+document.addEventListener('click',e=>{const m=document.getElementById('det-menu');if(m&&m.style.display!=='none'&&!e.target.closest('#det-menu')&&!e.target.closest('#det-menu-btn'))closeDetMenu();});
+function backFromDetail(){closeDetMenu();if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;document.getElementById('view-detail').classList.remove('active');f();}else{sw('blocs');}}
 (function(){let sx=0,sy=0,track=false;
   document.addEventListener('touchstart',e=>{if(e.touches.length!==1){track=false;return;}const x=e.touches[0].clientX;track=x<=24;sx=x;sy=e.touches[0].clientY;},{passive:true});
   document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist'),SV=document.getElementById('view-stats');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');else if(SV&&SV.classList.contains('active')&&curStatsPage!==null)backToStatsHub();}},{passive:true});
@@ -8517,6 +8538,8 @@ function anticoIsHBPM(a){return /INNOHEP|LOVENOX/i.test(a||'');}
 const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge',matGilet:"Un gilet orthopédique d'immobilisation / écharpe",matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet',matDujarrier:"Une attelle d'immobilisation coude au corps type Dujarrier",matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
 function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,''),def:defs.indexOf(k)>=0})));}
 const _AINS={k:'ains',t:'check',l:'AINS (ibuprofène 5 j) + IPP associé',def:true};
+const _VISLIBRES=[{k:'vlOn',t:'check',l:'Vis 3,5 libre(s) en compression inter-fragmentaire',def:false},{k:'vlNb',t:'num',l:'Nombre de vis libres',def:'1',show:f=>f.vlOn}];
+function _vlLine(f){return f.vlOn?("Mise en place de "+(f.vlNb||'1')+" vis 3,5 libre(s) inter-fragmentaire(s) en compression.\n"):'';}
 function _amp(on,d1,s1,d2,s2){return [
   {k:'ampOn',t:'check',l:"Limitation d'amplitudes",def:!!on},
   {k:'amp1Deg',t:'num',l:'Phase 1 — flexion max (°)',def:d1||'60',show:f=>f.ampOn},
@@ -8670,6 +8693,7 @@ const DOC_OPTS={
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'redon',t:'check',l:'Drain de Redon',def:true},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Attelle postérieure antalgique (quelques jours)','Aucune'],def:'Attelle postérieure antalgique (quelques jours)'},
     {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
@@ -8686,6 +8710,7 @@ const DOC_OPTS={
     {k:'plFibule',t:'seg',l:'Fibula',o:['À synthéser dans ce temps','Déjà synthésée','Non fixée'],def:'Déjà synthésée'},
     {k:'plFibPlaque',t:'selx',l:'Plaque fibula — modèle',def:'',impType:'plaque',show:f=>f.plFibule==='À synthéser dans ce temps'},
     {k:'plFibVis',t:'num',l:'Plaque fibula — nombre de vis',def:'6',show:f=>f.plFibule==='À synthéser dans ce temps'},
+    {k:'plFibCompr',t:'seg',l:'Compression du trait fibulaire',o:['Aucune','Vis antéro-postérieure','Nice knot'],def:'Aucune',show:f=>f.plFibule==='À synthéser dans ce temps'},
     {k:'plPlaqueModele',t:'selx',l:'Plaque pilon — modèle',def:'',impType:'plaque'},
     {k:'plVisEpi',t:'num',l:'Vis épiphysaires',def:'4'},
     {k:'plVisDia',t:'num',l:'Vis diaphysaires',def:'3'},
@@ -8695,6 +8720,7 @@ const DOC_OPTS={
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
     {k:'redon',t:'check',l:'Drain de Redon',def:true},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'dechargeSem',t:'num',l:'Décharge stricte (semaines)',def:'6'},
     _AINS,
@@ -8757,6 +8783,7 @@ const DOC_OPTS={
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>!_psIsFem(f)&&f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>!_psIsFem(f)&&f.garrotOn},
     {k:'redon',t:'check',l:'Drain de Redon',def:true},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'appui',t:'seg',l:'Appui',o:['Appui partiel pendant 6 semaines','Décharge stricte pendant 6 semaines','Appui selon douleurs'],def:'Appui partiel pendant 6 semaines'},
     _AINS,
@@ -8854,6 +8881,7 @@ const DOC_OPTS={
     {k:'fmNbVisDist',t:'num',l:'Verrouillage distal — nombre de vis',def:'2',show:f=>f.fmGeste!=='Clou Gamma court'},
     {k:'fmAbord',t:'check',l:'Abord du foyer pour réduction',def:false},
     {k:'fmCerclages',t:'num',l:'Nombre de cerclages',def:'0',show:f=>f.fmAbord},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Agrafes','Fils'],def:'Agrafes'},
     {k:'appui',t:'seg',l:'Appui',o:['Appui complet immédiat selon douleurs','Appui partiel 6 semaines','Décharge 6 semaines'],def:'Appui complet immédiat selon douleurs'},
     _AINS,
@@ -8873,6 +8901,7 @@ const DOC_OPTS={
     {k:'garrotOn',t:'check',l:'Garrot',def:true},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'appui',t:'seg',l:'Appui',o:['Appui complet immédiat selon douleurs','Appui partiel 6 semaines','Décharge 6 semaines'],def:'Appui complet immédiat selon douleurs'},
     _AINS,
@@ -8888,6 +8917,7 @@ const DOC_OPTS={
     {k:'hmNbVisDist',t:'num',l:'Verrouillage distal — nombre de vis',def:'2'},
     {k:'hmAbord',t:'check',l:'Abord du foyer pour réduction',def:false},
     {k:'hmCerclages',t:'num',l:'Nombre de cerclages',def:'0',show:f=>f.hmAbord},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Dujarrier à visée antalgique','Dujarrier strict'],def:'Dujarrier à visée antalgique'},
     {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
@@ -8938,6 +8968,7 @@ const DOC_OPTS={
     {k:'garrotOn',t:'check',l:'Garrot',def:true},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
+    ..._VISLIBRES,
     {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
     {k:'immo',t:'seg',l:'Immobilisation',o:['Dujarrier à visée antalgique','Dujarrier strict'],def:'Dujarrier à visée antalgique'},
     {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
@@ -9388,12 +9419,13 @@ Repérage et protection du nerf radial au bord latéral.
   }
   corps+=`Réduction anatomique ${artic?'de la surface articulaire puis des colonnes':'des colonnes médiale et latérale'}, stabilisation provisoire par broches.
 `;
+  if(f.paNovastep)corps+=`${artic?'Fixation première de la surface articulaire par ':'Mise en place de '}${f.paNovastepNb||'1'} vis Novastep en compression.
+`;
   if(hasPL)corps+=`Mise en place d'une plaque postéro-latérale verrouillée${f.paPlaquePL?' '+f.paPlaquePL:''}, ${f.paVisEpiPL||'3'} vis épiphysaires, ${f.paVisDiaPL||'3'} vis diaphysaires.
 `;
   if(hasMed)corps+=`Mise en place d'une plaque médiale verrouillée${f.paPlaqueMed?' '+f.paPlaqueMed:''}, ${f.paVisEpiMed||'3'} vis épiphysaires, ${f.paVisDiaMed||'3'} vis diaphysaires.
 `;
-  if(f.paNovastep)corps+=`Mise en place de ${f.paNovastepNb||'1'} vis Novastep complémentaire(s) en compression.
-`;
+  corps+=_vlLine(f);
   if(osteo)corps+=`Réduction de l'ostéotomie de l'olécrâne et ostéosynthèse par ${f.paOsteoFix==='Haubanage'?'haubanage sur les trajets préparés':'la plaque verrouillée préparée'}.
 `;
   corps+=`Contrôle scopique de face et de profil : réduction anatomique, matériel en place${osteo?', ostéotomie réduite et fixée':''}.
@@ -9444,7 +9476,9 @@ ${_garrotLine(f)}`;
     corps+=`Temps fibulaire :
 Abord latéral direct de la fibula.
 Réduction avec restitution de la longueur, stabilisation provisoire au davier.
-Ostéosynthèse par plaque tiers de tube${f.plFibPlaque?' '+f.plFibPlaque:''}, ${f.plFibVis||'6'} vis.
+${f.plFibCompr==='Vis antéro-postérieure'?`Vissage inter-fragmentaire en compression par vis antéro-postérieure.
+`:(f.plFibCompr==='Nice knot'?`Compression du trait par nice knot.
+`:'')}Ostéosynthèse par plaque tiers de tube${f.plFibPlaque?' '+f.plFibPlaque:''}, ${f.plFibVis||'6'} vis.
 
 `;
   }
@@ -9462,7 +9496,7 @@ Réduction articulaire de l'arrière vers l'avant : réduction du fragment post�
 Stabilisation provisoire par broches, contrôle scopique de la congruence articulaire.
 Mise en place de vis sous-chondrales en rappel, en compression.
 ${_platComblement(f)}Ostéosynthèse par plaque ${isAL?'antéro-latérale':'antéro-médiale'} verrouillée${f.plPlaqueModele?' '+f.plPlaqueModele:''}, ${f.plVisEpi||'4'} vis épiphysaires, ${f.plVisDia||'3'} vis diaphysaires.
-Contrôle scopique de face et de profil : réduction articulaire satisfaisante, restitution de l'axe et de la longueur, matériel en place, absence de vis intra-articulaire.
+${_vlLine(f)}Contrôle scopique de face et de profil : réduction articulaire satisfaisante, restitution de l'axe et de la longueur, matériel en place, absence de vis intra-articulaire.
 `;
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
@@ -9712,6 +9746,7 @@ ${f.petitePlaque?`Ostéosynthèse complémentaire par plaque ${f.plaqueModele||'
     corps+=`Mise en place d'une nouvelle plaque ${(f.pilVoie||'antéro-latérale').toLowerCase()} ${f.plaqueModele||''}, ${f.pilVisEpi||'4'} vis épiphysaires, ${f.pilVisDia||'3'} vis diaphysaires.
 `;
   }
+  corps+=_vlLine(f);
   // Espaceur (1er temps) ou greffe
   if(is2t1){
     corps+=`Mise en place d'un espaceur en ciment aux antibiotiques moulé dans le défect osseux (technique de la membrane induite).
@@ -10040,7 +10075,7 @@ Check-list.
 
 ${abord}Incision proximale centrée sur le grand trochanter.
 ${temps}
-
+${_vlLine(f)}
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 Rinçage abondant.
 Fermeture plan par plan. ${f.fermeture==='Fils'?'Fils.':'Agrafes.'}
@@ -10074,7 +10109,7 @@ Mise en place du guide, réduction sous contrôle scopique.
 ${f.tbAlesage?'Alésage progressif.\n':''}Enchâssement du clou T2 (Stryker)${dims}.
 ${f.tbPoller?'Mise en place d\'une vis de Poller pour contrôle de la réduction.\n':''}Verrouillage proximal par ${f.tbVerrProx||'2'} vis à l'aide de l'ancillaire.
 Verrouillage distal ${(f.tbVerrDist||'statique').toLowerCase()} par ${f.tbNbVisDist||'2'} vis, trous ronds réalisés à main levée sous contrôle scopique.
-
+${_vlLine(f)}
 Contrôle scopique final de face et de profil : réduction et matériel en place, absence de trouble de rotation.
 ${_garrotFin(f)}Rinçage abondant.
 Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
@@ -10111,7 +10146,7 @@ ${f.hmAlesage?'Alésage progressif.\n':''}Enchâssement du clou T2 (Stryker) ant
 Vérification de l'enfouissement de l'extrémité proximale du clou sous l'os sous-chondral.
 Verrouillage proximal par ${f.hmVerrProx||'2'} vis à l'aide de l'ancillaire.
 Verrouillage distal ${(f.hmVerrDist||'statique').toLowerCase()} par ${f.hmNbVisDist||'2'} vis postéro-antérieures, trous ronds réalisés à main levée sous contrôle scopique.
-Fermeture de la coiffe des rotateurs sur les fils repères.
+${_vlLine(f)}Fermeture de la coiffe des rotateurs sur les fils repères.
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 Rinçage abondant.
@@ -10228,7 +10263,7 @@ Abord postérieur centré sur l'olécrâne.
 Exposition du foyer de fracture, évacuation de l'hématome, lavage articulaire.
 Réduction anatomique maintenue au davier.
 ${geste}
-Testing de la flexion-extension : montage stable.
+${_vlLine(f)}Testing de la flexion-extension : montage stable.
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 ${_garrotFin(f)}Rinçage abondant.
@@ -12214,7 +12249,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v134',
+    version:'atlas-v136',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
