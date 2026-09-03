@@ -10996,6 +10996,7 @@ function openBlocDocs(bi,forcedInter){
   const inter=forcedInter||detectInter(b.interv||'');
   DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!((b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode)};
   DOCF._bi=bi;window._trameEdit=false;
+  window._docSecOpen={patient:false,interv:true,suites:false};
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   if(inter==='radius'||inter==='deuxos')DOCF.anesthesie='ALR (bloc axillaire)';
   if(inter==='humerus'||inter==='clavicule'||inter==='olecrane'||inter==='palette')DOCF.anesthesie='Anesthésie générale';
@@ -11141,7 +11142,7 @@ function renderDocForm(){
   const trameBar=window._trameEdit
     ?('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div></div>')
     :('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills"><button type="button" class="doc-pill on">'+(TRAME_LABELS[DOCF._inter]||DOCF._inter)+'</button><button type="button" class="doc-pill" onclick="window._trameEdit=true;renderDocForm()">Modifier</button></div></div>');
-  host.innerHTML=trameBar+opts.filter(o=>!o.show||o.show(DOCF)).map(o=>{
+  const renderOpt=o=>{
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:11px;color:var(--text3);">'+o.l+'</div>';
     }
@@ -11164,8 +11165,54 @@ function renderDocForm(){
     const type=o.t==='date'?'date':(o.t==='num'?'text':'text');
     const im=o.t==='num'?' inputmode="numeric"':'';
     return '<div class="doc-frow"><div class="doc-flabel">'+o.l+'</div><input class="doc-fin" type="'+type+'"'+im+' value="'+esc(DOCF[o.k]||'')+'" placeholder="'+esc(o.ph||'')+'" oninput="setDocFT(\''+o.k+'\',this.value)"></div>';
+  };
+  // v137 : formulaire en 3 cartes repliables (option A) — le moteur des champs ne change pas
+  const visible=opts.filter(o=>!o.show||o.show(DOCF));
+  const PAT=new Set(['civ','ddn','dateSortie','consultSem','aides','anesthesie']);
+  const SUI=/^(fermeture|pansement|immo|appui|dechargeSem|vitC|ains|antico|anticoJours|redon|amp\w*|mat(?!Prealable)[A-Z]\w*)$/;
+  const buckets={patient:[],interv:[],suites:[]};
+  visible.forEach(o=>{
+    if(o.t==='hdr'){(/Ordonnance/i.test(o.l||'')?buckets.suites:buckets.interv).push(o);return;}
+    if(PAT.has(o.k))buckets.patient.push(o);
+    else if(SUI.test(o.k||''))buckets.suites.push(o);
+    else buckets.interv.push(o);
+  });
+  window._docSecOpen=window._docSecOpen||{patient:false,interv:true,suites:false};
+  const secSum=(k,list)=>{
+    try{
+      if(k==='patient'){
+        const p=[];if(DOCF.civ)p.push(DOCF.civ);
+        if(DOCF.ddn)p.push('né(e) '+doc_dateStr(DOCF.ddn));
+        if(DOCF.consultSem)p.push('contrôle '+DOCF.consultSem+' sem');
+        return p.join(' · ');
+      }
+      if(k==='suites'){
+        const p=[];
+        p.push(DOCF.antico&&DOCF.antico!=='Aucun'?(DOCF.antico.split(' ')[0]+(DOCF.anticoJours?' '+DOCF.anticoJours+' j':'')):"pas d'anticoagulant");
+        const nMat=Object.keys(MAT_LABELS).filter(x=>DOCF[x]).length;
+        if(nMat)p.push(nMat+' matériel'+(nMat>1?'s':''));
+        return p.join(' · ');
+      }
+      return list.filter(o=>o.t==='seg'&&DOCF[o.k]).slice(0,3).map(o=>String(DOCF[o.k]).split(' — ')[0]).join(' · ');
+    }catch(e){return '';}
+  };
+  const CARDS=[['patient','Patient & séjour','var(--green)'],['interv','Intervention & gestes','var(--accent)'],['suites','Suites & ordonnances','var(--purple)']];
+  host.innerHTML=trameBar+CARDS.map(c=>{
+    const k=c[0],title=c[1],col=c[2];
+    const list=buckets[k];if(!list.length)return '';
+    const open=!!window._docSecOpen[k];
+    return '<div class="edc'+(open?' open':'')+'" style="margin-bottom:12px;">'
+      +'<button type="button" class="edc-head" onclick="docSecToggle(\''+k+'\')">'
+      +'<span class="edc-dot"><span style="width:9px;height:9px;border-radius:99px;background:'+col+';display:block;"></span></span>'
+      +'<span class="edc-t">'+title+'</span>'
+      +'<span class="edc-sum">'+(open?'':esc(secSum(k,list)))+'</span>'
+      +'<svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+      +'</button>'
+      +'<div style="display:'+(open?'block':'none')+';padding:2px 15px 14px;">'+list.map(renderOpt).join('')+'</div>'
+      +'</div>';
   }).join('');
 }
+function docSecToggle(k){window._docSecOpen=window._docSecOpen||{};window._docSecOpen[k]=!window._docSecOpen[k];renderDocForm();}
 function docGenerate(){docStep=2;docIdx=0;renderDocStep();}
 function docBackToForm(){docStep=1;renderDocStep();}
 function renderDocModal(){
@@ -12249,7 +12296,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v136',
+    version:'atlas-v137',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
