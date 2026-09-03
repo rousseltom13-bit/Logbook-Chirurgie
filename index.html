@@ -8486,8 +8486,9 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={deuxos:'MCCA008',pseudarthrose:'NBPA005',bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
+const DOC_CCAM={deuxos:'MCCA008',pilon:'NCCA004',pseudarthrose:'NBPA005',bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
 const DOC_DOCS={
+  pilon:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   deuxos:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pseudarthrose:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   bassin:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -8650,6 +8651,30 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matBotte'])),
+  pilon:[..._COMMON,
+    {k:'plAO',t:'seg',l:'Classification AO (43-)',o:['B1','B2','B3','C1','C2','C3'],def:'C2'},
+    {k:'plOuverte',t:'check',l:'Fracture ouverte',def:false},
+    {k:'plGustilo',t:'seg',l:'Gustilo',o:['I','II','IIIA','IIIB','IIIC'],def:'I',show:f=>f.plOuverte},
+    {k:'plFE',t:'check',l:'Fixateur externe en place (ablation en début de temps)',def:true},
+    {k:'plAbord',t:'seg',l:'Abord',o:['Antéro-latéral','Antéro-médial'],def:'Antéro-latéral'},
+    {k:'plFibule',t:'seg',l:'Fibula',o:['À synthéser dans ce temps','Déjà synthésée','Non fixée'],def:'Déjà synthésée'},
+    {k:'plFibPlaque',t:'selx',l:'Plaque fibula — modèle',def:'',impType:'plaque',show:f=>f.plFibule==='À synthéser dans ce temps'},
+    {k:'plFibVis',t:'num',l:'Plaque fibula — nombre de vis',def:'6',show:f=>f.plFibule==='À synthéser dans ce temps'},
+    {k:'plPlaqueModele',t:'selx',l:'Plaque pilon — modèle',def:'',impType:'plaque'},
+    {k:'plVisEpi',t:'num',l:'Vis épiphysaires',def:'4'},
+    {k:'plVisDia',t:'num',l:'Vis diaphysaires',def:'3'},
+    {k:'comblement',t:'seg',l:'Comblement métaphysaire',o:['Aucun','Ostéopure','Autogreffe de crête iliaque','Autre substitut'],def:'Aucun'},
+    {k:'comblementAutre',t:'text',l:'Substitut (préciser)',ph:'ex. TCP…',show:f=>f.comblement==='Autre substitut'},
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
+    {k:'redon',t:'check',l:'Drain de Redon',def:true},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'dechargeSem',t:'num',l:'Décharge stricte (semaines)',def:'6'},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matBotte'])),
   deuxos:[..._COMMON,
     {k:'dxLesion',t:'seg',l:'Lésion',o:['2 os','Diaphyse radiale','Diaphyse ulnaire','Galeazzi','Monteggia'],def:'2 os'},
     {k:'dxOuverte',t:'check',l:'Fracture ouverte',def:false},
@@ -8686,7 +8711,7 @@ const DOC_OPTS={
     {k:'defLongueur',t:'check',l:'Raccourcissement',def:false},
     {k:'defLongueurMm',t:'num',l:'Raccourcissement (mm)',def:'10',show:f=>f.defLongueur},
     {k:'femMontage',t:'seg',l:'Montage fémur',o:['Clou antérograde + plaque','Clou rétrograde + plaque','Plaque seule','Clou seul'],def:'Clou antérograde + plaque',show:f=>_psIsFem(f)},
-    {k:'decortication',t:'check',l:'Décortication selon Judet',def:true,show:f=>_psIsFem(f)},
+    {k:'decortication',t:'check',l:'Décortication selon Judet',def:true,show:f=>_psIsFem(f)&&!/2e temps/.test(f.strat||'')},
     {k:'realesage',t:'check',l:'Réalésage (produits en bactério)',def:true,show:f=>_psIsTib(f)},
     {k:'clouDiam',t:'num',l:'Nouveau clou — diamètre (mm)',def:'11',show:f=>_psIsTib(f)},
     {k:'petitePlaque',t:'check',l:'Plaque complémentaire en regard du défect',def:false,show:f=>_psIsTib(f)},
@@ -8921,6 +8946,7 @@ function detectInter(interv){
   if(/jumper|cyclope|pridie|corps [ée]tranger/.test(s))return 'arthroscopie';
   if(/plateau tibial|schatzker/.test(s))return 'plateau';
   if(/pseudarthrose/.test(s))return /f[ée]mur|tibia|cheville|pilon/.test(s)?'pseudarthrose':'fracture';
+  if(/pilon/.test(s))return 'pilon';
   if(/masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement|reconstruction/.test(s))return 'fracture';
   if(/tendon/.test(s))return 'fracture';
   if(/galeazzi|monteggia|diaphyse radiale|diaphyse ulnaire|deux os|2 os/.test(s))return 'deuxos';
@@ -9293,6 +9319,69 @@ ${_chMedBlock(f)}${_chSyndBlock(f)}${_chFin(f)}`;
 }
 
 // ── CRO — Pseudarthrose (fémur / tibia sur clou / pilon) ──
+// ── CRO — Fracture aiguë du pilon tibial (temps définitif) ──
+function buildCRO_PILON(f){
+  const cote=coteStrD(f);
+  const isAL=(f.plAbord||'Antéro-latéral')==='Antéro-latéral';
+  const fibNow=f.plFibule==='À synthéser dans ce temps';
+  const fibDone=f.plFibule==='Déjà synthésée';
+  const head=`COMPTE-RENDU OPÉRATOIRE — FRACTURE DU PILON TIBIAL ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Fracture du pilon tibial ${cote==='droit'?'droit':'gauche'}, classée AO 43-${f.plAO||'C2'}${f.plOuverte?', ouverte classée Gustilo '+(f.plGustilo||'I'):''}${f.plFE?', traitée initialement par fixateur externe pontant (prise en charge séquentielle)':''}.
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal, coussin sous la fesse homolatérale.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+${_garrotLine(f)}`;
+  let corps='';
+  if(f.plFE)corps+=`Ablation du fixateur externe, nettoyage et désinfection des orifices de fiches, nouveau badigeon et re-champage.
+`;
+  if(fibDone)corps+=`La fibula a été synthésée lors du temps initial : longueur et rotation contrôlées, matériel laissé en place.
+`;
+  if(f.plFE||fibDone)corps+='\n';
+  if(fibNow){
+    corps+=`Temps fibulaire :
+Abord latéral direct de la fibula.
+Réduction avec restitution de la longueur, stabilisation provisoire au davier.
+Ostéosynthèse par plaque tiers de tube ${f.plFibPlaque||''}, ${f.plFibVis||'6'} vis.
+
+`;
+  }
+  corps+=`${(fibNow)?'Temps tibial :\n':''}`;
+  corps+=isAL
+    ?`Abord antéro-latéral du pilon tibial, dans l'axe du 4e rayon.
+Repérage et protection du nerf fibulaire superficiel.
+Ouverture du rétinaculum des extenseurs, passage en dehors des tendons extenseurs, relevés en dedans au ras de l'os.
+`
+    :`Abord antéro-médial du pilon tibial, en dedans du tendon du muscle tibial antérieur.
+Respect de la veine grande saphène et du nerf saphène.
+`;
+  corps+=`Arthrotomie antérieure, exposition de la surface articulaire, évacuation de l'hémarthrose et des débris ostéo-chondraux libres.
+Réduction articulaire de l'arrière vers l'avant : réduction du fragment postérieur, puis désimpaction du dôme central, puis réduction ${isAL?'du fragment antéro-latéral (Tillaux-Chaput)':'de la colonne médiale'}.
+Stabilisation provisoire par broches, contrôle scopique de la congruence articulaire.
+Mise en place de vis sous-chondrales en rappel, en compression.
+${_platComblement(f)}Ostéosynthèse par plaque ${isAL?'antéro-latérale':'antéro-médiale'} verrouillée ${f.plPlaqueModele||''}, ${f.plVisEpi||'4'} vis épiphysaires, ${f.plVisDia||'3'} vis diaphysaires.
+Contrôle scopique de face et de profil : réduction articulaire satisfaisante, restitution de l'axe et de la longueur, matériel en place, absence de vis intra-articulaire.
+`;
+  const fin=`Lavage abondant.
+${f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''}Fermeture plan par plan, sans tension.
+Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Pansement ${(f.pansement||'sec').toLowerCase()}.
+${_garrotFin(f)}
+Consignes : décharge stricte du membre inférieur pendant ${f.dechargeSem||'6'} semaines, surélévation du membre, mobilisation précoce de la cheville selon tolérance.
+
+${_dSigBloc()}`;
+  return head+'\n'+_platCrete(f)+corps+'\n'+fin;
+}
+
 // ── CRO — Avant-bras diaphysaire (2 os / radius / ulna / Galeazzi / Monteggia) ──
 function _dxLes(f){return f.dxLesion||'2 os';}
 function _dxRad(f){const l=_dxLes(f);return l==='2 os'||l==='Diaphyse radiale'||l==='Galeazzi';}
@@ -10124,6 +10213,7 @@ function _crhAppui(f){
   if(i==='pseudarthrose')return (f.appui||'Appui partiel pendant 6 semaines')+" sous couvert de cannes anglaises — antibiothérapie adaptée secondairement selon les prélèvements et l'avis du CRIOAC";
   if(i==='bassin')return _bsFix(f)?"Appui autorisé selon douleurs sous couvert de cannes ou déambulateur — précautions anti-luxation pendant 6 semaines":"Décharge stricte du membre inférieur pendant "+(f.dechargeSem||'6')+" semaines sous couvert de cannes anglaises ou déambulateur";
   if(i==='plateau')return "Décharge stricte du membre inférieur pendant "+(f.dechargeSem||'6')+" semaines sous couvert de cannes anglaises — mobilisation du genou autorisée sans limitation d'amplitude";
+  if(i==='pilon')return "Décharge stricte du membre inférieur pendant "+(f.dechargeSem||'6')+" semaines sous couvert de cannes anglaises — surélévation du membre, mobilisation précoce de la cheville selon tolérance";
   if(i==='cheville'){
     if(f.appui==='Décharge stricte 6 semaines')return "Décharge stricte du membre inférieur pendant 6 semaines sous couvert de cannes anglaises";
     if(f.appui==='Appui immédiat selon douleurs')return "Appui autorisé selon douleurs sous protection de la botte de marche";
@@ -10146,6 +10236,7 @@ function _crhMotif(f){
   if(i==='pseudarthrose')return 'sa pseudarthrose '+(_psIsFem(f)?'du fémur':(_psIsTib(f)?'de la diaphyse tibiale':'du pilon tibial'))+' '+(_psIsTib(f)&&c==='droit'?'droite':c);
   if(i==='bassin')return (f.lesion==='Symphyse pubienne')?'sa disjonction de la symphyse pubienne':("sa fracture de l'acétabulum "+c+(f.lesion?' ('+f.lesion.toLowerCase()+')':''));
   if(i==='plateau')return 'sa fracture du plateau tibial '+c+(f.schatzker?' (Schatzker '+f.schatzker+')':'');
+  if(i==='pilon')return 'sa fracture du pilon tibial '+c+(f.plAO?' (AO 43-'+f.plAO+')':'');
   if(i==='radius')return 'sa fracture du radius distal '+c;
   if(i==='deuxos'){
     const l=f.dxLesion||'2 os';
@@ -10213,6 +10304,13 @@ function _crhActe(f){
     if(m==='Plaque latérale + postéro-médiale')return 'une ostéosynthèse du plateau tibial par double plaque (postéro-médiale puis latérale)';
     if(m==='Plaque latérale + médiale')return 'une ostéosynthèse du plateau tibial par double plaque (médiale puis latérale)';
     return 'une ostéosynthèse du plateau tibial';
+  }
+  if(i==='pilon'){
+    let s='une ostéosynthèse du pilon tibial par plaque '+((f.plAbord||'Antéro-latéral')==='Antéro-latéral'?'antéro-latérale':'antéro-médiale')+' verrouillée';
+    if(f.plFibule==='À synthéser dans ce temps')s+=', avec ostéosynthèse de la fibula';
+    if(f.comblement&&f.comblement!=='Aucun')s+=' et comblement métaphysaire';
+    if(f.plFE)s=s+', après ablation du fixateur externe (prise en charge séquentielle)';
+    return s;
   }
   if(i==='tibia')return 'un enclouage centromédullaire du tibia par clou T2';
   if(i==='humerus')return "un enclouage centromédullaire antérograde de l'humérus par clou T2";
@@ -10291,7 +10389,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
-Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))))))}, ou plus tôt si vous le jugez nécessaire.
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
 
 Nous restons à votre disposition.
 
@@ -10556,6 +10654,22 @@ Signaler tout signe de syndrome douloureux régional complexe (douleur dispropor
 Nombre de séances : 15, à renouveler selon évolution
 ${_dSig()}${_dRpps()}`;
   }
+  if(inter==='pilon'){
+    return `ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU PILON TIBIAL
+
+À débuter immédiatement.
+
+${intro}
+
+⚠ DÉCHARGE STRICTE du membre inférieur pendant ${f.dechargeSem||'6'} semaines (cannes anglaises).
+Mobilisation précoce de la cheville en flexion dorsale-plantaire selon tolérance, hors appui.
+Lutte contre l'œdème (surélévation, drainage, cryothérapie) et travail cicatriciel.
+Entretien musculaire isométrique (triceps sural, fibulaires) et mobilisation des orteils.
+À la reprise d'appui (${f.dechargeSem||'6'}e semaine, selon contrôle radiographique) : remise en charge progressive, travail du déroulé du pas, proprioception.
+
+Nombre de séances : 25, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
   if(inter==='cheville'){
     return `ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA CHEVILLE
 
@@ -10697,6 +10811,7 @@ function docContent(doc){
     if(inter==='bassin')return buildCRO_BASSIN(f);
     if(inter==='pseudarthrose')return buildCRO_PSEUDO(f);
     if(inter==='deuxos')return buildCRO_DEUXOS(f);
+    if(inter==='pilon')return buildCRO_PILON(f);
     if(inter==='radius')return buildCRO_RADIUS(f);
     if(inter==='femur')return buildCRO_FEMUR(f);
     if(inter==='tibia')return buildCRO_TIBIA(f);
@@ -10801,6 +10916,9 @@ function docAutoCCAM(){
     const l=DOCF.dxLesion||'2 os';
     DOCF.ccam=(l==='2 os')?'MCCA008':((l==='Galeazzi'||l==='Monteggia')?'MCCA003':'MCCA004');
   }
+  else if(i==='pilon'){
+    DOCF.ccam=/^B/.test(DOCF.plAO||'C2')?'NCCA008':'NCCA004';
+  }
   else if(i==='bassin'){
     const l=DOCF.lesion||'';
     if(l==='Symphyse pubienne')DOCF.ccam='NACA001';
@@ -10845,7 +10963,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||DOCF._inter===k){renderDocForm();return;}
@@ -11968,7 +12086,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v132',
+    version:'atlas-v133',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
