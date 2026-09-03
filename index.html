@@ -674,6 +674,13 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 .doc-cb{display:flex;align-items:center;gap:10px;padding:9px 2px;cursor:pointer;font-size:13.5px;}
 .doc-cbx{width:21px;height:21px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;}
 .doc-cb.on .doc-cbx{background:var(--accent);border-color:var(--accent);}
+/* v138 — L1+L2 : corps de carte teinté, rangées séparées, libellés renforcés */
+.doc-cardbody{background:var(--bg3);border-top:0.5px solid var(--border);}
+.doc-row{padding:12px 15px;border-bottom:0.5px solid var(--border2);}
+.doc-row:last-child{border-bottom:none;}
+.doc-row .doc-frow{margin-bottom:0;}
+.doc-row .doc-flabel{color:var(--text2);}
+.doc-row > .doc-flabel{margin-top:0 !important;color:var(--text2);}
 
 .doc-act{flex:1;padding:12px;border:0.5px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;}
 .doc-act-p{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -11208,7 +11215,15 @@ function renderDocForm(){
       +'<span class="edc-sum">'+(open?'':esc(secSum(k,list)))+'</span>'
       +'<svg class="edc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="6 9 12 15 18 9"></polyline></svg>'
       +'</button>'
-      +'<div style="display:'+(open?'block':'none')+';padding:2px 15px 14px;">'+list.map(renderOpt).join('')+'</div>'
+      +'<div class="doc-cardbody" style="display:'+(open?'block':'none')+';">'+(function(){
+        const rows=[];let cur=[];
+        list.forEach(o=>{
+          if(o.t==='check'||o.t==='hdr'){cur.push(renderOpt(o));}
+          else{if(cur.length){rows.push(cur.join(''));cur=[];}rows.push(renderOpt(o));}
+        });
+        if(cur.length)rows.push(cur.join(''));
+        return rows.map(h=>'<div class="doc-row">'+h+'</div>').join('');
+      })()+'</div>'
       +'</div>';
   }).join('');
 }
@@ -12296,7 +12311,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v137',
+    version:'atlas-v138',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
