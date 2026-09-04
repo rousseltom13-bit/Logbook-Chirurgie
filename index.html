@@ -4989,7 +4989,7 @@ function renderBlocs(){
       : (b.statut||'gris')===st
   ));
   if(activeTagFilters.size>0)filtered=filtered.filter(b=>(b.tags||[]).some(t=>activeTagFilters.has(normalizeTag(t))));
-  if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,...(b.tags||[]),consults].join(' ').toLowerCase().includes(searchRaw);});
+  if(searchRaw)filtered=filtered.filter(b=>{const consults=(b.consultations||[]).map(c=>c.comment||'').join(' ');const evts=(b.evenements||[]).map(e=>(e.comment||'')+' '+(e.type||'')).join(' ');return [b.patient,b.interv,b.implants,b.astuces,b.remarques,b.abord,b.operateur,b.spec,b.etablissement,b.ccamCode,(b.ccam&&(b.ccam.code||b.ccam))||'',...(b.implantModels||[]),...(b.tags||[]),consults,evts].join(' ').toLowerCase().includes(searchRaw);});
   const el=document.getElementById('bloc-list');
   renderTagFilters();
   const countEl=document.getElementById('search-count');
@@ -8526,8 +8526,9 @@ function _dChefHopLine(){const p=_dProfil();const l=[p.chef,p.hopital].filter(Bo
 function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 
 // ── Config par intervention ──
-const DOC_CCAM={deuxos:'MCCA008',pilon:'NCCA004',palette:'MBCA006',pseudarthrose:'NBPA005',bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
+const DOC_CCAM={deuxos:'MCCA008',pilon:'NCCA004',palette:'MBCA006',teteradiale:'MCCA001',pseudarthrose:'NBPA005',bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
 const DOC_DOCS={
+  teteradiale:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   palette:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pilon:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   deuxos:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -8579,7 +8580,7 @@ const _COMMON=[
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
   {k:'consultSem',t:'num',l:'Consultation de contrôle (semaines)',def:'6'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
-  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&(f._inter==='radius'||f._inter==='olecrane'||f._inter==='deuxos'||f._inter==='palette'))?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&(f._inter==='humerus'||f._inter==='clavicule'))?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
+  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&(f._inter==='radius'||f._inter==='olecrane'||f._inter==='deuxos'||f._inter==='palette'||f._inter==='teteradiale'))?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&(f._inter==='humerus'||f._inter==='clavicule'))?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
 ];
 const DOC_OPTS={
   pth:[..._COMMON,
@@ -8696,6 +8697,31 @@ const DOC_OPTS={
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'INNOHEP 4500 UI'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'42',show:f=>f.antico!=='Aucun'},
     {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matCannes','matBotte'])),
+  teteradiale:[..._COMMON,
+    {k:'trMason',t:'seg',l:'Classification de Mason',o:['II','III','IV'],def:'III'},
+    {k:'trInstable',t:'check',l:'Coude instable / luxation associée',def:false},
+    {k:'trTriade',t:'check',l:'Triade malheureuse',def:false,show:f=>f.trInstable},
+    {k:'trGeste',t:'seg',l:'Geste',o:['Vissage','Plaque','Résection','Prothèse'],def:'Vissage'},
+    {k:'trVisNb',t:'num',l:'Nombre de vis',def:'2',show:f=>_trOsteo(f)},
+    {k:'trPlaqueModele',t:'selx',l:'Plaque tête radiale — modèle',def:'',impType:'plaque',show:f=>(f.trGeste||'')==='Plaque'},
+    {k:'trProthModele',t:'selx',l:'Prothèse — modèle',def:'',show:f=>_trProth(f)},
+    {k:'trProthTaille',t:'text',l:'Prothèse — taille',def:'',ph:'ex. 20 / M',show:f=>_trProth(f)},
+    {k:'trRepCoro',t:'check',l:'Réparation de la coronoïde',def:false},
+    {k:'trCoroMode',t:'seg',l:'Coronoïde — fixation',o:['Vissage','Suture-lasso'],def:'Vissage',show:f=>f.trRepCoro},
+    {k:'trRepExt',t:'check',l:'Réparation du plan externe (LUCL par ancre)',def:false},
+    {k:'trRepInt',t:'check',l:'Réparation du plan interne (LCM par ancre)',def:false},
+    ..._VISLIBRES,
+    {k:'garrotOn',t:'check',l:'Garrot',def:true},
+    {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250',show:f=>f.garrotOn},
+    {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
+    {k:'redon',t:'check',l:'Drain de Redon',def:false},
+    {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Fils','Agrafes'],def:'Fils'},
+    {k:'immo',t:'seg',l:'Immobilisation',o:['Attelle postérieure antalgique (quelques jours)','Attelle 90° — mobilisation protégée','Aucune'],def:'Attelle postérieure antalgique (quelques jours)'},
+    {k:'vitC',t:'check',l:'Vitamine C 45 j (prévention SDRC)',def:true},
+    _AINS,
+    {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
+    {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matGilet'])),
   palette:[..._COMMON,
     {k:'paAO',t:'seg',l:'Classification AO (13-)',o:['A (extra-articulaire)','B (articulaire partielle)','C1','C2','C3'],def:'C2'},
     {k:'paAbord',t:'seg',l:'Abord',o:["Ostéotomie de l'olécrâne",'Para-tricipitale','Trans-tricipitale'],def:"Ostéotomie de l'olécrâne"},
@@ -9028,6 +9054,7 @@ function detectInter(interv){
   if(/pseudarthrose/.test(s))return /f[ée]mur|tibia|cheville|pilon/.test(s)?'pseudarthrose':'fracture';
   if(/pilon/.test(s))return 'pilon';
   if(/palette/.test(s))return 'palette';
+  if(/t[êe]te radiale/.test(s))return 'teteradiale';
   if(/masquelet|fixateur|luxation|scapho|rétrograde|retrograde|embrochage|ecmes|épiphysiolyse|epiphysiolyse|lavage|spacer|parage|amputation|lambeau|descellement|reconstruction/.test(s))return 'fracture';
   if(/tendon/.test(s))return 'fracture';
   if(/galeazzi|monteggia|diaphyse radiale|diaphyse ulnaire|deux os|2 os/.test(s))return 'deuxos';
@@ -9405,6 +9432,76 @@ ${_chMedBlock(f)}${_chSyndBlock(f)}${_chFin(f)}`;
 }
 
 // ── CRO — Pseudarthrose (fémur / tibia sur clou / pilon) ──
+// ── CRO — Fracture de la tête radiale (voie de Kaplan) ──
+function _trProth(f){return (f.trGeste||'')==='Prothèse';}
+function _trResec(f){return (f.trGeste||'')==='Résection';}
+function _trOsteo(f){const g=f.trGeste||'Vissage';return g==='Vissage'||g==='Plaque';}
+function buildCRO_TETERAD(f){
+  const cote=coteStrD(f);
+  const cf=(cote==='droit')?'droite':cote;
+  const g=f.trGeste||'Vissage';
+  const head=`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE LA TÊTE RADIALE ${cf.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : Fracture de la tête radiale ${cf}, Mason ${f.trMason||'III'}${f.trInstable?", dans le cadre d'un coude instable"+(f.trTriade?' (triade malheureuse)':''):''}.
+CCAM : ${f.ccam}
+
+Installation en décubitus dorsal, membre supérieur sur table à bras.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+${_garrotLine(f)}`;
+  let corps=`Abord latéral de Kaplan centré sur la tête radiale.
+Passage dans l'intervalle entre le court extenseur radial du carpe et l'extenseur commun des doigts.
+Avant-bras maintenu en pronation (protection de la branche postérieure du nerf radial).
+Arthrotomie en avant du complexe ligamentaire collatéral latéral, qui est préservé.
+Exposition de la tête radiale, évacuation de l'hémarthrose et des fragments ostéo-chondraux libres.
+`;
+  if(g==='Vissage'){
+    corps+=`Réduction anatomique des fragments, stabilisation provisoire par broches.
+Ostéosynthèse par ${f.trVisNb||'2'} vis sans tête en compression, enfouies sous le cartilage.
+`;
+  } else if(g==='Plaque'){
+    corps+=`Réduction anatomique des fragments, stabilisation provisoire par broches.
+Ostéosynthèse par plaque spécifique de tête radiale${f.trPlaqueModele?' '+f.trPlaqueModele:''} positionnée dans la zone non articulaire (safe zone), ${f.trVisNb||'4'} vis.
+`;
+  } else if(g==='Résection'){
+    corps+=`Fracture non reconstructible : résection de la tête radiale au ras du col, régularisation de la tranche.
+Vérification de l'absence de fragment intra-articulaire résiduel.
+`;
+  } else {
+    corps+=`Fracture non reconstructible : résection de la tête radiale au ras du col.
+Préparation du canal, essais de taille et de hauteur — respect de l'interligne huméro-ulnaire (pas de surdimensionnement).
+Mise en place d'une prothèse de tête radiale${f.trProthModele?' '+f.trProthModele:''} taille ${f.trProthTaille||'—'}.
+Contrôle du centrage et de la course de la cupule sur le capitulum en flexion-extension et pronosupination.
+`;
+  }
+  if(f.trRepCoro)corps+=`Réparation de la coronoïde : réduction et fixation du fragment${f.trCoroMode==='Suture-lasso'?' par suture-lasso de la capsule antérieure':' par vissage'}.
+`;
+  if(f.trRepExt)corps+=`Réinsertion du complexe ligamentaire collatéral latéral (LUCL) par ancre à la face postéro-inférieure de l'épicondyle latéral, au point isométrique.
+`;
+  if(f.trRepInt)corps+=`Abord médial complémentaire, repérage et protection du nerf ulnaire.
+Réinsertion du ligament collatéral médial par ancre à l'épicondyle médial.
+`;
+  corps+=`Contrôle scopique de face et de profil : ${_trOsteo(f)?'réduction anatomique, matériel en place':(_trProth(f)?'prothèse en place, interlignes respectés':'résection complète, interlignes respectés')}.
+Testing en fin d'intervention : arc de flexion-extension et pronosupination complets, stabilité en valgus et en varus, absence de ressaut postéro-latéral.
+`;
+  const fin=`Lavage abondant.
+${f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''}Fermeture plan par plan.
+Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Pansement ${(f.pansement||'sec').toLowerCase()}.
+${_garrotFin(f)}
+Consignes : ${f.immo==='Attelle 90° — mobilisation protégée'?'attelle postérieure à 90° avec mobilisation protégée dans le secteur stable, selon le testing per-opératoire':(f.immo==='Aucune'?'mobilisation immédiate selon douleurs':'attelle postérieure antalgique pour quelques jours puis mobilisation précoce')} ; pas de port de charge pendant 6 semaines.
+
+${_dSigBloc()}`;
+  return head+'\n'+corps+'\n'+fin;
+}
+
 // ── CRO — Fracture de la palette humérale ──
 function _paArtic(f){return (f.paAO||'C2')!=='A (extra-articulaire)';}
 function _paOsteo(f){return (f.paAbord||"Ostéotomie de l'olécrâne")==="Ostéotomie de l'olécrâne";}
@@ -10359,6 +10456,7 @@ function _crhAppui(f){
       :"Pas d'appui — mobilisation progressive du genou avec le kinésithérapeute";
   }
   if(i==='palette')return (f.immo==='Aucune'?'Mobilisation immédiate du coude selon douleurs':'Attelle postérieure antalgique pour quelques jours puis mobilisation précoce du coude')+' — pas de port de charge pendant 6 semaines';
+  if(i==='teteradiale')return (f.immo==='Attelle 90° — mobilisation protégée'?'Attelle postérieure à 90° avec mobilisation protégée dans le secteur stable':(f.immo==='Aucune'?'Mobilisation immédiate du coude selon douleurs':'Attelle postérieure antalgique pour quelques jours puis mobilisation précoce du coude'))+' — pas de port de charge pendant 6 semaines';
   if(i==='humerus'||i==='olecrane'||i==='clavicule'){
     return f.immo==='Dujarrier strict'
       ?"Immobilisation stricte coude au corps par attelle de Dujarrier pendant 3 semaines — mobilisation de la main autorisée"
@@ -10412,6 +10510,7 @@ function _crhMotif(f){
   if(i==='humerus')return 'sa fracture de la diaphyse humérale '+cf;
   if(i==='rotule')return 'sa fracture de la rotule '+cf;
   if(i==='olecrane')return "sa fracture de l'olécrâne "+c;
+  if(i==='teteradiale')return 'sa fracture de la tête radiale '+cf+(f.trMason?' (Mason '+f.trMason+')':'');
   if(i==='palette')return 'sa fracture de la palette humérale '+cf+(f.paAO?' (AO 13-'+String(f.paAO).replace(/ \(.*\)/,'')+')':'');
   if(i==='clavicule')return 'sa fracture de la clavicule '+cf;
   if(i==='femurplaque')return f.fpGeste==='Plaque diaphysaire'?('sa fracture de la diaphyse fémorale '+cf):("sa fracture de l'extrémité distale du fémur "+c);
@@ -10479,6 +10578,17 @@ function _crhActe(f){
   if(i==='humerus')return "un enclouage centromédullaire antérograde de l'humérus par clou T2";
   if(i==='rotule')return 'une ostéosynthèse de la rotule par haubanage'+(f.visNovastep?' complété par vissage des fragments intermédiaires':'');
   if(i==='olecrane')return f.olGeste==='Plaque verrouillée'?"une ostéosynthèse de l'olécrâne par plaque verrouillée":"une ostéosynthèse de l'olécrâne par haubanage";
+  if(i==='teteradiale'){
+    const g=f.trGeste||'Vissage';
+    let s=g==='Vissage'?'une ostéosynthèse de la tête radiale par vissage (vis sans tête enfouies)':(g==='Plaque'?'une ostéosynthèse de la tête radiale par plaque spécifique':(g==='Résection'?'une résection de la tête radiale':"la mise en place d'une prothèse de tête radiale"));
+    s+=', par voie latérale de Kaplan';
+    const rp=[];
+    if(f.trRepCoro)rp.push('réparation de la coronoïde');
+    if(f.trRepExt)rp.push('réinsertion du plan ligamentaire externe (LUCL)');
+    if(f.trRepInt)rp.push('réinsertion du plan ligamentaire interne');
+    if(rp.length)s+=', avec '+rp.join(', ');
+    return s;
+  }
   if(i==='palette'){
     const m=f.paMontage||'Postéro-latérale + médiale';
     let s='une ostéosynthèse de la palette humérale par '+(m==='Postéro-latérale + médiale'?'double plaque (postéro-latérale et médiale)':(m==='Postéro-latérale seule'?'plaque postéro-latérale':'plaque médiale'));
@@ -10560,7 +10670,7 @@ Les suites ont été simples, la sortie est donc autorisée ce jour avec les con
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
-Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle')))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
 
 Nous restons à votre disposition.
 
@@ -10603,7 +10713,7 @@ Renouvellement non autorisé sauf avis médical.
 ${_dSig()}${_dRpps()}`;
 }
 function buildOrdoMateriel(f){
-  const items=Object.keys(MAT_LABELS).filter(k=>f[k]).map(k=>'— '+MAT_LABELS[k]);
+  const items=Object.keys(MAT_LABELS).filter(k=>f[k]).map(k=>'— '+(k==='matFauteuil'?('Un fauteuil roulant avec repose-jambe côté '+coteStrD(f)+' (location 1 mois)'):MAT_LABELS[k]));
   return `ORDONNANCE — MATÉRIEL MÉDICAL
 
 Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
@@ -10701,6 +10811,24 @@ Lutte contre l'épanchement et l'œdème (cryothérapie).
 Reprise de la marche selon les consignes d'appui.
 
 Nombre de séances : 25, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
+  if(inter==='teteradiale'){
+    const prot=f.immo==='Attelle 90° — mobilisation protégée';
+    return `ORDONNANCE KINÉSITHÉRAPIE — FRACTURE DE LA TÊTE RADIALE
+
+À débuter précocement, dès la sédation des douleurs.
+
+${intro}
+
+${prot?`Mobilisation protégée du coude dans le secteur stable défini en per-opératoire, coude au corps entre les séances.
+`:`Mobilisation précoce du coude en flexion-extension et pronosupination, active aidée, selon douleurs.
+`}Mobilisation du poignet et de la main dès J1.
+Pas de mobilisation contre résistance ni de port de charge pendant 6 semaines${(f.trRepExt||f.trRepInt)?' (protection des réparations ligamentaires — pas de varus ni de valgus forcé)':''}.
+Récupération progressive des amplitudes complètes — la raideur est la complication principale.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 20, à renouveler selon évolution
 ${_dSig()}${_dRpps()}`;
   }
   if(inter==='palette'){
@@ -10986,28 +11114,47 @@ ${_dSig()}${_dRpps()}`;
 
 // ── Contenu / état / UI ──
 let DOCF=null,docTabs=[],docIdx=0,docOverrides={},docStep=1;
+function _croIntervLabel(f){
+  try{
+    let s=_crhActe(f)||'';
+    s=s.replace(/^la mise en place d[e']\s?/i,'').replace(/^une?\s+/i,'').replace(/^l[ae]\s+/i,'').replace(/^l'/i,'').replace(/^d'une?\s+/i,'');
+    if(!s)return '';
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }catch(e){return '';}
+}
+function _croPost(t){
+  try{
+    const lbl=_croIntervLabel(DOCF);
+    if(lbl&&t.indexOf('\nCCAM :')>=0){
+      const side=/droit|gauche/i.test(lbl)?'':' — côté '+coteStrD(DOCF);
+      t=t.replace('\nCCAM :','\nIntervention : '+lbl+side+'.\nCCAM :');
+    }
+  }catch(e){}
+  return t;
+}
 function docContent(doc){
   const f=DOCF,inter=DOCF._inter;
   if(doc==='CRO'){
-    if(inter==='pth'||inter==='pth_revision')return buildCRO_PTH(f);
-    if(inter==='ptg')return buildCRO_PTG(f);
-    if(inter==='lca')return buildCRO_LCA(f);
-    if(inter==='menisc')return buildCRO_MENISC(f);
-    if(inter==='cheville')return buildCRO_CHEVILLE(f);
-    if(inter==='plateau')return buildCRO_PLATEAU(f);
-    if(inter==='bassin')return buildCRO_BASSIN(f);
-    if(inter==='pseudarthrose')return buildCRO_PSEUDO(f);
-    if(inter==='deuxos')return buildCRO_DEUXOS(f);
-    if(inter==='pilon')return buildCRO_PILON(f);
-    if(inter==='palette')return buildCRO_PALETTE(f);
-    if(inter==='radius')return buildCRO_RADIUS(f);
-    if(inter==='femur')return buildCRO_FEMUR(f);
-    if(inter==='tibia')return buildCRO_TIBIA(f);
-    if(inter==='humerus')return buildCRO_HUMERUS(f);
-    if(inter==='femurplaque')return buildCRO_FEMURPLAQUE(f);
-    if(inter==='rotule')return buildCRO_ROTULE(f);
-    if(inter==='olecrane')return buildCRO_OLECRANE(f);
-    if(inter==='clavicule')return buildCRO_CLAVICULE(f);
+    if(inter==='pth'||inter==='pth_revision')return _croPost(buildCRO_PTH(f));
+    if(inter==='ptg')return _croPost(buildCRO_PTG(f));
+    if(inter==='lca')return _croPost(buildCRO_LCA(f));
+    if(inter==='menisc')return _croPost(buildCRO_MENISC(f));
+    if(inter==='cheville')return _croPost(buildCRO_CHEVILLE(f));
+    if(inter==='plateau')return _croPost(buildCRO_PLATEAU(f));
+    if(inter==='bassin')return _croPost(buildCRO_BASSIN(f));
+    if(inter==='pseudarthrose')return _croPost(buildCRO_PSEUDO(f));
+    if(inter==='deuxos')return _croPost(buildCRO_DEUXOS(f));
+    if(inter==='pilon')return _croPost(buildCRO_PILON(f));
+    if(inter==='palette')return _croPost(buildCRO_PALETTE(f));
+    if(inter==='teteradiale')return _croPost(buildCRO_TETERAD(f));
+    if(inter==='radius')return _croPost(buildCRO_RADIUS(f));
+    if(inter==='femur')return _croPost(buildCRO_FEMUR(f));
+    if(inter==='tibia')return _croPost(buildCRO_TIBIA(f));
+    if(inter==='humerus')return _croPost(buildCRO_HUMERUS(f));
+    if(inter==='femurplaque')return _croPost(buildCRO_FEMURPLAQUE(f));
+    if(inter==='rotule')return _croPost(buildCRO_ROTULE(f));
+    if(inter==='olecrane')return _croPost(buildCRO_OLECRANE(f));
+    if(inter==='clavicule')return _croPost(buildCRO_CLAVICULE(f));
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
@@ -11016,6 +11163,7 @@ function docContent(doc){
   if(doc==='Ordo matériel')return buildOrdoMateriel(f);
   if(doc==='Ordo kiné'){
     let t=buildOrdoKine(f);
+    try{const _ck=coteStrD(f);if(_ck){const _nl=t.indexOf('\n');if(_nl>0&&!/CÔTÉ/i.test(t.slice(0,_nl)))t=t.slice(0,_nl)+' — CÔTÉ '+_ck.toUpperCase()+t.slice(_nl);}}catch(e){}
     const a=_ampTxt(f);
     if(a){const K='Rééducation au cabinet conseillée.';t=t.indexOf(K)>=0?t.replace(K,K+'\n\n'+a):(a+'\n\n'+t);}
     return t;
@@ -11031,7 +11179,7 @@ function openBlocDocs(bi,forcedInter){
   window._docSecOpen={patient:false,interv:true,suites:false};
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   if(inter==='radius'||inter==='deuxos')DOCF.anesthesie='ALR (bloc axillaire)';
-  if(inter==='humerus'||inter==='clavicule'||inter==='olecrane'||inter==='palette')DOCF.anesthesie='Anesthésie générale';
+  if(inter==='humerus'||inter==='clavicule'||inter==='olecrane'||inter==='palette'||inter==='teteradiale')DOCF.anesthesie='Anesthésie générale';
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
   const noms=[],prenoms=[];
   parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
@@ -11116,6 +11264,10 @@ function docAutoCCAM(){
     const a=DOCF.paAO||'C2';
     DOCF.ccam=/^A/.test(a)?'MBCA003':(/^B/.test(a)?'MBCA012':(a==='C1'?'MBCA008':'MBCA006'));
   }
+  else if(i==='teteradiale'){
+    const g=DOCF.trGeste||'Vissage';
+    DOCF.ccam=g==='Prothèse'?'MCKA002':(g==='Résection'?'MCFA004':(g==='Plaque'?'MCCA011':'MCCA001'));
+  }
   else if(i==='bassin'){
     const l=DOCF.lesion||'';
     if(l==='Symphyse pubienne')DOCF.ccam='NACA001';
@@ -11160,7 +11312,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||DOCF._inter===k){renderDocForm();return;}
@@ -12338,7 +12490,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v142',
+    version:'atlas-v143',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
