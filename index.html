@@ -3039,6 +3039,21 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 #carnet-tabs .seg-btn{flex:1;text-align:center;padding:8px 4px;font-size:12.5px;font-weight:600;color:var(--text3);border-radius:8px;border:none;background:none;font-family:inherit;cursor:pointer;}
 #carnet-tabs .seg-btn.on{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(40,36,28,0.10);}
 </style>
+<style id="sheet-v145">
+/* ── v145 — Feuille de confirmation Atlas (remplace confirm/alert natifs) ── */
+.asheet-ov{position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,0);display:flex;align-items:flex-end;justify-content:center;transition:background .18s ease;}
+.asheet-ov.on{background:rgba(0,0,0,.45);}
+.asheet{width:100%;max-width:560px;background:var(--bg2);border-radius:24px 24px 0 0;padding:22px 20px calc(16px + var(--safe-bot));box-sizing:border-box;transform:translateY(100%);transition:transform .22s cubic-bezier(.32,.72,.33,1);box-shadow:0 -8px 40px rgba(0,0,0,.18);}
+.asheet-ov.on .asheet{transform:translateY(0);}
+.asheet-t{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px;font-family:inherit;}
+.asheet-m{font-size:14px;line-height:1.45;color:var(--text2);white-space:pre-line;margin-bottom:18px;}
+.asheet-t:last-of-type{margin-bottom:18px;}
+.asheet-ok{display:block;width:100%;min-height:48px;border:none;border-radius:var(--radius,12px);background:var(--accent);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;}
+.asheet-ok.danger{background:var(--red);}
+.asheet-cancel{display:block;width:100%;min-height:44px;margin-top:8px;border:none;border-radius:var(--radius,12px);background:transparent;color:var(--text2);font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;}
+.asheet-ok:active,.asheet-cancel:active{opacity:.82;}
+@media(prefers-reduced-motion:reduce){.asheet-ov,.asheet{transition:none;}}
+</style>
 <style id="a11y-v144">
 /* ── v144 — Accessibilité : cibles tactiles ≥ 44 px, zones de tap étendues ── */
 .head-icon,.oxcfg-close,.lb-controls button,.atlas-iconbtn,.doc-close,.doc-pen,.stats-back{position:relative;}
@@ -4029,10 +4044,31 @@ const CCAM_MAP={
  "Lavage de prothèse (DAIR)":"NFJA002",
  "Dépose de prothèse — spacer":"NEGA002"
 };
-function migrateCCAM(){
+// ── v145 — Feuille de confirmation Atlas (remplace confirm/alert natifs) ──
+function aconfirm(o){
+  return new Promise(function(res){
+    var ov=document.createElement('div');ov.className='asheet-ov';
+    ov.innerHTML='<div class="asheet" role="alertdialog" aria-modal="true"></div>';
+    var sh=ov.firstChild;
+    if(o.title){var t=document.createElement('div');t.className='asheet-t';t.textContent=o.title;sh.appendChild(t);}
+    if(o.msg){var m=document.createElement('div');m.className='asheet-m';m.textContent=o.msg;sh.appendChild(m);}
+    var okb=document.createElement('button');okb.type='button';okb.className='asheet-ok'+(o.danger?' danger':'');okb.textContent=o.ok||'OK';sh.appendChild(okb);
+    var cb=null;
+    if(!o.info){cb=document.createElement('button');cb.type='button';cb.className='asheet-cancel';cb.textContent=o.cancel||'Annuler';sh.appendChild(cb);}
+    var done=false;
+    function end(v){if(done)return;done=true;ov.classList.remove('on');setTimeout(function(){ov.remove();},200);res(v);}
+    okb.onclick=function(){end(true);};
+    if(cb)cb.onclick=function(){end(false);};
+    ov.onclick=function(e){if(e.target===ov)end(!!o.info);};
+    document.body.appendChild(ov);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){ov.classList.add('on');});});
+  });
+}
+function ainfo(msg,title){return aconfirm({msg:msg,title:title||'',info:true,ok:'OK'});}
+async function migrateCCAM(){
   const total=blocs.length;
   const todo=blocs.filter(b=>!b.ccamCode).length;
-  if(!confirm('Coder automatiquement les '+todo+' bloc(s) non codé(s) via la table CCAM ?\n\nLes blocs déjà codés ne seront pas modifiés. Action réversible (tu peux recoder un bloc à la main ensuite).'))return;
+  if(!await aconfirm({title:'Coder automatiquement '+todo+' bloc(s) ?',msg:'Codage via la table CCAM. Les blocs déjà codés ne seront pas modifiés. Action réversible (tu peux recoder un bloc à la main ensuite).',ok:'Coder les blocs'}))return;
   let done=0,skip=0,already=0;
   blocs.forEach(b=>{
     if(b.ccamCode){already++;return;}
@@ -5538,8 +5574,8 @@ function updateOxTotal(){
   el.innerHTML='<span style="font-family:var(--serif,Georgia),Georgia,serif;font-size:30px;color:'+(complete?'var(--accent)':'var(--text3)')+';">'+oxTotal()+'</span><span style="font-size:14px;color:var(--text3);">/48</span>'
     +'<span style="margin-left:10px;font-size:12px;color:'+(complete?'var(--text2)':'var(--warm)')+';">'+(complete?'12/12 complété':oxAnswered()+'/12 items')+'</span>';
 }
-function saveOxford(){
-  if(oxAnswered()<12&&!confirm('Score incomplet ('+oxAnswered()+'/12). Enregistrer quand même ?'))return;
+async function saveOxford(){
+  if(oxAnswered()<12&&!await aconfirm({title:'Score incomplet ('+oxAnswered()+'/12)',msg:'Enregistrer quand même ?',ok:'Enregistrer'}))return;
   const total=oxTotal();
   window._oxfordAnswers=_oxDraft.slice();
   document.getElementById('ms-score').value=total;
@@ -5565,8 +5601,8 @@ function renderOxfordConfig(){
 function oxCfgSetQ(qi,v){OXFORD_CFG[_oxCfgKey].items[qi].q=v;}
 function oxCfgSet(qi,oi,v){OXFORD_CFG[_oxCfgKey].items[qi].opts[oi]=v;}
 function saveOxfordConfig(){saveOxfordCfg();closeModal('oxcfg-modal');showToast('Libellés enregistrés');}
-function resetOxfordConfig(){
-  if(!confirm('Réinitialiser les libellés '+(_oxCfgKey==='knee'?'genou':'hanche')+' aux placeholders ?'))return;
+async function resetOxfordConfig(){
+  if(!await aconfirm({title:'Réinitialiser les libellés '+(_oxCfgKey==='knee'?'genou':'hanche')+' ?',msg:'Retour aux placeholders par défaut.',ok:'Réinitialiser',danger:true}))return;
   OXFORD_CFG[_oxCfgKey]=JSON.parse(JSON.stringify(OXFORD_DEFAULT[_oxCfgKey]));
   saveOxfordCfg();renderOxfordConfig();
 }
@@ -5651,22 +5687,22 @@ function saveConsult(){
   showToast(type==='fin_suivi'?'Fin de suivi enregistrée':type==='complication'?'Complication enregistrée':'Événement enregistré');
 }
 
-function deleteEvt(bi, evtId){
-  if(!confirm('Supprimer cet événement ?'))return;
+async function deleteEvt(bi, evtId){
+  if(!await aconfirm({title:'Supprimer cet événement ?',ok:'Supprimer',danger:true}))return;
   if(blocs[bi].evenements)blocs[bi].evenements=blocs[bi].evenements.filter(e=>e.id!==evtId);
   syncBlocStatutFromConsults(bi);
   saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Événement supprimé');
 }
 
-function deleteConsult(bi,idx){
+async function deleteConsult(bi,idx){
   // Rétrocompat : supprimer depuis consultations[]
-  if(!confirm('Supprimer ?'))return;
+  if(!await aconfirm({title:'Supprimer cette consultation ?',ok:'Supprimer',danger:true}))return;
   (blocs[bi].consultations||[]).splice(idx,1);
   syncBlocStatutFromConsults(bi);
   saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Supprimé');
 }
-function deleteCompl(bi,idx){
-  if(!confirm('Supprimer cette complication ?'))return;
+async function deleteCompl(bi,idx){
+  if(!await aconfirm({title:'Supprimer cette complication ?',ok:'Supprimer',danger:true}))return;
   (blocs[bi].complications||[]).splice(idx,1);
   syncBlocStatutFromConsults(bi);
   saveLocal();renderDetSuivi(bi);renderBlocs();showToast('Supprimé');
@@ -6424,7 +6460,7 @@ function renderEditTags(){
 }
 async function confirmDelete(){
   if(detailBlocIdx<0)return;const b=blocs[detailBlocIdx];
-  if(!confirm('Supprimer définitivement le bloc de '+(b.patient||'ce patient')+'\n'+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible (bloc + radios associées).'))return;
+  if(!await aconfirm({title:'Supprimer définitivement ce bloc ?',msg:(b.patient||'Ce patient')+' — '+b.interv+' du '+fmtDate(b.date)+'\n\nCette action est irréversible (bloc + radios associées).',ok:'Supprimer définitivement',danger:true}))return;
   // v13-rescue : purger d'abord les radios IDB associées au blocId
   try{
     const db = await openRadioDB();
@@ -11426,7 +11462,7 @@ async function purgeRadiosForBloc(blocId){
 async function deleteAstuceSheet(){
   const a=astuces.find(x=>x.id===window._astEditId);
   if(!a)return;
-  if(!confirm('Supprimer cette fiche astuce'+(a.photos?' et ses '+a.photos+' photo(s)':'')+' ?'))return;
+  if(!await aconfirm({title:'Supprimer cette fiche astuce ?',msg:(a.photos?'Ses '+a.photos+' photo(s) seront aussi supprimées.':''),ok:'Supprimer',danger:true}))return;
   try{await purgeRadiosForBloc(a.id);}catch(e){}
   astuces=astuces.filter(x=>x.id!==a.id);
   saveAstuces();
@@ -11581,7 +11617,7 @@ async function savePathoSheet(){
 async function deletePathoSheet(){
   const p=pathos.find(x=>x.id===window._pthEditId);
   if(!p)return;
-  if(!confirm('Supprimer la fiche « '+(p.titre||'Sans titre')+' »'+(p.photos?' et ses '+p.photos+' photo(s)':'')+' ?'))return;
+  if(!await aconfirm({title:'Supprimer « '+(p.titre||'Sans titre')+' » ?',msg:(p.photos?'Ses '+p.photos+' photo(s) seront aussi supprimées.':''),ok:'Supprimer',danger:true}))return;
   try{await purgeRadiosForBloc(p.id);}catch(e){}
   pathos=pathos.filter(x=>x.id!==p.id);
   savePathos();
@@ -12053,8 +12089,8 @@ function editPlanned(idx){
   document.getElementById('planned-save-btn').textContent='Enregistrer les modifications';
   openModal('planned-modal');
 }
-function deletePlanned(){
-  if(!confirm('Supprimer ce bloc prévu ?'))return;
+async function deletePlanned(){
+  if(!await aconfirm({title:'Supprimer ce bloc prévu ?',ok:'Supprimer',danger:true}))return;
   planned.splice(currentPlannedIdx,1);saveLocal();closeModal('planned-detail-modal');renderPlanning();showToast('Bloc prévu supprimé');
 }
 function convertPlanned(){
@@ -12128,7 +12164,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v144',
+    version:'atlas-v145',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12470,8 +12506,8 @@ function showApp(){
   document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
   // Proposer de configurer la biométrie si pas encore fait
   if(!localStorage.getItem(LS_BIO_SET) && isBiometricSupported()){
-    setTimeout(()=>{
-      if(confirm('Activer Touch ID / Face ID pour protéger Atlas ?')){setupBiometric();}
+    setTimeout(async()=>{
+      if(await aconfirm({title:'Protéger Atlas ?',msg:"Activer Touch ID / Face ID pour verrouiller l'accès.",ok:'Activer'})){setupBiometric();}
     }, 800);
   }
 }
@@ -12852,7 +12888,7 @@ async function exportRadiosBatch(){
   const batchSize = RESCUE_BATCH_SIZE;
   const nBatches = Math.ceil(total / batchSize);
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-  if(!confirm(total+' radio(s) à exporter en '+nBatches+' fichier(s) de '+batchSize+' max.\n\nÀ chaque paquet, choisis "Enregistrer dans Fichiers" ou AirDrop.\n\nContinuer ?')) return;
+  if(!await aconfirm({title:total+' radio(s) à exporter',msg:nBatches+' fichier(s) de '+batchSize+' max.\n\nÀ chaque paquet, choisis "Enregistrer dans Fichiers" ou AirDrop.',ok:'Exporter'})) return;
 
   for(let i=0; i<nBatches; i++){
     const startIdx = i * batchSize;
@@ -12881,7 +12917,7 @@ async function exportRadiosBatch(){
     const filename = 'orlog_RADIOS_'+ts+'_p'+String(i+1).padStart(2,'0')+'-of-'+String(nBatches).padStart(2,'0')+'.json';
     const result = await shareOrDownload(blob, filename);
     if(result === 'aborted'){
-      if(!confirm('Paquet '+(i+1)+' annulé. Continuer avec les suivants ?')){
+      if(!await aconfirm({title:'Paquet '+(i+1)+' annulé',msg:'Continuer avec les suivants ?',ok:'Continuer',cancel:'Interrompre'})){
         showToast('Export interrompu à '+(i+1)+'/'+nBatches);
         return;
       }
@@ -12900,7 +12936,7 @@ async function compressAllRadiosInPlace(){
   const keys = await _listAllRadioKeys();
   if(keys.length === 0){showToast('Aucune radio à compresser');return;}
   const msg = 'Compresser '+keys.length+' radio(s) ?\n\n• Limite à 1600 px (côté long)\n• JPEG qualité 85%\n• Modifie en place dans la base\n\nIRRÉVERSIBLE — fais d\'abord les exports 1 et 2.';
-  if(!confirm(msg)) return;
+  if(!await aconfirm({title:'Compresser toutes les radios ?',msg:msg,ok:'Compresser',danger:true})) return;
 
   // Modal de progression
   const overlay = document.createElement('div');
@@ -12979,7 +13015,7 @@ async function compressAllRadiosInPlace(){
   if(compressedCount===0 && skipped===processed){
     report += '\n\nC\'est normal si tes radios ont déjà été ajoutées avec la version v13 (compressées à l\'upload).';
   }
-  alert(report);
+  await ainfo(report,'Compression des radios');
 }
 
 
