@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Atlas">
@@ -12,10 +12,10 @@
 <style>
 :root{
   /* Atlas v14 — palette light */
-  --bg:#FAFAF5;--bg2:#FFFFFF;--bg3:#F3F1EA;--bg4:#E2DFD5;
-  --text:#16181D;--text2:#3D434F;--text3:#7B8290;
-  --border:rgba(60,55,40,0.10);--border2:rgba(60,55,40,0.18);
-  --accent:#1B4D5A;--accent-l:#E5EDEF;
+  --bg:#F4F1E6;--bg2:#FFFFFF;--bg3:#EDE9DD;--bg4:#E3DDCE;
+  --text:#232019;--text2:#5C584E;--text3:#6B675C;
+  --border:rgba(40,36,28,0.10);--border2:rgba(40,36,28,0.17);
+  --accent:#1A4F54;--accent-l:#E5EDEC;
   --blue:#1B4D5A;--blue-l:#E5EDEF;--blue-d:#0E2C36;
   --green:#6FA05C;--green-l:#E6EFE2;--green-d:#2C6E49;
   --amber:#C58A21;--amber-l:#F5E6CC;--amber-d:#8A5E14;
@@ -23,7 +23,7 @@
   --purple:#7A5687;--purple-l:#E9DEEF;--purple-d:#3A2060;
   --warm:#C97864;--warm-l:#F6E7E0;
   --st-wait:#A8A294;--st-pdv:#8C8678;--st-deces:#5A5650;
-  --radius:10px;--radius-lg:16px;
+  --radius:12px;--radius-lg:18px;
   --serif:'Charter','Iowan Old Style','Source Serif Pro',Georgia,serif;
   --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
   color-scheme:light;
@@ -35,7 +35,7 @@ html,body{overflow-x:hidden;}
   :root:not(.theme-light){
     /* Atlas — mode sombre « Charbon » : charcoal neutre */
     --bg:#16171A;--bg2:#262A30;--bg3:#30343B;--bg4:#3C404A;
-    --text:#ECEDEF;--text2:#A6A9B0;--text3:#71747C;
+    --text:#ECEDEF;--text2:#A6A9B0;--text3:#9DA1AA;
     --border:rgba(255,255,255,0.11);--border2:rgba(255,255,255,0.20);
     --accent:#3FA7AD;--accent-l:rgba(83,168,174,0.16);
     --blue:#3FA7AD;--blue-l:rgba(83,168,174,0.16);--blue-d:#6FC7CD;
@@ -51,7 +51,7 @@ html,body{overflow-x:hidden;}
 :root.theme-dark{
   /* Atlas — mode sombre « Charbon » : charcoal neutre */
   --bg:#16171A;--bg2:#262A30;--bg3:#30343B;--bg4:#3C404A;
-  --text:#ECEDEF;--text2:#A6A9B0;--text3:#71747C;
+  --text:#ECEDEF;--text2:#A6A9B0;--text3:#9DA1AA;
   --border:rgba(255,255,255,0.11);--border2:rgba(255,255,255,0.20);
   --accent:#3FA7AD;--accent-l:rgba(83,168,174,0.16);
   --blue:#3FA7AD;--blue-l:rgba(83,168,174,0.16);--blue-d:#6FC7CD;
@@ -126,7 +126,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .sdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
 .sv{background:var(--green);}.so{background:var(--amber);}.sr{background:var(--red);}.sg{background:var(--text3);}
 .sp{background:#8C8678;}.sn{background:#5A5650;}
-.tv{color:var(--green);}.to{color:var(--amber);}.tr{color:var(--red);}.tg{color:var(--text3);}
+.tv{color:var(--green-d);}.to{color:var(--amber-d);}.tr{color:var(--red);}.tg{color:var(--text3);}
 .tp{color:#8C8678;}.tn{color:#5A5650;}
 .status-row{display:flex;align-items:center;gap:6px;font-size:12px;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
@@ -861,7 +861,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 #view-bloclist.active{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;}
 #view-bloclist .bloclist-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 90px;}
 #view-bloclist .bl-list{max-height:none;overflow:visible;border-top:none;}
-.s-uncoded-cta{margin-top:10px;padding:13px 15px;background:color-mix(in srgb,var(--amber) 13%,transparent);color:var(--amber);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.s-uncoded-cta{margin-top:10px;padding:13px 15px;background:color-mix(in srgb,var(--amber) 13%,transparent);color:var(--amber-d);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .s-uncoded-cta .s-uncoded-go{font-size:13px;opacity:.85;white-space:nowrap;}
 .empty-cta{text-align:center;padding:48px 28px;}
 .empty-cta-ico{font-size:40px;margin-bottom:12px;}
@@ -1193,7 +1193,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 .courr-folder-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .courr-folder-icon.genou{background:var(--accent-l);color:var(--accent);}
 .courr-folder-icon.hanche{background:var(--purple-l);color:var(--purple);}
-.courr-folder-icon.traumato{background:var(--amber-l);color:var(--amber);}
+.courr-folder-icon.traumato{background:var(--amber-l);color:var(--amber-d);}
 .courr-folder-info{flex:1;min-width:0;}
 .courr-folder-name{font-size:15px;font-weight:600;color:var(--text);}
 .courr-folder-count{font-size:12px;color:var(--text3);margin-top:1px;}
@@ -1267,380 +1267,10 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 .tmpl-doc-tab.on{background:var(--accent-l);border-color:var(--accent);color:var(--accent);font-weight:600;}
 /* ── END RÉGLAGES + TEMPLATE BUILDER ── */
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<style>/* cyrillic-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("abd65079-d5a3-4017-9013-0ca2a609042b") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("6ff7edf0-a9f0-42d3-9cf6-be27a3d2bd0f") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("5ec40f91-a7ed-4bc2-b9d8-c68de45d57fc") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("8aec5b3e-443c-4363-b448-d473cd157dd6") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("abd65079-d5a3-4017-9013-0ca2a609042b") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("6ff7edf0-a9f0-42d3-9cf6-be27a3d2bd0f") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("5ec40f91-a7ed-4bc2-b9d8-c68de45d57fc") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("8aec5b3e-443c-4363-b448-d473cd157dd6") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("abd65079-d5a3-4017-9013-0ca2a609042b") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("6ff7edf0-a9f0-42d3-9cf6-be27a3d2bd0f") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("5ec40f91-a7ed-4bc2-b9d8-c68de45d57fc") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("8aec5b3e-443c-4363-b448-d473cd157dd6") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("abd65079-d5a3-4017-9013-0ca2a609042b") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("6ff7edf0-a9f0-42d3-9cf6-be27a3d2bd0f") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("5ec40f91-a7ed-4bc2-b9d8-c68de45d57fc") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Hanken Grotesk';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("8aec5b3e-443c-4363-b448-d473cd157dd6") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("dd4c31eb-b8ec-4654-9d2b-0d948f592bdb") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* cyrillic */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("b0dde242-ecc3-4ffd-a8f4-448121d2f347") format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-/* greek */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("aa420dd9-a34e-4e65-86fc-33f1e332c460") format('woff2');
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("4bf88b9e-2b3a-43b6-ad73-53fd80f7e563") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("2f0c6471-bd47-4a63-9b67-73e4f8b27f58") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("25579dc0-1398-4ea5-99ea-dcf9744310bc") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("dd4c31eb-b8ec-4654-9d2b-0d948f592bdb") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* cyrillic */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("b0dde242-ecc3-4ffd-a8f4-448121d2f347") format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-/* greek */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("aa420dd9-a34e-4e65-86fc-33f1e332c460") format('woff2');
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("4bf88b9e-2b3a-43b6-ad73-53fd80f7e563") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("2f0c6471-bd47-4a63-9b67-73e4f8b27f58") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("25579dc0-1398-4ea5-99ea-dcf9744310bc") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("dd4c31eb-b8ec-4654-9d2b-0d948f592bdb") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* cyrillic */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("b0dde242-ecc3-4ffd-a8f4-448121d2f347") format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-/* greek */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("aa420dd9-a34e-4e65-86fc-33f1e332c460") format('woff2');
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("4bf88b9e-2b3a-43b6-ad73-53fd80f7e563") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("2f0c6471-bd47-4a63-9b67-73e4f8b27f58") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url("25579dc0-1398-4ea5-99ea-dcf9744310bc") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-/* cyrillic-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("dd4c31eb-b8ec-4654-9d2b-0d948f592bdb") format('woff2');
-  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
-}
-/* cyrillic */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("b0dde242-ecc3-4ffd-a8f4-448121d2f347") format('woff2');
-  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
-}
-/* greek */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("aa420dd9-a34e-4e65-86fc-33f1e332c460") format('woff2');
-  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
-}
-/* vietnamese */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("4bf88b9e-2b3a-43b6-ad73-53fd80f7e563") format('woff2');
-  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
-}
-/* latin-ext */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("2f0c6471-bd47-4a63-9b67-73e4f8b27f58") format('woff2');
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-/* latin */
-@font-face {
-  font-family: 'Source Serif 4';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("25579dc0-1398-4ea5-99ea-dcf9744310bc") format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-</style>
 <style id="atlas-redesign-foundation">
 /* ── Atlas — Pass 1 : fondation fidèle au prototype (typo + palette chaude) ── */
-:root{
-  --bg:#F4F1E6;--bg2:#FFFFFF;--bg3:#EDE9DD;--bg4:#E3DDCE;
-  --text:#232019;--text2:#6F6B60;--text3:#A29E92;
-  --border:rgba(40,36,28,0.10);--border2:rgba(40,36,28,0.17);
-  --accent:#1A4F54;--accent-l:#E5EDEC;
-  --radius:12px;--radius-lg:18px;
-  --serif:'Source Serif 4','Charter','Iowan Old Style',Georgia,serif;
-}
-body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,system-ui,'Segoe UI',sans-serif;}
+/* v144 : palette chaude fusionnée dans le :root de base (en tête de fichier) */
+body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI',sans-serif;}
 
 /* ── Pass 2 : composants arrondis + ombres douces (fidélité prototype) ── */
 .dash-kpi,.s-kpi,.dist-card,.up-card,.stat-card,.dash-card,.section,.atlas-info-card,.consult-item,.chart-card,.compl-card{
@@ -1909,7 +1539,7 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 /* SUCCESS */
 #onboarding #scr-success{background:radial-gradient(130% 90% at 50% 0%,#fff 0%,var(--bg) 45%,#f3efe4 100%);padding:calc(var(--safe-top) + 16px) 0 calc(var(--safe-bot) + 26px);}
 #onboarding .succ-badge{width:72px;height:72px;border-radius:99px;background:color-mix(in srgb,var(--green) 16%,white);display:flex;align-items:center;justify-content:center;margin:0 auto 22px;animation:o2succPop var(--t-slow) var(--ease-out) calc(.05s*var(--spd)) forwards;}
-#onboarding .succ-badge svg{width:38px;height:38px;color:var(--green);}
+#onboarding .succ-badge svg{width:38px;height:38px;color:var(--green-d);}
 @keyframes o2succPop{from{opacity:0;transform:scale(.8);}to{opacity:1;transform:scale(1);}}
 #onboarding .succ-title{font-family:var(--title-font);font-size:30px;font-weight:600;letter-spacing:-.02em;color:var(--ink);text-align:center;margin:0 0 10px;animation:o2fadeUp calc(.6s*var(--spd)) var(--ease-out) calc(.12s*var(--spd)) forwards;}
 #onboarding .succ-sub{font-size:14.5px;color:var(--ink2);text-align:center;line-height:1.55;margin:0;max-width:300px;text-wrap:pretty;animation:o2fadeUp calc(.6s*var(--spd)) var(--ease-out) calc(.2s*var(--spd)) forwards;}
@@ -3409,6 +3039,14 @@ body,button,input,textarea,select{font-family:'Hanken Grotesk',-apple-system,sys
 #carnet-tabs .seg-btn{flex:1;text-align:center;padding:8px 4px;font-size:12.5px;font-weight:600;color:var(--text3);border-radius:8px;border:none;background:none;font-family:inherit;cursor:pointer;}
 #carnet-tabs .seg-btn.on{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(40,36,28,0.10);}
 </style>
+<style id="a11y-v144">
+/* ── v144 — Accessibilité : cibles tactiles ≥ 44 px, zones de tap étendues ── */
+.head-icon,.oxcfg-close,.lb-controls button,.atlas-iconbtn,.doc-close,.doc-pen,.stats-back{position:relative;}
+.head-icon::after,.oxcfg-close::after,.lb-close::after,.lb-controls button::after,.atlas-iconbtn::after,.doc-close::after,.doc-pen::after,.stats-back::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
+.doc-pill,.interv-pill,.courr-pill,.filter-pill,.evt-type-pill,.e-statut-pill,.chip-btn,.stat-spec-chip,.imp-pill,.atlas-pill,.seg-btn{min-height:40px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;}
+button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
+</style>
+
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="padding:0;border-radius:0;max-height:100%;height:100%;display:flex;flex-direction:column;">
     <!-- Header fixe -->
@@ -12490,7 +12128,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v143',
+    version:'atlas-v144',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
