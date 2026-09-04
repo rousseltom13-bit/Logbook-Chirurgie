@@ -655,9 +655,9 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .doc-ov{position:fixed;inset:0;background:var(--bg);z-index:340;display:none;}
 .doc-ov.open{display:flex;}
 .doc-box{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;}
-.doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
+.doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:18px 18px 16px;padding-top:calc(18px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
 .doc-close{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:20px;line-height:1;cursor:pointer;flex-shrink:0;}
-.doc-pen{width:32px;height:32px;border-radius:10px;border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;}
+.doc-pen{width:36px;height:36px;border-radius:12px;border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:16px;line-height:1;cursor:pointer;flex-shrink:0;}
 .doc-tabsrow{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 8px;flex:0 0 auto;scrollbar-width:none;}
 .doc-tab{padding:7px 13px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;}
 .doc-tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -11026,6 +11026,7 @@ function openBlocDocs(bi,forcedInter){
   parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
   DOCF.nom=noms.join(' ')||parts[0]||'';DOCF.prenom=prenoms.join(' ');
   if(b.operateur)DOCF.aides=b.operateur;
+  if(!DOCF.ddn&&b.age&&b.date){const _y=parseInt(String(b.date).slice(0,4),10)-parseInt(b.age,10);if(_y>1880&&_y<2030)DOCF.ddn=_y+'-01-01';}
   if(b.ptgIndication)DOCF.indication=b.ptgIndication;
   if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
   if(inter==='deuxos'){
@@ -12326,7 +12327,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v140',
+    version:'atlas-v141',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -13808,9 +13809,9 @@ function _triggerDashTutoOnUnlock(){
   <div class="doc-box">
     <div class="doc-head">
       <div style="min-width:0;flex:1;">
-        <div style="font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);font-weight:700;">Documents</div>
-        <div id="doc-trame" style="font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.15;margin-top:2px;color:var(--text);"></div>
-        <div id="doc-sub" style="font-size:11.5px;color:var(--text3);margin-top:3px;"></div>
+        <div style="font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:700;">Documents</div>
+        <div id="doc-trame" style="font-family:var(--serif);font-size:31px;font-weight:600;letter-spacing:-0.02em;line-height:1.12;margin-top:3px;color:var(--text);"></div>
+        <div id="doc-sub" style="font-size:12.5px;color:var(--text3);margin-top:4px;"></div>
       </div>
       <button class="doc-pen" onclick="window._trameEdit=!window._trameEdit;renderDocForm()" aria-label="Changer de trame">✎</button>
       <button class="doc-close" onclick="closeDocModal()" aria-label="Fermer">×</button>
