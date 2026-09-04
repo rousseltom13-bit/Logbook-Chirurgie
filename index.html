@@ -851,6 +851,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 .s-avgtag{position:absolute;right:0;transform:translateY(-50%);font-size:9.5px;font-weight:700;color:var(--warm);background:var(--bg2);padding:1px 5px;letter-spacing:0.3px;}
 .s-bars{position:absolute;left:0;right:0;bottom:36px;top:8px;display:flex;align-items:flex-end;justify-content:space-around;}
 .s-bcol{display:flex;flex-direction:column-reverse;width:18px;border-radius:6px 6px 0 0;overflow:hidden;transform-origin:bottom;animation:s-grow .6s cubic-bezier(.22,.61,.36,1) both;}
+.s-bhit{display:flex;align-items:flex-end;justify-content:center;flex:1;align-self:stretch;min-width:0;}
 .s-bcol s{display:block;width:100%;}
 @keyframes s-grow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
 .s-xlabels{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;}
@@ -7697,7 +7698,8 @@ function renderActivityChart(){
       if(!n)return'';
       return `<s style="height:${(n/axisMax*plotH).toFixed(1)}px;background:${getSpecColor(sp)};"></s>`;
     }).join('');
-    return `<div class="s-bcol" style="width:${w}px;animation-delay:${(idx*0.03).toFixed(2)}s">${segs}</div>`;
+    const hit=totals[idx]>0?` onclick="showMonthBlocs('${k}')" style="cursor:pointer;"`:'';
+    return `<div class="s-bhit"${hit}><div class="s-bcol" style="width:${w}px;animation-delay:${(idx*0.03).toFixed(2)}s">${segs}</div></div>`;
   }).join('');
   const showLabels=months<=12;
   host.innerHTML=
@@ -7711,6 +7713,15 @@ function renderActivityChart(){
 }
 
 
+function showMonthBlocs(k){
+  const specsToShow=statSpecFilter.length?statSpecFilter:getActiveSpecs();
+  const list=blocs.filter(b=>b.date&&getMonthKey(b.date)===k&&specsToShow.includes(b.spec));
+  if(!list.length)return;
+  const p=String(k).split('-');
+  let label=new Date(+p[0],+p[1]-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+  label=label.charAt(0).toUpperCase()+label.slice(1);
+  openBlocsListModal(label+' — '+list.length+' bloc'+(list.length>1?'s':''),list);
+}
 function renderRoleChart(){
   const B=statFilteredBlocs();
   const principal=B.filter(b=>b.role==='Principal').length;
@@ -12327,7 +12338,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v141',
+    version:'atlas-v142',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
