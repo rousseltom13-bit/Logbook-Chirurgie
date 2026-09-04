@@ -657,6 +657,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .doc-box{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:14px 16px;padding-top:calc(14px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
 .doc-close{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:20px;line-height:1;cursor:pointer;flex-shrink:0;}
+.doc-pen{width:32px;height:32px;border-radius:10px;border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;}
 .doc-tabsrow{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 8px;flex:0 0 auto;scrollbar-width:none;}
 .doc-tab{padding:7px 13px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;}
 .doc-tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -8584,6 +8585,8 @@ const DOC_OPTS={
     {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige'},
     {k:'tigeLat',t:'check',l:'Tige latéralisée',def:true},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12'},
+    {k:'tigeFix',t:'seg',l:'Fixation de la tige',o:['Sans ciment','Cimentée'],def:'Sans ciment'},
+    {k:'cimentType',t:'seg',l:'Ciment',o:['Aux antibiotiques','Standard'],def:'Aux antibiotiques',show:f=>f.tigeFix==='Cimentée'},
     {k:'crochet',t:'check',l:'Crochet trochantérien',def:false},
     {k:'crochetMarque',t:'selx',l:'Crochet — marque/modèle',def:'',show:f=>f.crochet},
     {k:'crochetLong',t:'num',l:'Crochet — longueur',def:'',show:f=>f.crochet},
@@ -8820,6 +8823,8 @@ const DOC_OPTS={
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52',show:f=>_bsFix(f)},
     {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige',show:f=>_bsFix(f)},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12',show:f=>_bsFix(f)},
+    {k:'tigeFix',t:'seg',l:'Fixation de la tige',o:['Sans ciment','Cimentée'],def:'Sans ciment',show:f=>_bsFix(f)},
+    {k:'cimentType',t:'seg',l:'Ciment',o:['Aux antibiotiques','Standard'],def:'Aux antibiotiques',show:f=>_bsFix(f)&&f.tigeFix==='Cimentée'},
     {k:'teteTaille',t:'seg',l:'Tête — diamètre',o:['22','28','32','36'],def:'28',show:f=>_bsFix(f)},
     {k:'teteCol',t:'seg',l:'Col',o:['standard','court','long'],def:'standard',show:f=>_bsFix(f)},
     {k:'greffeTete',t:'check',l:'Greffe autologue de tête fémorale morcelée',def:true,show:f=>_bsFix(f)},
@@ -9066,6 +9071,7 @@ function _sutureMatLine(f){
 }
 
 // ── CRO — textes types Dr Roussel (paramétrés) ──
+function _cimStr(f){return f.cimentType==='Standard'?'standard':'aux antibiotiques (gentamicine)';}
 function buildCRO_PTH(f){
   const cote=coteStrD(f);
   return `COMPTE-RENDU OPÉRATOIRE — PTH ${cote.toUpperCase()}
@@ -9077,7 +9083,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} taille ${f.tigeTaille} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -9113,8 +9119,12 @@ Tunnelisation à la dague.
 On passe les râpes de tailles successives jusqu'à la râpe taille ${f.tigeTaille}.
 Essais sur râpe en place col ${f.teteCol}.
 La stabilité est excellente et les longueurs sont restaurées.
-Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
-Nouveaux essais sur la tige définitive strictement comparables.
+${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`}
 ${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
 Réduction de la hanche.
@@ -9873,7 +9883,11 @@ ${f.greffeTete?`Comblement des défects osseux par la greffe autologue morcelée
 Cimentation d'un cotyle double mobilité ${f.cotyleModele||''} taille ${f.cotyleTaille||'52'} dans le renfort, orienté à 45° d'inclinaison et légèrement antéversé.
 Exposition du fût fémoral, préparation aux râpes de tailles successives jusqu'à la taille ${f.tigeTaille||'12'}.
 Essais : stabilité satisfaisante, longueurs restaurées.
-Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
+${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele||''} cimentée taille ${f.tigeTaille||'12'}, maintenue en position jusqu'à polymérisation complète, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
+Ablation du ciment excédentaire.`:`Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`}
 Réduction. Stabilité et mobilité satisfaisantes.
 Réinsertion des muscles pelvi-trochantériens et de la capsule par points trans-osseux.
 `;
@@ -11146,9 +11160,10 @@ function docSetTrame(k){
 function renderDocForm(){
   const host=document.getElementById('doc-form');if(!host)return;
   const opts=DOC_OPTS[DOCF._inter]||[];
+  const tEl=document.getElementById('doc-trame');if(tEl)tEl.textContent=TRAME_LABELS[DOCF._inter]||DOCF._inter;
   const trameBar=window._trameEdit
-    ?('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div></div>')
-    :('<div class="doc-frow"><div class="doc-flabel">Trame</div><div class="doc-pills"><button type="button" class="doc-pill on">'+(TRAME_LABELS[DOCF._inter]||DOCF._inter)+'</button><button type="button" class="doc-pill" onclick="window._trameEdit=true;renderDocForm()">Modifier</button></div></div>');
+    ?('<div class="doc-pills" style="margin-bottom:12px;">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div>')
+    :'';
   const renderOpt=o=>{
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:11px;color:var(--text3);">'+o.l+'</div>';
@@ -12311,7 +12326,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v138',
+    version:'atlas-v140',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -13792,16 +13807,17 @@ function _triggerDashTutoOnUnlock(){
 <div class="doc-ov" id="doc-modal">
   <div class="doc-box">
     <div class="doc-head">
-      <div style="min-width:0;">
-        <div style="font-family:var(--serif);font-size:18px;font-weight:600;color:var(--text);">Documents</div>
-        <div id="doc-sub" style="font-size:11.5px;color:var(--text3);"></div>
+      <div style="min-width:0;flex:1;">
+        <div style="font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);font-weight:700;">Documents</div>
+        <div id="doc-trame" style="font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.15;margin-top:2px;color:var(--text);"></div>
+        <div id="doc-sub" style="font-size:11.5px;color:var(--text3);margin-top:3px;"></div>
       </div>
+      <button class="doc-pen" onclick="window._trameEdit=!window._trameEdit;renderDocForm()" aria-label="Changer de trame">✎</button>
       <button class="doc-close" onclick="closeDocModal()" aria-label="Fermer">×</button>
     </div>
 
     <div id="doc-step1" style="display:flex;flex-direction:column;flex:1;min-height:0;">
       <div class="doc-formscroll">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.45;">Vérifie et ajuste les options de l'intervention — le CRO, le CRH et les ordonnances s'adaptent automatiquement.</div>
         <div id="doc-form"></div>
       </div>
       <div class="doc-foot">
