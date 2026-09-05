@@ -12280,7 +12280,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v159',
+    version:'atlas-v160',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12752,6 +12752,38 @@ function genRapport(start,end,label){
   if(!B.length){body.innerHTML='<div class="rap-empty">Aucun bloc sur cette période.</div>';document.getElementById('rap-print-btn').style.display='none';return;}
   const nP=B.filter(b=>(b.role||'Principal')==='Principal').length,nA=B.length-nP;
   const pct=n=>Math.round(100*n/B.length);
+  // v160 — heures cumulées, période précédente, premières, difficulté, suivis, encadrement, CCAM, septique
+  const totMin=B.reduce((s,b)=>s+(+b.duree>0?+b.duree:0),0);
+  const _mAdd=(ym,k)=>{let y=+ym.slice(0,4),m=+ym.slice(5,7)+k;while(m<1){m+=12;y--;}while(m>12){m-=12;y++;}return y+'-'+String(m).padStart(2,'0');};
+  const _span=(()=>{let y=+end.slice(0,4)-+start.slice(0,4),m=+end.slice(5,7)-+start.slice(5,7);return y*12+m+1;})();
+  const pStart=_mAdd(start,-_span),pEnd=_mAdd(start,-1);
+  const PREV=blocs.filter(b=>b.date&&String(b.date).slice(0,7)>=pStart&&String(b.date).slice(0,7)<=pEnd);
+  let deltaLine='';
+  if(PREV.length){
+    const pnP=PREV.filter(b=>(b.role||'Principal')==='Principal').length;
+    const pCompl=PREV.filter(b=>getBlocHasComplication(b)).length;
+    const dB=Math.round(100*(B.length-PREV.length)/PREV.length);
+    const dP=Math.round(100*nP/B.length)-Math.round(100*pnP/PREV.length);
+    deltaLine='vs période précédente ('+PREV.length+' blocs) : volume '+(dB>=0?'+':'')+dB+' %, opérateur '+(dP>=0?'+':'')+dP+' pts, complications '+pCompl+' → ';
+  }
+  const firstEverP={};
+  blocs.forEach(b=>{if(!b.date||(b.role||'Principal')==='Aide')return;const k=b.interv||'';const d=String(b.date).slice(0,7);if(!firstEverP[k]||d<firstEverP[k])firstEverP[k]=d;});
+  const premieres=[...new Set(B.filter(b=>(b.role||'Principal')!=='Aide'&&b.interv&&firstEverP[b.interv]>=start).map(b=>displayInterv(b.interv)))].sort();
+  const rated=B.filter(b=>+b.diff>0);
+  const avg1=a=>a.length?(a.reduce((s,b)=>s+(+b.diff),0)/a.length):null;
+  const diffAll=avg1(rated),diffP=avg1(rated.filter(b=>(b.role||'Principal')!=='Aide')),diffA=avg1(rated.filter(b=>(b.role||'Principal')==='Aide'));
+  const closed=B.filter(b=>getBlocFinSuivi(b));
+  const delays=closed.map(b=>{const e=getBlocFinSuivi(b);if(!e||!e.date||!b.date)return null;const d=(new Date(e.date)-new Date(b.date))/(7*24*3600*1000);return d>=0?d:null;}).filter(x=>x!==null);
+  const delaiMoy=delays.length?Math.round(delays.reduce((s,x)=>s+x,0)/delays.length):null;
+  const nSept=B.filter(b=>{try{return hasSeptTag(b);}catch(e){return false;}}).length;
+  const aidGroups={};
+  B.filter(b=>(b.role||'Principal')==='Aide'&&(b.operateur||'').trim()).forEach(b=>{const k=b.operateur.trim();aidGroups[k]=(aidGroups[k]||0)+1;});
+  const topAides=Object.entries(aidGroups).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const ccamCounts={};
+  B.forEach(b=>{const c=(b.ccamCode||'').trim();if(c)ccamCounts[c]=(ccamCounts[c]||0)+1;});
+  const ccamDistinct=Object.keys(ccamCounts).length;
+  const topCcam=Object.entries(ccamCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ccamLbl=c=>{try{const r=CCAM_RAW.find(x=>x[0]===c);return r?r[1]:'';}catch(e){return'';}};
   // volumes par spécialité
   const bySpec={};B.forEach(b=>{const s=b.spec||'Autre';bySpec[s]=(bySpec[s]||0)+1;});
   const specRows=Object.entries(bySpec).sort((a,b)=>b[1]-a[1]);
@@ -12784,28 +12816,60 @@ function genRapport(start,end,label){
   h+='<div class="rap-kpis"><div class="rap-kpi"><b>'+B.length+'</b><span>Blocs</span></div>'
     +'<div class="rap-kpi"><b>'+pct(nP)+'%</b><span>Opérateur principal</span></div>'
     +'<div class="rap-kpi"><b>'+pct(nA)+'%</b><span>Aide</span></div>'
-    +'<div class="rap-kpi"><b>'+nCompl+'</b><span>Complication'+(nCompl>1?'s':'')+'</span></div></div>';
+    +'<div class="rap-kpi"><b>'+nCompl+'</b><span>Complication'+(nCompl>1?'s':'')+'</span></div>'
+    +(totMin>0?'<div class="rap-kpi"><b>≈ '+Math.round(totMin/60)+' h</b><span>Au bloc</span></div>':'')
+    +'</div>'
+    +(deltaLine?'<div class="rap-note" style="margin-top:2px;">'+deltaLine+nCompl+'.</div>':'');
   h+='<div class="rap-sec"><div class="rap-sec-t">Volumes par spécialité</div>';
   specRows.forEach(([s,n])=>{const c=getSpecConfig(s);h+='<div class="rap-row"><span class="n">'+esc(c.label||s)+'</span>'+bar(n,maxS,c.color||'#1A4F54')+'<span class="v">'+n+' · '+pct(n)+'%</span></div>';});
   h+='</div>';
   h+='<div class="rap-sec"><div class="rap-sec-t">Top interventions</div><table class="rap-tb"><tr><th>Intervention</th><th style="text-align:right;">Blocs</th><th style="text-align:right;">Principal</th><th style="text-align:right;">Aide</th></tr>';
   topInt.forEach(([k,o])=>{h+='<tr><td>'+esc(displayInterv(k))+'</td><td class="num">'+o.n+'</td><td class="num">'+o.p+'</td><td class="num">'+(o.n-o.p)+'</td></tr>';});
   h+='</table></div>';
+  const byMP={};B.forEach(b=>{if((b.role||'Principal')!=='Aide'){const k=String(b.date).slice(0,7);byMP[k]=(byMP[k]||0)+1;}});
   h+='<div class="rap-sec"><div class="rap-sec-t">Activité mensuelle</div><div class="rap-mois">';
-  months.forEach(k=>{const v=byM[k]||0;h+='<div><b>'+(v||'')+'</b><i style="height:'+Math.max(2,Math.round(70*v/maxM))+'px;'+(v?'':'background:#EFEBE0;')+'"></i><span>'+RAP_MOIS[+k.slice(5,7)-1]+'</span></div>';});
-  h+='</div></div>';
+  months.forEach(k=>{const v=byM[k]||0;const p=byMP[k]||0;const a=v-p;
+    const hp=v?Math.max(p?2:0,Math.round(70*p/maxM)):0;
+    const ha=v?Math.max(a?2:0,Math.round(70*a/maxM)):0;
+    h+='<div><b>'+(v||'')+'</b>'
+      +(v?('<i style="height:'+ha+'px;background:#D8D2C2;border-radius:'+(hp?'4px 4px 0 0':'4px 4px 0 0')+';"></i><i style="height:'+hp+'px;'+(ha?'border-radius:0;':'')+'"></i>')
+          :'<i style="height:2px;background:#EFEBE0;"></i>')
+      +'<span>'+RAP_MOIS[+k.slice(5,7)-1]+'</span></div>';});
+  h+='</div><div class="rap-note"><span style="display:inline-block;width:9px;height:9px;background:#1A4F54;border-radius:2px;vertical-align:-1px;"></span> opérateur &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#D8D2C2;border-radius:2px;vertical-align:-1px;"></span> encadrement (aide à un interne)</div></div>';
+  if(premieres.length){
+    h+='<div class="rap-sec"><div class="rap-sec-t">Premières — nouvelles interventions en opérateur</div><div style="font-size:13px;line-height:1.6;">'+premieres.slice(0,12).map(esc).join(' · ')+(premieres.length>12?' · +'+(premieres.length-12)+' autres':'')+'</div></div>';
+  }
   h+='<div class="rap-sec"><div class="rap-sec-t">Durées et progression</div>';
   if(durRows.length){
     h+='<table class="rap-tb"><tr><th>Intervention</th><th style="text-align:right;">Blocs</th><th style="text-align:right;">Durée moy.</th><th style="text-align:right;">Évolution</th></tr>';
     durRows.forEach(r=>{const good=r.delta<0;h+='<tr><td>'+esc(displayInterv(r.k))+'</td><td class="num">'+r.n+'</td><td class="num">'+r.moy+' min</td><td class="num" style="color:'+(r.delta===0?'#6B675C':(good?'#2C6E49':'#8E2F2A'))+';font-weight:700;">'+(r.delta===0?'stable':(good?'▼ ':'▲ +')+Math.abs(r.delta)+' min')+'</td></tr>';});
     h+='</table><div class="rap-note">Évolution : durée moyenne des premiers blocs vs des derniers de la période (min. 5 blocs chronométrés).</div>';
   } else h+='<div class="rap-note">Pas assez de blocs avec durée sur la période (min. 5 par intervention).</div>';
+  if(diffAll!==null){
+    const f1=x=>x===null?'—':(Math.round(x*10)/10).toString().replace('.',',');
+    h+='<div class="rap-note" style="margin-top:8px;">Difficulté moyenne : <b style="color:#1C1A15;">'+f1(diffAll)+' / 5</b>'
+      +((diffP!==null&&diffA!==null)?' (opérateur '+f1(diffP)+' · encadrement '+f1(diffA)+')':'')
+      +' — sur '+rated.length+' bloc'+(rated.length>1?'s':'')+' noté'+(rated.length>1?'s':'')+'.</div>';
+  }
   h+='</div>';
   h+='<div class="rap-sec"><div class="rap-sec-t">Suivis et complications</div>';
   const SL={vert:['Bon résultat','#2C6E49'],orange:['Vigilance','#8A5E14'],rouge:['Complication','#8E2F2A'],gris:['En attente','#6B675C']};
   const maxSt=Math.max(1,...Object.values(st));
   Object.keys(SL).forEach(k=>{h+='<div class="rap-row"><span class="n" style="color:'+SL[k][1]+';">● '+SL[k][0]+'</span>'+bar(st[k],maxSt,SL[k][1])+'<span class="v">'+st[k]+' · '+pct(st[k])+'%</span></div>';});
-  h+='<div class="rap-note">Taux de complication : '+(Math.round(1000*nCompl/B.length)/10)+'% ('+nCompl+'/'+B.length+' blocs).</div></div>';
+  h+='<div class="rap-note">Taux de complication : '+(Math.round(1000*nCompl/B.length)/10)+'% ('+nCompl+'/'+B.length+' blocs).'
+    +' Suivis clôturés : '+Math.round(100*closed.length/B.length)+'% ('+closed.length+'/'+B.length+')'+(delaiMoy!==null?' · délai moyen '+delaiMoy+' sem':'')+'.'
+    +(nSept?' Activité septique : '+nSept+' bloc'+(nSept>1?'s':'')+'.':'')
+    +'</div></div>';
+  if(topAides.length){
+    h+='<div class="rap-sec"><div class="rap-sec-t">Encadrement — opérateurs aidés</div><table class="rap-tb"><tr><th>Opérateur</th><th style="text-align:right;">Blocs aidés</th></tr>';
+    topAides.forEach(([k,v])=>{h+='<tr><td>'+esc(k)+'</td><td class="num">'+v+'</td></tr>';});
+    h+='</table></div>';
+  }
+  if(ccamDistinct){
+    h+='<div class="rap-sec"><div class="rap-sec-t">Actes CCAM — '+ccamDistinct+' code'+(ccamDistinct>1?'s':'')+' distinct'+(ccamDistinct>1?'s':'')+'</div><table class="rap-tb"><tr><th>Code</th><th>Libellé</th><th style="text-align:right;">Blocs</th></tr>';
+    topCcam.forEach(([c,v])=>{let l=ccamLbl(c);if(l.length>64)l=l.slice(0,62)+'…';h+='<tr><td style="font-variant-numeric:tabular-nums;white-space:nowrap;">'+esc(c)+'</td><td>'+esc(l)+'</td><td class="num">'+v+'</td></tr>';});
+    h+='</table></div>';
+  }
   if(topImp.length){
     h+='<div class="rap-sec"><div class="rap-sec-t">Implants les plus utilisés</div><table class="rap-tb"><tr><th>Implant</th><th style="text-align:right;">Blocs</th></tr>';
     topImp.forEach(([k,n])=>{h+='<tr><td>'+esc(k)+'</td><td class="num">'+n+'</td></tr>';});
