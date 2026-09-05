@@ -2519,6 +2519,11 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
             <div class="bk-tx"><div class="bk-t">Mes implants</div><div class="bk-s">Marque / modèle par intervention</div></div>
             <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
+          <button class="bk-card" onclick="openRapport()">
+            <div class="bk-ic">📄</div>
+            <div class="bk-tx"><div class="bk-t">Rapport d'activité</div><div class="bk-s">Bilan annuel ou semestriel imprimable</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       </div>
     </div>
@@ -3503,6 +3508,57 @@ button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
   </div>
 </div>
 
+<div id="rapport-view" style="display:none;">
+  <div class="rap-topbar">
+    <button class="regl-back" onclick="rapBack()" aria-label="Retour">‹</button>
+    <div class="rap-topt" id="rap-toptitle">Rapport d'activité</div>
+    <button class="rap-print" id="rap-print-btn" style="display:none;" onclick="window.print()">Imprimer / PDF</button>
+  </div>
+  <div id="rap-body"></div>
+</div>
+<style id="rapport-v155">
+#rapport-view{position:fixed;inset:0;z-index:11000;background:var(--bg);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:40px;}
+.rap-topbar{display:flex;align-items:center;gap:12px;padding:calc(10px + var(--safe-top)) 16px 10px;position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);z-index:2;}
+.rap-topt{flex:1;font-family:var(--serif);font-size:var(--fs-sub);font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rap-print{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:10px 16px;font-size:var(--fs-body2);font-weight:700;font-family:inherit;cursor:pointer;min-height:40px;}
+.rap-pick{padding:18px 20px;}
+.rap-pick-sec{font-size:var(--fs-tag);letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:18px 0 8px;}
+.rap-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.rap-pill{padding:10px 16px;border-radius:var(--r-pill);border:1px solid var(--border2);background:var(--bg2);color:var(--text);font-size:var(--fs-body2);font-weight:600;font-family:inherit;cursor:pointer;min-height:40px;}
+.rap-m0{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:var(--fs-body2);color:var(--text2);}
+.rap-m0 select{font-family:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--bg2);color:var(--text);}
+.rap-page{background:#FFFFFF;color:#1C1A15;max-width:760px;margin:14px auto;padding:26px 26px 30px;border-radius:var(--radius-lg);box-shadow:0 1px 2px rgba(40,36,28,0.06),0 14px 30px -18px rgba(40,36,28,0.22);--accent:#1A4F54;--purple:#7A5687;--green-d:#2C6E49;--amber-d:#8A5E14;--red-d:#8E2F2A;--text3:#6B675C;--border:rgba(40,36,28,0.12);}
+.rap-h1{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:2px 0 2px;}
+.rap-sub{font-size:13px;color:#6B675C;margin-bottom:4px;}
+.rap-kpis{display:flex;gap:22px;margin:16px 0 4px;flex-wrap:wrap;}
+.rap-kpi b{display:block;font-family:var(--serif);font-size:27px;font-weight:600;}
+.rap-kpi span{font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:#6B675C;font-weight:600;}
+.rap-sec{margin-top:22px;border-top:1px solid rgba(40,36,28,0.14);padding-top:14px;page-break-inside:avoid;}
+.rap-sec-t{font-family:var(--serif);font-size:17px;font-weight:600;margin-bottom:10px;}
+.rap-row{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:13px;}
+.rap-row .n{width:132px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+.rap-row .bar{flex:1;height:9px;background:#EFEBE0;border-radius:99px;overflow:hidden;}
+.rap-row .bar i{display:block;height:100%;border-radius:99px;}
+.rap-row .v{width:64px;text-align:right;font-variant-numeric:tabular-nums;color:#3d3a33;flex-shrink:0;}
+.rap-mois{display:flex;align-items:flex-end;gap:5px;height:86px;margin-top:8px;}
+.rap-mois>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;}
+.rap-mois i{display:block;width:100%;max-width:30px;background:#1A4F54;border-radius:4px 4px 0 0;}
+.rap-mois span{font-size:9.5px;color:#6B675C;white-space:nowrap;}
+.rap-mois b{font-size:10.5px;font-weight:700;}
+table.rap-tb{width:100%;border-collapse:collapse;font-size:12.5px;}
+table.rap-tb th{text-align:left;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#6B675C;padding:4px 6px;border-bottom:1px solid rgba(40,36,28,0.18);}
+table.rap-tb td{padding:6px;border-bottom:0.5px solid rgba(40,36,28,0.1);}
+table.rap-tb td.num{text-align:right;font-variant-numeric:tabular-nums;}
+.rap-note{font-size:11px;color:#6B675C;margin-top:10px;}
+.rap-empty{padding:40px 20px;text-align:center;color:var(--text3);font-size:var(--fs-body2);}
+@media print{
+  body>*:not(#rapport-view){display:none !important;}
+  #rapport-view{display:block !important;position:static !important;overflow:visible !important;background:#fff !important;padding:0 !important;}
+  .rap-topbar{display:none !important;}
+  .rap-page{box-shadow:none !important;border-radius:0 !important;max-width:none !important;margin:0 !important;padding:10mm 12mm !important;}
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important;}
+}
+</style>
 <datalist id="dl-operateurs"></datalist>
 <datalist id="dl-patients"></datalist>
 <datalist id="dl-tags"></datalist>
@@ -7337,7 +7393,7 @@ function renderExpProgress(){
     const badge=r.delta===0?'<span class="s-eyebrow">stable</span>'
       :'<span style="font-size:var(--fs-note);font-weight:700;color:'+(good?'var(--green-d)':'var(--red-d)')+';">'+(good?'▼ ':'▲ +')+Math.abs(r.delta)+' min</span>';
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:0.5px solid var(--border);">'
-      +'<div style="min-width:0;"><div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(r.interv)+'</div>'
+      +'<div style="min-width:0;"><div style="font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(displayInterv(r.interv))+'</div>'
       +'<div style="font-size:11.5px;color:var(--text3);">'+r.count+' blocs · '+r.moy+' min en moyenne</div></div>'
       +'<div style="text-align:right;flex-shrink:0;">'+badge+'<div style="font-size:10.5px;color:var(--text3);">'+r.n+' premiers vs '+r.n+' derniers</div></div>'
       +'</div>';
@@ -12192,7 +12248,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v153',
+    version:'atlas-v155',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12595,6 +12651,138 @@ function dataURLByteSize(dataURL){
 
 
 // v14 : raccourci d'affichage — garde la dernière partie après " — "
+// ── v155 — Rapport d'activité (année chirurgicale, page imprimable) ──
+const RAP_MOIS=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+function rapM0(){const v=parseInt(localStorage.getItem('atlas_rapport_m0')||'11',10);return (v>=1&&v<=12)?v:11;}
+function rapSetM0(v){localStorage.setItem('atlas_rapport_m0',String(v));renderRapportPicker();}
+function _rapPeriods(months,m0){
+  // months: liste de 'YYYY-MM' ; retourne {years:[{label,start,end}],sems:[...]} triés récents d'abord
+  const ys={},sems={};
+  months.forEach(k=>{
+    const y=+k.slice(0,4),m=+k.slice(5,7);
+    const cy=(m>=m0)?y:y-1;                 // année chirurgicale de départ
+    ys[cy]=1;
+    const s2start=((m0+5)%12)+1;            // 1er mois du 2e semestre
+    const inS1=((m-m0+12)%12)<6;
+    sems[cy+'-'+(inS1?1:2)]=1;
+  });
+  const fm=(m,y)=>RAP_MOIS[m-1]+' '+y;
+  const years=Object.keys(ys).map(Number).sort((a,b)=>b-a).map(cy=>{
+    const endM=((m0+10)%12)+1, endY=(endM<m0)?cy+1:cy;
+    return {label:(m0===1?String(cy):fm(m0,cy)+' – '+fm(endM,endY)),
+            start:cy+'-'+String(m0).padStart(2,'0'),
+            end:endY+'-'+String(endM).padStart(2,'0')};
+  });
+  const semsArr=Object.keys(sems).sort().reverse().map(k=>{
+    const cy=+k.split('-')[0],sm=+k.split('-')[1];
+    const startM=(sm===2)?(((m0+5)%12)+1):m0;
+    const startY=(sm===2&&startM<m0)?cy+1:cy;
+    const endM=((startM+4)%12)+1, endY=startY+(endM<startM?1:0);
+    return {label:fm(startM,startY)+' – '+fm(endM,endY),
+            start:startY+'-'+String(startM).padStart(2,'0'),
+            end:endY+'-'+String(endM).padStart(2,'0')};
+  });
+  return {years,sems:semsArr};
+}
+function openRapport(){document.getElementById('rapport-view').style.display='block';renderRapportPicker();}
+function closeRapport(){document.getElementById('rapport-view').style.display='none';}
+function rapBack(){
+  if(document.getElementById('rap-print-btn').style.display!=='none'){renderRapportPicker();}
+  else closeRapport();
+}
+function renderRapportPicker(){
+  const body=document.getElementById('rap-body');
+  document.getElementById('rap-toptitle').textContent="Rapport d'activité";
+  document.getElementById('rap-print-btn').style.display='none';
+  const months=[...new Set(blocs.filter(b=>b.date).map(b=>String(b.date).slice(0,7)))];
+  if(!months.length){body.innerHTML='<div class="rap-empty">Aucun bloc enregistré — le rapport se construira avec tes blocs.</div>';return;}
+  const m0=rapM0();
+  const P=_rapPeriods(months,m0);
+  const sel='<div class="rap-m0"><span>Début de l\'année chirurgicale :</span><select onchange="rapSetM0(this.value)">'
+    +RAP_MOIS.map((n,i)=>'<option value="'+(i+1)+'"'+((i+1)===m0?' selected':'')+'>'+n+'</option>').join('')+'</select></div>';
+  const pills=(arr,kind)=>arr.map((p,i)=>'<button type="button" class="rap-pill" onclick="genRapport(\''+p.start+'\',\''+p.end+'\',\''+p.label.replace(/'/g,"\\'")+'\')">'+p.label+'</button>').join('');
+  body.innerHTML='<div class="rap-pick">'+sel
+    +'<div class="rap-pick-sec">Années chirurgicales</div><div class="rap-pills">'+pills(P.years)+'</div>'
+    +'<div class="rap-pick-sec">Semestres</div><div class="rap-pills">'+pills(P.sems)+'</div>'
+    +'</div>';
+}
+function _rapMonthsRange(start,end){
+  const out=[];let y=+start.slice(0,4),m=+start.slice(5,7);
+  const ey=+end.slice(0,4),em=+end.slice(5,7);
+  while(y<ey||(y===ey&&m<=em)){out.push(y+'-'+String(m).padStart(2,'0'));m++;if(m>12){m=1;y++;}if(out.length>24)break;}
+  return out;
+}
+function genRapport(start,end,label){
+  const B=blocs.filter(b=>b.date&&String(b.date).slice(0,7)>=start&&String(b.date).slice(0,7)<=end);
+  document.getElementById('rap-toptitle').textContent=label;
+  document.getElementById('rap-print-btn').style.display='';
+  const body=document.getElementById('rap-body');
+  if(!B.length){body.innerHTML='<div class="rap-empty">Aucun bloc sur cette période.</div>';document.getElementById('rap-print-btn').style.display='none';return;}
+  const nP=B.filter(b=>(b.role||'Principal')==='Principal').length,nA=B.length-nP;
+  const pct=n=>Math.round(100*n/B.length);
+  // volumes par spécialité
+  const bySpec={};B.forEach(b=>{const s=b.spec||'Autre';bySpec[s]=(bySpec[s]||0)+1;});
+  const specRows=Object.entries(bySpec).sort((a,b)=>b[1]-a[1]);
+  const maxS=specRows[0][1];
+  // top interventions
+  const byInt={};B.forEach(b=>{const k=b.interv||'(Sans intitulé)';(byInt[k]=byInt[k]||{n:0,p:0});byInt[k].n++;if((b.role||'Principal')==='Principal')byInt[k].p++;});
+  const topInt=Object.entries(byInt).sort((a,b)=>b[1].n-a[1].n).slice(0,10);
+  // mensuel
+  const months=_rapMonthsRange(start,end);
+  const byM={};B.forEach(b=>{const k=String(b.date).slice(0,7);byM[k]=(byM[k]||0)+1;});
+  const maxM=Math.max(1,...months.map(k=>byM[k]||0));
+  // durées & progression
+  const byDur={};B.filter(b=>+b.duree>0).forEach(b=>{(byDur[b.interv]=byDur[b.interv]||[]).push(b);});
+  const durRows=Object.entries(byDur).filter(([,l])=>l.length>=5).map(([k,l])=>{
+    l.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const n=Math.min(5,Math.floor(l.length/2));
+    const avg=a=>a.reduce((s,b)=>s+(+b.duree),0)/a.length;
+    return {k,n:l.length,moy:Math.round(avg(l)),delta:Math.round(avg(l.slice(-n))-avg(l.slice(0,n)))};
+  }).sort((a,b)=>b.n-a.n).slice(0,10);
+  // complications & suivis
+  const st={vert:0,orange:0,rouge:0,gris:0};
+  let nCompl=0;
+  B.forEach(b=>{st[(b.statut||'gris')]=(st[(b.statut||'gris')]||0)+1;if(getBlocHasComplication(b))nCompl++;});
+  // implants
+  const byImp={};B.forEach(b=>String(b.implants||'').split(/[,;·\n]/).map(s=>s.trim()).filter(Boolean).forEach(x=>{byImp[x]=(byImp[x]||0)+1;}));
+  const topImp=Object.entries(byImp).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const bar=(v,max,color)=>'<div class="bar"><i style="width:'+Math.max(2,Math.round(100*v/max))+'%;background:'+color+';"></i></div>';
+  let h='<div class="rap-page">';
+  h+='<div class="rap-sub">RAPPORT D\'ACTIVITÉ — '+esc(_dSig())+'</div><div class="rap-h1">'+esc(label)+'</div>';
+  h+='<div class="rap-kpis"><div class="rap-kpi"><b>'+B.length+'</b><span>Blocs</span></div>'
+    +'<div class="rap-kpi"><b>'+pct(nP)+'%</b><span>Opérateur principal</span></div>'
+    +'<div class="rap-kpi"><b>'+pct(nA)+'%</b><span>Aide</span></div>'
+    +'<div class="rap-kpi"><b>'+nCompl+'</b><span>Complication'+(nCompl>1?'s':'')+'</span></div></div>';
+  h+='<div class="rap-sec"><div class="rap-sec-t">Volumes par spécialité</div>';
+  specRows.forEach(([s,n])=>{const c=getSpecConfig(s);h+='<div class="rap-row"><span class="n">'+esc(c.label||s)+'</span>'+bar(n,maxS,c.color||'#1A4F54')+'<span class="v">'+n+' · '+pct(n)+'%</span></div>';});
+  h+='</div>';
+  h+='<div class="rap-sec"><div class="rap-sec-t">Top interventions</div><table class="rap-tb"><tr><th>Intervention</th><th style="text-align:right;">Blocs</th><th style="text-align:right;">Principal</th><th style="text-align:right;">Aide</th></tr>';
+  topInt.forEach(([k,o])=>{h+='<tr><td>'+esc(displayInterv(k))+'</td><td class="num">'+o.n+'</td><td class="num">'+o.p+'</td><td class="num">'+(o.n-o.p)+'</td></tr>';});
+  h+='</table></div>';
+  h+='<div class="rap-sec"><div class="rap-sec-t">Activité mensuelle</div><div class="rap-mois">';
+  months.forEach(k=>{const v=byM[k]||0;h+='<div><b>'+(v||'')+'</b><i style="height:'+Math.max(2,Math.round(70*v/maxM))+'px;'+(v?'':'background:#EFEBE0;')+'"></i><span>'+RAP_MOIS[+k.slice(5,7)-1]+'</span></div>';});
+  h+='</div></div>';
+  h+='<div class="rap-sec"><div class="rap-sec-t">Durées et progression</div>';
+  if(durRows.length){
+    h+='<table class="rap-tb"><tr><th>Intervention</th><th style="text-align:right;">Blocs</th><th style="text-align:right;">Durée moy.</th><th style="text-align:right;">Évolution</th></tr>';
+    durRows.forEach(r=>{const good=r.delta<0;h+='<tr><td>'+esc(displayInterv(r.k))+'</td><td class="num">'+r.n+'</td><td class="num">'+r.moy+' min</td><td class="num" style="color:'+(r.delta===0?'#6B675C':(good?'#2C6E49':'#8E2F2A'))+';font-weight:700;">'+(r.delta===0?'stable':(good?'▼ ':'▲ +')+Math.abs(r.delta)+' min')+'</td></tr>';});
+    h+='</table><div class="rap-note">Évolution : durée moyenne des premiers blocs vs des derniers de la période (min. 5 blocs chronométrés).</div>';
+  } else h+='<div class="rap-note">Pas assez de blocs avec durée sur la période (min. 5 par intervention).</div>';
+  h+='</div>';
+  h+='<div class="rap-sec"><div class="rap-sec-t">Suivis et complications</div>';
+  const SL={vert:['Bon résultat','#2C6E49'],orange:['Vigilance','#8A5E14'],rouge:['Complication','#8E2F2A'],gris:['En attente','#6B675C']};
+  const maxSt=Math.max(1,...Object.values(st));
+  Object.keys(SL).forEach(k=>{h+='<div class="rap-row"><span class="n" style="color:'+SL[k][1]+';">● '+SL[k][0]+'</span>'+bar(st[k],maxSt,SL[k][1])+'<span class="v">'+st[k]+' · '+pct(st[k])+'%</span></div>';});
+  h+='<div class="rap-note">Taux de complication : '+(Math.round(1000*nCompl/B.length)/10)+'% ('+nCompl+'/'+B.length+' blocs).</div></div>';
+  if(topImp.length){
+    h+='<div class="rap-sec"><div class="rap-sec-t">Implants les plus utilisés</div><table class="rap-tb"><tr><th>Implant</th><th style="text-align:right;">Blocs</th></tr>';
+    topImp.forEach(([k,n])=>{h+='<tr><td>'+esc(k)+'</td><td class="num">'+n+'</td></tr>';});
+    h+='</table></div>';
+  }
+  h+='<div class="rap-note" style="margin-top:20px;">Généré par Atlas le '+new Date().toLocaleDateString('fr-FR')+'.</div></div>';
+  body.innerHTML=h;
+  document.getElementById('rapport-view').scrollTop=0;
+}
 function displayInterv(label){
   if(!label) return '';
   const parts = String(label).split(' — ');
