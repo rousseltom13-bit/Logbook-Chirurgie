@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Atlas">
@@ -649,7 +649,7 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
    --border, --text*, --accent, --warm, --purple…). Un seul système d'élévation. */
 #view-stats{--s-shadow:0 1px 2px rgba(40,36,28,0.05),0 14px 30px -18px rgba(40,36,28,0.20);
   --s-shadow-sm:0 1px 2px rgba(40,36,28,0.05);--s-r:18px;}
-.stats-page-h{padding:2px 16px 8px;border-bottom:0;}
+.stats-page-h{padding:0 16px 4px;border-bottom:0;}
 /* hub compact + verrou scroll */
 .stats-scroll.hub-lock{overflow:hidden !important;overscroll-behavior:none;}
 /* module documents */
@@ -794,7 +794,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 .stats-tabs-bar::-webkit-scrollbar{display:none;}
 .stats-tab{padding:0 0 12px;font-size:var(--fs-body);font-weight:500;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;flex-shrink:0;}
 .stats-tab.on{color:var(--text);border-bottom-color:var(--accent);font-weight:700;}
-.stats-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px 90px;}
+.stats-scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 20px 90px;}
 .stats-panel{display:none;}.stats-panel.on{display:block;animation:s-rise .45s cubic-bezier(.22,.61,.36,1) both;}
 @keyframes s-rise{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 
@@ -1208,8 +1208,9 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 
 /* ── RÉGLAGES + TEMPLATE BUILDER ── */
 #view-reglages{padding:0;display:none;flex-direction:column;height:100%;}
-.regl-hero{padding:14px 22px 14px;border-bottom:1px solid var(--border);}
-.regl-scroll{padding:16px 22px 100px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.regl-hero .courr-title{font-size:var(--fs-title);}
+.regl-hero{padding:10px 22px 10px;border-bottom:1px solid var(--border);}
+.regl-scroll{padding:12px 22px 24px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .regl-section{font-size:var(--fs-tag);letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:20px 0 10px;}
 .regl-section:first-child{margin-top:0;}
 .regl-group{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:6px 0;margin-bottom:14px;}
@@ -1293,17 +1294,17 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 .spec-badge span{font-size:var(--fs-note);font-weight:600;text-align:center;line-height:1.15;}
 .spec-badge.on{background:var(--sc);border-color:var(--sc);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.16);}
 /* Cartes sauvegarde (modale flèches) */
-.bk-grid{display:flex;flex-direction:column;gap:10px;}
-.bk-card{display:flex;align-items:center;gap:14px;width:100%;padding:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-align:left;transition:transform .12s ease;}
+.bk-grid{display:flex;flex-direction:column;gap:8px;}
+.bk-card{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-align:left;transition:transform .12s ease;}
 .bk-card:active{transform:scale(0.99);}
-.bk-ic{width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-title);background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);}
+.bk-ic{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-title);background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);}
 .bk-tx{flex:1;min-width:0;}
 .bk-t{font-size:var(--fs-body);font-weight:600;color:var(--text);}
 .bk-s{font-size:var(--fs-note);color:var(--text3);margin-top:2px;}
 .bk-arrow{width:18px;height:18px;color:var(--text3);flex-shrink:0;}
 .bk-sep{font-size:var(--fs-tag);letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);font-weight:600;margin:22px 0 12px;}
 /* Filtre spécialité global (stats) */
-.stat-spec-filter{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden;padding:0 16px 8px;}
+.stat-spec-filter{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden;padding:0 16px 14px;}
 .stat-spec-chip{padding:6px 11px;border-radius:var(--r-pill);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:var(--fs-body2);font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:5px;white-space:nowrap;flex:0 1 auto;min-width:0;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
 .stat-spec-chip .sd{width:8px;height:8px;border-radius:var(--r-pill);flex-shrink:0;}
 .stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:var(--bg);}
@@ -3077,7 +3078,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 .doc-pill,.interv-pill,.courr-pill,.filter-pill,.evt-type-pill,.e-statut-pill,.chip-btn,.stat-spec-chip,.imp-pill,.atlas-pill,.seg-btn{min-height:40px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;}
 button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
 /* ── v152 — retour pressé générique + mouvement réduit ── */
-@media(hover:none){button:active,[onclick]:active{opacity:.82;}}
+@media(hover:none){button:active{opacity:.82;}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important;scroll-behavior:auto !important;}}
 </style>
 
@@ -12248,7 +12249,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v155',
+    version:'atlas-v156',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12744,7 +12745,7 @@ function genRapport(start,end,label){
   let nCompl=0;
   B.forEach(b=>{st[(b.statut||'gris')]=(st[(b.statut||'gris')]||0)+1;if(getBlocHasComplication(b))nCompl++;});
   // implants
-  const byImp={};B.forEach(b=>String(b.implants||'').split(/[,;·\n]/).map(s=>s.trim()).filter(Boolean).forEach(x=>{byImp[x]=(byImp[x]||0)+1;}));
+  const byImp={};B.forEach(b=>(b.implantModels||[]).forEach(x=>{byImp[x]=(byImp[x]||0)+1;}));
   const topImp=Object.entries(byImp).sort((a,b)=>b[1]-a[1]).slice(0,8);
   const bar=(v,max,color)=>'<div class="bar"><i style="width:'+Math.max(2,Math.round(100*v/max))+'%;background:'+color+';"></i></div>';
   let h='<div class="rap-page">';
