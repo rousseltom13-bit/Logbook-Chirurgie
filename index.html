@@ -713,7 +713,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 }
 .shub-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:2px 0 10px;}
 .shub-card{display:flex;flex-direction:column;align-items:stretch;width:100%;text-align:left;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--s-r);padding:14px;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:var(--s-shadow-sm);}
-.shub-card:active{background:var(--bg3);}
+
 .shub-wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;padding:14px 16px;}
 .shub-h{display:flex;align-items:center;gap:7px;min-width:0;}
 .shub-h svg{width:15px;height:15px;flex-shrink:0;}
@@ -887,7 +887,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 /* ── ranked list (top interv / chirurgiens / compl par interv) ── */
 .s-rank{padding:13px 16px;display:block;cursor:pointer;}
 .s-rank+.s-rank{border-top:1px solid var(--border);}
-.s-rank:active{background:var(--bg3);}
+
 .s-rank-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .s-rank-name{display:flex;align-items:center;gap:9px;min-width:0;}
 .s-rank-no{font-family:var(--serif);font-size:var(--fs-body2);font-weight:600;color:var(--text3);width:16px;flex-shrink:0;}
@@ -945,7 +945,7 @@ textarea.doc-fin{resize:vertical;line-height:1.45;}
 /* ── patient rows / devenir ── */
 .s-prow{display:flex;align-items:center;gap:11px;padding:12px 16px;cursor:pointer;}
 .s-prow+.s-prow{border-top:1px solid var(--border);}
-.s-prow:active{background:var(--bg3);}
+
 .s-prow .dot{width:9px;height:9px;border-radius:var(--r-pill);flex-shrink:0;}
 .s-prow-mid{flex:1;min-width:0;}
 .s-prow-name{font-size:var(--fs-body2);font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1306,7 +1306,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 /* Filtre spécialité global (stats) */
 .stat-spec-filter{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px 14px;}
 .stat-spec-filter::-webkit-scrollbar{display:none;}
-.stat-spec-chip{padding:6px 11px;border-radius:var(--r-pill);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:var(--fs-body2);font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:5px;white-space:nowrap;flex:0 0 auto;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
+.stat-spec-chip{padding:4px 9px;border-radius:var(--r-pill);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:var(--fs-note);font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:5px;white-space:nowrap;flex:0 0 auto;box-shadow:0 1px 2px rgba(40,36,28,0.05);transition:background .14s,border-color .14s,color .14s;}
 .stat-spec-chip .sd{width:8px;height:8px;border-radius:var(--r-pill);flex-shrink:0;}
 .stat-spec-chip.on{background:var(--sc,var(--text));border-color:var(--sc,var(--text));color:var(--bg);}
 .stat-spec-chip.on .sd{background:rgba(255,255,255,0.92) !important;}
@@ -3072,16 +3072,18 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 @media(prefers-reduced-motion:reduce){.asheet-ov,.asheet{transition:none;}}
 </style>
 <style id="a11y-v144">
+*{-webkit-tap-highlight-color:transparent;}
 /* ── v144 — Accessibilité : cibles tactiles ≥ 44 px, zones de tap étendues ── */
 .regl-back{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:17px;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;}
 .head-icon,.oxcfg-close,.lb-controls button,.atlas-iconbtn,.doc-close,.doc-pen,.stats-back,.regl-back{position:relative;}
 .head-icon::after,.oxcfg-close::after,.lb-close::after,.lb-controls button::after,.atlas-iconbtn::after,.doc-close::after,.doc-pen::after,.stats-back::after,.regl-back::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
-.doc-pill,.interv-pill,.courr-pill,.filter-pill,.evt-type-pill,.e-statut-pill,.chip-btn,.stat-spec-chip,.imp-pill,.atlas-pill,.seg-btn{min-height:40px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;}
+.doc-pill,.interv-pill,.courr-pill,.filter-pill,.evt-type-pill,.e-statut-pill,.chip-btn,.imp-pill,.atlas-pill,.seg-btn{min-height:40px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;}
 button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
 /* ── v152 — mouvement réduit (retour pressé générique retiré en v157 à la demande de Tom) ── */
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s !important;animation-iteration-count:1 !important;transition-duration:.001s !important;scroll-behavior:auto !important;}}
 /* ── v157 — hub Options : cartes égales pleine hauteur ── */
-#view-options .regl-scroll{display:flex;flex-direction:column;overflow:hidden;padding:12px 22px calc(14px + var(--safe-bot));}
+#view-options.active{display:flex;flex-direction:column;}
+#view-options .regl-scroll{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:12px 22px calc(14px + var(--safe-bot));}
 #view-options .bk-grid{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;}
 #view-options .bk-card{flex:1;min-height:0;}
 </style>
@@ -4296,7 +4298,7 @@ function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlo
 function toggleDetMenu(e){if(e)e.stopPropagation();const m=document.getElementById('det-menu');if(!m)return;m.style.display=(m.style.display==='none')?'block':'none';}
 function closeDetMenu(){const m=document.getElementById('det-menu');if(m)m.style.display='none';}
 document.addEventListener('click',e=>{const m=document.getElementById('det-menu');if(m&&m.style.display!=='none'&&!e.target.closest('#det-menu')&&!e.target.closest('#det-menu-btn'))closeDetMenu();});
-function backFromDetail(){closeDetMenu();if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;document.getElementById('view-detail').classList.remove('active');f();if(!document.querySelector('.view.active'))sw(window._detPrevView||'stats');}else{sw(window._detPrevView||'blocs');}}
+function backFromDetail(){closeDetMenu();const prev=(window._detPrevView&&window._detPrevView!=='detail')?window._detPrevView:null;document.getElementById('view-detail').classList.remove('active');if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;try{f();}catch(e){}if(!document.querySelector('.view.active'))sw(prev||'stats');}else{sw(prev||'blocs');}}
 (function(){let sx=0,sy=0,track=false;
   document.addEventListener('touchstart',e=>{if(e.touches.length!==1){track=false;return;}const x=e.touches[0].clientX;track=x<=24;sx=x;sy=e.touches[0].clientY;},{passive:true});
   document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist'),SV=document.getElementById('view-stats');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');else if(SV&&SV.classList.contains('active')&&curStatsPage!==null)backToStatsHub();}},{passive:true});
@@ -4905,7 +4907,7 @@ function openBlocDetail(bi, returnFn){
   document.querySelectorAll('.atlas-det-tab')[0].classList.add('active');
   document.getElementById('det-info').classList.add('active');
   curDetTab='info';
-  window._detPrevView=(document.querySelector('.view.active')||{id:''}).id.replace('view-','')||null;
+  {const _pv=(document.querySelector('.view.active')||{id:''}).id.replace('view-','');if(_pv&&_pv!=='detail')window._detPrevView=_pv;}
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-detail').classList.add('active');
@@ -12254,7 +12256,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v157',
+    version:'atlas-v158',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
