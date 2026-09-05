@@ -2643,15 +2643,9 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 
     <!-- LISTE BLOCS — vue plein écran (depuis les stats) -->
     <div class="view" id="view-bloclist">
-      <div class="atlas-det-topbar">
-        <button onclick="sw('stats')" class="atlas-iconbtn" aria-label="Retour">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
-        <div style="flex:1;"></div>
-      </div>
       <div class="bloclist-scroll">
         <div id="statut-patients-title"></div>
-        <div id="statut-patients-list" class="bl-list"></div>
+        <div id="statut-patients-list" class="blc-list"></div>
       </div>
     </div>
 
@@ -3072,6 +3066,28 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 @media(prefers-reduced-motion:reduce){.asheet-ov,.asheet{transition:none;}}
 </style>
 <style id="a11y-v144">
+/* ── v159 — listes des stats : en-tête H1 + cartes C2 (choix Tom sur canevas) ── */
+.blh{padding:calc(14px + var(--safe-top)) 16px 4px;display:flex;align-items:center;gap:12px;}
+.blh-title{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-0.02em;line-height:1.15;color:var(--text);min-width:0;}
+.blh-title small{font-size:inherit;color:var(--text3);font-weight:400;}
+.blh-kpis{display:flex;gap:26px;padding:10px 20px 14px;}
+.blh-kpi b{display:block;font-family:var(--serif);font-size:27px;font-weight:600;line-height:1.05;color:var(--text);}
+.blh-kpi b small{font-size:15px;font-weight:600;}
+.blh-kpi.pct b{color:var(--green-d);}
+.blh-kpi span{display:block;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);font-weight:600;margin-top:3px;}
+.blc-list{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px;}
+.blc-card{position:relative;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:11px 14px 11px 18px;overflow:hidden;box-shadow:0 1px 2px rgba(40,36,28,0.05);display:flex;align-items:center;gap:12px;cursor:pointer;}
+.blc-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--spec,var(--accent));}
+.blc-date{width:46px;height:46px;border-radius:var(--radius);background:var(--bg3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.blc-date .d{font-family:var(--serif);font-size:17px;font-weight:600;line-height:1;color:var(--text);}
+.blc-date .mo{font-size:9.5px;letter-spacing:0.1em;color:var(--text3);font-weight:700;margin-top:2px;}
+.blc-mid{flex:1;min-width:0;}
+.blc-toprow{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.blc-pat{font-family:var(--serif);font-size:var(--fs-body);font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.blc-toprow .bloc-status-pill{flex-shrink:0;}
+.blc-sub{font-size:var(--fs-body2);color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.blc-sub .role{color:var(--accent);font-weight:600;}
+
 *{-webkit-tap-highlight-color:transparent;}
 /* ── v144 — Accessibilité : cibles tactiles ≥ 44 px, zones de tap étendues ── */
 .regl-back{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:17px;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-family:inherit;}
@@ -7688,13 +7704,17 @@ function openBlocsListModal(title, blocsList){
   const evaluated=n-pending;
   const bon=list.filter(b=>b.statut==='vert'||b.statut==='excellent').length;
   const pct=evaluated>0?Math.round(bon/evaluated*100):null;
-  const header=`<div class="bl-ctx">
-      <div class="bl-ctx-title">${esc(cleanTitle)}</div>
-      <div class="bl-ctx-stats">
-        <div class="bl-stat"><div class="v">${n}</div><div class="l">Bloc${n>1?'s':''}</div></div>
-        <div class="bl-stat"><div class="v">${pct===null?'—':pct+'<small>%</small>'}</div><div class="l">Bon résultat</div></div>
-        ${pending>0?`<div class="bl-stat muted"><div class="v">${pending}</div><div class="l">En attente</div></div>`:''}
-      </div>
+  const tm=cleanTitle.match(/^(.*?)\s*\((.*)\)\s*$/);
+  const titleHtml=tm?esc(tm[1])+' <small>· '+esc(tm[2])+'</small>':esc(cleanTitle);
+  const nPrincipal=list.filter(b=>(b.role||'Principal')!=='Aide').length;
+  const header=`<div class="blh">
+      <button class="regl-back" onclick="sw('stats')" aria-label="Retour">‹</button>
+      <div class="blh-title">${titleHtml}</div>
+    </div>
+    <div class="blh-kpis">
+      <div class="blh-kpi"><b>${n}</b><span>Bloc${n>1?'s':''}</span></div>
+      <div class="blh-kpi pct"><b>${pct===null?'—':pct+'<small>%</small>'}</b><span>Bon résultat</span></div>
+      <div class="blh-kpi"><b>${nPrincipal}</b><span>En principal</span></div>
     </div>`;
   document.getElementById('statut-patients-title').innerHTML=header;
   const listEl=document.getElementById('statut-patients-list');
@@ -7706,6 +7726,7 @@ function openBlocsListModal(title, blocsList){
   const intervVaries=new Set(list.map(b=>b.interv||'')).size>1;
   const roleTxtOf=b=>b.role==='Aide'?('Aide'+(b.operateur?' à '+esc(b.operateur):'')):'Opérateur';
   const roleVaries=new Set(list.map(roleTxtOf)).size>1;
+  const statusVaries=new Set(list.map(b=>b.statut||'gris')).size>1; // v159 : la pastille ne s'affiche que si elle informe (liste mixte)
   listEl.innerHTML=list.map(b=>{
     const bi=blocs.indexOf(b);
     const sk=b.statut||'gris';
@@ -7715,12 +7736,15 @@ function openBlocsListModal(title, blocsList){
     if(b.date){const p=b.date.split('-');day=p[2]||'—';mo=MONTHS_ABBR[(parseInt(p[1],10)||1)-1]||'';}
     const parts=[];
     if(intervVaries)parts.push(esc(displayInterv(b.interv)));
-    if(roleVaries||!intervVaries)parts.push('<span class="role">'+roleTxtOf(b)+'</span>');
-    const sub=parts.join(' · ')||'<span class="role">'+roleTxtOf(b)+'</span>';
-    return `<div class="bl-row" onclick="setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);">
-      <div class="bl-date"><span class="d">${day}</span><span class="mo">${mo}</span></div>
-      <div class="bl-mid"><div class="bl-pat">${esc(b.patient)||'—'}</div><div class="bl-sub">${sub}</div></div>
-      <span class="bloc-status-pill ${pillCls}">${pillLbl}</span>
+    if(roleVaries||!intervVaries)parts.push(b.role==='Aide'?roleTxtOf(b):'<span class="role">Opérateur</span>');
+    const sub=parts.join(' · ')||(b.role==='Aide'?roleTxtOf(b):'<span class="role">Opérateur</span>');
+    const specColor=(getSpecConfig(b.spec||'')||{}).color||'var(--accent)';
+    return `<div class="blc-card" onclick="setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);" style="--spec:${specColor}">
+      <div class="blc-date"><span class="d">${day}</span><span class="mo">${mo}</span></div>
+      <div class="blc-mid">
+        <div class="blc-toprow"><div class="blc-pat">${esc(b.patient)||'—'}</div>${statusVaries?`<span class="bloc-status-pill ${pillCls}">${pillLbl}</span>`:''}</div>
+        <div class="blc-sub">${sub}</div>
+      </div>
     </div>`;
   }).join('');
   showBlocListView();
@@ -12256,7 +12280,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v158',
+    version:'atlas-v159',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
