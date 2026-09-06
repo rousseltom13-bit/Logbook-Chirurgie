@@ -1295,6 +1295,20 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 .spec-badge.on{background:var(--sc);border-color:var(--sc);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.16);}
 /* Cartes sauvegarde (modale flèches) */
 .bk-grid{display:flex;flex-direction:column;gap:8px;}
+.bk-meta{font-size:var(--fs-note);color:var(--text3);margin-top:3px;}
+.sv-sec{font-size:var(--fs-tag);letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-weight:600;padding:16px 4px 8px;}
+.sv-hero{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;box-shadow:0 1px 2px rgba(40,36,28,0.05);}
+.sv-eyebrow{font-size:var(--fs-tag);letter-spacing:.14em;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.sv-big{font-family:'Charter','Iowan Old Style',Georgia,serif;font-size:var(--fs-num);font-weight:600;letter-spacing:-0.02em;margin-top:4px;}
+.sv-sub{font-size:var(--fs-body2);color:var(--text2);margin-top:4px;}
+.sv-flag{display:flex;align-items:center;gap:7px;margin-top:10px;padding:8px 11px;border-radius:var(--radius);font-size:var(--fs-body2);font-weight:600;}
+.sv-flag.warn{background:var(--amber-l);color:var(--amber-d);}
+.sv-flag.ok{background:var(--green-l);color:var(--green-d);}
+.sv-store{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 14px;margin-top:16px;}
+.sv-store-l{display:flex;justify-content:space-between;font-size:var(--fs-body2);color:var(--text2);}
+.sv-store-l span:first-child{font-weight:650;color:var(--text);}
+.sv-bar{height:6px;background:var(--bg3);border-radius:var(--r-pill);overflow:hidden;margin-top:8px;}
+.sv-bar i{display:block;height:100%;background:var(--accent);}
 .bk-card{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-align:left;transition:transform .12s ease;}
 .bk-card:active{transform:scale(0.99);}
 .bk-ic{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-title);background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);}
@@ -2530,6 +2544,43 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </div>
     </div>
 
+    <div class="view" id="view-sauvegarde" style="flex-direction:column;height:100%;">
+      <div class="regl-hero" style="position:relative;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <button onclick="sw('options')" aria-label="Retour" class="regl-back">‹</button>
+          <div class="courr-eyebrow" style="margin-bottom:0;">Options</div>
+        </div>
+        <h1 class="courr-title">Sauvegarde</h1>
+      </div>
+      <div class="regl-scroll">
+        <div id="sv-state"></div>
+        <div class="sv-sec">Exporter</div>
+        <div class="bk-grid">
+          <button class="bk-card" onclick="exportData()">
+            <div class="bk-ic">💾</div>
+            <div class="bk-tx"><div class="bk-t">Données complètes</div><div class="bk-s">Blocs, suivi, implants, réglages</div><div class="bk-meta" id="sv-meta-data"></div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+          <button class="bk-card" onclick="exportRadiosBatch()">
+            <div class="bk-ic">🗂</div>
+            <div class="bk-tx"><div class="bk-t">Radios</div><div class="bk-s" id="sv-sub-rx">Images, par paquets</div><div class="bk-meta" id="sv-meta-rx"></div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+        <div class="sv-sec">Restaurer</div>
+        <div class="bk-grid">
+          <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
+            <div class="bk-ic">📥</div>
+            <div class="bk-tx"><div class="bk-t">Importer un fichier</div><div class="bk-s">Fusion sans doublon · bilan détaillé</div></div>
+            <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+        <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
+        <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:var(--fs-body2);"></div>
+        <div id="sv-storage"></div>
+      </div>
+    </div>
+
     <div class="view" id="view-reglages" style="flex-direction:column;height:100%;">
       <div class="regl-hero" style="position:relative;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
@@ -2969,40 +3020,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 </div>
 
 <!-- MODAL OUTILS (écrou) -->
-<!-- MODAL SAUVEGARDE (disquette) -->
-<div class="modal-overlay" id="save-modal" onclick="if(event.target===this)closeModal('save-modal')">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('save-modal')">×</button>
-    <div class="modal-title">Sauvegarde</div>
-    
-    <div class="bk-grid">
-      <button class="bk-card" onclick="exportData()">
-        <div class="bk-ic">💾</div>
-        <div class="bk-tx"><div class="bk-t">Exporter (JSON)</div><div class="bk-s">Sauvegarde complète · blocs, suivi, implants</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      <button class="bk-card" onclick="exportRadiosBatch()">
-        <div class="bk-ic">🗂</div>
-        <div class="bk-tx"><div class="bk-t">Exporter les radios</div><div class="bk-s">Images, par packs de 150</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      <button class="bk-card" onclick="exportCSV()">
-        <div class="bk-ic">📊</div>
-        <div class="bk-tx"><div class="bk-t">Export tableur (CSV)</div><div class="bk-s">Excel · e-portfolio</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-      <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
-        <div class="bk-ic">📥</div>
-        <div class="bk-tx"><div class="bk-t">Importer &amp; fusionner</div><div class="bk-s">Restaure sans créer de doublon</div></div>
-        <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
-      </button>
-    </div>
-    <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
-    <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:12px;"></div>
-  </div>
-</div>
-
+<!-- v162 : la sauvegarde est une vraie page (view-sauvegarde), le modal a été retiré -->
 <!-- MODAL SETTINGS -->
 <!-- MODAL SPÉCIALITÉS (écrou) -->
 <div class="modal-overlay" id="spec-modal" onclick="if(event.target===this)closeModal('spec-modal')">
@@ -4499,6 +4517,7 @@ function sw(v){
   if(v==='planning'){renderPlanningView();}
   if(v==='reglages'){reglLoad();}
   if(v==='implants'){renderImplantsList();}
+  if(v==='sauvegarde'){renderSauvegarde();}
 }
 function renderAll(){renderDash();renderBlocs();}
 
@@ -5129,7 +5148,7 @@ function toggleEditImplantPill(el){
 }
 
 // ── Modal catalogue ──
-function openSaveModal(){openModal('save-modal');}
+function openSaveModal(){sw('sauvegarde');}
 function openImplantCatalog(){sw('implants');}
 function renderImplantCatalog(){renderImplantsList();}
 const IMP_TYPES=[['tige','Tige'],['cotyle','Cotyle'],['insert','Insert'],['prothese','Prothèse'],['plaque','Plaque'],['clou','Clou'],['ancre','Ancre'],['vis','Vis'],['renfort','Renfort'],['autre','Autre']];
@@ -12314,7 +12333,11 @@ function closeModal(id){const e=document.getElementById(id);if(e)e.classList.rem
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 const BKP_KEY='atlas_backup_snap';
 function _suiviCount(){try{return blocs.reduce((n,b)=>n+((b.consultations||[]).length)+((b.evenements||[]).length),0);}catch(e){return 0;}}
-function markBackupDone(){try{localStorage.setItem(BKP_KEY,JSON.stringify({ts:Date.now(),blocs:blocs.length,suivis:_suiviCount()}));}catch(e){}}
+function _bkpSnap(){try{return JSON.parse(localStorage.getItem(BKP_KEY)||'null')||{};}catch(e){return {};}}
+function _atlasTs(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+'h'+p(d.getMinutes());}
+function _lsRaw(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function markBackupDone(){try{const prev=_bkpSnap();localStorage.setItem(BKP_KEY,JSON.stringify({ts:Date.now(),blocs:blocs.length,suivis:_suiviCount(),radios:prev.radios||null}));}catch(e){}}
+function markRadiosBackupDone(count){try{const prev=_bkpSnap();prev.radios={ts:Date.now(),count:count};localStorage.setItem(BKP_KEY,JSON.stringify(prev));}catch(e){}}
 function renderBackupBanner(){
   try{
     const v=document.getElementById('view-dashboard');if(!v)return;
@@ -12337,13 +12360,58 @@ function renderBackupBanner(){
     el.innerHTML=html;
   }catch(e){}
 }
+// ── v162 : page Sauvegarde (design S1) ──
+let _svPersistAsked=false;
+async function _countRadios(){try{await ensureRadioMigration();const db=await openRadioDB();return await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').count();rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});}catch(e){return null;}}
+function _svRel(ts){if(!ts)return 'jamais';const d=Math.floor((Date.now()-ts)/86400000);if(d<=0)return "aujourd'hui";if(d===1)return 'hier';return 'il y a '+d+' j';}
+async function renderSauvegarde(){
+  const el=document.getElementById('sv-state');if(!el)return;
+  const snap=_bkpSnap();const rx=snap.radios||null;
+  const nR=await _countRadios();
+  const dateStr=snap.ts?new Date(snap.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+  let flag='';
+  if(nR!==null&&nR>0){
+    if(!rx||!rx.ts){flag='<div class="sv-flag warn"><span>'+nR+' radio'+(nR>1?'s':'')+' jamais exportée'+(nR>1?'s':'')+'</span></div>';}
+    else{
+      const late=Math.max(0,nR-(rx.count||0));
+      if(late>0)flag='<div class="sv-flag warn"><span>'+late+' radio'+(late>1?'s':'')+' ajoutée'+(late>1?'s':'')+' depuis le dernier export radios ('+_svRel(rx.ts)+')</span></div>';
+      else flag='<div class="sv-flag ok"><span>Radios à jour — dernier export '+_svRel(rx.ts)+'</span></div>';
+    }
+  }
+  el.innerHTML='<div class="sv-hero">'
+    +'<div class="sv-eyebrow">Dernière sauvegarde des données</div>'
+    +'<div class="sv-big">'+_svRel(snap.ts)+'</div>'
+    +'<div class="sv-sub">'+(snap.ts?((snap.blocs||0)+' blocs · réglages inclus · '+dateStr):'Exporte tes données une première fois — elles ne vivent que sur ce téléphone.')+'</div>'
+    +flag+'</div>';
+  const md=document.getElementById('sv-meta-data');if(md)md.textContent=snap.ts?('Dernier : '+_svRel(snap.ts)):'';
+  const sr=document.getElementById('sv-sub-rx');if(sr)sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · ~'+Math.max(1,Math.ceil(nR/RESCUE_BATCH_SIZE))+' paquet(s) de '+RESCUE_BATCH_SIZE));
+  const mr=document.getElementById('sv-meta-rx');if(mr)mr.textContent=(rx&&rx.ts)?('Dernier : '+_svRel(rx.ts)):(nR>0?'Jamais exportées':'');
+  const stg=document.getElementById('sv-storage');
+  if(stg){
+    let html='';
+    try{
+      if(navigator.storage&&navigator.storage.estimate){
+        const est=await navigator.storage.estimate();
+        const u=est.usage||0,q=est.quota||0;
+        const pct=q>0?Math.min(100,Math.round(u/q*100)):0;
+        let persisted=null;
+        try{
+          if(navigator.storage.persisted)persisted=await navigator.storage.persisted();
+          if(persisted===false&&navigator.storage.persist&&!_svPersistAsked){_svPersistAsked=true;persisted=await navigator.storage.persist();}
+        }catch(e){}
+        html='<div class="sv-store"><div class="sv-store-l"><span>Stockage sur l\'appareil</span><span>'+fmtBytes(u)+(persisted?' · protégé':'')+'</span></div><div class="sv-bar"><i style="width:'+pct+'%"></i></div></div>';
+      }
+    }catch(e){}
+    stg.innerHTML=html;
+  }
+}
 let _exportPayloadJson=null;
 async function exportData(){
   if(!blocs||blocs.length===0){showToast('Aucun bloc à exporter');return;}
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v161',
+    version:'atlas-v162',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12355,17 +12423,18 @@ async function exportData(){
     astuces:(typeof astuces!=='undefined'?astuces:[]),
     pathos:(typeof pathos!=='undefined'?pathos:[]),
     implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
-    oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null)
+    oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null),
+    settings:{active_specs:_lsRaw('atlas_active_specs'),pratique:_lsRaw('atlas_pratique'),profil:_lsRaw('atlas_profil'),prenom:_lsRaw('atlas_prenom'),rapport_m0:_lsRaw('atlas_rapport_m0'),theme:_lsRaw('orlog_theme'),quickmode:_lsRaw('orlog_quickmode')}
   };
   const json=JSON.stringify(payload);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
   const blob=new Blob([json],{type:'application/json'});
-  const filename='atlas_blocs_'+ts+'.json';
+  const filename='Atlas Save '+_atlasTs()+'.json';
   const result=await shareOrDownload(blob,filename);
   if(result==='aborted'){showToast('Export annulé');return;}
   if(result==='failed'){showToast('Échec export — voir Console');return;}
   showToast('Export OK — '+blocs.length+' blocs ('+sizeMb+' Mo)');
-  try{markBackupDone();renderBackupBanner();}catch(e){}
+  try{markBackupDone();renderBackupBanner();renderSauvegarde();}catch(e){}
 }
 
 async function exportRadiosOnly(){
@@ -12399,10 +12468,11 @@ async function exportRadiosOnly(){
     showToast('Radios volumineuses ('+sizeMb+' Mo) — export par lots conseillé');
   }
   const blob=new Blob([json],{type:'application/json'});
-  const filename='atlas_radios_'+ts+'.json';
+  const filename='Atlas RX complet '+_atlasTs()+'.json';
   const result=await shareOrDownload(blob,filename);
   if(result==='aborted'){showToast('Export radios annulé');return;}
   if(result==='failed'){showToast('Échec export radios — trop volumineux, utilisez le bouton Lots');return;}
+  try{markRadiosBackupDone(allRadios.length);renderSauvegarde();}catch(e){}
   showToast('Export radios OK — '+radiosB64.filter(r=>r.data).length+' radios ('+sizeMb+' Mo)');
 }
 
@@ -12420,6 +12490,16 @@ function importData(e){
       if(parsed.oxford_cfg&&parsed.oxford_cfg.knee&&typeof OXFORD_CFG!=='undefined'){
         const _hasCustom=(OXFORD_CFG.knee.items||[]).some(it=>!/à renseigner/.test(it.q))||(OXFORD_CFG.hip.items||[]).some(it=>!/à renseigner/.test(it.q));
         if(!_hasCustom){OXFORD_CFG=parsed.oxford_cfg;saveOxfordCfg();}
+      }
+      // v162 : réglages — appliqués SEULEMENT si absents en local ; la licence n'est ni exportée ni importée
+      let settingsApplied=0;
+      if(parsed.settings&&typeof parsed.settings==='object'){
+        const SET_MAP={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode'};
+        Object.keys(SET_MAP).forEach(k=>{
+          const v=parsed.settings[k];
+          if(typeof v==='string'&&v!==''){try{if(localStorage.getItem(SET_MAP[k])===null){localStorage.setItem(SET_MAP[k],v);settingsApplied++;}}catch(e){}}
+        });
+        if(settingsApplied)console.info('[OrLog import] réglages appliqués :',settingsApplied);
       }
       // v13-rescue : support des formats partiels (light + radios-batch)
       const fmt = parsed.version || '';
@@ -12567,7 +12647,7 @@ function importData(e){
       } else if(isLight){
         summary = `Fusion légère OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs (radios non incluses).`;
       } else {
-        summary = 'Fusion '+(okAll?'OK':'partielle')+` — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs`+(radioDetail?' · '+radioDetail:'')+'.';
+        summary = 'Fusion '+(okAll?'OK':'partielle')+` — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs`+(radioDetail?' · '+radioDetail:'')+(settingsApplied>0?' · '+settingsApplied+' réglage(s) appliqué(s)':'')+'.';
       }
       st.textContent = summary;
       setTimeout(()=>{st.style.display='none';},okAll?4000:10000);
@@ -12823,6 +12903,7 @@ function renderRapportPicker(){
   body.innerHTML='<div class="rap-pick">'+sel
     +'<div class="rap-pick-sec">Années chirurgicales</div><div class="rap-pills">'+pills(P.years)+'</div>'
     +'<div class="rap-pick-sec">Semestres</div><div class="rap-pills">'+pills(P.sems)+'</div>'
+    +'<div class="rap-pick-sec">Export tableur</div><div class="rap-pills"><button type="button" class="rap-pill" onclick="exportCSV()">Exporter en CSV — toute la carrière ('+blocs.length+' blocs)</button></div>'
     +'</div>';
 }
 function _rapMonthsRange(start,end){
@@ -13062,7 +13143,7 @@ async function exportLight(){
   };
   const json = JSON.stringify(payload);
   const blob = new Blob([json], {type:'application/json'});
-  const filename = 'orlog_LIGHT_'+ts+'.json';
+  const filename = 'Atlas Save léger '+_atlasTs()+'.json';
   const result = await shareOrDownload(blob, filename);
   if(result === 'aborted'){ showToast('Export annulé'); return; }
   if(result === 'failed'){ showToast('Échec export — voir console'); return; }
@@ -13203,7 +13284,7 @@ async function exportCSV(){
       b.patient||'',
       b.age||'',
       b.imc||'',
-      b.implants||'',
+      (b.implantModels&&b.implantModels.length?b.implantModels.join('|'):(b.implants||'')),
       b.abord||'',
       b.diff||'',
       (b.astuces||'').replace(/\n/g,' '),
@@ -13221,7 +13302,7 @@ async function exportCSV(){
   const content = '\uFEFF' + lines.join('\n');
   const blob = new Blob([content], {type:'text/csv;charset=utf-8'});
   const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
-  const filename = 'orlog_blocs_'+ts+'.csv';
+  const filename = 'Atlas CSV '+_atlasTs()+'.csv';
   const result = await shareOrDownload(blob, filename);
   if(result === 'aborted'){ showToast('Export annulé'); return; }
   if(result === 'failed'){ showToast('Échec export CSV'); return; }
@@ -13287,7 +13368,7 @@ async function exportRadiosBatch(){
   const total = keys.length;
   const batchSize = RESCUE_BATCH_SIZE;
   const nBatches = Math.ceil(total / batchSize);
-  const ts = new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
+  const ts = _atlasTs();
   if(!await aconfirm({title:total+' radio(s) à exporter',msg:nBatches+' fichier(s) de '+batchSize+' max.\n\nÀ chaque paquet, choisis "Enregistrer dans Fichiers" ou AirDrop.',ok:'Exporter'})) return;
 
   for(let i=0; i<nBatches; i++){
@@ -13314,7 +13395,7 @@ async function exportRadiosBatch(){
     };
     const json = JSON.stringify(payload);
     const blob = new Blob([json], {type:'application/json'});
-    const filename = 'orlog_RADIOS_'+ts+'_p'+String(i+1).padStart(2,'0')+'-of-'+String(nBatches).padStart(2,'0')+'.json';
+    const filename = 'Atlas RX '+(i+1)+' sur '+nBatches+' '+ts+'.json';
     const result = await shareOrDownload(blob, filename);
     if(result === 'aborted'){
       if(!await aconfirm({title:'Paquet '+(i+1)+' annulé',msg:'Continuer avec les suivants ?',ok:'Continuer',cancel:'Interrompre'})){
@@ -13329,6 +13410,7 @@ async function exportRadiosBatch(){
     // Yield + petit délai pour laisser respirer la mémoire iOS
     await new Promise(r=>setTimeout(r, 600));
   }
+  try{markRadiosBackupDone(total);renderSauvegarde();}catch(e){}
   showToast('✓ Export radios terminé : '+nBatches+' fichier(s)');
 }
 
