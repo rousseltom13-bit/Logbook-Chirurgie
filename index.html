@@ -1309,6 +1309,17 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 .sv-store-l span:first-child{font-weight:650;color:var(--text);}
 .sv-bar{height:6px;background:var(--bg3);border-radius:var(--r-pill);overflow:hidden;margin-top:8px;}
 .sv-bar i{display:block;height:100%;background:var(--accent);}
+.sv-run{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px;margin-top:12px;}
+.sv-run-h{display:flex;justify-content:space-between;align-items:center;font-size:var(--fs-body2);font-weight:700;margin-bottom:4px;}
+.sv-aband{border:none;background:none;color:var(--red-d);font-size:var(--fs-note);font-weight:600;font-family:inherit;cursor:pointer;padding:6px 0 6px 10px;}
+.sv-pk{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border);}
+.sv-pk:last-of-type{border-bottom:none;}
+.sv-pk-ic{width:22px;text-align:center;flex-shrink:0;}
+.sv-pk-t{font-size:var(--fs-body2);font-weight:650;}
+.sv-pk-s{flex:1;font-size:var(--fs-note);color:var(--text3);}
+.sv-pk-l{font-size:var(--fs-note);color:var(--text3);}
+.sv-retry{border:none;border-radius:var(--radius);background:var(--accent);color:#fff;font-size:var(--fs-note);font-weight:700;font-family:inherit;padding:8px 14px;cursor:pointer;}
+.sv-run-n{font-size:var(--fs-note);color:var(--text3);margin-top:8px;}
 .bk-card{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-family:inherit;text-align:left;transition:transform .12s ease;}
 .bk-card:active{transform:scale(0.99);}
 .bk-ic{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:var(--fs-title);background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius);}
@@ -2567,6 +2578,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
             <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
+        <div id="sv-rx-progress"></div>
         <div class="sv-sec">Restaurer</div>
         <div class="bk-grid">
           <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
@@ -12384,7 +12396,12 @@ async function renderSauvegarde(){
     +'<div class="sv-sub">'+(snap.ts?((snap.blocs||0)+' blocs · réglages inclus · '+dateStr):'Exporte tes données une première fois — elles ne vivent que sur ce téléphone.')+'</div>'
     +flag+'</div>';
   const md=document.getElementById('sv-meta-data');if(md)md.textContent=snap.ts?('Dernier : '+_svRel(snap.ts)):'';
-  const sr=document.getElementById('sv-sub-rx');if(sr)sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · ~'+Math.max(1,Math.ceil(nR/RESCUE_BATCH_SIZE))+' paquet(s) de '+RESCUE_BATCH_SIZE));
+  const run=_rxRun();
+  const sr=document.getElementById('sv-sub-rx');
+  if(sr){
+    if(run){const sent=run.packs.filter(p=>p.status==='sent').length;sr.textContent='Export en cours — '+sent+'/'+run.packs.length+' paquet(s) envoyé(s) · toucher pour reprendre';}
+    else sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · paquets remplis à ~45 Mo'));
+  }
   const mr=document.getElementById('sv-meta-rx');if(mr)mr.textContent=(rx&&rx.ts)?('Dernier : '+_svRel(rx.ts)):(nR>0?'Jamais exportées':'');
   const stg=document.getElementById('sv-storage');
   if(stg){
@@ -12404,6 +12421,7 @@ async function renderSauvegarde(){
     }catch(e){}
     stg.innerHTML=html;
   }
+  try{renderRxProgress(_rxRun(),null);}catch(e){}
 }
 let _exportPayloadJson=null;
 async function exportData(){
@@ -12411,7 +12429,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v162',
+    version:'atlas-v163',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12632,6 +12650,21 @@ function importData(e){
           }
         }catch(e){radioRestoreError=true;console.error('[OrLog import] Erreur restauration radios:',e);}
       }
+      // v163 : suivi des paquets reçus par backup_id — détecte un paquet manquant
+      let packInfo='';
+      if(isRadiosBatch&&parsed.backup_id&&parsed.total_batches){
+        try{
+          const J=JSON.parse(localStorage.getItem('atlas_rx_imports')||'{}');
+          const j=J[parsed.backup_id]||{seen:[],total:parsed.total_batches};
+          if(parsed.batch&&!j.seen.includes(parsed.batch))j.seen.push(parsed.batch);
+          j.seen.sort((a,b)=>a-b);j.total=parsed.total_batches;j.ts=Date.now();
+          J[parsed.backup_id]=j;
+          const ids=Object.keys(J);if(ids.length>10){ids.sort((a,b)=>(J[a].ts||0)-(J[b].ts||0));delete J[ids[0]];}
+          localStorage.setItem('atlas_rx_imports',JSON.stringify(J));
+          const missing=[];for(let k=1;k<=j.total;k++)if(!j.seen.includes(k))missing.push(k);
+          packInfo=missing.length?(' · reçus : '+j.seen.join(', ')+' sur '+j.total+' — il manque : '+missing.join(', ')):(' · tous les paquets reçus ('+j.total+'/'+j.total+')');
+        }catch(e){}
+      }
       const st=document.getElementById('import-status');
       const okAll=!radioRestoreError&&radiosFailed===0;
       st.style.display='block';
@@ -12643,7 +12676,7 @@ function importData(e){
         +(radioRestoreError?' · restauration interrompue par une erreur (voir Console)':'')):'';
       let summary;
       if(isRadiosBatch){
-        summary = 'Paquet importé — '+radioDetail+'.';
+        summary = 'Paquet importé — '+radioDetail+packInfo+'.';
       } else if(isLight){
         summary = `Fusion légère OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs (radios non incluses).`;
       } else {
@@ -13360,58 +13393,95 @@ async function _radioToDataURL(r){
   return null;
 }
 
-const RESCUE_BATCH_SIZE = 150;
+const RESCUE_BATCH_SIZE = 150; // legacy (les paquets sont désormais remplis au poids)
+var RX_TARGET_BYTES = 45*1048576; // ~45 Mo par paquet (la limite iOS est en octets, pas en nombre)
+var RX_MAX_COUNT = 500;
+const RX_RUN_KEY='atlas_rx_run';
+function _rxRun(){try{return JSON.parse(localStorage.getItem(RX_RUN_KEY)||'null');}catch(e){return null;}}
+function _rxSaveRun(run){try{if(run)localStorage.setItem(RX_RUN_KEY,JSON.stringify(run));else localStorage.removeItem(RX_RUN_KEY);}catch(e){}}
+async function _rxBuildRun(){
+  await ensureRadioMigration();
+  const db=await openRadioDB();
+  const metas=await new Promise((res,rej)=>{const out=[];const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').openCursor();rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;out.push({key:v.key,bytes:(typeof v.data==='string'?v.data.length:((v.data&&v.data.size)||0))});c.continue();}else res(out);};rq.onerror=rej;});
+  if(!metas.length)return null;
+  const packs=[];let cur={keys:[],bytes:0};
+  for(const m of metas){
+    if(cur.keys.length&&(cur.bytes+m.bytes>RX_TARGET_BYTES||cur.keys.length>=RX_MAX_COUNT)){packs.push(cur);cur={keys:[],bytes:0};}
+    cur.keys.push(m.key);cur.bytes+=m.bytes;
+  }
+  if(cur.keys.length)packs.push(cur);
+  return {id:'rx_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7),ts:Date.now(),name:_atlasTs(),total:metas.length,
+    packs:packs.map((p,i)=>({n:i+1,keys:p.keys,bytes:p.bytes,status:'pending'}))};
+}
+async function _rxSharePack(run,pack){
+  const radios=[];
+  for(const key of pack.keys){
+    try{
+      const r=await _getRadioByKey(key);
+      if(!r)continue;
+      const dataB64=await _radioToDataURL(r);
+      radios.push({key:r.key,blocId:r.blocId,type:r.type,idx:(r.ord!==undefined?r.ord:(r.idx||0)),ord:(r.ord!==undefined?r.ord:(r.idx||0)),hash:r.hash||null,name:r.name,date:r.date,data:dataB64});
+    }catch(e){console.warn('lecture radio échouée',key,e);}
+  }
+  const missing=pack.keys.length-radios.length;
+  const payload={version:'orlog-v13-radios-batch',backup_id:run.id,exported_at:new Date().toISOString(),batch:pack.n,total_batches:run.packs.length,radios_in_batch:radios.length,total_radios:run.total,radios};
+  const blob=new Blob([JSON.stringify(payload)],{type:'application/json'});
+  const filename='Atlas RX '+pack.n+' sur '+run.packs.length+' '+run.name+'.json';
+  const result=await shareOrDownload(blob,filename);
+  if(result==='aborted')return {ok:false,why:'annulé'};
+  if(result==='failed')return {ok:false,why:'échec du partage'};
+  if(missing>0)showToast(missing+' radio(s) illisible(s) non incluse(s) — paquet '+pack.n);
+  return {ok:true};
+}
+async function _rxLoop(){
+  const run=_rxRun();if(!run)return;
+  for(const pack of run.packs){
+    if(pack.status==='sent')continue;
+    renderRxProgress(run,pack.n);
+    showToast('Paquet '+pack.n+'/'+run.packs.length+' — préparation…');
+    const r=await _rxSharePack(run,pack);
+    if(!r.ok){pack.err=r.why;_rxSaveRun(run);renderRxProgress(run,null);showToast('Paquet '+pack.n+' '+r.why+' — « Réessayer » quand tu veux, rien n\'est perdu');return;}
+    pack.status='sent';delete pack.err;_rxSaveRun(run);renderRxProgress(run,null);
+    await new Promise(z=>setTimeout(z,600));
+  }
+  const total=run.total,nP=run.packs.length;
+  _rxSaveRun(null);
+  try{markRadiosBackupDone(total);}catch(e){}
+  renderRxProgress(null,null);
+  try{renderSauvegarde();}catch(e){}
+  showToast('✓ Export radios terminé : '+nP+' paquet(s), '+total+' radio(s)');
+}
+function rxRetry(){_rxLoop();}
+async function rxAbandon(){
+  if(!await aconfirm({title:'Abandonner cet export ?',msg:'Les paquets déjà envoyés restent valides, mais l\'export ne sera pas marqué terminé.',ok:'Abandonner',danger:true}))return;
+  _rxSaveRun(null);renderRxProgress(null,null);renderSauvegarde();
+}
+function renderRxProgress(run,activeN){
+  const el=document.getElementById('sv-rx-progress');if(!el)return;
+  if(!run){el.innerHTML='';return;}
+  const sent=run.packs.filter(p=>p.status==='sent').length;
+  const rows=run.packs.map(p=>{
+    let ic,right;
+    if(p.status==='sent'){ic='<span style="color:var(--green-d);font-weight:700;">✓</span>';right='<span class="sv-pk-l">Envoyé</span>';}
+    else if(p.n===activeN){ic='⏳';right='<span class="sv-pk-l">Partage…</span>';}
+    else if(p.err){ic='<span style="color:var(--red-d);font-weight:700;">✗</span>';right='<button type="button" class="sv-retry" onclick="rxRetry()">Réessayer</button>';}
+    else{ic='<span style="color:var(--text3);">·</span>';right='<span class="sv-pk-l">En attente</span>';}
+    return '<div class="sv-pk"><span class="sv-pk-ic">'+ic+'</span><span class="sv-pk-t">Paquet '+p.n+' / '+run.packs.length+'</span><span class="sv-pk-s">'+Math.max(1,Math.round(p.bytes/1048576))+' Mo · '+p.keys.length+' img</span>'+right+'</div>';
+  }).join('');
+  el.innerHTML='<div class="sv-run"><div class="sv-run-h"><span>Export radios — '+sent+' / '+run.packs.length+' envoyé(s)</span><button type="button" class="sv-aband" onclick="rxAbandon()">Abandonner</button></div>'+rows
+    +(sent<run.packs.length?'<div class="sv-run-n">L\'export ne sera marqué terminé qu\'une fois tous les paquets envoyés — tu peux quitter et reprendre plus tard.</div>':'')+'</div>';
+}
 
 async function exportRadiosBatch(){
-  const keys = await _listAllRadioKeys();
-  if(keys.length === 0){showToast('Aucune radio à exporter');return;}
-  const total = keys.length;
-  const batchSize = RESCUE_BATCH_SIZE;
-  const nBatches = Math.ceil(total / batchSize);
-  const ts = _atlasTs();
-  if(!await aconfirm({title:total+' radio(s) à exporter',msg:nBatches+' fichier(s) de '+batchSize+' max.\n\nÀ chaque paquet, choisis "Enregistrer dans Fichiers" ou AirDrop.',ok:'Exporter'})) return;
-
-  for(let i=0; i<nBatches; i++){
-    const startIdx = i * batchSize;
-    const endIdx = Math.min(startIdx + batchSize, total);
-    const slice = keys.slice(startIdx, endIdx);
-    showToast('Paquet '+(i+1)+'/'+nBatches+' — préparation…');
-    const radios = [];
-    for(const key of slice){
-      try{
-        const r = await _getRadioByKey(key);
-        if(!r) continue;
-        const dataB64 = await _radioToDataURL(r);
-        radios.push({key:r.key, blocId:r.blocId, type:r.type, idx:(r.ord!==undefined?r.ord:(r.idx||0)), ord:(r.ord!==undefined?r.ord:(r.idx||0)), hash:r.hash||null, name:r.name, date:r.date, data:dataB64});
-      }catch(e){console.warn('lecture radio échouée', key, e);}
-    }
-    const payload = {
-      version: 'orlog-v13-radios-batch',
-      exported_at: new Date().toISOString(),
-      batch: i+1,
-      total_batches: nBatches,
-      radios_in_batch: radios.length,
-      radios
-    };
-    const json = JSON.stringify(payload);
-    const blob = new Blob([json], {type:'application/json'});
-    const filename = 'Atlas RX '+(i+1)+' sur '+nBatches+' '+ts+'.json';
-    const result = await shareOrDownload(blob, filename);
-    if(result === 'aborted'){
-      if(!await aconfirm({title:'Paquet '+(i+1)+' annulé',msg:'Continuer avec les suivants ?',ok:'Continuer',cancel:'Interrompre'})){
-        showToast('Export interrompu à '+(i+1)+'/'+nBatches);
-        return;
-      }
-    }
-    if(result === 'failed'){
-      showToast('Échec paquet '+(i+1)+' — vérifie l\'espace disque');
-      return;
-    }
-    // Yield + petit délai pour laisser respirer la mémoire iOS
-    await new Promise(r=>setTimeout(r, 600));
-  }
-  try{markRadiosBackupDone(total);renderSauvegarde();}catch(e){}
-  showToast('✓ Export radios terminé : '+nBatches+' fichier(s)');
+  const pending=_rxRun();
+  if(pending){await _rxLoop();return;} // reprise de l'export en cours (paquets manquants seulement)
+  showToast('Préparation de l\'export…');
+  const run=await _rxBuildRun();
+  if(!run){showToast('Aucune radio à exporter');return;}
+  const mb=Math.max(1,Math.round(run.packs.reduce((s,p)=>Math.max(s,p.bytes),0)/1048576));
+  if(!await aconfirm({title:run.total+' radio(s) à exporter',msg:run.packs.length+' paquet(s) de ~'+mb+' Mo max.\n\nÀ chaque paquet, choisis « Enregistrer dans Fichiers » ou AirDrop. Un paquet annulé pourra être réessayé — l\'export n\'est terminé qu\'une fois TOUS les paquets envoyés.',ok:'Exporter'}))return;
+  _rxSaveRun(run);
+  await _rxLoop();
 }
 
 async function compressAllRadiosInPlace(){
