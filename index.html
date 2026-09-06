@@ -12451,7 +12451,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v167',
+    version:'atlas-v168',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14395,8 +14395,8 @@ input::placeholder,textarea::placeholder{font-style:normal!important;font-family
 }
 
 </style>
-<style id="atlas-liquid-glass-v167">
-/* Atlas v167 — Liquid Glass affirmé, couche de présentation uniquement. */
+<style id="atlas-liquid-glass-v168">
+/* Atlas v168 — Liquid Glass affirmé, couche de présentation uniquement. */
 :root{
   --glass-surface:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.48));
   --glass-surface-strong:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,255,255,.66));
@@ -14438,24 +14438,28 @@ html,body{
 }
 #app,.views,.view{background:transparent;}
 
-/* Chrome flottant : le flou reste concentré sur deux surfaces pour la fluidité. */
+/* Chrome attaché : limites opaques, sans contenu perceptible derrière. */
 .topbar{
-  margin:6px 10px 0;padding-left:18px;padding-right:12px;
-  border:1px solid var(--glass-border);border-radius:18px;
-  background:var(--glass-surface-soft);
-  box-shadow:var(--glass-highlight),0 15px 30px -24px rgba(20,55,58,.58);
-  -webkit-backdrop-filter:var(--glass-blur-strong);backdrop-filter:var(--glass-blur-strong);
+  margin:0;padding:14px 20px 10px;max-height:76px;box-sizing:border-box;
+  border:0;border-bottom:1px solid var(--border);border-radius:0;
+  background:var(--bg);box-shadow:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+  overflow:hidden;transform-origin:top;
+  transition:max-height 220ms var(--atlas-ease),padding 220ms var(--atlas-ease),opacity 160ms ease,transform 220ms var(--atlas-ease),border-width 220ms ease;
+}
+#app.atlas-head-away .topbar{
+  max-height:0;padding-top:0;padding-bottom:0;border-bottom-width:0;
+  opacity:0;transform:translateY(-12px);pointer-events:none;
 }
 .head-icon{
   background:var(--glass-surface-strong);border-color:var(--glass-border);
   box-shadow:var(--glass-highlight),0 10px 20px -14px rgba(20,55,58,.55);
 }
 .bottomnav{
-  left:8px;right:8px;bottom:calc(8px + var(--safe-bot));padding-bottom:0;
-  border:1px solid var(--glass-border);border-radius:22px;
-  background:var(--glass-surface-soft);
-  box-shadow:var(--glass-highlight),0 18px 34px -20px rgba(20,55,58,.68);
-  -webkit-backdrop-filter:var(--glass-blur-strong);backdrop-filter:var(--glass-blur-strong);
+  left:0;right:0;bottom:0;padding-bottom:var(--safe-bot);
+  border:0;border-top:1px solid var(--border);border-radius:0;
+  background:var(--bg);box-shadow:0 -12px 28px -24px rgba(20,55,58,.42);
+  -webkit-backdrop-filter:none;backdrop-filter:none;
   overflow:visible;
 }
 .bnav-fab .bnav-icon{
@@ -14463,13 +14467,13 @@ html,body{
   border:1px solid rgba(255,255,255,.34);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -10px 18px rgba(0,0,0,.13),0 14px 24px -10px color-mix(in srgb,var(--accent) 78%,transparent);
 }
-.views{padding-bottom:calc(82px + var(--safe-bot));}
+.views{padding-bottom:calc(72px + var(--safe-bot));}
 
 /* Matière commune. Les listes longues imitent le verre sans multiplier les flous GPU. */
 .dash-kpi,.s-kpi,.dist-card,.stat-card,.dash-card,.section,.atlas-info-card,.atlas-info-grid,
 .consult-item,.chart-card,.compl-card,.s-card,.bk-card,.sv-hero,.sv-store,.sv-run,.edc,.doc-card,
 .courr-folder,.courr-field-group,.regl-group,.cal-card,.planned-item,.up-item,.bloc-item,.blc-card,
-.radio-tabs,.timeline-card,.prat-card,.dhero-card,.dash-wk,.evt-card,.report-card{
+.radio-tabs,.timeline-card,.prat-card,.dash-wk,.evt-card,.report-card{
   background:var(--glass-surface)!important;border-color:var(--glass-border)!important;
   box-shadow:var(--glass-highlight),var(--glass-shadow)!important;
 }
@@ -14479,13 +14483,18 @@ html,body{
   border-radius:18px!important;
 }
 .atlas-info-grid,.doc-cardbody,.doc-row,.edc-body{background:color-mix(in srgb,var(--bg2) 64%,transparent)!important;}
-.dash-kpi,.s-kpi,.sv-hero,#sp-hub .shub-card,.dhero-card{
+.dash-kpi,.s-kpi,.sv-hero,#sp-hub .shub-card{
   -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
 }
 
 /* Accueil et planning : les éléments prioritaires sont physiquement plus proches. */
-.dhero-card,#upcoming-list .up-item:first-child,#plan-month-list .planned-item:first-child{
+#upcoming-list .up-item:first-child,#plan-month-list .planned-item:first-child{
   box-shadow:var(--glass-highlight),var(--glass-shadow-raised)!important;
+}
+:root.theme-light .dhero-card{
+  background:linear-gradient(145deg,var(--accent),color-mix(in srgb,var(--accent) 82%,black))!important;
+  border-color:rgba(255,255,255,.26)!important;color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),inset 0 -18px 30px rgba(0,0,0,.08),0 22px 38px -25px var(--accent)!important;
 }
 .dash-kpi,.s-kpi{
   background:var(--glass-surface-strong)!important;
@@ -14528,10 +14537,14 @@ html,body{
 .spec-pill.on,.side-btn.on,.role-btn.on,.f-toggle-btn.on,.interv-pill.on,.courr-pill.on,.doc-pill.on{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -12px 20px rgba(0,0,0,.08),0 14px 24px -15px color-mix(in srgb,var(--accent) 70%,transparent)!important;
 }
-.bk-ic,.courr-folder-icon,.spec-badge,.bloc-icon,.dist-icon{
+.bk-ic,.courr-folder-icon,.spec-badge:not(.on),.bloc-icon,.dist-icon{
   background:linear-gradient(145deg,color-mix(in srgb,var(--accent-l) 84%,white),color-mix(in srgb,var(--accent-l) 72%,transparent))!important;
   border:1px solid rgba(255,255,255,.72)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 9px 17px -14px rgba(20,55,58,.4);
+}
+.spec-badge.on{
+  background:var(--sc)!important;border-color:var(--sc)!important;color:#fff!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 11px 20px -15px var(--sc)!important;
 }
 
 /* Fiche, radios et suivi : préserver les images et renforcer seulement leur support. */
@@ -14571,11 +14584,12 @@ html,body{
 
 @media(prefers-reduced-transparency:reduce){
   :root{--glass-surface:var(--bg2);--glass-surface-strong:var(--bg2);--glass-surface-soft:var(--bg);}
-  .topbar,.bottomnav,.modal,.doc-head,.doc-foot,.doc-tabsrow,.det-tabs,#sp-hub .shub-card,.dash-kpi,.s-kpi,.sv-hero,.dhero-card{
+  .topbar,.bottomnav,.modal,.doc-head,.doc-foot,.doc-tabsrow,.det-tabs,#sp-hub .shub-card,.dash-kpi,.s-kpi,.sv-hero{
     -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
   }
 }
 @media(prefers-reduced-motion:reduce){
+  .topbar{transition:none!important;}
   .shub-card,.bk-card,.dash-kpi,.s-kpi,.planned-item,.up-item,.bloc-item{transition:none!important;}
 }
 @media(prefers-reduced-motion:no-preference){
@@ -14589,4 +14603,46 @@ html,body{
 }
 
 </style>
+<script id="atlas-chrome-behavior-v168">
+/* Atlas v168 — comportement visuel de l'en-tête, sans effet sur les données. */
+(()=>{
+  const app=document.getElementById('app');
+  const views=document.querySelector('.views');
+  if(!app||!views)return;
+
+  let frame=0;
+  let nextTop=0;
+
+  const paint=()=>{
+    frame=0;
+    app.classList.toggle('atlas-head-away',nextTop>24);
+  };
+
+  document.addEventListener('scroll',event=>{
+    const target=event.target===document?document.scrollingElement:event.target;
+    if(!(target instanceof HTMLElement))return;
+    if(target.scrollHeight<=target.clientHeight+2)return;
+    if(target!==views&&!target.closest('.view.active'))return;
+    if(target.closest('.modal-overlay,.doc-ov,#rapport-view,#onboarding'))return;
+    nextTop=target.scrollTop;
+    if(!frame)frame=requestAnimationFrame(paint);
+  },true);
+
+  const reset=()=>{
+    nextTop=0;
+    if(frame)cancelAnimationFrame(frame);
+    frame=0;
+    app.classList.remove('atlas-head-away');
+  };
+
+  document.addEventListener('click',event=>{
+    if(event.target.closest('.bnav-item,.courr-back,.stats-back,.regl-back'))reset();
+  },true);
+
+  new MutationObserver(changes=>{
+    if(changes.some(change=>change.target.classList.contains('view')))reset();
+  }).observe(views,{subtree:true,attributes:true,attributeFilter:['class']});
+})();
+
+</script>
 </body></html>
