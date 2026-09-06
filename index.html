@@ -5,8 +5,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Atlas">
-<meta name="theme-color" content="#1B4D5A" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1e1e1c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F4F1E6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16171A" media="(prefers-color-scheme: dark)">
 <title>Atlas</title>
 
 <style>
@@ -1906,6 +1906,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 </div>
 
 <div id="app">
+  <div class="views">
   <div class="topbar">
     <div class="head-brand">
       <div class="brand-mark">Atlas</div>
@@ -1921,7 +1922,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
     </div>
   </div>
 
-  <div class="views">
+  
 
     <!-- DASHBOARD -->
     <div class="view active" id="view-dashboard">
@@ -12451,7 +12452,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v168',
+    version:'atlas-v169',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14395,8 +14396,8 @@ input::placeholder,textarea::placeholder{font-style:normal!important;font-family
 }
 
 </style>
-<style id="atlas-liquid-glass-v168">
-/* Atlas v168 — Liquid Glass affirmé, couche de présentation uniquement. */
+<style id="atlas-liquid-glass-v169">
+/* Atlas v169 — Liquid Glass affirmé, couche de présentation uniquement. */
 :root{
   --glass-surface:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.48));
   --glass-surface-strong:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,255,255,.66));
@@ -14430,27 +14431,17 @@ input::placeholder,textarea::placeholder{font-style:normal!important;font-family
   --glass-shadow-raised:0 3px 8px rgba(0,0,0,.18),0 26px 45px -22px rgba(0,0,0,.78);
 }
 
-html,body{
-  background:
-    radial-gradient(circle at 104% 18%,color-mix(in srgb,var(--accent) 13%,transparent) 0,transparent 27%),
-    radial-gradient(circle at -12% 78%,color-mix(in srgb,var(--purple) 10%,transparent) 0,transparent 28%),
-    linear-gradient(155deg,color-mix(in srgb,var(--bg) 94%,white),var(--bg) 54%,color-mix(in srgb,var(--bg) 95%,var(--warm-l)));
-}
-#app,.views,.view{background:transparent;}
+html,body,#app{background:var(--bg)!important;}
+.views,.view{background:transparent;}
 
 /* Chrome attaché : limites opaques, sans contenu perceptible derrière. */
 .topbar{
-  margin:0;padding:14px 20px 10px;max-height:76px;box-sizing:border-box;
+  margin:0;padding:14px 20px 10px;box-sizing:border-box;
   border:0;border-bottom:1px solid var(--border);border-radius:0;
   background:var(--bg);box-shadow:none;
   -webkit-backdrop-filter:none;backdrop-filter:none;
-  overflow:hidden;transform-origin:top;
-  transition:max-height 220ms var(--atlas-ease),padding 220ms var(--atlas-ease),opacity 160ms ease,transform 220ms var(--atlas-ease),border-width 220ms ease;
 }
-#app.atlas-head-away .topbar{
-  max-height:0;padding-top:0;padding-bottom:0;border-bottom-width:0;
-  opacity:0;transform:translateY(-12px);pointer-events:none;
-}
+.views>.topbar{width:100%;flex:0 0 auto;}
 .head-icon{
   background:var(--glass-surface-strong);border-color:var(--glass-border);
   box-shadow:var(--glass-highlight),0 10px 20px -14px rgba(20,55,58,.55);
@@ -14468,6 +14459,16 @@ html,body{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -10px 18px rgba(0,0,0,.13),0 14px 24px -10px color-mix(in srgb,var(--accent) 78%,transparent);
 }
 .views{padding-bottom:calc(72px + var(--safe-bot));}
+
+/* Un seul flux vertical : l'en-tête part naturellement avec la page. */
+#view-bloclist.active,#view-reglages.active,#view-options.active{
+  display:block;height:auto;min-height:100%;overflow:visible;
+}
+#view-bloclist .bloclist-scroll,.regl-scroll,#view-options .regl-scroll{
+  display:block;overflow:visible;min-height:0;height:auto;flex:none;
+}
+#view-detail{overflow:visible;}
+#view-stats.active{height:calc(100% - 62px);}
 
 /* Matière commune. Les listes longues imitent le verre sans multiplier les flous GPU. */
 .dash-kpi,.s-kpi,.dist-card,.stat-card,.dash-card,.section,.atlas-info-card,.atlas-info-grid,
@@ -14496,6 +14497,17 @@ html,body{
   border-color:rgba(255,255,255,.26)!important;color:#fff!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.26),inset 0 -18px 30px rgba(0,0,0,.08),0 22px 38px -25px var(--accent)!important;
 }
+.dash-kpi-c,.dash-splitcard{
+  background:var(--glass-surface-strong)!important;border-color:var(--glass-border)!important;
+  box-shadow:var(--glass-highlight),var(--glass-shadow-raised)!important;
+  -webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);
+}
+.dash-kpi-c{position:relative;overflow:hidden;}
+.dash-kpi-c::before,.dash-splitcard::before{
+  content:"";position:absolute;left:16%;right:16%;top:1px;height:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.92),transparent);
+}
+.dash-splitcard{position:relative;overflow:hidden;}
 .dash-kpi,.s-kpi{
   background:var(--glass-surface-strong)!important;
 }
@@ -14530,7 +14542,7 @@ html,body{
   box-shadow:inset 0 1px 0 rgba(255,255,255,.92),0 9px 18px -16px rgba(20,55,58,.46)!important;
 }
 #view-saisie .spec-pill:not(.on),#view-saisie .side-btn:not(.on),#view-saisie .role-btn:not(.on),
-#view-saisie .f-toggle-btn:not(.on),.interv-pill:not(.on),.courr-pill:not(.on),.doc-pill:not(.on){
+#view-saisie .f-toggle-btn:not(.on),.interv-pill:not(.on):not([style*="background"]),.courr-pill:not(.on),.doc-pill:not(.on){
   background:var(--glass-surface-strong)!important;border-color:var(--glass-border)!important;
   box-shadow:var(--glass-highlight),0 10px 19px -17px rgba(20,55,58,.48)!important;
 }
@@ -14589,7 +14601,6 @@ html,body{
   }
 }
 @media(prefers-reduced-motion:reduce){
-  .topbar{transition:none!important;}
   .shub-card,.bk-card,.dash-kpi,.s-kpi,.planned-item,.up-item,.bloc-item{transition:none!important;}
 }
 @media(prefers-reduced-motion:no-preference){
@@ -14603,46 +14614,4 @@ html,body{
 }
 
 </style>
-<script id="atlas-chrome-behavior-v168">
-/* Atlas v168 — comportement visuel de l'en-tête, sans effet sur les données. */
-(()=>{
-  const app=document.getElementById('app');
-  const views=document.querySelector('.views');
-  if(!app||!views)return;
-
-  let frame=0;
-  let nextTop=0;
-
-  const paint=()=>{
-    frame=0;
-    app.classList.toggle('atlas-head-away',nextTop>24);
-  };
-
-  document.addEventListener('scroll',event=>{
-    const target=event.target===document?document.scrollingElement:event.target;
-    if(!(target instanceof HTMLElement))return;
-    if(target.scrollHeight<=target.clientHeight+2)return;
-    if(target!==views&&!target.closest('.view.active'))return;
-    if(target.closest('.modal-overlay,.doc-ov,#rapport-view,#onboarding'))return;
-    nextTop=target.scrollTop;
-    if(!frame)frame=requestAnimationFrame(paint);
-  },true);
-
-  const reset=()=>{
-    nextTop=0;
-    if(frame)cancelAnimationFrame(frame);
-    frame=0;
-    app.classList.remove('atlas-head-away');
-  };
-
-  document.addEventListener('click',event=>{
-    if(event.target.closest('.bnav-item,.courr-back,.stats-back,.regl-back'))reset();
-  },true);
-
-  new MutationObserver(changes=>{
-    if(changes.some(change=>change.target.classList.contains('view')))reset();
-  }).observe(views,{subtree:true,attributes:true,attributeFilter:['class']});
-})();
-
-</script>
 </body></html>
