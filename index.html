@@ -5833,25 +5833,86 @@ function openRadioDB(){
     req.onerror=e=>{reject(e);};
   });
 }
-function radioKey(blocId,type,idx){return blocId+'__'+type+'__'+idx;}
-
-async function saveRadio(blocId,type,idx,data,name,date){
-  const db=await openRadioDB();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction('radios','readwrite');
-    tx.objectStore('radios').put({key:radioKey(blocId,type,idx),blocId,type,idx,data,name,date});
-    tx.oncomplete=resolve;tx.onerror=reject;
-  });
+// ── v161 : identité STABLE des radios ──
+// Clé = uid aléatoire (jamais renumérotée) ; identité de contenu = hash ; ordre d'affichage = ord.
+function _radioUid(){return 'r_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);}
+async function _radioHash(data){
+  try{
+    let bytes;
+    if(data instanceof Blob){bytes=new Uint8Array(await data.arrayBuffer());}
+    else if(typeof TextEncoder!=='undefined'){bytes=new TextEncoder().encode(String(data));}
+    else{const str=String(data);bytes=new Uint8Array(str.length);for(let i=0;i<str.length;i++)bytes[i]=str.charCodeAt(i)&0xff;}
+    if(typeof crypto!=='undefined'&&crypto.subtle&&crypto.subtle.digest){
+      const h=await crypto.subtle.digest('SHA-256',bytes);
+      return 'sha256:'+Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+    let h1=0x811c9dc5;
+    for(let i=0;i<bytes.length;i++){h1^=bytes[i];h1=Math.imul(h1,0x01000193)>>>0;}
+    return 'fnv:'+h1.toString(16)+':'+bytes.length;
+  }catch(e){return 'err:'+((data&&data.length)||0);}
 }
-async function deleteRadio(blocId,type,idx){
+const RADIO_MIG_FLAG='atlas_radio_mig';
+let _radioMigP=null;
+function ensureRadioMigration(){
+  if(!_radioMigP)_radioMigP=_migrateRadioIdentity().catch(e=>{console.warn('[Atlas] migration radios échouée :',e);_radioMigP=null;throw e;});
+  return _radioMigP;
+}
+async function _migrateRadioIdentity(){
+  try{if(localStorage.getItem(RADIO_MIG_FLAG)==='161')return;}catch(e){}
   const db=await openRadioDB();
+  // Passe 1 : métadonnées seulement (jamais toutes les images en mémoire)
+  const meta=await new Promise((res,rej)=>{
+    const out=[];const tx=db.transaction('radios','readonly');
+    const rq=tx.objectStore('radios').openCursor();
+    rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;out.push({key:v.key,blocId:v.blocId,type:v.type,ord:(v.ord!==undefined?v.ord:(v.idx!==undefined?v.idx:0)),hash:v.hash||null,keyOk:typeof v.key==='string'&&v.key.slice(0,2)==='r_'});c.continue();}else res(out);};
+    rq.onerror=rej;
+  });
+  meta.sort((a,b)=>String(a.blocId).localeCompare(String(b.blocId))||String(a.type).localeCompare(String(b.type))||(a.ord-b.ord));
+  let migrated=0,deduped=0;const seen=new Set();
+  // Passe 2 : une radio à la fois
+  for(const m of meta){
+    let hash=m.hash;
+    if(!hash){
+      const full=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(m.key);rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
+      if(!full)continue;
+      hash=await _radioHash(full.data);
+    }
+    const sig=m.blocId+'|'+m.type+'|'+hash;
+    if(seen.has(sig)){
+      await new Promise((res,rej)=>{const tx=db.transaction('radios','readwrite');tx.objectStore('radios').delete(m.key);tx.oncomplete=res;tx.onerror=rej;});
+      deduped++;continue;
+    }
+    seen.add(sig);
+    if(m.keyOk&&m.hash)continue;
+    const full=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(m.key);rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
+    if(!full)continue;
+    const nk=m.keyOk?m.key:_radioUid();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction('radios','readwrite');
+      const st=tx.objectStore('radios');
+      st.put({key:nk,blocId:full.blocId,type:full.type,ord:m.ord,idx:m.ord,data:full.data,name:full.name,date:full.date,hash:hash});
+      if(nk!==m.key)st.delete(m.key);
+      tx.oncomplete=res;tx.onerror=rej;
+    });
+    migrated++;
+  }
+  try{localStorage.setItem(RADIO_MIG_FLAG,'161');}catch(e){}
+  if(migrated||deduped)console.info('[Atlas] migration radios v161 :',migrated,'migrée(s),',deduped,'doublon(s) supprimé(s)');
+}
+if(typeof indexedDB!=='undefined'){setTimeout(()=>{try{ensureRadioMigration().catch(()=>{});}catch(e){}},1200);}
+
+async function saveRadio(blocId,type,ord,data,name,date){
+  await ensureRadioMigration();
+  const db=await openRadioDB();
+  const hash=await _radioHash(data);
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('radios','readwrite');
-    tx.objectStore('radios').delete(radioKey(blocId,type,idx));
+    tx.objectStore('radios').put({key:_radioUid(),blocId,type,ord,idx:ord,data,name,date,hash});
     tx.oncomplete=resolve;tx.onerror=reject;
   });
 }
 async function getRadiosForBloc(blocId){
+  await ensureRadioMigration();
   const db=await openRadioDB();
   return new Promise((resolve,reject)=>{
     const tx=db.transaction('radios','readonly');
@@ -5864,12 +5925,12 @@ async function getRadiosForBloc(blocId){
         const r=cursor.value;
         if(r.blocId===blocId){
           if(!results[r.type])results[r.type]=[];
-          results[r.type][r.idx]=r;
+          results[r.type].push(r);
         }
         cursor.continue();
       } else {
-        // Nettoyer les trous dans les tableaux
-        RT.forEach(t=>{results[t]=(results[t]||[]).filter(Boolean);});
+        // v161 : tri par ordre d'affichage (ord) — les clés ne bougent jamais
+        Object.keys(results).forEach(t=>{results[t].sort((a,b)=>((a.ord!==undefined?a.ord:(a.idx||0))-(b.ord!==undefined?b.ord:(b.idx||0))));});
         resolve(results);
       }
     };
@@ -5877,24 +5938,26 @@ async function getRadiosForBloc(blocId){
   });
 }
 async function reindexRadios(blocId,type,imgs){
-  // Après suppression, ré-indexer pour éviter les trous
+  // v161 : supprime ce qui n'est plus dans imgs et met à jour l'ordre — SANS jamais changer les clés
+  await ensureRadioMigration();
   const db=await openRadioDB();
+  const keep=new Map();
+  imgs.forEach((img,i)=>{if(img&&img.key)keep.set(img.key,i);});
   const tx=db.transaction('radios','readwrite');
   const store=tx.objectStore('radios');
-  // Supprimer tous les radios de ce type pour ce bloc
   const req=store.openCursor();
-  const toDelete=[];
-  await new Promise(resolve=>{
-    req.onsuccess=e=>{
-      const cursor=e.target.result;
-      if(cursor){if(cursor.value.blocId===blocId&&cursor.value.type===type)toDelete.push(cursor.value.key);cursor.continue();}
-      else resolve();
-    };
-  });
-  for(const k of toDelete){store.delete(k);}
-  // Ré-insérer dans l'ordre
-  imgs.forEach((img,i)=>{store.put({key:radioKey(blocId,type,i),blocId,type,idx:i,data:img.data,name:img.name,date:img.date});});
-  return new Promise(resolve=>{tx.oncomplete=resolve;});
+  req.onsuccess=e=>{
+    const cursor=e.target.result;
+    if(cursor){
+      const r=cursor.value;
+      if(r.blocId===blocId&&r.type===type){
+        if(!keep.has(r.key)){cursor.delete();}
+        else{const o=keep.get(r.key);if(r.ord!==o||r.idx!==o){r.ord=o;r.idx=o;cursor.update(r);}}
+      }
+      cursor.continue();
+    }
+  };
+  return new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=reject;});
 }
 
 // Compteur de radios stocké dans le bloc (sans les données)
@@ -12280,7 +12343,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v160',
+    version:'atlas-v161',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12309,6 +12372,7 @@ async function exportRadiosOnly(){
   showToast('Export radios en cours…');
   let allRadios=[];
   try{
+    await ensureRadioMigration();
     const db=await openRadioDB();
     allRadios=await new Promise((resolve,reject)=>{
       const tx=db.transaction('radios','readonly');
@@ -12325,7 +12389,7 @@ async function exportRadiosOnly(){
         dataB64=await new Promise((res,rej)=>{const rd=new FileReader();rd.onload=ev=>res(ev.target.result);rd.onerror=rej;rd.readAsDataURL(r.data);});
       }else if(typeof r.data==='string'){dataB64=r.data;}
     }catch(e){}
-    return{key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,name:r.name,date:r.date,data:dataB64};
+    return{key:r.key,blocId:r.blocId,type:r.type,idx:(r.ord!==undefined?r.ord:(r.idx||0)),ord:(r.ord!==undefined?r.ord:(r.idx||0)),hash:r.hash||null,name:r.name,date:r.date,data:dataB64};
   }));
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={version:'atlas-v47',exported_at:new Date().toISOString(),radios:radiosB64};
@@ -12436,54 +12500,77 @@ function importData(e){
       }
       saveLocal();renderAll();
       // Restaurer les radios dans IndexedDB
-      let radiosRestored=0, radiosSkipped=0, radiosFailed=0;
+      let radiosRestored=0, radiosSkipped=0, radiosFailed=0, radiosOrphan=0, radioRestoreError=false;
       if(importedRadios.length>0){
         try{
+          await ensureRadioMigration();
           const db=await openRadioDB();
           console.info('[OrLog import] Restauration', importedRadios.length, 'radio(s)…');
+          // v161 : dédoublonnage par CONTENU (hash) — plus jamais par clé positionnelle
+          const existing=await new Promise((res,rej)=>{
+            const out=[];const tx=db.transaction('radios','readonly');
+            const rq=tx.objectStore('radios').openCursor();
+            rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;out.push({key:v.key,blocId:v.blocId,type:v.type,name:v.name,date:v.date,hash:v.hash||null,ord:(v.ord!==undefined?v.ord:(v.idx||0))});c.continue();}else res(out);};
+            rq.onerror=rej;
+          });
+          const haveKey=new Set(existing.map(x=>x.key));
+          const haveHash=new Set(existing.filter(x=>x.hash).map(x=>x.blocId+'|'+x.type+'|'+x.hash));
+          const haveSig2=new Set(existing.filter(x=>x.name&&x.date).map(x=>x.blocId+'|'+x.type+'|'+x.name+'|'+x.date));
+          const maxOrd={};existing.forEach(x=>{const k=x.blocId+'|'+x.type;maxOrd[k]=Math.max(maxOrd[k]!==undefined?maxOrd[k]:-1,x.ord);});
+          const touched=new Set();
           for(const r of importedRadios){
-            if(!r.data||!r.key){
-              console.warn('[OrLog import] radio sans data ou key:', r);
-              radiosSkipped++;
-              continue;
-            }
-            // Vérifier si déjà présente
-            const already=await new Promise(res=>{
-              const tx=db.transaction('radios','readonly');
-              const req=tx.objectStore('radios').get(r.key);
-              req.onsuccess=e=>res(!!e.target.result);
-              req.onerror=()=>res(false);
-            });
-            if(already)continue;
-            // v13-rescue : on stocke la dataURL string directement (compatible avec renderDetRadios qui fait <img src=...>)
-            // L'ancien code la convertissait en Blob, ce qui cassait l'affichage <img src=[object Blob]>.
-            if(typeof r.data !== 'string' || !r.data.startsWith('data:')){
-              console.warn('[OrLog import] dataURL invalide pour', r.key, '(type=', typeof r.data, ')');
+            if(!r||!r.blocId||!r.type||typeof r.data!=='string'||!r.data.startsWith('data:')){
+              console.warn('[OrLog import] radio invalide (data manquante ou illisible):', r&&r.key);
               radiosFailed++;
               continue;
             }
+            const hash=await _radioHash(r.data);
+            const sigH=r.blocId+'|'+r.type+'|'+hash;
+            const sig2=(r.name&&r.date)?(r.blocId+'|'+r.type+'|'+r.name+'|'+r.date):null;
+            if(haveHash.has(sigH)||(sig2&&haveSig2.has(sig2))){radiosSkipped++;continue;}
+            const ok=r.blocId+'|'+r.type;
+            const ord=(maxOrd[ok]!==undefined?maxOrd[ok]:-1)+1;maxOrd[ok]=ord;
+            const key=(typeof r.key==='string'&&r.key.slice(0,2)==='r_'&&!haveKey.has(r.key))?r.key:_radioUid();
             await new Promise((res,rej)=>{
               const tx=db.transaction('radios','readwrite');
-              tx.objectStore('radios').put({key:r.key,blocId:r.blocId,type:r.type,idx:r.idx,data:r.data,name:r.name,date:r.date});
+              tx.objectStore('radios').put({key:key,blocId:r.blocId,type:r.type,ord:ord,idx:ord,data:r.data,name:r.name,date:r.date,hash:hash});
               tx.oncomplete=()=>{radiosRestored++;res();};
               tx.onerror=rej;
             });
+            haveKey.add(key);haveHash.add(sigH);if(sig2)haveSig2.add(sig2);touched.add(r.blocId);
           }
-        }catch(e){console.warn('Erreur restauration radios:',e);}
+          radiosOrphan=[...touched].filter(bid=>!blocs.some(b=>b.id===bid)).length;
+          // v161 : recompte des pastilles radio des blocs touchés (le compteur mentait après import)
+          if(touched.size){
+            for(const bid of touched){
+              const bi=blocs.findIndex(b=>b.id===bid);
+              if(bi<0)continue;
+              const rr=await getRadiosForBloc(bid);
+              blocs[bi].radioCount={};RT.forEach(t=>{blocs[bi].radioCount[t]=(rr[t]||[]).length;});
+            }
+            saveLocal();renderBlocs();
+          }
+        }catch(e){radioRestoreError=true;console.error('[OrLog import] Erreur restauration radios:',e);}
       }
       const st=document.getElementById('import-status');
-      st.style.display='block';st.style.background='var(--green-l)';st.style.color='var(--green-d)';
-      const radioMsg=importedRadios.length>0?` · ${radiosRestored} radio(s) restaurée(s)`:'';
+      const okAll=!radioRestoreError&&radiosFailed===0;
+      st.style.display='block';
+      st.style.background=okAll?'var(--green-l)':'var(--amber-l)';
+      st.style.color=okAll?'var(--green-d)':'var(--amber-d)';
+      const radioDetail=importedRadios.length>0?('radios : '+radiosRestored+' restaurée(s), '+radiosSkipped+' déjà présente(s)'
+        +(radiosFailed>0?', '+radiosFailed+' illisible(s)':'')
+        +(radiosOrphan>0?' · '+radiosOrphan+' bloc(s) inconnu(s) — importe aussi la sauvegarde JSON':'')
+        +(radioRestoreError?' · restauration interrompue par une erreur (voir Console)':'')):'';
       let summary;
       if(isRadiosBatch){
-        summary = `Paquet radios importé — ${radiosRestored} radio(s) restaurée(s) sur ${importedRadios.length}.`;
+        summary = 'Paquet importé — '+radioDetail+'.';
       } else if(isLight){
         summary = `Fusion légère OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs (radios non incluses).`;
       } else {
-        summary = `Fusion OK — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs au total${radioMsg}.`;
+        summary = 'Fusion '+(okAll?'OK':'partielle')+` — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs`+(radioDetail?' · '+radioDetail:'')+'.';
       }
       st.textContent = summary;
-      setTimeout(()=>{st.style.display='none';},4000);
+      setTimeout(()=>{st.style.display='none';},okAll?4000:10000);
     }catch(err){
       console.error('[OrLog import] Stack:', err);
       const st=document.getElementById('import-status');
@@ -13142,6 +13229,7 @@ async function exportCSV(){
 }
 
 async function _listAllRadioKeys(){
+  await ensureRadioMigration();
   const db = await openRadioDB();
   const keys = [];
   await new Promise((resolve, reject)=>{
@@ -13213,7 +13301,7 @@ async function exportRadiosBatch(){
         const r = await _getRadioByKey(key);
         if(!r) continue;
         const dataB64 = await _radioToDataURL(r);
-        radios.push({key:r.key, blocId:r.blocId, type:r.type, idx:r.idx, name:r.name, date:r.date, data:dataB64});
+        radios.push({key:r.key, blocId:r.blocId, type:r.type, idx:(r.ord!==undefined?r.ord:(r.idx||0)), ord:(r.ord!==undefined?r.ord:(r.idx||0)), hash:r.hash||null, name:r.name, date:r.date, data:dataB64});
       }catch(e){console.warn('lecture radio échouée', key, e);}
     }
     const payload = {
@@ -13281,7 +13369,7 @@ async function compressAllRadiosInPlace(){
             const out = await compressImageDataURL(src, 1600, 0.85);
             const sizeAfter = dataURLByteSize(out);
             if(sizeAfter < sizeBefore * 0.9){
-              await _putRadio({...r, data: out});
+              await _putRadio({...r, data: out, hash: await _radioHash(out)});
               kept = out;
               totalAfter += sizeAfter;
             } else {
