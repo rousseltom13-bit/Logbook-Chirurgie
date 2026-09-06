@@ -2579,6 +2579,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
           </button>
         </div>
         <div id="sv-rx-progress"></div>
+        <div id="sv-optim"></div>
         <div class="sv-sec">Restaurer</div>
         <div class="bk-grid">
           <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
@@ -6156,7 +6157,7 @@ async function delRadioIDB(bi,type,idx){
   showToast('Radio supprimée');
 }
 async function handleUploadIDB(e,bi,type){
-  // v13-rescue : compression à l'upload (1600px max, JPEG q0.85)
+  // v13-rescue : compression à l'upload (1280px max, JPEG q0.8)
   const files=Array.from(e.target.files);if(!files.length)return;
   const b=blocs[bi];
   const existing=await getRadiosForBloc(b.id);
@@ -6174,7 +6175,7 @@ async function handleUploadIDB(e,bi,type){
       const sizeBefore = dataURLByteSize(dataURL);
       let finalData = dataURL;
       try{
-        const compressed = await compressImageDataURL(dataURL, 1600, 0.85);
+        const compressed = await compressImageDataURL(dataURL, 1280, 0.8);
         if(compressed && compressed.length < dataURL.length * 0.95){
           finalData = compressed;
         }
@@ -6204,7 +6205,7 @@ async function handleUploadFree(e,bi){
     try{
       const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=ev=>res(ev.target.result);r.onerror=rej;r.readAsDataURL(f);});
       let finalData=dataURL;
-      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c&&c.length<dataURL.length*0.95)finalData=c;}catch(err){}
+      try{const c=await compressImageDataURL(dataURL,1280,0.8);if(c&&c.length<dataURL.length*0.95)finalData=c;}catch(err){}
       await saveRadio(b.id,'free',startIdx+done,finalData,f.name,uploadDate);
       done++;
     }catch(err){console.warn('Upload free échec',f.name,err);}
@@ -11691,7 +11692,7 @@ async function astAddPhotos(input){
     try{
       const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
       let final=dataURL;
-      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c)final=c;}catch(e){}
+      try{const c=await compressImageDataURL(dataURL,1280,0.8);if(c)final=c;}catch(e){}
       await saveRadio(window._astEditId,'Astuce',arr.length,final,f.name||'photo',new Date().toISOString());
       arr.push({data:final});
       window._astPhotosAdded=true;
@@ -11846,7 +11847,7 @@ async function pthAddPhotos(input){
     try{
       const dataURL=await new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});
       let final=dataURL;
-      try{const c=await compressImageDataURL(dataURL,1600,0.85);if(c)final=c;}catch(e){}
+      try{const c=await compressImageDataURL(dataURL,1280,0.8);if(c)final=c;}catch(e){}
       await saveRadio(window._pthEditId,'Patho',arr.length,final,f.name||'photo',new Date().toISOString());
       arr.push({data:final});
       window._pthPhotosAdded=true;
@@ -12247,7 +12248,7 @@ async function handlePlannedRadioUpload(e, idx){
       });
       let finalData = dataURL;
       try{
-        const compressed = await compressImageDataURL(dataURL, 1600, 0.85);
+        const compressed = await compressImageDataURL(dataURL, 1280, 0.8);
         if(compressed && compressed.length < dataURL.length * 0.95) finalData = compressed;
       }catch(e){}
       await saveRadio(p.id, 'Préopératoire', startIdx + done, finalData, f.name, new Date().toLocaleDateString('fr-CA'));
@@ -12379,7 +12380,8 @@ function _svRel(ts){if(!ts)return 'jamais';const d=Math.floor((Date.now()-ts)/86
 async function renderSauvegarde(){
   const el=document.getElementById('sv-state');if(!el)return;
   const snap=_bkpSnap();const rx=snap.radios||null;
-  const nR=await _countRadios();
+  const stats=await _rxStats(false);
+  const nR=stats?stats.count:await _countRadios();
   const dateStr=snap.ts?new Date(snap.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
   let flag='';
   if(nR!==null&&nR>0){
@@ -12400,7 +12402,7 @@ async function renderSauvegarde(){
   const sr=document.getElementById('sv-sub-rx');
   if(sr){
     if(run){const sent=run.packs.filter(p=>p.status==='sent').length;sr.textContent='Export en cours — '+sent+'/'+run.packs.length+' paquet(s) envoyé(s) · toucher pour reprendre';}
-    else sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · paquets remplis à ~45 Mo'));
+    else sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · paquets remplis à ~'+Math.round(RX_TARGET_BYTES/1048576)+' Mo'));
   }
   const mr=document.getElementById('sv-meta-rx');if(mr)mr.textContent=(rx&&rx.ts)?('Dernier : '+_svRel(rx.ts)):(nR>0?'Jamais exportées':'');
   const stg=document.getElementById('sv-storage');
@@ -12422,6 +12424,22 @@ async function renderSauvegarde(){
     stg.innerHTML=html;
   }
   try{renderRxProgress(_rxRun(),null);}catch(e){}
+  const opt=document.getElementById('sv-optim');
+  if(opt){
+    if(!stats||stats.count===0){opt.innerHTML='';}
+    else{
+      const mo=Math.round(stats.bytes/1048576);
+      const avg=Math.round(stats.bytes/stats.count/1024);
+      const nPk=Math.max(1,Math.ceil(stats.bytes/RX_TARGET_BYTES));
+      const heavyStock=stats.heavy>=20||avg>=450;
+      opt.innerHTML='<div class="sv-store" style="margin-top:12px;">'
+        +'<div class="sv-store-l"><span>Poids des radios</span><span>≈'+mo+' Mo · '+stats.count+' image'+(stats.count>1?'s':'')+'</span></div>'
+        +'<div class="sv-run-n">Moyenne '+avg+' Ko/image → '+nPk+' paquet'+(nPk>1?'s':'')+' à l\'export.'
+        +(heavyStock?' '+stats.heavy+' image'+(stats.heavy>1?'s':'')+' dépasse'+(stats.heavy>1?'nt':'')+' 700 Ko — une compression réduirait fortement l\'export.':'')+'</div>'
+        +(heavyStock?'<button type="button" class="sv-retry" style="margin-top:8px;" onclick="svCompress()">Compresser les radios (1280 px)…</button>':'')
+        +'</div>';
+    }
+  }
 }
 let _exportPayloadJson=null;
 async function exportData(){
@@ -12429,7 +12447,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v163',
+    version:'atlas-v164',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -13098,7 +13116,7 @@ function fmtBytes(n){
 }
 
 async function compressImageDataURL(dataURL, maxDim, quality){
-  maxDim = maxDim || 1600;
+  maxDim = maxDim || 1280;
   quality = (quality===undefined) ? 0.85 : quality;
   return new Promise((resolve, reject)=>{
     const img = new Image();
@@ -13394,9 +13412,31 @@ async function _radioToDataURL(r){
 }
 
 const RESCUE_BATCH_SIZE = 150; // legacy (les paquets sont désormais remplis au poids)
-var RX_TARGET_BYTES = 45*1048576; // ~45 Mo par paquet (la limite iOS est en octets, pas en nombre)
+var RX_TARGET_BYTES = 60*1048576; // ~45 Mo par paquet (la limite iOS est en octets, pas en nombre)
 var RX_MAX_COUNT = 500;
 const RX_RUN_KEY='atlas_rx_run';
+const RX_STATS_KEY='atlas_rx_stats';
+async function _rxStats(force){
+  try{
+    await ensureRadioMigration();
+    const db=await openRadioDB();
+    const count=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').count();rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
+    let cache=null;try{cache=JSON.parse(localStorage.getItem(RX_STATS_KEY)||'null');}catch(e){}
+    if(!force&&cache&&cache.count===count)return cache;
+    const st={count:count,bytes:0,heavy:0};
+    if(count>0){
+      await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').openCursor();rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;const b=(typeof v.data==='string'?v.data.length:((v.data&&v.data.size)||0));st.bytes+=b;if(b>700*1024)st.heavy++;c.continue();}else res();};rq.onerror=rej;});
+    }
+    st.ts=Date.now();
+    try{localStorage.setItem(RX_STATS_KEY,JSON.stringify(st));}catch(e){}
+    return st;
+  }catch(e){return null;}
+}
+async function svCompress(){
+  await compressAllRadiosInPlace();
+  try{localStorage.removeItem(RX_STATS_KEY);}catch(e){}
+  try{renderSauvegarde();}catch(e){}
+}
 function _rxRun(){try{return JSON.parse(localStorage.getItem(RX_RUN_KEY)||'null');}catch(e){return null;}}
 function _rxSaveRun(run){try{if(run)localStorage.setItem(RX_RUN_KEY,JSON.stringify(run));else localStorage.removeItem(RX_RUN_KEY);}catch(e){}}
 async function _rxBuildRun(){
@@ -13478,8 +13518,9 @@ async function exportRadiosBatch(){
   showToast('Préparation de l\'export…');
   const run=await _rxBuildRun();
   if(!run){showToast('Aucune radio à exporter');return;}
+  const totMb=Math.max(1,Math.round(run.packs.reduce((s,p)=>s+p.bytes,0)/1048576));
   const mb=Math.max(1,Math.round(run.packs.reduce((s,p)=>Math.max(s,p.bytes),0)/1048576));
-  if(!await aconfirm({title:run.total+' radio(s) à exporter',msg:run.packs.length+' paquet(s) de ~'+mb+' Mo max.\n\nÀ chaque paquet, choisis « Enregistrer dans Fichiers » ou AirDrop. Un paquet annulé pourra être réessayé — l\'export n\'est terminé qu\'une fois TOUS les paquets envoyés.',ok:'Exporter'}))return;
+  if(!await aconfirm({title:run.total+' radio(s) à exporter',msg:'≈'+totMb+' Mo au total — '+run.packs.length+' paquet(s) de ~'+mb+' Mo max.\n\nÀ chaque paquet, choisis « Enregistrer dans Fichiers » ou AirDrop. Un paquet annulé pourra être réessayé — l\'export n\'est terminé qu\'une fois TOUS les paquets envoyés.',ok:'Exporter'}))return;
   _rxSaveRun(run);
   await _rxLoop();
 }
@@ -13487,7 +13528,7 @@ async function exportRadiosBatch(){
 async function compressAllRadiosInPlace(){
   const keys = await _listAllRadioKeys();
   if(keys.length === 0){showToast('Aucune radio à compresser');return;}
-  const msg = 'Compresser '+keys.length+' radio(s) ?\n\n• Limite à 1600 px (côté long)\n• JPEG qualité 85%\n• Modifie en place dans la base\n\nIRRÉVERSIBLE — fais d\'abord les exports 1 et 2.';
+  const msg = 'Compresser '+keys.length+' radio(s) ?\n\n• Limite à 1280 px (côté long)\n• JPEG qualité 80%\n• Modifie en place dans la base\n\nIRRÉVERSIBLE — fais d\'abord un export complet des radios (et garde les fichiers).';
   if(!await aconfirm({title:'Compresser toutes les radios ?',msg:msg,ok:'Compresser',danger:true})) return;
 
   // Modal de progression
@@ -13518,7 +13559,7 @@ async function compressAllRadiosInPlace(){
           totalBefore += sizeBefore;
           let kept = src;
           try{
-            const out = await compressImageDataURL(src, 1600, 0.85);
+            const out = await compressImageDataURL(src, 1280, 0.8);
             const sizeAfter = dataURLByteSize(out);
             if(sizeAfter < sizeBefore * 0.9){
               await _putRadio({...r, data: out, hash: await _radioHash(out)});
