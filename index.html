@@ -12402,7 +12402,13 @@ async function renderSauvegarde(){
   const sr=document.getElementById('sv-sub-rx');
   if(sr){
     if(run){const sent=run.packs.filter(p=>p.status==='sent').length;sr.textContent='Export en cours — '+sent+'/'+run.packs.length+' paquet(s) envoyé(s) · toucher pour reprendre';}
-    else sr.textContent=(nR===null?'Images, par paquets':(nR===0?'Aucune image':nR+' image'+(nR>1?'s':'')+' · paquets remplis à ~'+Math.round(RX_TARGET_BYTES/1048576)+' Mo'));
+    else if(nR===null)sr.textContent='Images, par paquets';
+    else if(nR===0)sr.textContent='Aucune image';
+    else{
+      const _mo=stats?Math.round(stats.bytes/1048576):null;
+      const _pk=stats?Math.max(1,Math.ceil(stats.bytes/RX_TARGET_BYTES)):null;
+      sr.textContent=nR+' image'+(nR>1?'s':'')+(_mo!==null?' · ≈'+_mo+' Mo · '+_pk+' paquet'+(_pk>1?'s':''):'');
+    }
   }
   const mr=document.getElementById('sv-meta-rx');if(mr)mr.textContent=(rx&&rx.ts)?('Dernier : '+_svRel(rx.ts)):(nR>0?'Jamais exportées':'');
   const stg=document.getElementById('sv-storage');
@@ -12418,7 +12424,7 @@ async function renderSauvegarde(){
           if(navigator.storage.persisted)persisted=await navigator.storage.persisted();
           if(persisted===false&&navigator.storage.persist&&!_svPersistAsked){_svPersistAsked=true;persisted=await navigator.storage.persist();}
         }catch(e){}
-        html='<div class="sv-store"><div class="sv-store-l"><span>Stockage sur l\'appareil</span><span>'+fmtBytes(u)+(persisted?' · protégé':'')+'</span></div><div class="sv-bar"><i style="width:'+pct+'%"></i></div></div>';
+        html='<div class="sv-store"><div class="sv-store-l"><span>Espace utilisé par Atlas</span><span>'+fmtBytes(u)+(persisted?' · protégé par iOS':'')+'</span></div><div class="sv-bar"><i style="width:'+pct+'%"></i></div></div>';
       }
     }catch(e){}
     stg.innerHTML=html;
@@ -12426,17 +12432,15 @@ async function renderSauvegarde(){
   try{renderRxProgress(_rxRun(),null);}catch(e){}
   const opt=document.getElementById('sv-optim');
   if(opt){
-    if(!stats||stats.count===0){opt.innerHTML='';}
+    // v165 : suggestion de compression SEULEMENT quand elle a du sens — jamais après une passe (sauf stock à nouveau très lourd)
+    let comp=null;try{comp=JSON.parse(localStorage.getItem('atlas_rx_comp')||'null');}catch(e){}
+    const avgB=(stats&&stats.count>0)?stats.bytes/stats.count:0;
+    const suggest=stats&&stats.count>0&&((!comp&&(stats.heavy>=20||avgB>=450*1024))||avgB>=800*1024);
+    if(!suggest){opt.innerHTML='';}
     else{
-      const mo=Math.round(stats.bytes/1048576);
-      const avg=Math.round(stats.bytes/stats.count/1024);
-      const nPk=Math.max(1,Math.ceil(stats.bytes/RX_TARGET_BYTES));
-      const heavyStock=stats.heavy>=20||avg>=450;
-      opt.innerHTML='<div class="sv-store" style="margin-top:12px;">'
-        +'<div class="sv-store-l"><span>Poids des radios</span><span>≈'+mo+' Mo · '+stats.count+' image'+(stats.count>1?'s':'')+'</span></div>'
-        +'<div class="sv-run-n">Moyenne '+avg+' Ko/image → '+nPk+' paquet'+(nPk>1?'s':'')+' à l\'export.'
-        +(heavyStock?' '+stats.heavy+' image'+(stats.heavy>1?'s':'')+' dépasse'+(stats.heavy>1?'nt':'')+' 700 Ko — une compression réduirait fortement l\'export.':'')+'</div>'
-        +(heavyStock?'<button type="button" class="sv-retry" style="margin-top:8px;" onclick="svCompress()">Compresser les radios (1280 px)…</button>':'')
+      opt.innerHTML='<div class="sv-store" style="margin-top:12px;display:flex;align-items:center;gap:10px;">'
+        +'<div style="flex:1;font-size:var(--fs-body2);color:var(--text2);">≈'+Math.round(stats.bytes/1048576)+' Mo de radios non compressées</div>'
+        +'<button type="button" class="sv-retry" onclick="svCompress()">Compresser…</button>'
         +'</div>';
     }
   }
@@ -12447,7 +12451,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v164',
+    version:'atlas-v165',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -13412,7 +13416,7 @@ async function _radioToDataURL(r){
 }
 
 const RESCUE_BATCH_SIZE = 150; // legacy (les paquets sont désormais remplis au poids)
-var RX_TARGET_BYTES = 60*1048576; // ~45 Mo par paquet (la limite iOS est en octets, pas en nombre)
+var RX_TARGET_BYTES = 150*1048576; // ~45 Mo par paquet (la limite iOS est en octets, pas en nombre)
 var RX_MAX_COUNT = 500;
 const RX_RUN_KEY='atlas_rx_run';
 const RX_STATS_KEY='atlas_rx_stats';
@@ -13434,6 +13438,7 @@ async function _rxStats(force){
 }
 async function svCompress(){
   await compressAllRadiosInPlace();
+  try{localStorage.setItem('atlas_rx_comp',JSON.stringify({ts:Date.now()}));}catch(e){}
   try{localStorage.removeItem(RX_STATS_KEY);}catch(e){}
   try{renderSauvegarde();}catch(e){}
 }
