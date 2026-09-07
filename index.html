@@ -2714,6 +2714,77 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </div>
     </div>
 
+    <!-- PARCOURS BLOCS PRÉVUS — vues plein écran -->
+    <div class="view planned-page" id="view-planned-day">
+      <div class="planned-page-head">
+        <button class="planned-back" onclick="closePlannedWorkspace()" aria-label="Retour au planning">‹</button>
+        <div><div class="planned-eyebrow">Planning</div><h1 id="day-modal-title"></h1></div>
+      </div>
+      <div class="planned-page-scroll">
+        <div id="planned-empty-state" class="planned-empty-state">
+          <div class="planned-empty-icon">＋</div>
+          <h2>Aucun bloc prévu</h2>
+          <p>Cette journée est libre dans votre planning.</p>
+          <button class="planned-primary-action" onclick="openNewPlannedModal(dayModalDate)">+ Ajouter un bloc ce jour</button>
+        </div>
+        <div id="planned-day-filled" style="display:none;">
+          <div class="planned-section-label" id="planned-day-count"></div>
+          <div id="planned-day-list"></div>
+          <button class="planned-add-day" onclick="openNewPlannedModal(dayModalDate)">+ Ajouter un bloc ce jour</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="view planned-page" id="view-planned-form">
+      <div class="planned-page-head">
+        <button class="planned-back" onclick="closePlannedForm()" aria-label="Retour">‹</button>
+        <div><div class="planned-eyebrow" id="planned-form-eyebrow">Nouveau bloc prévu</div><h1 id="planned-modal-title">Planifier un bloc</h1></div>
+      </div>
+      <div class="planned-page-scroll planned-form-scroll">
+        <div class="planned-form-card">
+          <div class="form-group"><label>Date</label><input type="date" id="p-date"></div>
+          <div class="form-row">
+            <div class="form-group"><label>Spécialité</label><select id="p-spec" onchange="upIntervPlanned()"></select></div>
+            <div class="form-group"><label>Côté</label><select id="p-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
+          </div>
+          <div class="form-group"><label>Intervention</label>
+            <select id="p-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('p');renderPlannedFormImplants()">
+              <option value="">Choisir une région…</option><option value="Membre inférieur">Membre inférieur</option><option value="Membre supérieur">Membre supérieur</option><option value="Péri-prothétiques">Péri-prothétiques</option>
+            </select>
+            <select id="p-interv" onchange="plannedInterventionChanged()"><option>Sélectionner une spécialité d'abord</option></select>
+            <input type="text" id="p-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off" oninput="renderPlannedFormImplants()">
+          </div>
+          <div class="form-group"><label>Patient</label><input type="text" id="p-patient" placeholder="Nom et prénom" autocomplete="off" list="dl-patients"></div>
+          <div class="form-group"><label>Remarque pré-opératoire</label><textarea id="p-comment" placeholder="Matériel, préparation, consignes…" style="min-height:78px;"></textarea></div>
+        </div>
+        <div class="planned-form-card">
+          <div class="planned-section-label">Implants prévus</div>
+          <div class="planned-help">Les références proposées correspondent à l'intervention sélectionnée.</div>
+          <div id="p-implant-pills" class="imp-pills"></div>
+        </div>
+        <div class="planned-form-card">
+          <div class="planned-section-label">Radios pré-opératoires</div>
+          <div id="p-draft-radios-grid" class="planned-radio-grid"></div>
+          <label class="planned-upload-action">+ Ajouter des radios<input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedDraftRadioUpload(event)"></label>
+        </div>
+        <div style="height:72px;"></div>
+      </div>
+      <div class="planned-sticky-action"><button id="planned-save-btn" onclick="savePlanned()">Enregistrer le bloc prévu</button></div>
+    </div>
+
+    <div class="view planned-page" id="view-planned-detail">
+      <div class="planned-page-head">
+        <button class="planned-back" onclick="closePlannedWorkspace()" aria-label="Retour">‹</button>
+        <div><div class="planned-eyebrow">Bloc prévu</div><h1 id="pdet-title">Fiche pré-opératoire</h1></div>
+        <button class="planned-edit-head" onclick="editPlanned(currentPlannedIdx)" aria-label="Modifier">✎</button>
+      </div>
+      <div class="planned-page-scroll planned-detail-scroll" id="pdet-content"></div>
+      <div class="planned-sticky-action planned-detail-actions">
+        <button id="planned-realized-btn" onclick="convertPlanned()">Bloc réalisé</button>
+        <button class="planned-more-action" onclick="deletePlanned()" aria-label="Supprimer le bloc prévu">•••</button>
+      </div>
+    </div>
+
   </div>
 
   <nav class="bottomnav">
@@ -2836,58 +2907,6 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
     </div>
     <div class="cal-month-header" id="cal-month-header"></div>
     <div class="cal-month-grid" id="cal-month-grid"></div>
-  </div>
-</div>
-
-<!-- MODAL BLOCS DU JOUR -->
-<div class="modal-overlay" id="day-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('day-modal')">×</button>
-    <div class="modal-title" id="day-modal-title"></div>
-    <div id="day-blocs-list"></div>
-    <button class="btn-primary" onclick="openNewPlannedModal(dayModalDate)">+ Ajouter un bloc ce jour</button>
-  </div>
-</div>
-
-<!-- MODAL SAISIE BLOC PRÉVU -->
-<div class="modal-overlay" id="planned-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('planned-modal')">×</button>
-    <div class="modal-title" id="planned-modal-title">Bloc prévu</div>
-    <div class="form-group"><label>Date</label><input type="date" id="p-date"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Spécialité</label><select id="p-spec" onchange="upIntervPlanned()" style="width:100%;padding:10px;font-size:16px;border:1px solid var(--border2);border-radius:8px;background:var(--bg2);color:var(--text);font-family:inherit;outline:none;"></select></div>
-      <div class="form-group"><label>Côté</label><select id="p-side"><option value="">—</option><option>Droit</option><option>Gauche</option><option>Bilatéral</option><option>N/A</option></select></div>
-    </div>
-    <div class="form-group"><label>Intervention</label>
-      <select id="p-trauma-region" style="display:none;margin-bottom:6px;" onchange="onTraumaRegionChange('p')">
-          <option value="">Choisir une région…</option>
-          <option value="Membre inférieur">Membre inférieur</option>
-          <option value="Membre supérieur">Membre supérieur</option>
-          <option value="Péri-prothétiques">Péri-prothétiques</option>
-        </select>
-        <select id="p-interv" style="display:block;"><option>Sélectionner une spécialité d'abord</option></select>
-      <input type="text" id="p-interv-libre" placeholder="Décrire l'intervention..." style="display:none;margin-top:6px;" autocomplete="off">
-    </div>
-    <div class="form-group"><label>Patient (initiales)</label><input type="text" id="p-patient" placeholder="ex. J.D." autocomplete="off" list="dl-patients"></div>
-    <div class="form-group"><label>Commentaire / matériel à commander</label><textarea id="p-comment" placeholder="ex. Commander implant X, vérifier taille fémur..." style="min-height:80px;"></textarea></div>
-    <button class="btn-primary" id="planned-save-btn" onclick="savePlanned()">Enregistrer</button>
-  </div>
-</div>
-
-<!-- MODAL DETAIL BLOC PRÉVU -->
-<div class="modal-overlay" id="planned-detail-modal">
-  <div class="modal" style="max-height:95vh;display:flex;flex-direction:column;padding-bottom:0;">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="closeModal('planned-detail-modal')">×</button>
-    <div class="modal-title" id="pdet-title"></div>
-    <div id="pdet-content" style="overflow-y:auto;flex:1;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
-    <div style="display:flex;gap:10px;padding:12px 0 16px;border-top:0.5px solid var(--border2);margin-top:4px;flex-shrink:0;">
-      <button class="btn-primary" style="flex:2;margin-top:0;" onclick="convertPlanned()">Convertir en bloc réalisé</button>
-      <button class="btn-secondary" style="flex:1;color:var(--red-d);border-color:var(--red);" onclick="deletePlanned()">Supprimer</button>
-    </div>
   </div>
 </div>
 
@@ -3767,7 +3786,7 @@ function onTraumaRegionChange(prefix){
     return;
   }
   sel.innerHTML = buildIntervSelectHTML('Traumatologie', region);
-  sel.onchange = ()=>toggleIntervLibre(prefix);
+  sel.onchange = ()=>{toggleIntervLibre(prefix);if(prefix==='p')renderPlannedFormImplants();};
   toggleIntervLibre(prefix);
 }
 
@@ -6758,6 +6777,8 @@ function selectSide(btn,side){
 function atlasSelectSpec(spec,btn){selectSpec(btn,spec);}
 
 function initForm(){
+  if(!window._openingPlannedConversion)window._plannedBlocId=null;
+  window._openingPlannedConversion=false;
   const _sv=document.querySelector('.views');if(_sv)_sv.scrollTop=0;
   const dateEl=document.getElementById('f-date');if(dateEl)dateEl.value=new Date().toISOString().split('T')[0];
   cStar=0;formTags=[];updateStars();renderTags();
@@ -7138,6 +7159,7 @@ function openPatientHistory(patientId){
   openModal('patient-history-modal');
 }
 function saveBloc(){
+  const convertedPlannedId=window._plannedBlocId||null;
   const sp=document.getElementById('f-spec').value;
   const intervH=document.getElementById('f-interv');
   const libreEl=document.getElementById('f-interv-libre');
@@ -7176,6 +7198,7 @@ function saveBloc(){
   }:{};
   const newBloc = {implantModels:(window._selImplants&&window._selImplants.size?Array.from(window._selImplants):[]),id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,ccamCode:document.getElementById('f-ccam-code').value||'',ccamTarif:parseFloat(document.getElementById('f-ccam-tarif').value)||null,ccamLibelle:document.getElementById('f-ccam-libelle').value||'',diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
   blocs.push(newBloc);
+  if(convertedPlannedId)planned=planned.filter(p=>p.id!==convertedPlannedId);
   window._plannedBlocId = null; // reset après usage
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
   // Multi-intervention : si des blocs supplémentaires ont été préparés
@@ -12074,43 +12097,67 @@ function renderCalMonth(){
   document.getElementById('cal-month-grid').innerHTML=cells;
 }
 
-// ── MODAL JOUR ──
+// ── PARCOURS PLEIN ÉCRAN DES BLOCS PRÉVUS ──
+let plannedWorkspaceReturn='planning';
+let plannedFormReturn='planning';
+let currentPlannedIdx=null;
+window._plannedImplants=new Set();
+window._plannedDraftRadios=[];
+
+function currentViewName(){const el=document.querySelector('.view.active');return el?el.id.replace('view-',''):'';}
+function openPlannedWorkspace(name){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
+  const view=document.getElementById('view-'+name);if(view)view.classList.add('active');
+  const planningNav=document.getElementById('bn-planning');if(planningNav)planningNav.classList.add('active');
+  const scroller=document.querySelector('.views');if(scroller)scroller.scrollTop=0;
+}
+function closePlannedWorkspace(){
+  const target=plannedWorkspaceReturn||'planning';
+  if(target==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
+  else sw(target);
+}
+function closePlannedForm(){
+  if(plannedEditIdx!==null&&currentPlannedIdx!==null){openPlannedDetail(currentPlannedIdx,plannedFormReturn);return;}
+  if(plannedFormReturn==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
+  else sw(plannedFormReturn||'planning');
+}
 function openDayModal(ds){
   dayModalDate=ds;
-  // Parser sans UTC : new Date(y, m-1, d) pour éviter le décalage timezone
+  plannedWorkspaceReturn='planning';
   const parts=ds.split('-');
   const d=new Date(+parts[0],+parts[1]-1,+parts[2]);
-  document.getElementById('day-modal-title').textContent=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  const title=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('day-modal-title').textContent=title.charAt(0).toUpperCase()+title.slice(1);
   renderDayBlocs(ds);
-  openModal('day-modal');
+  openPlannedWorkspace('planned-day');
 }
 function renderDayBlocs(ds){
-  const el=document.getElementById('day-blocs-list');
   const pbs=plannedForDate(ds);
-  // bc_map dynamique — géré via getSpecBadgeStyle(spec)
-  if(!pbs.length){
-    el.innerHTML='<div style="font-size:var(--fs-body2);color:var(--text3);padding:12px 0;text-align:center;">Aucun bloc prévu ce jour</div>';
-    return;
-  }
-  el.innerHTML=pbs.map(p=>{
-    const idx=planned.indexOf(p);
-    const bc=getSpecBadgeStyle(p);
-    return`<div style="padding:10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;" onclick="closeModal('day-modal');openPlannedDetail(${idx});">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-        ${specBadgeHtml(p.spec)}
-        <span style="font-size:var(--fs-body2);font-weight:600;">${esc(displayInterv(p.interv))||'—'}</span>
-      </div>
-      ${p.patient?`<div style="font-size:var(--fs-note);color:var(--text2);">${esc(p.patient)}${p.side?' · '+p.side:''}</div>`:''}
-      ${p.comment?`<div style="font-size:var(--fs-tag);color:var(--amber-d);margin-top:4px;">📋 ${esc(p.comment)}</div>`:''}
-    </div>`;
+  const empty=document.getElementById('planned-empty-state');
+  const filled=document.getElementById('planned-day-filled');
+  if(empty)empty.style.display=pbs.length?'none':'flex';
+  if(filled)filled.style.display=pbs.length?'block':'none';
+  const count=document.getElementById('planned-day-count');
+  if(count)count.textContent=pbs.length+(pbs.length>1?' blocs programmés':' bloc programmé');
+  const el=document.getElementById('planned-day-list');if(!el)return;
+  el.innerHTML=pbs.map((p,order)=>{
+    const idx=planned.indexOf(p);const sc=getSpecConfig(p.spec);
+    return`<button class="planned-day-patient" style="--spec:${sc.color}" onclick="openPlannedDetail(${idx},'planned-day')">
+      <span class="planned-day-order">${order+1}</span>
+      <span class="planned-day-main"><strong>${esc(p.patient)||'Patient non renseigné'}</strong><span>${esc(displayInterv(p.interv))||'—'}${p.side?' · '+esc(p.side):''}</span><span>${esc(sc.label)}</span></span>
+      <span class="planned-day-chevron">›</span>
+    </button>`;
   }).join('');
 }
 
 // ── SAISIE BLOC PRÉVU ──
 function openNewPlannedModal(ds){
   plannedEditIdx=null;
-  closeModal('day-modal');
-  document.getElementById('planned-modal-title').textContent='Nouveau bloc prévu';
+  const from=currentViewName();
+  plannedFormReturn=from==='planned-day'?'planned-day':(from||'planning');
+  document.getElementById('planned-form-eyebrow').textContent='Nouveau bloc prévu';
+  document.getElementById('planned-modal-title').textContent='Planifier un bloc';
   document.getElementById('p-date').value=ds||todayStr();
   populatePlannedSpecSelect();
   document.getElementById('p-spec').value='';
@@ -12121,93 +12168,110 @@ function openNewPlannedModal(ds){
   document.getElementById('p-interv-libre').value='';
   document.getElementById('p-patient').value='';
   document.getElementById('p-comment').value='';
-  document.getElementById('planned-save-btn').textContent='Enregistrer';
-  openModal('planned-modal');
+  document.getElementById('planned-save-btn').textContent='Enregistrer le bloc prévu';
+  window._plannedImplants=new Set();window._plannedDraftRadios=[];
+  renderPlannedFormImplants();renderPlannedDraftRadios();
+  openPlannedWorkspace('planned-form');
 }
 function populatePlannedSpecSelect(){
-  const sel = document.getElementById('p-spec');
-  if(!sel) return;
-  const active = getActiveSpecs();
-  sel.innerHTML = '<option value="">Choisir...</option>' + 
-    active.map(sid => {
-      const s = getSpecConfig(sid);
-      return `<option value="${sid}">${s.label}</option>`;
-    }).join('');
+  const sel=document.getElementById('p-spec');if(!sel)return;
+  sel.innerHTML='<option value="">Choisir...</option>'+getActiveSpecs().map(sid=>{const s=getSpecConfig(sid);return`<option value="${sid}">${s.label}</option>`;}).join('');
 }
-
 function upIntervPlanned(){
   const sp=document.getElementById('p-spec').value;
   const sel=document.getElementById('p-interv');
   const libre=document.getElementById('p-interv-libre');
   const region=document.getElementById('p-trauma-region');
-  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';if(libre)libre.style.display='none';if(region)region.style.display='none';return;}
-  if(sp === 'Traumatologie'){
-    if(region){ region.style.display='block'; region.value=''; }
-    sel.style.display='block';
-    sel.innerHTML='<option>Choisir une région d\'abord</option>';
-    if(libre) libre.style.display='none';
-    return;
-  }
-  if(region) region.style.display='none';
-  sel.style.display='block';
-  sel.innerHTML = buildIntervSelectHTML(sp);
-  sel.onchange=()=>toggleIntervLibre('p');
-  toggleIntervLibre('p');
-}
-function savePlanned(){
-  const sp=document.getElementById('p-spec').value;
-  const selVal=document.getElementById('p-interv').value;
-  const libreVal=(document.getElementById('p-interv-libre').value||'').trim();
-  let iv;
+  if(!sp){sel.innerHTML='<option>Sélectionner une spécialité d\'abord</option>';sel.style.display='block';if(libre)libre.style.display='none';if(region)region.style.display='none';renderPlannedFormImplants();return;}
   if(sp==='Traumatologie'){
-    iv=libreVal;
-  }else if(selVal.includes('__LIBRE__')){
-    iv = (selVal==='__LIBRE__') ? libreVal : selVal.replace(' — __LIBRE__',' — '+libreVal);
-    if(!libreVal) iv='';
-  }else if(selVal.startsWith('Autre')){
-    iv=libreVal;
-  }else{
-    iv=selVal;
+    if(region){region.style.display='block';region.value='';}
+    sel.style.display='block';sel.innerHTML='<option>Choisir une région d\'abord</option>';
+    if(libre)libre.style.display='none';renderPlannedFormImplants();return;
   }
+  if(region)region.style.display='none';
+  sel.style.display='block';sel.innerHTML=buildIntervSelectHTML(sp);
+  sel.onchange=plannedInterventionChanged;
+  toggleIntervLibre('p');renderPlannedFormImplants();
+}
+function plannedInterventionChanged(){toggleIntervLibre('p');renderPlannedFormImplants();}
+function plannedInterventionValue(){
+  const sel=(document.getElementById('p-interv')||{}).value||'';
+  const libre=((document.getElementById('p-interv-libre')||{}).value||'').trim();
+  if(sel.includes('__LIBRE__'))return libre?sel.replace(' — __LIBRE__',' — '+libre).replace('__LIBRE__',libre):'';
+  if(sel.startsWith('Autre'))return libre;
+  return sel;
+}
+function renderPlannedFormImplants(){
+  const box=document.getElementById('p-implant-pills');if(!box)return;
+  const sp=(document.getElementById('p-spec')||{}).value||'';
+  const iv=plannedInterventionValue();
+  if(!window._plannedImplants)window._plannedImplants=new Set();
+  if(!sp){box.innerHTML='';return;}
+  const list=implantsForContext(sp,iv);
+  let html=_impPillsGrouped(list,window._plannedImplants,'togglePlannedImplant');
+  window._plannedImplants.forEach(label=>{if(!list.find(c=>c.label===label))html+='<button type="button" class="imp-pill on" data-raw="'+esc(label)+'" onclick="togglePlannedImplant(this)">'+esc(impModelOnly(label))+'</button>';});
+  box.innerHTML=html;
+}
+function togglePlannedImplant(el){
+  if(!window._plannedImplants)window._plannedImplants=new Set();
+  let label='';
+  if(el.dataset.id){const item=implantCatalog.find(x=>String(x.id)===String(el.dataset.id));label=item?item.label:'';}
+  else label=el.dataset.raw||'';
+  if(!label)return;
+  if(window._plannedImplants.has(label))window._plannedImplants.delete(label);else window._plannedImplants.add(label);
+  renderPlannedFormImplants();
+}
+async function handlePlannedDraftRadioUpload(event){
+  const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length)return;
+  showToast('Préparation de '+files.length+' radio(s)…');
+  for(const file of files){
+    try{
+      const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=e=>resolve(e.target.result);reader.onerror=reject;reader.readAsDataURL(file);});
+      let finalData=data;
+      try{const compressed=await compressImageDataURL(data,1280,.8);if(compressed&&compressed.length<data.length*.95)finalData=compressed;}catch(e){}
+      window._plannedDraftRadios.push({data:finalData,name:file.name,date:new Date().toLocaleDateString('fr-CA')});
+    }catch(error){console.warn('Planned draft radio',error);}
+  }
+  renderPlannedDraftRadios();
+}
+function removePlannedDraftRadio(index){window._plannedDraftRadios.splice(index,1);renderPlannedDraftRadios();}
+function renderPlannedDraftRadios(){
+  const grid=document.getElementById('p-draft-radios-grid');if(!grid)return;
+  const draft=window._plannedDraftRadios||[];
+  const existing=plannedEditIdx!==null?'<div class="planned-radio-empty">Les radios déjà enregistrées restent disponibles sur la fiche pré-opératoire.</div>':'';
+  grid.innerHTML=draft.length?draft.map((img,index)=>`<div class="planned-radio-draft"><img src="${img.data}" alt="Radio pré-opératoire"><button type="button" onclick="removePlannedDraftRadio(${index})" aria-label="Retirer">×</button></div>`).join(''):existing||'<div class="planned-radio-empty">Aucune radio ajoutée</div>';
+}
+async function savePlanned(){
+  const sp=document.getElementById('p-spec').value;
+  const iv=plannedInterventionValue();
   if(!sp||!iv||iv.includes('Sélectionner')||iv.includes('Choisir')||iv.includes('__LIBRE__')){showToast('Spécialité et intervention requises');return;}
-  const entry={id:Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value,comment:document.getElementById('p-comment').value};
-  if(plannedEditIdx!==null){planned[plannedEditIdx]=entry;}
-  else{planned.push(entry);}
-  saveLocal();closeModal('planned-modal');renderPlanning();
-  showToast(plannedEditIdx!==null?'Bloc prévu modifié':'Bloc prévu ajouté');
+  const editing=plannedEditIdx!==null;
+  const entry={id:plannedEditIdx!==null?(planned[plannedEditIdx].id||Date.now().toString()):Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value.trim(),comment:document.getElementById('p-comment').value.trim(),implantModels:Array.from(window._plannedImplants||[])};
+  if(editing)planned[plannedEditIdx]=entry;else planned.push(entry);
+  const savedIdx=editing?plannedEditIdx:planned.length-1;
+  saveLocal();renderPlanning();
+  try{
+    const existing=await getRadiosForBloc(entry.id);let radioIndex=(existing['Préopératoire']||[]).length;
+    for(const img of (window._plannedDraftRadios||[])){await saveRadio(entry.id,'Préopératoire',radioIndex++,img.data,img.name,img.date);}
+    window._plannedDraftRadios=[];
+    showToast(editing?'Bloc prévu modifié':'Bloc prévu ajouté');
+  }catch(error){console.warn('Planned radio storage',error);showToast('Bloc prévu enregistré — radios à réessayer');}
+  openPlannedDetail(savedIdx,plannedFormReturn);
 }
 
-// ── DETAIL BLOC PRÉVU ──
-let currentPlannedIdx=null;
-function openPlannedDetail(idx){
-  currentPlannedIdx=idx;const p=planned[idx];
-  // bc_map dynamique — géré via getSpecBadgeStyle(spec)
-  const bc=getSpecBadgeStyle(p);
-  const cd=countdown(p.date);
-  document.getElementById('pdet-title').textContent=fmtDate(p.date)+(p.patient?' — '+p.patient:'');
+// ── FICHE PRÉ-OPÉRATOIRE ──
+function openPlannedDetail(idx,returnView){
+  const p=planned[idx];if(!p)return;
+  const from=returnView||currentViewName();
+  plannedWorkspaceReturn=from==='planned-day'?'planned-day':((from&&from!=='planned-detail')?from:'planning');
+  currentPlannedIdx=idx;
+  const sc=getSpecConfig(p.spec);const cd=countdown(p.date);
   document.getElementById('pdet-content').innerHTML=`
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
-      ${specBadgeHtml(p.spec)}
-      <span class="badge" style="background:var(--bg2);color:var(--text2);">${fmtDate(p.date)}</span>
-      ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
-    </div>
-    <div style="font-size:var(--fs-body);font-weight:600;margin-bottom:4px;">${esc(displayInterv(p.interv))||'—'}</div>
-    ${p.side?`<div style="font-size:var(--fs-body2);color:var(--text2);margin-bottom:8px;">${p.side}</div>`:''}
-    ${p.patient?`<div style="font-size:var(--fs-body2);color:var(--text2);margin-bottom:4px;">Patient : ${esc(p.patient)}</div>`:''}
-    ${p.comment?`<div style="margin-top:10px;padding:10px;background:var(--amber-l);border-radius:var(--radius);font-size:var(--fs-body2);color:var(--amber-d);line-height:1.5;">📋 ${escNl(p.comment)}</div>`:''}
-    <button onclick="editPlanned(${idx})" style="width:100%;margin-top:14px;padding:10px;font-size:var(--fs-body2);background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;font-family:inherit;color:var(--text);">Modifier</button>
-    <div id="pdet-radios-section" style="margin-top:18px;border-top:0.5px solid var(--border2);padding-top:16px;">
-      <div style="font-size:var(--fs-tag);color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;margin-bottom:10px;">Radios préopératoires</div>
-      <div id="pdet-radios-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;"></div>
-      <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:var(--fs-body2);font-weight:500;">
-        + Ajouter une radio préop
-        <input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})">
-      </label>
-    </div>
-  `;
-  openModal('planned-detail-modal');
-  // Charger les radios existantes
-  renderPlannedRadios(idx);
+    <section class="planned-preop-hero" style="--spec:${sc.color}"><div class="planned-preop-top"><div><div class="planned-preop-spec">${esc(sc.label)}${p.side?' · '+esc(p.side):''}</div><h2>${esc(p.patient)||'Patient non renseigné'}</h2><p>${esc(displayInterv(p.interv))||'—'}</p></div>${cd?`<span class="planned-preop-countdown">${cd.label}</span>`:''}</div></section>
+    <div class="planned-preop-grid"><div class="planned-preop-cell"><small>Date</small><strong>${fmtDate(p.date)}</strong></div><div class="planned-preop-cell"><small>Statut</small><strong>Bloc programmé</strong></div></div>
+    <section class="planned-preop-card"><h3>Préparation du bloc</h3><div class="planned-preop-line"><span>Implants prévus</span><strong>${(p.implantModels&&p.implantModels.length)?p.implantModels.map(esc).join(' · '):'Non renseignés'}</strong></div><div class="planned-preop-line"><span>Remarque</span><strong>${p.comment?esc(p.comment):'Aucune'}</strong></div></section>
+    <section class="planned-preop-card"><h3>Radios pré-opératoires</h3><div id="pdet-radios-grid" class="planned-radio-grid"></div><label class="planned-upload-action">+ Ajouter des radios<input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})"></label></section>`;
+  openPlannedWorkspace('planned-detail');renderPlannedRadios(idx);
 }
 
 async function renderPlannedRadios(idx){
@@ -12287,9 +12351,10 @@ async function openPlannedLB(idx, radioIdx){
   document.getElementById('lightbox').classList.add('show');
 }
 function editPlanned(idx){
-  plannedEditIdx=idx;const p=planned[idx];
-  closeModal('planned-detail-modal');
+  plannedEditIdx=idx;const p=planned[idx];if(!p)return;
+  plannedFormReturn=plannedWorkspaceReturn||'planning';
   populatePlannedSpecSelect();
+  document.getElementById('planned-form-eyebrow').textContent='Modification';
   document.getElementById('planned-modal-title').textContent='Modifier le bloc prévu';
   document.getElementById('p-date').value=p.date||'';
   document.getElementById('p-spec').value=p.spec||'';upIntervPlanned();
@@ -12298,19 +12363,22 @@ function editPlanned(idx){
   document.getElementById('p-side').value=p.side||'';
   document.getElementById('p-patient').value=p.patient||'';
   document.getElementById('p-comment').value=p.comment||'';
+  window._plannedImplants=new Set(p.implantModels||[]);window._plannedDraftRadios=[];
+  renderPlannedFormImplants();renderPlannedDraftRadios();
   document.getElementById('planned-save-btn').textContent='Enregistrer les modifications';
-  openModal('planned-modal');
+  openPlannedWorkspace('planned-form');
 }
 async function deletePlanned(){
   if(!await aconfirm({title:'Supprimer ce bloc prévu ?',ok:'Supprimer',danger:true}))return;
-  planned.splice(currentPlannedIdx,1);saveLocal();closeModal('planned-detail-modal');renderPlanning();showToast('Bloc prévu supprimé');
+  planned.splice(currentPlannedIdx,1);saveLocal();renderPlanning();showToast('Bloc prévu supprimé');
+  if(plannedWorkspaceReturn==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}else sw(plannedWorkspaceReturn||'planning');
 }
-function convertPlanned(){
+async function convertPlanned(){
   const p=planned[currentPlannedIdx];
-  closeModal('planned-detail-modal');
-  // Stocker l'id planifié pour que saveBloc le réutilise → radios migrées automatiquement
+  if(!p)return;
+  if(!await aconfirm({title:'Renseigner le bloc réalisé ?',msg:'Les informations pré-opératoires seront reprises. Le bloc prévu restera dans le planning jusqu’à l’enregistrement final.',ok:'Continuer'}))return;
   window._plannedBlocId = p.id;
-  // Pré-remplir le formulaire de saisie
+  window._openingPlannedConversion=true;
   sw('saisie');
   setTimeout(()=>{
     document.getElementById('f-date').value=p.date||todayStr();
@@ -12325,8 +12393,7 @@ function convertPlanned(){
     document.getElementById('f-side').value=p.side||'';
     document.getElementById('f-patient').value=p.patient||'';
     document.getElementById('f-remarques').value=p.comment?'Pré-op : '+p.comment:'';
-    // Supprimer le bloc prévu une fois le formulaire pré-rempli
-    planned.splice(currentPlannedIdx,1);saveLocal();renderPlanning();
+    window._selImplants=new Set(p.implantModels||[]);renderImplantPills();
     showToast('Formulaire pré-rempli — radios préop transférées automatiquement');
   },200);
 }
@@ -12452,7 +12519,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v169',
+    version:'atlas-v170',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14396,8 +14463,8 @@ input::placeholder,textarea::placeholder{font-style:normal!important;font-family
 }
 
 </style>
-<style id="atlas-liquid-glass-v169">
-/* Atlas v169 — Liquid Glass affirmé, couche de présentation uniquement. */
+<style id="atlas-liquid-glass-v170">
+/* Atlas v170 — Liquid Glass affirmé, couche de présentation uniquement. */
 :root{
   --glass-surface:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.48));
   --glass-surface-strong:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,255,255,.66));
@@ -14612,6 +14679,69 @@ html,body,#app{background:var(--bg)!important;}
     box-shadow:var(--glass-highlight),0 8px 16px -14px rgba(20,55,58,.48)!important;
   }
 }
+
+/* Atlas v170 — parcours plein écran des blocs programmés. */
+#view-saisie input[type="date"],#f-date{
+  display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+}
+.planned-page{padding:0 16px 112px;min-height:calc(100% - 62px);}
+.planned-page.active{display:block;}
+.planned-page-head{display:flex;align-items:center;gap:12px;padding:16px 0 18px;position:relative;}
+.planned-page-head>div{min-width:0;flex:1;}
+.planned-page-head h1{margin:2px 0 0;font-family:var(--serif);font-size:25px;font-weight:500;line-height:1.12;letter-spacing:-.02em;color:var(--text);}
+.planned-eyebrow,.planned-section-label{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);}
+.planned-back,.planned-edit-head{width:42px;height:42px;flex:0 0 42px;border:1px solid var(--glass-border);border-radius:50%;background:var(--glass-surface-strong);color:var(--text2);font-family:inherit;font-size:22px;cursor:pointer;box-shadow:var(--glass-highlight),0 12px 22px -17px rgba(20,55,58,.5);}
+.planned-edit-head{font-size:17px;}
+.planned-page-scroll{padding-bottom:22px;}
+.planned-empty-state{min-height:54vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px 20px;}
+.planned-empty-icon{width:68px;height:68px;border-radius:22px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent-l) 82%,white);border:1px solid var(--glass-border);color:var(--accent);font-size:29px;box-shadow:var(--glass-highlight),var(--glass-shadow);margin-bottom:18px;}
+.planned-empty-state h2{font-family:var(--serif);font-size:24px;font-weight:500;margin:0 0 7px;color:var(--text);}
+.planned-empty-state p{font-size:13.5px;line-height:1.5;color:var(--text3);margin:0 0 22px;}
+.planned-primary-action,.planned-add-day,.planned-sticky-action>button:first-child{border:0;border-radius:17px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 88%,white),color-mix(in srgb,var(--accent) 90%,black));color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 17px 27px -18px var(--accent);}
+.planned-primary-action{min-height:50px;padding:0 20px;}
+.planned-add-day{width:100%;min-height:48px;margin-top:14px;}
+#planned-day-list{display:flex;flex-direction:column;gap:10px;margin-top:11px;}
+.planned-day-patient{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 18px;gap:12px;align-items:center;width:100%;padding:14px;border:1px solid var(--glass-border);border-radius:19px;background:var(--glass-surface-strong);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;box-shadow:var(--glass-highlight),var(--glass-shadow);overflow:hidden;}
+.planned-day-patient::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--spec,var(--accent));}
+.planned-day-order{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 74%,white);font-family:var(--serif);font-size:19px;font-weight:500;color:var(--text);}
+.planned-day-main{min-width:0;}
+.planned-day-main strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif);font-size:16px;font-weight:500;}
+.planned-day-main span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px;font-size:12px;color:var(--text3);}
+.planned-day-chevron{font-size:21px;color:var(--text3);}
+.planned-form-scroll{padding-bottom:82px;}
+.planned-form-card,.planned-preop-card,.planned-preop-hero,.planned-preop-cell{background:var(--glass-surface-strong);border:1px solid var(--glass-border);box-shadow:var(--glass-highlight),var(--glass-shadow);}
+.planned-form-card{border-radius:20px;padding:15px;margin-bottom:11px;}
+.planned-form-card .form-group:last-child{margin-bottom:0;}
+.planned-form-card input,.planned-form-card select,.planned-form-card textarea{width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
+.planned-help{font-size:11.5px;line-height:1.45;color:var(--text3);margin:6px 0 10px;}
+#p-implant-pills{display:flex;gap:7px;flex-wrap:wrap;}
+#p-implant-pills:empty::after{content:"Sélectionnez d’abord une spécialité et une intervention.";font-size:12px;color:var(--text3);}
+.planned-radio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0;}
+.planned-radio-draft{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--bg);border:1px solid var(--glass-border);}
+.planned-radio-draft img{width:100%;height:100%;object-fit:cover;display:block;}
+.planned-radio-draft button{position:absolute;right:5px;top:5px;width:25px;height:25px;border:0;border-radius:50%;background:rgba(24,24,22,.76);color:#fff;font-size:15px;cursor:pointer;}
+.planned-radio-empty{grid-column:1/-1;padding:7px 0;font-size:12px;color:var(--text3);}
+.planned-upload-action{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:14px;background:color-mix(in srgb,var(--accent-l) 72%,transparent);color:var(--accent);font-size:13px;font-weight:600;cursor:pointer;}
+.planned-sticky-action{position:fixed;left:16px;right:16px;bottom:calc(72px + var(--safe-bot));z-index:92;padding:10px 0 12px;background:linear-gradient(180deg,transparent 0,var(--bg) 24%);display:flex;gap:8px;}
+.planned-sticky-action>button:first-child{flex:1;min-height:52px;}
+.planned-more-action{width:52px;min-height:52px;border:1px solid var(--glass-border);border-radius:17px;background:var(--glass-surface-strong);color:var(--text2);font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;box-shadow:var(--glass-highlight),var(--glass-shadow);}
+.planned-preop-hero{position:relative;border-radius:23px;padding:18px;margin-bottom:11px;overflow:hidden;}
+.planned-preop-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--spec,var(--accent));}
+.planned-preop-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.planned-preop-spec{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--spec,var(--accent));}
+.planned-preop-hero h2{margin:8px 0 4px;font-family:var(--serif);font-size:25px;font-weight:500;line-height:1.05;color:var(--text);}
+.planned-preop-hero p{margin:0;font-size:13px;color:var(--text3);}
+.planned-preop-countdown{padding:6px 10px;border-radius:13px;background:var(--red-l);color:var(--red-d);font-size:11px;font-weight:700;white-space:nowrap;}
+.planned-preop-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;}
+.planned-preop-cell{border-radius:18px;padding:13px;min-height:78px;}
+.planned-preop-cell small{display:block;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-bottom:7px;}
+.planned-preop-cell strong{font-family:var(--serif);font-size:15px;font-weight:500;color:var(--text);}
+.planned-preop-card{border-radius:20px;padding:15px;margin-bottom:10px;}
+.planned-preop-card h3{margin:0 0 10px;font-family:var(--serif);font-size:17px;font-weight:500;color:var(--text);}
+.planned-preop-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--border);font-size:12.5px;color:var(--text3);}
+.planned-preop-line strong{max-width:64%;color:var(--text);font-weight:600;text-align:right;}
+.planned-detail-scroll{padding-bottom:86px;}
+@media(max-width:390px){.planned-page{padding-left:13px;padding-right:13px}.planned-page-head h1{font-size:23px}.planned-sticky-action{left:13px;right:13px}.planned-preop-grid{gap:7px}}
 
 </style>
 </body></html>
