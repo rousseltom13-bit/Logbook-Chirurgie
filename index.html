@@ -3446,7 +3446,7 @@ button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
   </div>
   <div class="lb-nav" onclick="event.stopPropagation()"><button onclick="lbNav(-1)">← Préc.</button><button onclick="lbNav(1)">Suiv. →</button></div>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <!-- v13-rescue : datalists d'autocomplete -->
 <datalist id="dl-implants"></datalist>
 <div class="modal-overlay" id="astuce-modal">
@@ -4379,11 +4379,12 @@ function atlasRunCardTransition(source,navigate,resolveTarget){
   atlasTransitionBusy=true;
   const root=document.documentElement;
   root.classList.add('atlas-card-moving');
+  source.style.setProperty('--atlas-source-transform',getComputedStyle(source).transform);
   source.classList.add('atlas-transition-source');
   source.style.viewTransitionName='atlas-shared-card';
   let target=null;
   const cleanup=()=>{
-    source.style.viewTransitionName='';source.classList.remove('atlas-transition-source');
+    source.style.viewTransitionName='';source.classList.remove('atlas-transition-source');source.style.removeProperty('--atlas-source-transform');
     if(target)target.style.viewTransitionName='';
     document.querySelectorAll('.view.active').forEach(el=>el.classList.add('atlas-transition-settled'));
     root.classList.remove('atlas-card-moving');atlasTransitionBusy=false;
@@ -4400,7 +4401,7 @@ function atlasRunCardTransition(source,navigate,resolveTarget){
 function atlasOpenWithCardTransition(source,targetSelector,navigate){
   if(atlasTransitionBusy)return;
   const container=source&&source.closest('.view');
-  atlasCardTransitionOrigin=source?{element:source,viewId:container&&container.id,click:source.getAttribute('onclick'),scroll:Array.from(document.querySelectorAll('.views,.view,.bloclist-scroll,.stats-scroll')).map(el=>({el,top:el.scrollTop}))}:null;
+  atlasCardTransitionOrigin=source?{element:source,viewId:container&&container.id,click:source.getAttribute('onclick'),scroll:Array.from(document.querySelectorAll('.views,.view,.view-scroll,.bloclist-scroll,.stats-scroll')).map(el=>({el,top:el.scrollTop}))}:null;
   atlasCardTransitionTarget=targetSelector;
   atlasRunCardTransition(source,navigate,()=>document.querySelector(targetSelector));
 }
@@ -6105,8 +6106,13 @@ let curRadioTab='preop';
 
 async function renderDetRadios(bi){
   const b=blocs[bi]; const el=document.getElementById('det-radios');
-  el.innerHTML='<div style="padding:20px;text-align:center;color:var(--text3);font-size:var(--fs-body2);">Chargement...</div>';
-  const radios=await getRadiosForBloc(b.id);
+  if(!b||!el)return;
+  const request=el._atlasRequest=(el._atlasRequest||0)+1;
+  el.innerHTML=atlasSystemState('Chargement des radios','Lecture des images enregistrées sur cet appareil.','loading');
+  let radios;
+  try{radios=await getRadiosForBloc(b.id);}
+  catch(error){if(el._atlasRequest===request)el.innerHTML=atlasSystemState('Radios indisponibles','La lecture a échoué. Changez d’onglet puis réessayez.','error');return;}
+  if(el._atlasRequest!==request||detailBlocIdx!==bi)return;
 
   // Mapper les slots legacy vers les onglets
   const preSlots=['Préopératoire'];
@@ -7946,7 +7952,7 @@ function openBlocsListModal(title, blocsList, options){
   document.getElementById('statut-patients-title').innerHTML=header;
   const listEl=document.getElementById('statut-patients-list');
   if(!list.length){
-    listEl.innerHTML='<div style="padding:28px;color:var(--text3);text-align:center;">Aucun bloc</div>';
+    listEl.innerHTML=atlasSystemState(options.action==='missing'?'Dossiers à jour':options.action==='stale'?'Aucun suivi ancien à reprendre':'Aucun bloc à afficher',options.action==='missing'?'Aucune radio ni pastille implant attendue ne manque dans cette sélection.':options.action==='stale'?'Aucun bloc de plus de six mois ne nécessite de clôture dans cette sélection.':'Aucun dossier ne correspond à cette sélection.');
     showBlocListView();return;
   }
   // l'intervention/le rôle ne s'affichent en sous-titre que s'ils varient (sinon redondants avec le titre)
@@ -12229,7 +12235,7 @@ function openPlannedWorkspace(name){
   const scroller=document.querySelector('.views');if(scroller)scroller.scrollTop=0;
 }
 function closePlannedWorkspace(){
-  const target=plannedWorkspaceReturn||'planning';
+  const target=currentViewName()==='planned-day'?'planning':(plannedWorkspaceReturn||'planning');
   if(target==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
   else sw(target);
 }
@@ -12394,15 +12400,20 @@ function openPlannedDetail(idx,returnView){
 }
 
 async function renderPlannedRadios(idx){
-  const p = planned[idx];
-  if(!p) return;
-  const radios = await getRadiosForBloc(p.id);
-  const preImgs = (radios['Préopératoire'] || []);
-  const grid = document.getElementById('pdet-radios-grid');
-  if(!grid) return;
-  if(!preImgs.length){
-    grid.innerHTML = '<div style="font-size:var(--fs-note);color:var(--text3);padding:4px 0;">Aucune radio ajoutée</div>';
+  const p=planned[idx],grid=document.getElementById('pdet-radios-grid');
+  if(!p||!grid)return;
+  const request=grid._atlasRequest=(grid._atlasRequest||0)+1;
+  grid.innerHTML=atlasSystemState('Chargement des radios','Lecture des images enregistrées sur cet appareil.','loading');
+  let radios;
+  try{radios=await getRadiosForBloc(p.id);}
+  catch(error){
+    if(grid.isConnected&&grid._atlasRequest===request)grid.innerHTML=atlasSystemState('Radios indisponibles','La lecture a échoué. Fermez puis rouvrez cette fiche pour réessayer.','error');
     return;
+  }
+  if(!grid.isConnected||grid._atlasRequest!==request)return;
+  const preImgs=radios['Préopératoire']||[];
+  if(!preImgs.length){
+    grid.innerHTML=atlasSystemState(p.noRadioNeeded?'Aucune radio attendue':'Aucune radio ajoutée',p.noRadioNeeded?'Ce bloc est marqué « Pas de radio nécessaire ».':'Le bouton ci-dessous permet d’ajouter les images pré-opératoires.');return;
   }
   grid.innerHTML = preImgs.map((img,i) => `
     <div class="radio-thumb" onclick="openPlannedLB(${idx},${i})">
@@ -12534,7 +12545,15 @@ function escNl(s){return esc(s).replace(/\n/g,'<br>');}
 function statusClasses(s){const map={vert:{dc:'sv',tc:'tv',sl:'Bon résultat'},excellent:{dc:'sv',tc:'tv',sl:'Excellent résultat'},orange:{dc:'so',tc:'to',sl:'Vigilance'},rouge:{dc:'sr',tc:'tr',sl:'Complication'},pdv:{dc:'sp',tc:'tp',sl:'Perdu de vue'},deces:{dc:'sn',tc:'tn',sl:'Décès'}};return map[s]||{dc:'sg',tc:'tg',sl:'En attente'};}
 function openModal(id){document.getElementById(id).classList.add('show');}
 function closeModal(id){const e=document.getElementById(id);if(e)e.classList.remove('show');}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+let atlasToastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');clearTimeout(atlasToastTimer);
+  t.textContent=msg;t.style.display='block';
+  atlasToastTimer=setTimeout(()=>{t.style.display='none';},Math.min(6500,Math.max(2800,String(msg).length*55)));
+}
+function atlasSystemState(title,message,kind){
+  return '<div class="atlas-system-state '+(kind==='loading'?'is-loading':'')+'" role="status"><span class="atlas-state-mark" aria-hidden="true">'+(kind==='loading'?'':kind==='error'?'!':'✓')+'</span><strong>'+esc(title)+'</strong><p>'+esc(message)+'</p></div>';
+}
 const BKP_KEY='atlas_backup_snap';
 function _suiviCount(){try{return blocs.reduce((n,b)=>n+((b.consultations||[]).length)+((b.evenements||[]).length),0);}catch(e){return 0;}}
 function _bkpSnap(){try{return JSON.parse(localStorage.getItem(BKP_KEY)||'null')||{};}catch(e){return {};}}
@@ -12642,7 +12661,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v173',
+    version:'atlas-v174',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14921,7 +14940,7 @@ html.atlas-card-moving .view.active *,
 html.atlas-card-moving .atlas-transition-source{
   animation:none!important;transition:none!important;scroll-behavior:auto!important;
 }
-html.atlas-card-moving .atlas-transition-source{transform:none!important;}
+html.atlas-card-moving .atlas-transition-source{transform:var(--atlas-source-transform,none)!important;}
 html.atlas-card-moving .view.active{pointer-events:none;}
 .view.atlas-transition-settled,.view.atlas-transition-settled *{animation:none!important;}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;}
@@ -14939,6 +14958,18 @@ html.atlas-card-moving .view.active{pointer-events:none;}
 #det-hero .atlas-det-meta-row{margin-top:16px;padding-top:13px;border-top:1px solid var(--border);gap:7px 9px;}
 #det-hero .atlas-det-role,#det-hero .atlas-det-meta-txt{font-size:12px;line-height:1.4;}
 @media(max-width:370px){#view-detail #det-hero{margin-left:12px;margin-right:12px;padding:16px;}}
+
+
+/* v174 — stable contact geometry and readable system feedback. */
+#plan-month-list .planned-item:active{transform:none!important;}
+.atlas-system-state{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 17px;gap:9px;border:1px solid var(--glass-border);border-radius:18px;background:var(--glass-surface-strong);color:var(--text);}
+.atlas-system-state strong{font-family:var(--serif);font-size:19px;font-weight:500;}
+.atlas-system-state p{margin:0;max-width:32ch;font-size:12px;line-height:1.5;color:var(--text3);}
+.atlas-state-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:12px;background:var(--accent-l);color:var(--accent);font-size:19px;}
+.is-loading .atlas-state-mark{width:23px;height:23px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;background:transparent;animation:atlas-state-spin .9s linear infinite;}
+@keyframes atlas-state-spin{to{transform:rotate(360deg);}}
+#toast{box-sizing:border-box;max-width:calc(100vw - 32px);width:max-content;white-space:normal;overflow-wrap:anywhere;line-height:1.45;text-align:center;border-radius:17px;padding:12px 17px;box-shadow:0 10px 26px rgba(0,0,0,.18);}
+@media(prefers-reduced-motion:reduce){.is-loading .atlas-state-mark{animation:none;}}
 
 </style>
 </body></html>
