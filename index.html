@@ -12661,7 +12661,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v174',
+    version:'atlas-v175',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14970,6 +14970,47 @@ html.atlas-card-moving .view.active{pointer-events:none;}
 @keyframes atlas-state-spin{to{transform:rotate(360deg);}}
 #toast{box-sizing:border-box;max-width:calc(100vw - 32px);width:max-content;white-space:normal;overflow-wrap:anywhere;line-height:1.45;text-align:center;border-radius:17px;padding:12px 17px;box-shadow:0 10px 26px rgba(0,0,0,.18);}
 @media(prefers-reduced-motion:reduce){.is-loading .atlas-state-mark{animation:none;}}
+
+</style>
+<style id="atlas-documents-v175">
+/* Atlas v175 — Documents : hiérarchie et lisibilité, présentation uniquement. */
+#doc-modal .doc-head{
+  padding:calc(12px + env(safe-area-inset-top,0px)) 16px 14px;
+  gap:9px;background:var(--bg)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+#doc-modal #doc-trame{font-size:clamp(23px,6vw,28px)!important;line-height:1.15!important;font-weight:500!important;overflow-wrap:anywhere;}
+#doc-modal #doc-sub{font-size:12px!important;line-height:1.45;margin-top:7px!important;overflow-wrap:anywhere;}
+#doc-modal .doc-close,#doc-modal .doc-pen{width:42px;height:42px;border-radius:14px;background:var(--bg2);border:1px solid var(--border);}
+#doc-step1 .doc-formscroll{padding:16px 14px 24px;scroll-padding-bottom:24px;}
+#doc-step1 #doc-form{min-width:0;}
+#doc-step1 .edc{border:1px solid var(--glass-border);border-radius:21px!important;background:var(--glass-surface-strong)!important;box-shadow:var(--glass-highlight),var(--glass-shadow)!important;overflow:hidden;margin-bottom:14px!important;}
+#doc-step1 .edc-head{display:grid;grid-template-columns:30px minmax(0,1fr) 18px;gap:4px 10px;padding:16px 14px;min-height:64px;width:100%;box-sizing:border-box;text-align:left;background:transparent;}
+#doc-step1 .edc-dot{grid-column:1;grid-row:1 / span 2;width:30px;height:30px;align-self:center;border-radius:11px;}
+#doc-step1 .edc-t{grid-column:2;grid-row:1;font-size:15px;font-weight:650;line-height:1.35;white-space:normal;}
+#doc-step1 .edc-sum{grid-column:2;grid-row:2;min-width:0;max-width:100%;font-size:11px;line-height:1.45;color:var(--text3);text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#doc-step1 .edc-sum:empty{display:none;}
+#doc-step1 .edc-chev{grid-column:3;grid-row:1 / span 2;width:17px;height:17px;align-self:center;}
+#doc-step1 .edc.open .edc-head{background:color-mix(in srgb,var(--accent-l) 28%,transparent);}
+#doc-step1 .doc-cardbody{background:var(--bg2)!important;}
+#doc-step1 .doc-row{padding:18px 15px;background:transparent!important;border-bottom:1px solid var(--border);}
+#doc-step1 .doc-row:last-child{border-bottom:0;}
+#doc-step1 .doc-flabel{font-size:12px;line-height:1.5;letter-spacing:.015em;text-transform:none;font-weight:650;color:var(--text2);margin-bottom:9px;}
+#doc-step1 .doc-pills{gap:8px;align-items:stretch;}
+#doc-step1 .doc-pill{min-height:44px;max-width:100%;padding:10px 12px;gap:7px;border:1px solid var(--border2);border-radius:13px;background:var(--bg);color:var(--text2);font-size:13px;font-weight:500;line-height:1.4;white-space:normal;text-align:left;box-shadow:none;}
+#doc-step1 .doc-pill::before{content:'✓';visibility:hidden;flex:0 0 11px;font-size:12px;font-weight:750;}
+#doc-step1 .doc-pill.on{background:var(--accent-l)!important;border-color:var(--accent)!important;color:var(--accent)!important;font-weight:650;box-shadow:inset 0 0 0 .5px var(--accent);}
+#doc-step1 .doc-pill.on::before{visibility:visible;}
+#doc-step1 .doc-fin{min-height:46px;max-width:100%;min-width:0;padding:12px;border:1px solid var(--border2);border-radius:12px;background:var(--bg);font-size:16px;line-height:1.4;box-shadow:none;}
+#doc-step1 textarea.doc-fin{min-height:90px;resize:vertical;}
+#doc-step1 .doc-fin::placeholder{font-style:normal;color:var(--text3);}
+#doc-step1 .doc-fin:focus-visible,#doc-step1 button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+#doc-step1 .doc-cb{min-height:44px;padding:7px 0;gap:11px;line-height:1.45;font-size:13px;}
+#doc-step1 .doc-cbx{width:23px;height:23px;border-radius:8px;}
+#doc-step1 .doc-foot{background:var(--bg)!important;border-top:1px solid var(--border);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+#doc-step1 .doc-act-p{min-height:50px;border-radius:16px;font-size:14px;line-height:1.35;background:var(--accent);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 9px 18px -15px var(--accent);}
+/* Même profondeur pour chaque bloc du programme mensuel. */
+#plan-month-list .planned-item{box-shadow:var(--glass-highlight),var(--glass-shadow-raised)!important;}
 
 </style>
 </body></html>
