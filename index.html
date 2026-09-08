@@ -8610,7 +8610,7 @@ const _COMMON=[
   {k:'dateSortie',t:'date',l:'Date de sortie (CRH)'},
   {k:'consultSem',t:'num',l:'Consultation de contrôle (semaines)',def:'6'},
   {k:'aides',t:'text',l:'Aide(s) opératoire(s)',ph:'—'},
-  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>((f&&(f._inter==='radius'||f._inter==='olecrane'||f._inter==='deuxos'||f._inter==='palette'||f._inter==='teteradiale'))?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&(f._inter==='humerus'||f._inter==='clavicule'))?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation']),def:'Rachianesthésie'}
+  {k:'anesthesie',t:'seg',l:'Anesthésie',o:f=>docAnesthesiaChoices(f,((f&&(f._inter==='radius'||f._inter==='olecrane'||f._inter==='deuxos'||f._inter==='palette'||f._inter==='teteradiale'))?['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique']:(f&&(f._inter==='humerus'||f._inter==='clavicule'))?['Anesthésie générale','AG + bloc interscalénique']:['Rachianesthésie','Anesthésie générale','Rachi + sédation'])),def:'Rachianesthésie'}
 ];
 const DOC_OPTS={
   pth:[..._COMMON,
@@ -11201,15 +11201,26 @@ function docContent(doc){
   return '(Document non défini)';
 }
 function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
+function docIsUpperLimb(f){
+  if(['radius','deuxos','humerus','clavicule','olecrane','palette','teteradiale'].includes(f._inter))return true;
+  const label=((f._spec||'')+' '+(f._interv||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  if(/membre inferieur/.test(label))return false;
+  return /membre superieur|epaule|coude|poignet|\bmain\b|doigt|humer|clavicul|olecrane|radius|radial|ulna|cubitus|avant.bras|scapho|metacarp/.test(label);
+}
+function docAnesthesiaChoices(f,choices){
+  if(docIsUpperLimb(f||{}))return choices;
+  return ['Anesthésie générale',...choices.filter(choice=>choice!=='Anesthésie générale')];
+}
 function openBlocDocs(bi,forcedInter){
   const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
   const inter=forcedInter||detectInter(b.interv||'');
   DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!((b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode)};
   DOCF._bi=bi;window._trameEdit=false;
-  window._docSecOpen={patient:false,interv:true,suites:false};
+  window._docSecOpen={patient:false,interv:false,suites:false};
   (DOC_OPTS[inter]||[]).forEach(o=>{if(!o.k)return;DOCF[o.k]=(o.def!==undefined)?o.def:(o.t==='check'?false:'');});
   if(inter==='radius'||inter==='deuxos')DOCF.anesthesie='ALR (bloc axillaire)';
   if(inter==='humerus'||inter==='clavicule'||inter==='olecrane'||inter==='palette'||inter==='teteradiale')DOCF.anesthesie='Anesthésie générale';
+  if(!docIsUpperLimb(DOCF))DOCF.anesthesie='Anesthésie générale';
   const parts=(b.patient||'').trim().split(/\s+/).filter(Boolean);
   const noms=[],prenoms=[];
   parts.forEach(p=>{(p===p.toUpperCase()&&p.length>1?noms:prenoms).push(p);});
@@ -11393,7 +11404,7 @@ function renderDocForm(){
     else if(SUI.test(o.k||''))buckets.suites.push(o);
     else buckets.interv.push(o);
   });
-  window._docSecOpen=window._docSecOpen||{patient:false,interv:true,suites:false};
+  window._docSecOpen=window._docSecOpen||{patient:false,interv:false,suites:false};
   const secSum=(k,list)=>{
     try{
       if(k==='patient'){
@@ -11413,7 +11424,7 @@ function renderDocForm(){
     }catch(e){return '';}
   };
   const CARDS=[['patient','Patient & séjour','var(--green)'],['interv','Intervention & gestes','var(--accent)'],['suites','Suites & ordonnances','var(--purple)']];
-  host.innerHTML=trameBar+CARDS.map(c=>{
+  host.innerHTML=trameBar+'<div class="doc-overview-intro"><span>Préparation des documents</span><h2>Vérifier avant de générer</h2><p>Ouvrez chaque rubrique pour vérifier les informations et adapter les choix préremplis.</p></div>'+CARDS.map(c=>{
     const k=c[0],title=c[1],col=c[2];
     const list=buckets[k];if(!list.length)return '';
     const open=!!window._docSecOpen[k];
@@ -12661,7 +12672,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v175',
+    version:'atlas-v176',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -15012,5 +15023,28 @@ html.atlas-card-moving .view.active{pointer-events:none;}
 /* Même profondeur pour chaque bloc du programme mensuel. */
 #plan-month-list .planned-item{box-shadow:var(--glass-highlight),var(--glass-shadow-raised)!important;}
 
+</style>
+<style id="atlas-documents-v176">
+/* v176 — contrastes explicites : les champs ne dépendent plus des reflets. */
+#doc-step1 .doc-cardbody{background:var(--bg)!important;}
+#doc-step1 .doc-fin,#doc-step1 .doc-pill:not(.on){
+  background:var(--bg2)!important;
+  border:1px solid color-mix(in srgb,var(--text) 28%,var(--bg2))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 2px 3px rgba(20,35,35,.045)!important;
+}
+#doc-step1 .doc-fin{color:var(--text)!important;min-height:48px;}
+#doc-step1 .doc-fin::placeholder{color:var(--text2);opacity:.8;}
+#doc-step1 .doc-fin:focus{border-color:var(--accent)!important;box-shadow:0 0 0 3px var(--accent-l)!important;}
+#doc-step1 .doc-pill.on{background:var(--accent-l)!important;border:1.5px solid var(--accent)!important;box-shadow:none!important;}
+#doc-step1 .doc-row{border-bottom-color:color-mix(in srgb,var(--text) 15%,var(--bg));}
+#doc-step1 .doc-cbx{border-color:color-mix(in srgb,var(--text) 32%,var(--bg2));}
+.doc-overview-intro{padding:9px 5px 20px;}
+.doc-overview-intro>span{font-size:10px;font-weight:650;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);}
+.doc-overview-intro h2{font-family:var(--serif);font-weight:500;font-size:24px;line-height:1.15;margin:9px 0;}
+.doc-overview-intro p{font-size:12px;line-height:1.5;color:var(--text2);margin:0;max-width:38ch;}
+#doc-form:has(.edc.open) .doc-overview-intro{display:none;}
+#doc-form:not(:has(.edc.open)) .edc-head{min-height:92px;padding:20px 16px;gap:7px 12px;}
+#doc-form:not(:has(.edc.open)) .edc-sum{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.5;}
+#doc-form:not(:has(.edc.open)) .edc{border-color:color-mix(in srgb,var(--text) 16%,var(--bg2));}
 </style>
 </body></html>
