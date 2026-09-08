@@ -2181,7 +2181,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 
         <!-- Patient & date -->
         <div class="field-group">
-          <div class="field">
+          <div class="field date-field">
             <div class="field-label">Date</div>
             <input type="date" id="f-date" class="f-input">
           </div>
@@ -2306,6 +2306,10 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
             <div id="f-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
             <input type="text" id="f-implants-suggest" class="f-input" placeholder="Rechercher un implant déjà utilisé…" autocomplete="off" list="dl-implants" style="margin-bottom:6px;" oninput="onImplantSuggest(this.value)" onchange="onImplantSuggest(this.value)">
             <textarea id="f-implants" class="f-textarea" placeholder="ex. Nexgen Legacy PS · Fémur D3 · Tibia 4..."></textarea>
+            <div class="expectation-options">
+              <label class="expectation-option"><input type="checkbox" id="f-no-implant"><span><b>Sans implant nécessaire</b><small>Ne pas signaler l’absence d’implant</small></span></label>
+              <label class="expectation-option"><input type="checkbox" id="f-no-radio"><span><b>Pas de radio nécessaire</b><small>Ne pas signaler l’absence de radio</small></span></label>
+            </div>
           </div>
         </div>
 
@@ -2458,7 +2462,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 
         <div class="stats-panel" id="sp-encours">
           <div class="s-section">
-            <div class="s-card" id="suivi-completeness"></div>
+            <div class="s-card suivi-action-center" id="suivi-action-center"></div>
           </div>
           <div class="s-section">
             <div class="s-section-h"><h2 class="s-section-title">Résultats patients — suivi en cours</h2></div>
@@ -2761,11 +2765,13 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
           <div class="planned-section-label">Implants prévus</div>
           <div class="planned-help">Les références proposées correspondent à l'intervention sélectionnée.</div>
           <div id="p-implant-pills" class="imp-pills"></div>
+          <label class="expectation-option"><input type="checkbox" id="p-no-implant"><span><b>Sans implant nécessaire</b><small>Cas particulier sans matériel à renseigner</small></span></label>
         </div>
         <div class="planned-form-card">
           <div class="planned-section-label">Radios pré-opératoires</div>
           <div id="p-draft-radios-grid" class="planned-radio-grid"></div>
           <label class="planned-upload-action">+ Ajouter des radios<input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedDraftRadioUpload(event)"></label>
+          <label class="expectation-option"><input type="checkbox" id="p-no-radio"><span><b>Pas de radio nécessaire</b><small>Ne pas attendre d’imagerie pour ce cas</small></span></label>
         </div>
         <div style="height:72px;"></div>
       </div>
@@ -2774,7 +2780,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
 
     <div class="view planned-page" id="view-planned-detail">
       <div class="planned-page-head">
-        <button class="planned-back" onclick="closePlannedWorkspace()" aria-label="Retour">‹</button>
+        <button class="planned-back" onclick="backFromPlannedDetail()" aria-label="Retour">‹</button>
         <div><div class="planned-eyebrow">Bloc prévu</div><h1 id="pdet-title">Fiche pré-opératoire</h1></div>
         <button class="planned-edit-head" onclick="editPlanned(currentPlannedIdx)" aria-label="Modifier">✎</button>
       </div>
@@ -3291,6 +3297,10 @@ button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
             <div id="e-implant-pills" style="display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;"></div>
             <input type="text" id="e-implants-suggest" autocomplete="off" list="dl-implants" placeholder="Rechercher un implant…" style="width:100%;padding:10px;font-size:15px;border:none;border-bottom:0.5px solid var(--border);background:transparent;color:var(--text);font-family:inherit;outline:none;" oninput="onEditImplantSuggest(this.value)" onchange="onEditImplantSuggest(this.value)">
             <textarea id="e-implants" placeholder="Autre matériel (libre)…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;min-height:60px;resize:vertical;"></textarea>
+          </div>
+          <div class="ed-row expectation-options">
+            <label class="expectation-option"><input type="checkbox" id="e-no-implant"><span><b>Sans implant nécessaire</b><small>Exception pour ce bloc</small></span></label>
+            <label class="expectation-option"><input type="checkbox" id="e-no-radio"><span><b>Pas de radio nécessaire</b><small>Exception pour ce bloc</small></span></label>
           </div>
         </div>
       </div>
@@ -4361,11 +4371,37 @@ let activeTagFilters=new Set();
 let chartActivity=null,chartLearning=null,chartRole=null,chartEvol=null,chartLearningTrauma=null;
 let detailBlocIdx=-1,curDetTab='info';
 let detailReturn=null,lastBlocsListModal=null;
-function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlocsListModal.title,lastBlocsListModal.blocsList);}
+let atlasCardTransitionOrigin=null,atlasCardTransitionTarget='';
+function atlasMotionAllowed(){return !(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
+function atlasOpenWithCardTransition(source,targetSelector,navigate){
+  atlasCardTransitionOrigin=source||null;atlasCardTransitionTarget=targetSelector||'';
+  if(!source||!document.startViewTransition||!atlasMotionAllowed()){navigate();return;}
+  source.style.viewTransitionName='atlas-shared-card';
+  const transition=document.startViewTransition(()=>{
+    navigate();
+    const target=document.querySelector(targetSelector);
+    if(target)target.style.viewTransitionName='atlas-shared-card';
+  });
+  const cleanup=()=>{source.style.viewTransitionName='';const target=document.querySelector(targetSelector);if(target)target.style.viewTransitionName='';};
+  transition.finished.then(cleanup,cleanup);
+}
+function atlasOpenBlocFromCard(source,bi,returnFn){atlasOpenWithCardTransition(source,'#det-hero',()=>openBlocDetail(bi,returnFn));}
+function atlasOpenPlannedFromCard(source,idx,returnView){atlasOpenWithCardTransition(source,'#pdet-content .planned-preop-hero',()=>openPlannedDetail(idx,returnView));}
+function atlasBackWithCardTransition(navigate){
+  const source=atlasCardTransitionOrigin;
+  const target=atlasCardTransitionTarget?document.querySelector(atlasCardTransitionTarget):null;
+  if(!source||!source.isConnected||!target||!document.startViewTransition||!atlasMotionAllowed()){navigate();atlasCardTransitionOrigin=null;atlasCardTransitionTarget='';return;}
+  target.style.viewTransitionName='atlas-shared-card';
+  const transition=document.startViewTransition(()=>{navigate();if(source.isConnected)source.style.viewTransitionName='atlas-shared-card';});
+  const cleanup=()=>{target.style.viewTransitionName='';if(source.isConnected)source.style.viewTransitionName='';atlasCardTransitionOrigin=null;atlasCardTransitionTarget='';};
+  transition.finished.then(cleanup,cleanup);
+}
+function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlocsListModal.title,lastBlocsListModal.blocsList,lastBlocsListModal.options);}
 function toggleDetMenu(e){if(e)e.stopPropagation();const m=document.getElementById('det-menu');if(!m)return;m.style.display=(m.style.display==='none')?'block':'none';}
 function closeDetMenu(){const m=document.getElementById('det-menu');if(m)m.style.display='none';}
 document.addEventListener('click',e=>{const m=document.getElementById('det-menu');if(m&&m.style.display!=='none'&&!e.target.closest('#det-menu')&&!e.target.closest('#det-menu-btn'))closeDetMenu();});
-function backFromDetail(){closeDetMenu();const prev=(window._detPrevView&&window._detPrevView!=='detail')?window._detPrevView:null;document.getElementById('view-detail').classList.remove('active');if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;try{f();}catch(e){}if(!document.querySelector('.view.active'))sw(prev||'stats');}else{sw(prev||'blocs');}}
+function backFromDetail(){atlasBackWithCardTransition(backFromDetailNow);}
+function backFromDetailNow(){closeDetMenu();const prev=(window._detPrevView&&window._detPrevView!=='detail')?window._detPrevView:null;document.getElementById('view-detail').classList.remove('active');if(typeof detailReturn==='function'){const f=detailReturn;detailReturn=null;try{f();}catch(e){}if(!document.querySelector('.view.active'))sw(prev||'stats');}else{sw(prev||'blocs');}}
 (function(){let sx=0,sy=0,track=false;
   document.addEventListener('touchstart',e=>{if(e.touches.length!==1){track=false;return;}const x=e.touches[0].clientX;track=x<=24;sx=x;sy=e.touches[0].clientY;},{passive:true});
   document.addEventListener('touchend',e=>{if(!track)return;track=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;if(dx>60&&Math.abs(dy)<45){const D=document.getElementById('view-detail'),L=document.getElementById('view-bloclist'),SV=document.getElementById('view-stats');if(D&&D.classList.contains('active'))backFromDetail();else if(L&&L.classList.contains('active'))sw('stats');else if(SV&&SV.classList.contains('active')&&curStatsPage!==null)backToStatsHub();}},{passive:true});
@@ -4675,7 +4711,7 @@ function renderDashHome(){
       const d0=ups[0].date,day=ups.filter(p=>p.date===d0),cd=countdown(d0);
       const head='<div class="dhero-head"><span class="dhero-eyebrow">Prochain jour de bloc · '+fmtDate(d0)+'</span>'+(cd?'<span class="countdown '+cd.cls+'">'+cd.label+'</span>':'')+'</div>';
       const cards=day.map((p,i)=>{const sc=getSpecConfig(p.spec);
-        return '<div class="dhero-card" onclick="openPlannedDetail('+planned.indexOf(p)+')"><div class="dhero-top"><span>'+(day.length>1?(i+1)+' / '+day.length:'Au programme')+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(p.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,esc(p.patient)||'',p.side?esc(p.side):''].filter(Boolean).join(' · ')+'</span></div></div>';
+        return '<div class="dhero-card" onclick="atlasOpenPlannedFromCard(this,'+planned.indexOf(p)+')"><div class="dhero-top"><span>'+(day.length>1?(i+1)+' / '+day.length:'Au programme')+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(p.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,esc(p.patient)||'',p.side?esc(p.side):''].filter(Boolean).join(' · ')+'</span></div></div>';
       }).join('');
       const dots=day.length>1?'<div class="dhero-dots">'+day.map((_,i)=>'<i'+(i===0?' class="on"':'')+'></i>').join('')+'</div>':'';
       hero.innerHTML=head+'<div class="dhero-rail" onscroll="dashRailDots(this)">'+cards+'</div>'+dots;
@@ -4693,7 +4729,7 @@ function renderDashHome(){
       }
       const p=it.p;
       const sc=getSpecConfig(p.spec),cd=countdown(p.date),d=new Date(p.date+'T12:00:00');
-      return '<button class="dash-wk" onclick="openPlannedDetail('+planned.indexOf(p)+')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span><span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(p.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,esc(p.patient)||''].filter(Boolean).join(' · ')+'</span></span>'+(cd?'<span class="countdown '+cd.cls+'" style="flex-shrink:0;">'+cd.label+'</span>':'')+'</button>';
+      return '<button class="dash-wk" onclick="atlasOpenPlannedFromCard(this,'+planned.indexOf(p)+')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span><span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(p.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,esc(p.patient)||''].filter(Boolean).join(' · ')+'</span></span>'+(cd?'<span class="countdown '+cd.cls+'" style="flex-shrink:0;">'+cd.label+'</span>':'')+'</button>';
     }).join(''):'<div style="font-size:var(--fs-body2);color:var(--text3);padding:6px 0;">Rien d\'autre de programmé</div>';
   }else{
     const last=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -4721,14 +4757,14 @@ function renderDashHome(){
       hero.innerHTML='<div class="dhero-card dhero-single" onclick="sw(\'saisie\')"><div class="dhero-top"><span>Votre carnet de bloc</span></div><div class="dhero-title">Un bloc aujourd\'hui ?</div><div style="font-size:var(--fs-body2);opacity:0.85;margin-top:5px;line-height:1.5;">Ajoutez-le en 30 secondes — codage CCAM et statistiques se mettent à jour tout seuls.</div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button></div></div>';
     }else{
       const sc=getSpecConfig(b0.spec),bi=blocs.indexOf(b0);
-      hero.innerHTML='<div class="dhero-card dhero-single" onclick="openBlocDetail('+bi+')"><div class="dhero-top"><span>Dernier bloc · '+fmtDate(b0.date)+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(b0.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,b0.role||''].filter(Boolean).join(' · ')+'</span></div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button><button class="dhero-btn" onclick="event.stopPropagation();openBlocDetail('+bi+')">Compléter celui-ci</button></div></div>';
+      hero.innerHTML='<div class="dhero-card dhero-single" onclick="atlasOpenBlocFromCard(this,'+bi+')"><div class="dhero-top"><span>Dernier bloc · '+fmtDate(b0.date)+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(b0.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,b0.role||''].filter(Boolean).join(' · ')+'</span></div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button><button class="dhero-btn" onclick="event.stopPropagation();openBlocDetail('+bi+')">Compléter celui-ci</button></div></div>';
     }
     if(lt)lt.textContent='Derniers blocs';
     if(ll){ll.textContent='Mes blocs';ll.setAttribute('onclick',"sw('blocs')");}
     const stCol={vert:'var(--green)',excellent:'var(--green-d)',orange:'var(--amber)',rouge:'var(--red)'};
     if(listEl)listEl.innerHTML=last.slice(1,5).map(b=>{
       const sc=getSpecConfig(b.spec),d=b.date?new Date(b.date+'T12:00:00'):null;
-      return '<button class="dash-wk" onclick="openBlocDetail('+blocs.indexOf(b)+')">'+(d?'<span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span>':'')+'<span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(b.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,b.role||''].filter(Boolean).join(' · ')+'</span></span><span style="width:8px;height:8px;border-radius:99px;flex-shrink:0;background:'+(stCol[b.statut]||'var(--bg3)')+';"></span></button>';
+      return '<button class="dash-wk" onclick="atlasOpenBlocFromCard(this,'+blocs.indexOf(b)+')">'+(d?'<span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span>':'')+'<span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(b.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,b.role||''].filter(Boolean).join(' · ')+'</span></span><span style="width:8px;height:8px;border-radius:99px;flex-shrink:0;background:'+(stCol[b.statut]||'var(--bg3)')+';"></span></button>';
     }).join('')||'<div style="font-size:var(--fs-body2);color:var(--text3);padding:6px 0;">Aucun autre bloc</div>';
   }
 }
@@ -4865,7 +4901,7 @@ function renderBlocs(){
         nr>0?'<span class="bloc-flag photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> '+nr+'</span>':''
       ].filter(Boolean).join('');
       if(compactMode){
-        return `<div class="bloc-compact-item" onclick="openBlocDetail(${bi})">
+        return `<div class="bloc-compact-item" onclick="atlasOpenBlocFromCard(this,${bi})">
           <div class="bloc-compact-left">
             <span class="bloc-compact-date">${fmtDate(b.date).substring(0,5)}</span>
             <div class="bloc-compact-main">
@@ -4879,7 +4915,7 @@ function renderBlocs(){
           </div>
         </div>`;
       }
-      return `<div class="bloc-item" onclick="openBlocDetail(${bi})" style="--spec:${specColor}">
+      return `<div class="bloc-item" onclick="atlasOpenBlocFromCard(this,${bi})" style="--spec:${specColor}">
         <div class="bloc-icon ${specCls}" style="background:color-mix(in srgb, ${specColor} 15%, transparent);color:${specColor};">${specSvg}</div>
         <div class="bloc-mid">
           <div class="bloc-line1">
@@ -5602,31 +5638,32 @@ function showBlocsForImplant(label){
 
 // ── Stats : complétude du suivi ──
 function renderSuiviCompleteness(){
-  const el=document.getElementById('suivi-completeness');if(!el)return;
+  const el=document.getElementById('suivi-action-center');if(!el)return;
+  const B=statFilteredBlocs();
   const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
-  const eligible=blocs.filter(b=>b.date&&new Date(b.date)<cutoff);
-  if(!eligible.length){el.innerHTML='<div class="s-empty" style="padding:14px 16px;">Aucun bloc opéré il y a plus de 3 mois</div>';return;}
+  const eligible=B.filter(b=>b.date&&new Date(b.date)<cutoff);
   const withSuivi=eligible.filter(b=>getBlocEvenements(b).length>0);
-  const unseen=eligible.length-withSuivi.length;
-  const pct=Math.round(withSuivi.length/eligible.length*100);
-  const col=pct>=80?'var(--green-d)':pct>=60?'var(--amber-d)':'var(--red-d)';
-  const clickAttr=unseen>0?' onclick="showUnseenBlocs()" style="padding:16px;cursor:pointer;"':' style="padding:16px;"';
-  const hint=unseen>0?'<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:var(--fs-note);font-weight:600;color:var(--accent);"><span>Voir les '+unseen+' patient'+(unseen>1?'s':'')+' non revu'+(unseen>1?'s':'')+'</span><span style="font-size:var(--fs-body);">›</span></div>':'';
-  const warn=pct<60?'<div style="font-size:var(--fs-note);color:var(--warm);margin-top:8px;line-height:1.4;">⚠ Un suivi incomplet biaise toutes les statistiques de résultats : les patients non revus ne sont ni des bons ni des mauvais résultats — ce sont des inconnues.</div>':'';
-  el.innerHTML='<div'+clickAttr+'>'
-    +'<div style="font-size:var(--fs-tag);color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;margin-bottom:6px;">Complétude du suivi</div>'
-    +'<div style="display:flex;align-items:baseline;gap:10px;">'
-    +'<span style="font-family:var(--serif,Georgia),Georgia,serif;font-size:34px;color:'+col+';">'+pct+'%</span>'
-    +'<span style="font-size:var(--fs-body2);color:var(--text2);">'+withSuivi.length+' / '+eligible.length+' blocs &gt; 3 mois avec ≥ 1 événement de suivi</span>'
-    +'</div>'
-    +'<div style="height:6px;border-radius:3px;background:var(--border);margin-top:10px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px;"></div></div>'
-    +warn+hint+'</div>';
+  const pct=eligible.length?Math.round(withSuivi.length/eligible.length*100):null;
+  const col=pct===null?'var(--text3)':pct>=80?'var(--green-d)':pct>=60?'var(--amber-d)':'var(--red-d)';
+  const missing=B.filter(b=>getBlocMissingActions(b).length>0);
+  const stale=getStaleOpenFollowUps(B);
+  const unique=new Set(missing.concat(stale).map(b=>b.id||[b.date,b.patient,b.interv].join('|'))).size;
+  el.innerHTML='<div class="sac-completeness">'
+    +'<div class="sac-eyebrow">Complétude du suivi</div>'
+    +'<div class="sac-progress"><span class="sac-pct" style="color:'+col+'">'+(pct===null?'—':pct+'%')+'</span><span>'+(eligible.length?withSuivi.length+' / '+eligible.length+' blocs &gt; 3 mois<br>avec au moins un événement':'Aucun bloc éligible<br>pour le moment')+'</span></div>'
+    +'<div class="sac-bar"><i style="width:'+(pct||0)+'%;background:'+col+'"></i></div></div>'
+    +'<div class="sac-head"><strong>À traiter maintenant</strong><b>'+unique+'</b></div>'
+    +'<button class="sac-row" onclick="showMissingDossiers()"><span class="sac-icon">▤</span><span><strong>Dossiers à compléter</strong><small>Radio ou implant attendu et non renseigné</small></span><b>'+missing.length+' ›</b></button>'
+    +'<button class="sac-row" onclick="showStaleFollowUps()"><span class="sac-icon old">◷</span><span><strong>Suivis anciens non terminés</strong><small>Opérés depuis plus de 6 mois</small></span><b>'+stale.length+' ›</b></button>';
 }
-function showUnseenBlocs(){
-  const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
-  const list=blocs.filter(b=>b.date&&new Date(b.date)<cutoff&&getBlocEvenements(b).length===0)
-    .sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  openBlocsListModal('Patients non revus — opérés il y a > 3 mois ('+list.length+')',list);
+function showMissingDossiers(){
+  const list=statFilteredBlocs().filter(b=>getBlocMissingActions(b).length>0);
+  openBlocsListModal('Dossiers à compléter — '+list.length+' patient'+(list.length>1?'s':''),list,{action:'missing'});
+}
+function showStaleFollowUps(){
+  const B=statFilteredBlocs();
+  const list=getStaleOpenFollowUps(B);
+  openBlocsListModal('Suivis anciens non terminés — '+list.length+' patient'+(list.length>1?'s':''),list,{action:'stale'});
 }
 
 // ── Hook saisie : re-render des pills implant à chaque interaction du formulaire ──
@@ -6305,6 +6342,8 @@ function openEditModal(){
   document.getElementById('e-age').value=b.age||'';
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
+  document.getElementById('e-no-implant').checked=!!b.noImplantNeeded;
+  document.getElementById('e-no-radio').checked=!!b.noRadioNeeded;
   window._selImplantsEdit=new Set(b.implantModels||[]);
   if(typeof renderEditImplantPills==='function')renderEditImplantPills(b);
   const eSuggest=document.getElementById('e-implants-suggest');if(eSuggest)eSuggest.value='';
@@ -6634,6 +6673,8 @@ function saveEdit(){
   b.imc=document.getElementById('e-imc').value;
   b.etablissement=document.getElementById('e-etablissement').value.trim();
   b.implants=document.getElementById('e-implants').value;
+  b.noImplantNeeded=document.getElementById('e-no-implant').checked;
+  b.noRadioNeeded=document.getElementById('e-no-radio').checked;
   if(window._selImplantsEdit)b.implantModels=Array.from(window._selImplantsEdit);
   b.abord=document.getElementById('e-abord').value;
   b.ccamCode=document.getElementById('e-ccam-code').value||'';
@@ -6793,6 +6834,8 @@ function initForm(){
   renderSpecPills();
   window._selImplants=new Set();
   if(typeof renderImplantPills==='function')renderImplantPills();
+  document.getElementById('f-no-implant').checked=false;
+  document.getElementById('f-no-radio').checked=false;
   // Reset hidden state
   ['f-spec','f-side','f-interv','f-ccam-code','f-ccam-tarif','f-ccam-libelle'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const _cs=document.getElementById('f-ccam-search');if(_cs)_cs.value='';
@@ -7196,8 +7239,9 @@ function saveBloc(){
     hospitMode:document.getElementById('f-hospit-mode').value||'Hospitalisation',
     hospitDuree:document.getElementById('f-hospit-duree').value||null
   }:{};
-  const newBloc = {implantModels:(window._selImplants&&window._selImplants.size?Array.from(window._selImplants):[]),id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,ccamCode:document.getElementById('f-ccam-code').value||'',ccamTarif:parseFloat(document.getElementById('f-ccam-tarif').value)||null,ccamLibelle:document.getElementById('f-ccam-libelle').value||'',diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
+  const newBloc = {implantModels:(window._selImplants&&window._selImplants.size?Array.from(window._selImplants):[]),noImplantNeeded:document.getElementById('f-no-implant').checked,noRadioNeeded:document.getElementById('f-no-radio').checked,id:(window._plannedBlocId || Date.now().toString()),date:document.getElementById('f-date').value,spec:sp,interv:iv,side:document.getElementById('f-side').value,role:document.getElementById('f-role').value,duree:parseInt(document.getElementById('f-duree').value)||null,patient:patientNom,patientId,age:patientAge,imc:document.getElementById('f-imc').value,etablissement:document.getElementById('f-etablissement').value.trim(),operateur:document.getElementById('f-operateur').value,implants:document.getElementById('f-implants').value,abord:document.getElementById('f-abord').value,ccamCode:document.getElementById('f-ccam-code').value||'',ccamTarif:parseFloat(document.getElementById('f-ccam-tarif').value)||null,ccamLibelle:document.getElementById('f-ccam-libelle').value||'',diff:cStar,astuces:document.getElementById('f-astuces').value,remarques:document.getElementById('f-remarques').value,tags:[...formTags],statut:'gris',complications:[],consultations:[],radioCount:{},toComplete:isQuick,...ptgData,...hospData};
   blocs.push(newBloc);
+  if(convertedPlannedId)updateRadioCount(blocs.length-1);
   if(convertedPlannedId)planned=planned.filter(p=>p.id!==convertedPlannedId);
   window._plannedBlocId = null; // reset après usage
   saveLocal();showToast(isQuick?'Bloc enregistré (à compléter)':'Bloc enregistré');
@@ -7255,7 +7299,9 @@ function addMultiInterv(){
     imc: document.getElementById('f-imc').value,
     operateur: document.getElementById('f-operateur').value,
     implants: '', astuces: '', remarques: '',
-    tags: [], statut: 'gris', complications: [], consultations: [], radioCount: {}, toComplete: true
+    tags: [], statut: 'gris', complications: [], consultations: [], radioCount: {}, toComplete: true,
+    noImplantNeeded:document.getElementById('f-no-implant').checked,
+    noRadioNeeded:document.getElementById('f-no-radio').checked
   };
   window._pendingMultiBlocs.push(pendingBloc);
   // Afficher le résumé
@@ -7324,6 +7370,33 @@ function runEtablissementMigration(){
 function getBlocFinSuivi(b){
   return (b.evenements||[]).find(e=>e.type==='fin_suivi')||null;
 }
+// ═══════════ ATLAS V172 ACTION RULES ═══════════
+function getBlocRadioTotal(b){
+  const counts=b&&b.radioCount&&typeof b.radioCount==='object'?b.radioCount:{};
+  return Object.values(counts).reduce((sum,value)=>sum+(Number(value)||0),0);
+}
+function getBlocMissingActions(b){
+  if(!b||!b.spec||!b.interv)return[];
+  const expected=implantsForContext(b.spec,b.interv);
+  if(!expected.length)return[];
+  const actions=[];
+  if(!b.noImplantNeeded&&!(b.implantModels||[]).length)actions.push('implant');
+  if(!b.noRadioNeeded&&getBlocRadioTotal(b)===0)actions.push('radio');
+  return actions;
+}
+function getStaleOpenFollowUps(list,now){
+  const cutoff=new Date(now||new Date());
+  cutoff.setMonth(cutoff.getMonth()-6);
+  const referenceDate=b=>{
+    const dates=getBlocEvenements(b).map(e=>e.date||'').filter(Boolean);
+    return dates.length?dates[dates.length-1]:(b.date||'');
+  };
+  return (list||[]).filter(b=>{
+    if(!b||!b.date||b.statut==='deces'||getBlocFinSuivi(b))return false;
+    return new Date(b.date+'T12:00:00')<cutoff;
+  }).sort((a,b)=>referenceDate(a).localeCompare(referenceDate(b)));
+}
+// ═══════════ END ATLAS V172 ACTION RULES ═══════════
 // Helper : statut normalisé pour l'affichage (excellent → traité séparément mais mappé visuellement)
 function normalizeStatut(s){ return s||'gris'; }
 function trendBadge(diff, isGoodWhenDown=false){
@@ -7420,6 +7493,7 @@ function renderStatsHub(){
   const cutoff=new Date();cutoff.setMonth(cutoff.getMonth()-3);
   const enCours=B.filter(b=>!getBlocFinSuivi(b));
   const nonRevus=enCours.filter(b=>b.date&&new Date(b.date)<cutoff&&getBlocEvenements(b).length===0).length;
+  const actionCount=new Set(B.filter(b=>getBlocMissingActions(b).length).concat(getStaleOpenFollowUps(B)).map(b=>b.id||[b.date,b.patient,b.interv].join('|'))).size;
   const termines=B.filter(b=>!!getBlocFinSuivi(b));
   const goodT=termines.filter(b=>(b.statut||'gris')==='vert'||(b.statut||'gris')==='excellent').length;
   const compl=B.filter(b=>getBlocHasComplication(b));
@@ -7485,7 +7559,7 @@ function renderStatsHub(){
     +'<button class="shub-card" onclick="openStatsPage(\'interventions\')">'+hd('interventions','Interventions','var(--accent)')+intervViz+'<span class="shub-s">'+nInterv+' distincte'+(nInterv>1?'s':'')+'</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'encadrement\')">'+hd('encadrement','Encadrement','var(--accent)')+'<span class="shub-ring-row">'+ring(princPct,'var(--accent)','var(--warm)')+'<span class="shub-num" style="margin:0;">'+princPct+'<small style="font-size:var(--fs-body2);">%</small></span></span><span class="shub-s">opérateur principal · '+aide+' en aide</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'experience\')">'+hd('experience','Expérience','var(--green)')+expViz+'<span class="shub-s">'+expSub+'</span></button>'
-    +'<button class="shub-card" onclick="openStatsPage(\'encours\')">'+hd('encours','En cours','var(--amber)')+'<span class="shub-num">'+enCours.length+'</span>'+splitViz+'<span class="shub-s">'+nonRevus+' non revu'+(nonRevus>1?'s':'')+' &gt; 3 mois</span></button>'
+    +'<button class="shub-card" onclick="openStatsPage(\'encours\')">'+hd('encours','En cours','var(--amber)')+'<span class="shub-num">'+enCours.length+'</span>'+splitViz+'<span class="shub-s">'+actionCount+' à traiter</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'termines\')">'+hd('termines','Terminés','var(--green)')+'<span class="shub-ring-row">'+ring(pctT,'var(--green)')+'<span class="shub-num" style="margin:0;">'+termines.length+'</span></span>'+splitT+'<span class="shub-s">'+(termines.length?pctT+'% bons résultats':'aucun suivi clôturé')+'</span></button>'
     +'<button class="shub-card" onclick="openStatsPage(\'complications\')">'+hd('complications','Complications','var(--red)')+'<span class="shub-num" style="color:var(--red-d);">'+compl.length+'</span>'+dotsViz+'<span class="shub-s">'+complEC+' en cours</span></button>';
 }
@@ -7670,7 +7744,7 @@ function renderComplEnCours(){
   el.innerHTML=list.map(b=>{
     const gi=blocs.indexOf(b);
     const st=getBlocStatutFinal(b);const sc=statusClasses(st);const col=COL[st]||'var(--text3)';
-    return `<div class="s-prow" onclick="openBlocDetail(${gi}, ()=>sw('stats'))">
+    return `<div class="s-prow" onclick="atlasOpenBlocFromCard(this,${gi}, ()=>sw('stats'))">
       <span class="dot" style="background:${col};"></span>
       <div class="s-prow-mid">
         <div class="s-prow-name">${esc(b.patient||'Patient')}</div>
@@ -7808,13 +7882,14 @@ function showUncodedBlocs(){
   const list=statFilteredBlocs().filter(b=>!b.ccamCode);
   openBlocsListModal('Blocs non codés — '+list.length+' bloc'+(list.length>1?'s':''), list);
 }
-function openBlocsListModal(title, blocsList){
-  lastBlocsListModal={title:title,blocsList:blocsList};
+function openBlocsListModal(title, blocsList, options){
+  options=options||{};
+  lastBlocsListModal={title:title,blocsList:blocsList,options:options};
   const MONTHS_ABBR=['JANV','FÉVR','MARS','AVR','MAI','JUIN','JUIL','AOÛT','SEPT','OCT','NOV','DÉC'];
   const STATUS_PILL={vert:'bon',orange:'vigilance',rouge:'complication',gris:'attente',pdv:'pdv',deces:'deces',excellent:'excellent'};
   const STATUS_LABEL={vert:'Bon résultat',orange:'Vigilance',rouge:'Complication',gris:'En attente',pdv:'Perdu de vue',deces:'Décès',excellent:'Excellent résultat'};
   // tri chronologique — plus récent en haut
-  const list=(blocsList||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const list=options.action==='stale'?(blocsList||[]).slice():(blocsList||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   // titre contextuel (on retire le suffixe « — N blocs/patients/cas »)
   const cleanTitle=String(title||'').replace(/\s*—\s*\d+\s*(bloc|patient|cas)s?.*$/i,'').trim()||String(title||'');
   // mini-stats : nb blocs + % bons résultats (en excluant les « en attente »)
@@ -7826,15 +7901,22 @@ function openBlocsListModal(title, blocsList){
   const tm=cleanTitle.match(/^(.*?)\s*\((.*)\)\s*$/);
   const titleHtml=tm?esc(tm[1])+' <small>· '+esc(tm[2])+'</small>':esc(cleanTitle);
   const nPrincipal=list.filter(b=>(b.role||'Principal')!=='Aide').length;
+  let metrics=`<div class="blh-kpi"><b>${n}</b><span>Bloc${n>1?'s':''}</span></div>
+      <div class="blh-kpi pct"><b>${pct===null?'—':pct+'<small>%</small>'}</b><span>Bon résultat</span></div>
+      <div class="blh-kpi"><b>${nPrincipal}</b><span>En principal</span></div>`;
+  if(options.action==='missing'){
+    const ni=list.filter(b=>getBlocMissingActions(b).includes('implant')).length;
+    const nr=list.filter(b=>getBlocMissingActions(b).includes('radio')).length;
+    metrics=`<div class="blh-kpi"><b>${n}</b><span>Dossiers</span></div><div class="blh-kpi"><b>${nr}</b><span>Sans radio</span></div><div class="blh-kpi"><b>${ni}</b><span>Sans implant</span></div>`;
+  }else if(options.action==='stale'){
+    const np=list.filter(b=>b.statut==='pdv').length;
+    metrics=`<div class="blh-kpi"><b>${n}</b><span>Suivis</span></div><div class="blh-kpi"><b>6<small>m+</small></b><span>Ancienneté</span></div><div class="blh-kpi"><b>${np}</b><span>Perdus de vue</span></div>`;
+  }
   const header=`<div class="blh">
       <button class="regl-back" onclick="sw('stats')" aria-label="Retour">‹</button>
       <div class="blh-title">${titleHtml}</div>
     </div>
-    <div class="blh-kpis">
-      <div class="blh-kpi"><b>${n}</b><span>Bloc${n>1?'s':''}</span></div>
-      <div class="blh-kpi pct"><b>${pct===null?'—':pct+'<small>%</small>'}</b><span>Bon résultat</span></div>
-      <div class="blh-kpi"><b>${nPrincipal}</b><span>En principal</span></div>
-    </div>`;
+    <div class="blh-kpis">${metrics}</div>`;
   document.getElementById('statut-patients-title').innerHTML=header;
   const listEl=document.getElementById('statut-patients-list');
   if(!list.length){
@@ -7856,7 +7938,14 @@ function openBlocsListModal(title, blocsList){
     const parts=[];
     if(intervVaries)parts.push(esc(displayInterv(b.interv)));
     if(roleVaries||!intervVaries)parts.push(b.role==='Aide'?roleTxtOf(b):'<span class="role">Opérateur</span>');
-    const sub=parts.join(' · ')||(b.role==='Aide'?roleTxtOf(b):'<span class="role">Opérateur</span>');
+    let sub=parts.join(' · ')||(b.role==='Aide'?roleTxtOf(b):'<span class="role">Opérateur</span>');
+    if(options.action==='missing'){
+      const reasons=getBlocMissingActions(b);
+      sub='<span class="sac-list-reasons">'+reasons.map(reason=>'<i class="'+reason+'">'+(reason==='radio'?'Radio manquante':'Implant non renseigné')+'</i>').join('')+'</span>';
+    }else if(options.action==='stale'){
+      const evts=getBlocEvenements(b),last=evts.length?evts[evts.length-1].date:b.date;
+      sub='Dernière information · '+fmtDate(last);
+    }
     const specColor=(getSpecConfig(b.spec||'')||{}).color||'var(--accent)';
     return `<div class="blc-card" onclick="setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);" style="--spec:${specColor}">
       <div class="blc-date"><span class="d">${day}</span><span class="mo">${mo}</span></div>
@@ -8339,7 +8428,7 @@ function renderUpcoming(){
     const metaParts=[esc(p.patient)||'',fmtDate(p.date),p.side?esc(p.side):''].filter(Boolean);
     const commentTxt=p.comment?`<span class="up-comment">📋 ${esc(p.comment)}</span>`:'';
     const _scU=getSpecConfig(p.spec);
-    return`<div class="up-item" onclick="openPlannedDetail(${planned.indexOf(p)})" style="--spec:${_scU.color}">
+    return`<div class="up-item" onclick="atlasOpenPlannedFromCard(this,${planned.indexOf(p)})" style="--spec:${_scU.color}">
       <div class="up-left">
         <span class="up-interv">${intervTxt}</span>
         <span class="up-meta">${metaParts.join(' · ')}</span>
@@ -11996,7 +12085,7 @@ function renderPlanningView(){
   listEl.innerHTML=monthPlanned.map(p=>{
     const cd=countdown(p.date);
     const sc=getSpecBadgeStyle(p);
-    return`<div class="planned-item" onclick="openPlannedDetail(${planned.indexOf(p)})" style="--spec:${getSpecConfig(p.spec).color}">
+    return`<div class="planned-item" onclick="atlasOpenPlannedFromCard(this,${planned.indexOf(p)})" style="--spec:${getSpecConfig(p.spec).color}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
         <div>
           <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;">${esc(displayInterv(p.interv))||'—'}</div>
@@ -12046,7 +12135,7 @@ function renderMonthPlannedList(){
   // bc_map dynamique — géré via getSpecBadgeStyle(spec)
   el.innerHTML=monthPlanned.map(p=>{
     const idx=planned.indexOf(p);const bc=getSpecBadgeStyle(p);const cd=countdown(p.date);
-    return`<div class="planned-item" onclick="openPlannedDetail(${idx})">
+    return`<div class="planned-item" onclick="atlasOpenPlannedFromCard(this,${idx})">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
         <div style="display:flex;align-items:center;gap:6px;">${specBadgeHtml(p.spec)} <span style="font-size:var(--fs-note);font-weight:600;">${esc(displayInterv(p.interv).substring(0,20))||'—'}</span>${p.patient?`<span style="font-size:var(--fs-note);color:var(--text2);">${esc(p.patient)}</span>`:''}</div>
         ${cd?`<span class="countdown ${cd.cls}">${cd.label}</span>`:''}
@@ -12117,6 +12206,7 @@ function closePlannedWorkspace(){
   if(target==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
   else sw(target);
 }
+function backFromPlannedDetail(){atlasBackWithCardTransition(closePlannedWorkspace);}
 function closePlannedForm(){
   if(plannedEditIdx!==null&&currentPlannedIdx!==null){openPlannedDetail(currentPlannedIdx,plannedFormReturn);return;}
   if(plannedFormReturn==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
@@ -12143,7 +12233,7 @@ function renderDayBlocs(ds){
   const el=document.getElementById('planned-day-list');if(!el)return;
   el.innerHTML=pbs.map((p,order)=>{
     const idx=planned.indexOf(p);const sc=getSpecConfig(p.spec);
-    return`<button class="planned-day-patient" style="--spec:${sc.color}" onclick="openPlannedDetail(${idx},'planned-day')">
+    return`<button class="planned-day-patient" style="--spec:${sc.color}" onclick="atlasOpenPlannedFromCard(this,${idx},'planned-day')">
       <span class="planned-day-order">${order+1}</span>
       <span class="planned-day-main"><strong>${esc(p.patient)||'Patient non renseigné'}</strong><span>${esc(displayInterv(p.interv))||'—'}${p.side?' · '+esc(p.side):''}</span><span>${esc(sc.label)}</span></span>
       <span class="planned-day-chevron">›</span>
@@ -12168,6 +12258,8 @@ function openNewPlannedModal(ds){
   document.getElementById('p-interv-libre').value='';
   document.getElementById('p-patient').value='';
   document.getElementById('p-comment').value='';
+  document.getElementById('p-no-implant').checked=false;
+  document.getElementById('p-no-radio').checked=false;
   document.getElementById('planned-save-btn').textContent='Enregistrer le bloc prévu';
   window._plannedImplants=new Set();window._plannedDraftRadios=[];
   renderPlannedFormImplants();renderPlannedDraftRadios();
@@ -12246,7 +12338,7 @@ async function savePlanned(){
   const iv=plannedInterventionValue();
   if(!sp||!iv||iv.includes('Sélectionner')||iv.includes('Choisir')||iv.includes('__LIBRE__')){showToast('Spécialité et intervention requises');return;}
   const editing=plannedEditIdx!==null;
-  const entry={id:plannedEditIdx!==null?(planned[plannedEditIdx].id||Date.now().toString()):Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value.trim(),comment:document.getElementById('p-comment').value.trim(),implantModels:Array.from(window._plannedImplants||[])};
+  const entry={id:plannedEditIdx!==null?(planned[plannedEditIdx].id||Date.now().toString()):Date.now().toString(),date:document.getElementById('p-date').value,spec:sp,interv:iv,side:document.getElementById('p-side').value,patient:document.getElementById('p-patient').value.trim(),comment:document.getElementById('p-comment').value.trim(),implantModels:Array.from(window._plannedImplants||[]),noImplantNeeded:document.getElementById('p-no-implant').checked,noRadioNeeded:document.getElementById('p-no-radio').checked};
   if(editing)planned[plannedEditIdx]=entry;else planned.push(entry);
   const savedIdx=editing?plannedEditIdx:planned.length-1;
   saveLocal();renderPlanning();
@@ -12269,7 +12361,7 @@ function openPlannedDetail(idx,returnView){
   document.getElementById('pdet-content').innerHTML=`
     <section class="planned-preop-hero" style="--spec:${sc.color}"><div class="planned-preop-top"><div><div class="planned-preop-spec">${esc(sc.label)}${p.side?' · '+esc(p.side):''}</div><h2>${esc(p.patient)||'Patient non renseigné'}</h2><p>${esc(displayInterv(p.interv))||'—'}</p></div>${cd?`<span class="planned-preop-countdown">${cd.label}</span>`:''}</div></section>
     <div class="planned-preop-grid"><div class="planned-preop-cell"><small>Date</small><strong>${fmtDate(p.date)}</strong></div><div class="planned-preop-cell"><small>Statut</small><strong>Bloc programmé</strong></div></div>
-    <section class="planned-preop-card"><h3>Préparation du bloc</h3><div class="planned-preop-line"><span>Implants prévus</span><strong>${(p.implantModels&&p.implantModels.length)?p.implantModels.map(esc).join(' · '):'Non renseignés'}</strong></div><div class="planned-preop-line"><span>Remarque</span><strong>${p.comment?esc(p.comment):'Aucune'}</strong></div></section>
+    <section class="planned-preop-card"><h3>Préparation du bloc</h3><div class="planned-preop-line"><span>Implants prévus</span><strong>${p.noImplantNeeded?'Sans implant nécessaire':((p.implantModels&&p.implantModels.length)?p.implantModels.map(esc).join(' · '):'Non renseignés')}</strong></div><div class="planned-preop-line"><span>Radios attendues</span><strong>${p.noRadioNeeded?'Non nécessaires':'Oui'}</strong></div><div class="planned-preop-line"><span>Remarque</span><strong>${p.comment?esc(p.comment):'Aucune'}</strong></div></section>
     <section class="planned-preop-card"><h3>Radios pré-opératoires</h3><div id="pdet-radios-grid" class="planned-radio-grid"></div><label class="planned-upload-action">+ Ajouter des radios<input type="file" accept="image/*" multiple style="display:none;" onchange="handlePlannedRadioUpload(event,${idx})"></label></section>`;
   openPlannedWorkspace('planned-detail');renderPlannedRadios(idx);
 }
@@ -12363,6 +12455,8 @@ function editPlanned(idx){
   document.getElementById('p-side').value=p.side||'';
   document.getElementById('p-patient').value=p.patient||'';
   document.getElementById('p-comment').value=p.comment||'';
+  document.getElementById('p-no-implant').checked=!!p.noImplantNeeded;
+  document.getElementById('p-no-radio').checked=!!p.noRadioNeeded;
   window._plannedImplants=new Set(p.implantModels||[]);window._plannedDraftRadios=[];
   renderPlannedFormImplants();renderPlannedDraftRadios();
   document.getElementById('planned-save-btn').textContent='Enregistrer les modifications';
@@ -12393,6 +12487,8 @@ async function convertPlanned(){
     document.getElementById('f-side').value=p.side||'';
     document.getElementById('f-patient').value=p.patient||'';
     document.getElementById('f-remarques').value=p.comment?'Pré-op : '+p.comment:'';
+    document.getElementById('f-no-implant').checked=!!p.noImplantNeeded;
+    document.getElementById('f-no-radio').checked=!!p.noRadioNeeded;
     window._selImplants=new Set(p.implantModels||[]);renderImplantPills();
     showToast('Formulaire pré-rempli — radios préop transférées automatiquement');
   },200);
@@ -12519,7 +12615,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v170',
+    version:'atlas-v172',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14464,7 +14560,7 @@ input::placeholder,textarea::placeholder{font-style:normal!important;font-family
 
 </style>
 <style id="atlas-liquid-glass-v170">
-/* Atlas v170 — Liquid Glass affirmé, couche de présentation uniquement. */
+/* Atlas v172 — Liquid Glass affirmé, couche de présentation uniquement. */
 :root{
   --glass-surface:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.48));
   --glass-surface-strong:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,255,255,.66));
@@ -14680,10 +14776,23 @@ html,body,#app{background:var(--bg)!important;}
   }
 }
 
-/* Atlas v170 — parcours plein écran des blocs programmés. */
-#view-saisie input[type="date"],#f-date{
-  display:block;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+/* Atlas v172 — champ date stable et centré dans Safari iOS. */
+#view-saisie .date-field{
+  min-width:0;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;
 }
+#view-saisie .date-field #f-date{
+  display:block;width:100%!important;max-width:100%!important;min-width:0!important;
+  inline-size:100%!important;max-inline-size:100%!important;min-inline-size:0!important;
+  margin-inline:auto!important;box-sizing:border-box!important;text-align:center!important;
+}
+#view-saisie .date-field #f-date::-webkit-date-and-time-value{
+  width:100%;min-width:0;margin:0;text-align:center;
+}
+#view-saisie .date-field #f-date::-webkit-datetime-edit{
+  width:100%;min-width:0;padding:0;text-align:center;
+}
+
+/* Atlas v172 — parcours plein écran des blocs programmés. */
 .planned-page{padding:0 16px 112px;min-height:calc(100% - 62px);}
 .planned-page.active{display:block;}
 .planned-page-head{display:flex;align-items:center;gap:12px;padding:16px 0 18px;position:relative;}
@@ -14742,6 +14851,41 @@ html,body,#app{background:var(--bg)!important;}
 .planned-preop-line strong{max-width:64%;color:var(--text);font-weight:600;text-align:right;}
 .planned-detail-scroll{padding-bottom:86px;}
 @media(max-width:390px){.planned-page{padding-left:13px;padding-right:13px}.planned-page-head h1{font-size:23px}.planned-sticky-action{left:13px;right:13px}.planned-preop-grid{gap:7px}}
+
+/* Atlas v172 — exceptions explicites du dossier attendu. */
+.expectation-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.expectation-option{display:flex;align-items:flex-start;gap:9px;min-width:0;padding:11px;border:1px solid var(--glass-border);border-radius:14px;background:color-mix(in srgb,var(--glass-surface-strong) 88%,var(--bg));box-shadow:inset 0 1px 0 rgba(255,255,255,.84);cursor:pointer;}
+.expectation-option input{width:19px!important;height:19px;min-width:19px!important;margin:0;accent-color:var(--accent);}
+.expectation-option span{min-width:0;line-height:1.25;}
+.expectation-option b{display:block;font-size:12px;color:var(--text);}
+.expectation-option small{display:block;margin-top:3px;font-size:10px;color:var(--text3);}
+.planned-form-card>.expectation-option{margin-top:11px;}
+#edit-modal .expectation-options{margin-top:0;}
+@media(max-width:370px){.expectation-options{grid-template-columns:1fr;}}
+
+/* Centre de pilotage intégré à Suivis en cours. */
+.suivi-action-center{overflow:hidden;padding:0!important;}
+.sac-completeness{padding:15px 16px 14px;}
+.sac-eyebrow{font-size:10px;font-weight:650;letter-spacing:.13em;text-transform:uppercase;color:var(--text3);}
+.sac-progress{display:flex;align-items:center;gap:13px;margin-top:7px;color:var(--text2);font-size:12px;line-height:1.4;}
+.sac-pct{font-family:var(--serif);font-size:35px;line-height:1;}
+.sac-bar{height:6px;border-radius:6px;background:var(--border);overflow:hidden;margin-top:11px;}
+.sac-bar i{display:block;height:100%;border-radius:inherit;}
+.sac-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 8px;border-top:1px solid var(--border);background:color-mix(in srgb,var(--accent-l) 32%,transparent);color:var(--accent);}
+.sac-head strong{font-size:12px;}.sac-head b{font-family:var(--serif);font-size:24px;font-weight:500;}
+.sac-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;align-items:center;gap:10px;width:100%;padding:10px 14px;border:0;border-top:1px solid var(--border);background:transparent;color:var(--text);font-family:inherit;text-align:left;cursor:pointer;}
+.sac-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--amber-l);color:var(--amber-d);font-size:16px;}.sac-icon.old{background:var(--accent-l);color:var(--accent);}
+.sac-row span:nth-child(2){min-width:0;}.sac-row strong{display:block;font-size:12.5px;}.sac-row small{display:block;margin-top:3px;color:var(--text3);font-size:10px;line-height:1.3;}.sac-row>b{font-family:var(--serif);font-size:20px;font-weight:500;white-space:nowrap;}
+.sac-list-reasons{display:flex;flex-wrap:wrap;gap:5px;}.sac-list-reasons i{font-style:normal;font-size:9.5px;font-weight:650;padding:3px 7px;border-radius:99px;background:var(--amber-l);color:var(--amber-d);}.sac-list-reasons i.implant{background:var(--red-l);color:var(--red-d);}
+
+/* Continuité visuelle entre une carte et sa fiche. Safari sans View Transitions
+   conserve la navigation immédiate ; le réglage système réduit les animations. */
+::view-transition-group(atlas-shared-card){animation-duration:.46s;animation-timing-function:cubic-bezier(.22,.78,.24,1);}
+::view-transition-old(atlas-shared-card){animation-duration:.34s;}
+::view-transition-new(atlas-shared-card){animation-duration:.46s;}
+@media(prefers-reduced-motion: reduce){
+  ::view-transition-group(atlas-shared-card),::view-transition-old(atlas-shared-card),::view-transition-new(atlas-shared-card){animation-duration:.01ms!important;}
+}
 
 </style>
 </body></html>
