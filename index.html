@@ -8,6 +8,8 @@
 <meta name="theme-color" content="#F4F1E6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#16171A" media="(prefers-color-scheme: dark)">
 <title>Atlas</title>
+<link rel="icon" type="image/svg+xml" href="./atlas-icon.svg">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 
 <style>
 :root{
@@ -1580,11 +1582,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
     <!-- ===== SPLASH ===== -->
     <section class="screen active" id="scr-splash" data-screen-label="Splash">
       <div class="splash-wrap">
-        <div class="splash-logo">
-          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <text x="50" y="73" text-anchor="middle" font-family="Charter,'Iowan Old Style',Georgia,serif" font-size="80" font-weight="600" fill="#fff" letter-spacing="-3">A</text>
-            <circle cx="76" cy="67" r="6.5" fill="#C97864"></circle>
-          </svg>
+        <div class="splash-logo"><svg class="atlas-monogram" viewBox="0 0 100 100" fill="currentColor" aria-label="Atlas"><path d="M48 13h5L80 78q2 5 9 5v3H58v-3q10 0 7-8L47 29 28 77q-3 6 9 6v3H12v-3q8 0 11-7z"/><path d="M32 60q14-7 32-3l3 8q-20-7-39 3z"/></svg>
         </div>
         <div class="splash-word">Atlas</div>
         <div class="splash-tag">Le journal chirurgical qui transforme votre expérience en données exploitables.</div>
@@ -1871,15 +1869,11 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
   <!-- Zone du haut : logo + titre -->
   <div style="display:flex;flex-direction:column;align-items:center;gap:28px;margin-top:20px;">
     <!-- Monogramme A -->
-    <div class="lock-monogram">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <text x="50" y="74" text-anchor="middle" font-family="Charter,'Iowan Old Style',Georgia,serif" font-size="84" font-weight="500" fill="currentColor" letter-spacing="-3">A</text>
-        <circle cx="78" cy="68" r="6" fill="#C97864"></circle>
-      </svg>
+    <div class="lock-monogram"><svg class="atlas-monogram" viewBox="0 0 100 100" fill="currentColor" aria-label="Atlas"><path d="M48 13h5L80 78q2 5 9 5v3H58v-3q10 0 7-8L47 29 28 77q-3 6 9 6v3H12v-3q8 0 11-7z"/><path d="M32 60q14-7 32-3l3 8q-20-7-39 3z"/></svg>
     </div>
     <div style="text-align:center;">
       <div class="lock-title">Atlas</div>
-      <div class="lock-sub">Le journal du chirurgien</div>
+      
     </div>
   </div>
 
@@ -1933,15 +1927,20 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </div>
       <div id="dash-hero"></div>
       <div id="dash-steps" style="display:none;margin:0 22px 8px;"></div>
-      <div class="dash-kpi3" id="dash-kpi-row3">
-        <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-total">0</div><div class="dash-kpi-cl">blocs</div><span style="display:none;" id="d-total-trend"></span><span style="display:none;" id="d-principal"></span></div>
-        <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-mois">0</div><div class="dash-kpi-cl">ce mois</div></div>
-        <div class="dash-kpi-c" onclick="sw('stats')" style="cursor:pointer;"><div class="dash-kpi-cv" id="d-compl-pct" style="color:var(--red-d);">0%</div><div class="dash-kpi-cl">complications</div><span style="display:none;" id="d-compl-trend"></span><span style="display:none;" id="d-compl-sub"></span></div>
-      </div>
-      <div class="dash-splitcard" id="dash-split-card" onclick="sw('stats')">
-        <div class="dash-splitbar" id="dash-split"></div>
-        <div class="dash-splitlegend" id="dash-split-legend"></div>
-      </div>
+      <section class="home-activity">
+        <div class="home-section-head"><h2>Mon activité</h2><button onclick="openRapport()">Rapport ↗</button></div>
+        <div class="home-activity-card">
+          <div class="dash-kpi3" id="dash-kpi-row3">
+            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-mois">0</div><div class="dash-kpi-cl">blocs ce mois</div></div>
+            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-total">0</div><div class="dash-kpi-cl">blocs réalisés</div></div>
+          </div>
+          <button class="dash-splitcard" id="dash-split-card" onclick="sw('stats')" aria-label="Répartition de l’activité par spécialité, ouvrir les statistiques">
+            <div class="dash-splitbar" id="dash-split"></div><div class="dash-splitlegend" id="dash-split-legend"></div>
+          </button>
+        </div>
+      </section>
+      <section class="home-actions"><div class="home-section-head"><h2>À traiter</h2><button onclick="atlasHomeActions('all')">Tout voir ↗</button></div><div class="home-actions-card" id="home-action-rows"></div></section>
+      <div hidden><span id="d-total-trend"></span><span id="d-principal"></span><span id="d-compl-pct"></span><span id="d-compl-trend"></span><span id="d-compl-sub"></span></div>
       <div class="dash-tabs-atlas" id="dash-tabs" style="display:none;">
         <button class="dash-tab-atlas active" onclick="switchDashTab('recent',this)">Activité</button>
       </div>
@@ -2599,60 +2598,36 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </div>
     </div>
 
-    <div class="view" id="view-reglages" style="flex-direction:column;height:100%;">
-      <div class="regl-hero" style="position:relative;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-          <button onclick="sw('options')" aria-label="Retour" class="regl-back">‹</button>
-          <div class="courr-eyebrow" style="margin-bottom:0;">Configuration</div>
-        </div>
-        <h1 class="courr-title">Réglages</h1>
-      </div>
-      <div class="regl-scroll">
-
-        <div class="regl-section">Profil chirurgien</div>
-        <div class="regl-group">
-          <div class="regl-row">
+    <div class="view" id="view-reglages"><div class="regl-hero"><div style="display:flex;align-items:center;gap:12px"><button onclick="sw('options')" aria-label="Retour" class="regl-back">‹</button><h1 class="courr-title">Réglages</h1></div></div><div class="regl-scroll"><div class="regl-section">Au quotidien</div><details class="regl-detail"><summary><span class="regl-detail-title">Profil professionnel</span><span class="regl-summary" id="rs-profil">Identité et signature</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><div class="regl-row">
             <div class="regl-label">Nom complet</div>
             <input class="regl-input" id="regl-nom" type="text" placeholder="ex : Tom ROUSSEL">
-          </div>
-          <div class="regl-row">
+          </div><div class="regl-row">
             <div class="regl-label">Titre</div>
             <input class="regl-input" id="regl-titre" type="text" placeholder="ex : Docteur Junior">
-          </div>
-          <div class="regl-row">
-            <div class="regl-label">Service</div>
-            <input class="regl-input" id="regl-service" type="text" placeholder="ex : Traumatologie-Orthopédie">
-          </div>
-          <div class="regl-row">
-            <div class="regl-label">Hôpital</div>
-            <input class="regl-input" id="regl-hopital" type="text" placeholder="ex : CHU Lille — Hôpital Roger Salengro">
-          </div>
-          <div class="regl-row">
+          </div><div class="regl-row">
             <div class="regl-label">N° RPPS (signature des documents)</div>
             <input class="regl-input" id="regl-rpps" type="text" inputmode="numeric" placeholder="ex : 10102203147">
-          </div>
-          <div class="regl-row">
+          </div></div></details><details class="regl-detail"><summary><span class="regl-detail-title">Exercice</span><span class="regl-summary" id="rs-exercice">Service et pratique</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><div class="regl-row">
+            <div class="regl-label">Service</div>
+            <input class="regl-input" id="regl-service" type="text" placeholder="ex : Traumatologie-Orthopédie">
+          </div><div class="regl-row">
+            <div class="regl-label">Hôpital</div>
+            <input class="regl-input" id="regl-hopital" type="text" placeholder="ex : CHU Lille — Hôpital Roger Salengro">
+          </div><div class="regl-row">
             <div class="regl-label">Chef de service</div>
             <input class="regl-input" id="regl-chef" type="text" placeholder="ex : Pr C. CHANTELOT">
-          </div>
-          <div class="regl-row">
+          </div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
+          <button type="button" class="prat-opt" data-pratique-opt="interne" onclick="setPratique('interne')"><span class="prat-radio"></span><span style="flex:1;"><span class="prat-t">Interne / en formation</span></span></button>
+          <button type="button" class="prat-opt" data-pratique-opt="senior" onclick="setPratique('senior')"><span class="prat-radio"></span><span style="flex:1;"><span class="prat-t">Chirurgien sénior</span></span></button>
+        </div>
+
+        </div></details><details class="regl-detail"><summary><span class="regl-detail-title">Documents</span><span class="regl-summary" id="rs-documents">Destinataires</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><div class="regl-row">
             <div class="regl-label">Secrétaire 1 — Email</div>
             <input class="regl-input" id="regl-secr1-email" type="email" placeholder="ex : c.wallaert@chu-lille.fr">
-          </div>
-          <div class="regl-row">
+          </div><div class="regl-row">
             <div class="regl-label">Secrétaire 2 — Email</div>
             <input class="regl-input" id="regl-secr2-email" type="email" placeholder="ex : a.delmeire@chu-lille.fr">
-          </div>
-        </div>
-
-        <div class="regl-section">Pratique</div>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">
-          <button type="button" class="prat-opt" data-pratique-opt="interne" onclick="setPratique('interne')"><span class="prat-radio"></span><span style="flex:1;"><span class="prat-t">Interne / en formation</span><span class="prat-s">Je ne programme pas mes patients — l'accueil met en avant la saisie et mes derniers blocs.</span></span></button>
-          <button type="button" class="prat-opt" data-pratique-opt="senior" onclick="setPratique('senior')"><span class="prat-radio"></span><span style="flex:1;"><span class="prat-t">Chirurgien sénior</span><span class="prat-s">Je programme mes propres patients — l'accueil met en avant mes prochains blocs.</span></span></button>
-        </div>
-
-        <div class="regl-section">Synchronisation planning</div>
-        <div class="regl-row">
+          </div></div></details><div class="regl-section">Données et accès</div><details class="regl-detail"><summary><span class="regl-detail-title">Synchronisation</span><span class="regl-summary" id="rs-sync">Planning</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><div class="regl-row">
           <div class="regl-label">URL du script (Apps Script)</div>
           <input class="regl-input" id="regl-sync-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
         </div>
@@ -2667,46 +2642,9 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
           <button type="button" onclick="syncPlanningNow(true)" style="border:1px solid var(--border);background:var(--bg2);color:var(--accent);border-radius:99px;padding:8px 14px;font-size:12.5px;font-weight:700;font-family:inherit;cursor:pointer;">Synchroniser maintenant</button>
           <span id="regl-sync-status" style="font-size:11.5px;color:var(--text3);"></span>
         </div>
-        <div style="font-size:11.5px;color:var(--text3);line-height:1.5;margin-bottom:18px;">À chaque modification du planning, Atlas envoie la liste (date · intervention · côté · patient) à ton script Google, qui l'écrit dans ton Sheet. Aucune autre donnée ne quitte l'appareil.</div>
+        
 
-        <div class="regl-section">Introduction</div>
-        <button type="button" onclick="replayIntro()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:13px 14px;font-family:inherit;color:var(--text);font-size:13.5px;font-weight:600;cursor:pointer;margin-bottom:18px;">Revoir l'introduction<span style="color:var(--text3);">›</span></button>
-
-        <div class="regl-section">Intégration IA</div>
-        <div class="regl-group">
-          <div class="regl-row">
-            <div class="regl-label">Clé API Anthropic</div>
-            <div class="regl-key-row">
-              <input class="regl-input" id="regl-apikey" type="password" placeholder="sk-ant-api03-…" autocomplete="off" autocorrect="off" spellcheck="false">
-              <button class="regl-key-toggle" onclick="reglToggleKey()" id="regl-key-toggle-btn" title="Afficher/masquer">👁</button>
-            </div>
-          </div>
-        </div>
-        <div style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:18px;">
-          La clé est stockée uniquement sur cet appareil (localStorage). Elle n'est jamais transmise à un serveur tiers — uniquement à l'API Anthropic lors de la création de templates.
-        </div>
-
-        <button class="regl-save-btn" onclick="reglSave()">Enregistrer</button>
-
-        <div class="regl-section" style="margin-top:28px;">Templates personnalisés</div>
-        <div id="regl-templates-list"></div>
-        <div style="display:flex;gap:8px;margin-bottom:14px;">
-          <button class="tmpl-add-btn" onclick="tmplOpenBuilder(null)" style="flex:1;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            Nouvelle intervention
-          </button>
-          <button class="tmpl-icon-btn" onclick="tmplExport()" title="Exporter tous les templates" style="padding:10px 14px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          </button>
-          <button class="tmpl-icon-btn" onclick="tmplImportTrigger()" title="Importer des templates" style="padding:10px 14px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-          </button>
-          <input type="file" id="tmpl-import-input" accept=".json" style="display:none" onchange="tmplImport(this)">
-        </div>
-
-      </div>
-    </div>
-
+        </div></details><div class="regl-links"><button onclick="sw('sauvegarde')">Sauvegarde<span>›</span></button><button onclick="setupBiometric()">Configurer le déverrouillage<span>›</span></button><button onclick="toggleTheme()">Changer d’apparence<span>◐</span></button></div><button class="regl-save-btn" onclick="reglSave()">Enregistrer les réglages</button><details class="regl-detail regl-about"><summary><span class="regl-detail-title">À propos</span><span class="regl-summary">Atlas v179</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><button class="regl-save-btn" onclick="replayIntro()">Revoir l’introduction</button></div></details></div></div>
 
     <!-- COURRIERS -->
 
@@ -4700,99 +4638,53 @@ function dashRailDots(rail){
   const i=Math.round(rail.scrollLeft/(rail.clientWidth||1));
   Array.from(dots.children).forEach((d,j)=>d.classList.toggle('on',j===i));
 }
+function atlasHomeActions(kind){
+  statSpecFilter=[];sw('stats');openStatsPage('encours');
+  if(kind==='missing')showMissingDossiers();
+  if(kind==='stale')showStaleFollowUps();
+}
+function atlasHomeSummary(now){
+  const month=todayStr().slice(0,7);
+  const specs=getActiveSpecs().map(sid=>({sid,count:blocs.filter(b=>b.spec===sid).length})).filter(x=>x.count).sort((a,b)=>b.count-a.count);
+  return {total:blocs.length,month:blocs.filter(b=>(b.date||'').slice(0,7)===month).length,specs,
+    missing:blocs.filter(b=>getBlocMissingActions(b).length).length,stale:getStaleOpenFollowUps(blocs,now).length};
+}
 function renderDashHome(){
   const hero=document.getElementById('dash-hero');if(!hero)return;
-  const prat=getPratique();
-  const tk=getMonthKey(new Date().toISOString());
-  const mEl=document.getElementById('d-mois');
-  if(mEl)mEl.textContent=blocs.filter(b=>b.date&&getMonthKey(b.date)===tk).length;
-  const pctEl=document.getElementById('d-compl-pct');
-  if(pctEl){const n=blocs.filter(b=>getBlocHasComplication(b)).length;pctEl.textContent=blocs.length?(n/blocs.length*100).toFixed(1).replace('.',',')+'%':'—';}
+  const sum=atlasHomeSummary();
+  document.getElementById('d-mois').textContent=sum.month;
+  document.getElementById('d-total').textContent=sum.total;
   const bar=document.getElementById('dash-split'),leg=document.getElementById('dash-split-legend');
-  if(bar&&leg){
-    const counts=getActiveSpecs().map(sid=>({sid,v:blocs.filter(b=>b.spec===sid).length})).filter(s=>s.v>0).sort((a,b)=>b.v-a.v);
-    const tot=counts.reduce((s,c)=>s+c.v,0);
-    bar.innerHTML=tot?counts.map(c=>'<i style="width:'+(c.v/tot*100).toFixed(1)+'%;background:'+getSpecConfig(c.sid).color+';"></i>').join(''):'';
-    leg.innerHTML=tot?counts.map(c=>'<span><i style="background:'+getSpecConfig(c.sid).color+';"></i>'+getSpecConfig(c.sid).label+' '+c.v+'</span>').join(''):'';
-  }
-  const empty=!blocs.length&&!(planned||[]).length;
-  const show=(id,on)=>{const e=document.getElementById(id);if(e)e.style.display=on?'':'none';};
-  show('dash-kpi-row3',!empty);show('dash-split-card',!empty);show('dash-list-sec',!empty);show('dash-steps',empty);
-  const listEl=document.getElementById('dash-list'),lt=document.getElementById('dash-list-title'),ll=document.getElementById('dash-list-link');
-  if(empty){
-    hero.innerHTML='<div class="dhero-card dhero-single" onclick="sw(\'saisie\')"><div class="dhero-top"><span>Votre carnet de bloc</span></div><div class="dhero-title">Votre premier bloc</div><div style="font-size:var(--fs-body2);opacity:0.85;margin-top:6px;line-height:1.5;">Saisissez une intervention passée ou planifiez la prochaine. Vos statistiques et le codage CCAM se construiront à partir de là.</div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button><button class="dhero-btn" onclick="event.stopPropagation();sw(\'planning\')">Planifier</button></div></div>';
-    const st=document.getElementById('dash-steps');
-    if(st)st.innerHTML='<div style="font-size:var(--fs-tag);font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;margin:14px 0 8px;">Pour bien démarrer</div>'
-      +'<button class="dash-step" onclick="sw(\'reglages\')"><span class="dash-step-n">1</span><span style="flex:1;"><span style="display:block;font-size:var(--fs-body2);font-weight:600;">Renseignez votre profil</span><span style="display:block;font-size:11.5px;color:var(--text2);">pratique, service, hôpital</span></span><span style="color:var(--text3);">›</span></button>'
-      +'<button class="dash-step" onclick="sw(\'saisie\')"><span class="dash-step-n">2</span><span style="flex:1;"><span style="display:block;font-size:var(--fs-body2);font-weight:600;">Saisissez votre premier bloc</span><span style="display:block;font-size:11.5px;color:var(--text2);">même un bloc d\'il y a 6 mois</span></span><span style="color:var(--text3);">›</span></button>'
-      +'<button class="dash-step" onclick="sw(\'stats\')"><span class="dash-step-n">3</span><span style="flex:1;"><span style="display:block;font-size:var(--fs-body2);font-weight:600;">Découvrez vos statistiques</span><span style="display:block;font-size:11.5px;color:var(--text2);">elles se remplissent automatiquement</span></span><span style="color:var(--text3);">›</span></button>';
-    return;
-  }
-  if(prat==='senior'){
-    const ups=upcomingPlanned();
-    if(!ups.length){
-      hero.innerHTML='<div class="dhero-card dhero-single"><div class="dhero-top"><span>Planning</span></div><div class="dhero-title">Aucun bloc programmé</div><div style="font-size:var(--fs-body2);opacity:0.85;margin-top:5px;line-height:1.5;">Planifiez votre prochain bloc ou saisissez-en un passé.</div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'planning\')">Planifier</button><button class="dhero-btn" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir</button></div></div>';
-    }else{
-      const d0=ups[0].date,day=ups.filter(p=>p.date===d0),cd=countdown(d0);
-      const head='<div class="dhero-head"><span class="dhero-eyebrow">Prochain jour de bloc · '+fmtDate(d0)+'</span>'+(cd?'<span class="countdown '+cd.cls+'">'+cd.label+'</span>':'')+'</div>';
-      const cards=day.map((p,i)=>{const sc=getSpecConfig(p.spec);
-        return '<div class="dhero-card" onclick="atlasOpenPlannedFromCard(this,'+planned.indexOf(p)+')"><div class="dhero-top"><span>'+(day.length>1?(i+1)+' / '+day.length:'Au programme')+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(p.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,esc(p.patient)||'',p.side?esc(p.side):''].filter(Boolean).join(' · ')+'</span></div></div>';
-      }).join('');
-      const dots=day.length>1?'<div class="dhero-dots">'+day.map((_,i)=>'<i'+(i===0?' class="on"':'')+'></i>').join('')+'</div>':'';
-      hero.innerHTML=head+'<div class="dhero-rail" onscroll="dashRailDots(this)">'+cards+'</div>'+dots;
-      hero.querySelector('.dhero-rail').scrollLeft=0;
-    }
-    if(lt)lt.textContent='À venir';
-    if(ll){ll.textContent='Planning';ll.setAttribute('onclick',"sw('planning')");}
-    const d0=ups.length?ups[0].date:null;
-    const restP=ups.filter(p=>p.date!==d0).map(p=>({t:'p',date:p.date,p}));
-    const restJ=((typeof upcomingJournees==='function')?upcomingJournees():[]).map(j=>({t:'j',date:j.date,j}));
-    const rest=restP.concat(restJ).sort((a,b)=>a.date.localeCompare(b.date));
-    if(listEl)listEl.innerHTML=rest.length?rest.map(it=>{
-      if(it.t==='j'){const j=it.j;const cdj=countdown(j.date);const dj=new Date(j.date+'T12:00:00');
-        return '<button class="dash-wk" onclick="sw(\'planning\')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+dj.toLocaleDateString('fr-FR',{weekday:'short'})+'</span>'+dj.getDate()+'</span><span style="flex:1;min-width:0;text-align:left;"><span style="display:block;font-size:13.5px;font-weight:600;">Journée de bloc</span>'+(j.note?'<span style="display:block;font-size:11.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(j.note)+'</span>':'')+'</span>'+(cdj?'<span class="countdown '+cdj.cls+'">'+cdj.label+'</span>':'')+'</button>';
-      }
-      const p=it.p;
-      const sc=getSpecConfig(p.spec),cd=countdown(p.date),d=new Date(p.date+'T12:00:00');
-      return '<button class="dash-wk" onclick="atlasOpenPlannedFromCard(this,'+planned.indexOf(p)+')"><span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span><span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(p.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,esc(p.patient)||''].filter(Boolean).join(' · ')+'</span></span>'+(cd?'<span class="countdown '+cd.cls+'" style="flex-shrink:0;">'+cd.label+'</span>':'')+'</button>';
-    }).join(''):'<div style="font-size:var(--fs-body2);color:var(--text3);padding:6px 0;">Rien d\'autre de programmé</div>';
+  const denom=sum.specs.reduce((n,s)=>n+s.count,0);
+  bar.innerHTML=sum.specs.map(s=>'<i style="width:'+(100*s.count/denom)+'%;background:'+getSpecConfig(s.sid).color+'"></i>').join('');
+  const shown=sum.specs.length>4?sum.specs.slice(0,3):sum.specs;
+  leg.innerHTML=shown.map(s=>'<span><i style="background:'+getSpecConfig(s.sid).color+'"></i><span>'+esc(getSpecConfig(s.sid).label)+'</span><b>'+s.count+'</b></span>').join('');
+  if(sum.specs.length>4)leg.innerHTML+='<span><i style="background:var(--text3)"></i><span>Autres spécialités</span><b>'+sum.specs.slice(3).reduce((n,s)=>n+s.count,0)+'</b></span>';
+  if(!sum.specs.length)leg.innerHTML='<span>Aucune activité enregistrée</span>';
+  document.getElementById('dash-split-card').setAttribute('aria-label','Répartition : '+sum.specs.map(s=>getSpecConfig(s.sid).label+' '+s.count).join(', ')+'. Ouvrir les statistiques.');
+  document.getElementById('home-action-rows').innerHTML=
+    '<button class="home-action" onclick="atlasHomeActions(\'missing\')"><span class="home-action-icon" aria-hidden="true">▤</span><span class="home-action-text"><strong>Dossiers à compléter</strong><small>Radios ou implants</small></span><b>'+sum.missing+'</b><span aria-hidden="true">›</span></button>'+
+    '<button class="home-action" onclick="atlasHomeActions(\'stale\')"><span class="home-action-icon amber" aria-hidden="true">◷</span><span class="home-action-text"><strong>Suivis à revoir</strong><small>Opérés depuis plus de 6 mois</small></span><b>'+sum.stale+'</b><span aria-hidden="true">›</span></button>';
+  const internal=getPratique()==='interne';
+  const pending=internal?pendingJournees():[];
+  const upcoming=upcomingPlanned();
+  const nextDay=typeof upcomingJournees==='function'?upcomingJournees()[0]:null;
+  if(pending.length){
+    const j=pending[0];
+    hero.innerHTML='<section class="home-day home-day-pending"><div class="home-day-top"><span>Journée à saisir</span><span>'+fmtDate(j.date)+'</span></div><h2>Mes interventions</h2><div class="home-day-buttons"><button onclick="saisirJournee(\''+j.date+'\')">Saisir mes blocs</button><button onclick="dismissJournee(\''+j.id+'\')">Ignorer</button></div></section>';
+  }else if(upcoming.length&&(!internal||!nextDay||upcoming[0].date<=nextDay.date)){
+    const ds=upcoming[0].date,day=upcoming.filter(p=>p.date===ds),cd=countdown(ds),d=new Date(ds+'T12:00:00');
+    const specs=[...new Set(day.map(p=>p.spec))];
+    const title=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    hero.innerHTML='<button class="home-day" onclick="openDayModal(\''+ds+'\',\'dashboard\')"><div class="home-day-top"><span>'+(ds===todayStr()?'Ma journée de bloc':'Prochaine journée de bloc')+'</span>'+(cd?'<span class="home-day-badge">'+esc(cd.label)+'</span>':'')+'</div><h2>'+esc(title.charAt(0).toUpperCase()+title.slice(1))+'</h2><div class="home-day-meta">'+specs.slice(0,4).map(id=>'<i style="background:'+getSpecConfig(id).color+'"></i>').join('')+'<span>'+day.length+' bloc'+(day.length>1?'s':'')+' programmé'+(day.length>1?'s':'')+'</span></div><div class="home-day-footer"><span>Voir '+(day.length>1?'les dossiers':'le dossier')+'</span><span aria-hidden="true">↗</span></div></button>';
+  }else if(nextDay){
+    const cd=countdown(nextDay.date);
+    hero.innerHTML='<button class="home-day" onclick="sw(\'planning\')"><div class="home-day-top"><span>Prochaine journée de bloc</span>'+(cd?'<span class="home-day-badge">'+esc(cd.label)+'</span>':'')+'</div><h2>'+esc(new Date(nextDay.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}))+'</h2><div class="home-day-footer"><span>Ouvrir '+(internal?'le carnet':'le planning')+'</span><span aria-hidden="true">↗</span></div></button>';
   }else{
-    const last=blocs.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-    const b0=last[0];
-    const pend=(typeof pendingJournees==='function')?pendingJournees():[];
-    const nextJ=(typeof upcomingJournees==='function')?upcomingJournees()[0]:null;
-    if(pend.length){
-      const j=pend[0];
-      hero.innerHTML='<div class="dhero-card dhero-single" style="border-color:var(--amber);">'
-        +'<div class="dhero-top"><span>Journée de bloc · '+fmtDate(j.date)+'</span><span style="font-size:var(--fs-tag);font-weight:700;color:var(--amber-d,#B8860B);">à saisir</span></div>'
-        +'<div class="dhero-title">Tu étais au bloc — ajoute tes interventions</div>'
-        +(j.note?'<div style="font-size:12.5px;color:var(--text2);margin-top:2px;">'+esc(j.note)+'</div>':'')
-        +'<div style="display:flex;gap:8px;margin-top:12px;">'
-        +'<button onclick="saisirJournee(\''+j.date+'\')" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:11px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;">Saisir mes blocs</button>'
-        +'<button onclick="dismissJournee(\''+j.id+'\')" style="border:1px solid var(--border);background:var(--bg2);color:var(--text3);border-radius:12px;padding:11px 14px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;">Ignorer</button>'
-        +'</div></div>';
-    }else if(nextJ){
-      const cd=countdown(nextJ.date);
-      hero.innerHTML='<div class="dhero-card dhero-single" onclick="sw(\'planning\')">'
-        +'<div class="dhero-top"><span>Prochaine journée de bloc</span>'+(cd?'<span class="countdown '+cd.cls+'">'+cd.label+'</span>':'')+'</div>'
-        +'<div class="dhero-title">'+fmtDate(nextJ.date)+'</div>'
-        +(nextJ.note?'<div style="font-size:12.5px;color:var(--text2);margin-top:2px;">'+esc(nextJ.note)+'</div>':'')
-        +'</div>';
-    }else if(!b0){
-      hero.innerHTML='<div class="dhero-card dhero-single" onclick="sw(\'saisie\')"><div class="dhero-top"><span>Votre carnet de bloc</span></div><div class="dhero-title">Un bloc aujourd\'hui ?</div><div style="font-size:var(--fs-body2);opacity:0.85;margin-top:5px;line-height:1.5;">Ajoutez-le en 30 secondes — codage CCAM et statistiques se mettent à jour tout seuls.</div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button></div></div>';
-    }else{
-      const sc=getSpecConfig(b0.spec),bi=blocs.indexOf(b0);
-      hero.innerHTML='<div class="dhero-card dhero-single" onclick="atlasOpenBlocFromCard(this,'+bi+')"><div class="dhero-top"><span>Dernier bloc · '+fmtDate(b0.date)+'</span><span style="font-size:var(--fs-sub);">›</span></div><div class="dhero-title">'+(esc(displayInterv(b0.interv))||'—')+'</div><div class="dhero-meta"><span class="dhero-dot" style="background:'+sc.color+';"></span><span>'+[sc.label,b0.role||''].filter(Boolean).join(' · ')+'</span></div><div class="dhero-cta"><button class="dhero-btn primary" onclick="event.stopPropagation();sw(\'saisie\')">+ Saisir un bloc</button><button class="dhero-btn" onclick="event.stopPropagation();openBlocDetail('+bi+')">Compléter celui-ci</button></div></div>';
-    }
-    if(lt)lt.textContent='Derniers blocs';
-    if(ll){ll.textContent='Mes blocs';ll.setAttribute('onclick',"sw('blocs')");}
-    const stCol={vert:'var(--green)',excellent:'var(--green-d)',orange:'var(--amber)',rouge:'var(--red)'};
-    if(listEl)listEl.innerHTML=last.slice(1,5).map(b=>{
-      const sc=getSpecConfig(b.spec),d=b.date?new Date(b.date+'T12:00:00'):null;
-      return '<button class="dash-wk" onclick="atlasOpenBlocFromCard(this,'+blocs.indexOf(b)+')">'+(d?'<span class="dash-wk-date"><span class="dash-wk-day" style="display:block;">'+d.toLocaleDateString('fr-FR',{weekday:'short'}).replace('.','')+'</span><span class="dash-wk-num" style="display:block;">'+d.getDate()+'</span></span>':'')+'<span class="dash-wk-bar" style="background:'+sc.color+';"></span><span style="flex:1;min-width:0;"><span class="dash-wk-t" style="display:block;">'+(esc(displayInterv(b.interv))||'—')+'</span><span class="dash-wk-s" style="display:block;">'+[sc.label,b.role||''].filter(Boolean).join(' · ')+'</span></span><span style="width:8px;height:8px;border-radius:99px;flex-shrink:0;background:'+(stCol[b.statut]||'var(--bg3)')+';"></span></button>';
-    }).join('')||'<div style="font-size:var(--fs-body2);color:var(--text3);padding:6px 0;">Aucun autre bloc</div>';
+    hero.innerHTML='<section class="home-day"><div class="home-day-top"><span>'+(sum.total?'Mon planning':'Mon carnet opératoire')+'</span></div><h2>'+(sum.total?'Aucun bloc programmé':'Mon premier bloc')+'</h2><div class="home-day-buttons"><button onclick="sw(\'planning\')">'+(internal?'Mon carnet':'Planifier')+'</button><button onclick="sw(\'saisie\')">Saisir un bloc</button></div></section>';
   }
 }
+
 document.addEventListener('DOMContentLoaded',syncPratiqueUI);
 function renderComplications(){
   // Collecter toutes complications depuis evenements + complications legacy
@@ -11535,14 +11427,15 @@ function reglLoad(){
   const sc=getSyncCfg();set('regl-sync-url',sc.url);const sm=document.getElementById('regl-sync-mode');if(sm)sm.value=sc.mode||'initiales';
   _syncStatusUI();
   if(typeof syncPratiqueUI==='function')syncPratiqueUI();
+  atlasSettingsSummary();
 }
 function reglSave(){
   const get=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
-  const p={nom:get('regl-nom'),titre:get('regl-titre'),rpps:get('regl-rpps'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secr1:get('regl-secr1-email'),secr2:get('regl-secr2-email'),apikey:get('regl-apikey')};
+  const p={...getProfil(),nom:get('regl-nom'),titre:get('regl-titre'),rpps:get('regl-rpps'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secr1:get('regl-secr1-email'),secr2:get('regl-secr2-email')};
   localStorage.setItem(PROFIL_KEY,JSON.stringify(p));
   const sc=getSyncCfg();sc.url=get('regl-sync-url');const smEl=document.getElementById('regl-sync-mode');sc.mode=smEl?smEl.value:'initiales';saveSyncCfg(sc);
   if(sc.url)syncPlanningNow(false);
-  showToast('Réglages enregistrés');
+  showToast('Réglages enregistrés');atlasSettingsSummary();
   try{renderDash();}catch(e){}
 }
 function reglToggleKey(){
@@ -12246,7 +12139,7 @@ function openPlannedWorkspace(name){
   const scroller=document.querySelector('.views');if(scroller)scroller.scrollTop=0;
 }
 function closePlannedWorkspace(){
-  const target=currentViewName()==='planned-day'?'planning':(plannedWorkspaceReturn||'planning');
+  const target=currentViewName()==='planned-day'?plannedDayReturn:(plannedWorkspaceReturn||'planning');
   if(target==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
   else sw(target);
 }
@@ -12256,7 +12149,10 @@ function closePlannedForm(){
   if(plannedFormReturn==='planned-day'){openPlannedWorkspace('planned-day');renderDayBlocs(dayModalDate);}
   else sw(plannedFormReturn||'planning');
 }
-function openDayModal(ds){
+let plannedDayReturn='planning';
+function openDayModal(ds,returnView){
+  plannedDayReturn=returnView||'planning';
+  const back=document.querySelector('#view-planned-day .planned-back');if(back)back.setAttribute('aria-label',plannedDayReturn==='dashboard'?"Retour à l’accueil":'Retour au planning');
   dayModalDate=ds;
   plannedWorkspaceReturn='planning';
   const parts=ds.split('-');
@@ -13097,7 +12993,7 @@ function updateLockscreen(){
 
   if(bioSetup){
     if(iconEl) iconEl.innerHTML = isMobile ? svgFaceID : svgTouchID;
-    label.textContent = isMobile ? 'Déverrouiller avec Face ID' : 'Déverrouiller avec Touch ID';
+    label.textContent = 'Déverrouiller';
     if(hintEl) hintEl.textContent = isMobile ? 'Face ID' : 'Touch ID';
     if(lockHint) lockHint.textContent = '';
     if(setupBtn) setupBtn.style.display='none';
@@ -13105,7 +13001,7 @@ function updateLockscreen(){
     if(iconEl) iconEl.innerHTML = svgLock;
     label.textContent = 'Accéder à Atlas';
     if(hintEl) hintEl.textContent = 'Authentification biométrique';
-    if(lockHint) lockHint.textContent = 'Touch ID / Face ID non configuré';
+    if(lockHint) lockHint.textContent = '';
     if(setupBtn) setupBtn.style.display='block';
   }
 }
@@ -13261,7 +13157,7 @@ function genRapport(start,end,label){
     +'<div class="rap-kpi"><b>'+pct(nP)+'%</b><span>Opérateur principal</span></div>'
     +'<div class="rap-kpi"><b>'+pct(nA)+'%</b><span>Aide</span></div>'
     +'<div class="rap-kpi"><b>'+nCompl+'</b><span>Complication'+(nCompl>1?'s':'')+'</span></div>'
-    +(totMin>0?'<div class="rap-kpi"><b>≈ '+Math.round(totMin/60)+' h</b><span>Au bloc</span></div>':'')
+    +(totMin>0?'<div class="rap-kpi"><b>≈ '+Math.round(totMin/60)+' h</b><span>Durées renseignées</span></div>':'')
     +'</div>'
     +(deltaLine?'<div class="rap-note" style="margin-top:2px;">'+deltaLine+nCompl+'.</div>':'');
   h+='<div class="rap-sec"><div class="rap-sec-t">Volumes par spécialité</div>';
@@ -13279,7 +13175,7 @@ function genRapport(start,end,label){
       +(v?('<i style="height:'+ha+'px;background:#D8D2C2;border-radius:'+(hp?'4px 4px 0 0':'4px 4px 0 0')+';"></i><i style="height:'+hp+'px;'+(ha?'border-radius:0;':'')+'"></i>')
           :'<i style="height:2px;background:#EFEBE0;"></i>')
       +'<span>'+RAP_MOIS[+k.slice(5,7)-1]+'</span></div>';});
-  h+='</div><div class="rap-note"><span style="display:inline-block;width:9px;height:9px;background:#1A4F54;border-radius:2px;vertical-align:-1px;"></span> opérateur &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#D8D2C2;border-radius:2px;vertical-align:-1px;"></span> encadrement (aide à un interne)</div></div>';
+  h+='</div><div class="rap-note"><span style="display:inline-block;width:9px;height:9px;background:#1A4F54;border-radius:2px;vertical-align:-1px;"></span> opérateur &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#D8D2C2;border-radius:2px;vertical-align:-1px;"></span> aide opératoire</div></div>';
   if(premieres.length){
     h+='<div class="rap-sec"><div class="rap-sec-t">Premières — nouvelles interventions en opérateur</div><div style="font-size:13px;line-height:1.6;">'+premieres.slice(0,12).map(esc).join(' · ')+(premieres.length>12?' · +'+(premieres.length-12)+' autres':'')+'</div></div>';
   }
@@ -15066,4 +14962,159 @@ html.atlas-card-moving .view.active{pointer-events:none;}
 #doc-step2 .doc-act-p{background:var(--accent)!important;color:#fff!important;border-color:var(--accent);}
 #doc-step2 .doc-act:focus-visible,#doc-step2 .doc-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
+<style id="atlas-v179">
+/* Accueil : un écran borné entre la zone système et la navigation opaque. */
+.views:has(#view-dashboard.active){display:flex;flex-direction:column;min-height:0;overflow:hidden!important;overscroll-behavior:none;padding-bottom:var(--home-nav-height,calc(64px + var(--safe-bot)))!important;box-sizing:border-box;}
+.views:has(#view-dashboard.active)>.topbar{flex:0 0 auto;}
+#view-dashboard.active{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow:hidden!important;padding:12px 22px 22px;gap:16px;container-type:size;}
+#view-dashboard .dash-greeting{flex:0 0 auto;margin:0!important;padding:0!important;}
+#view-dashboard .dash-greeting-eyebrow{font-size:10px;letter-spacing:.14em;line-height:1.4;margin:0 0 9px!important;}
+#view-dashboard .dash-greeting-title{font-size:34px;line-height:1.1;letter-spacing:-.035em;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#view-dashboard #dash-steps,#view-dashboard #dash-tabs,#view-dashboard .dash-panel{display:none!important;}
+#view-dashboard #dash-hero{flex:1.05 1 0;min-height:115px;max-height:218px;margin:0!important;display:flex;}
+.home-day{display:flex;flex-direction:column;width:100%;height:100%;min-width:0;text-align:left;font-family:inherit;padding:20px;border:1px solid rgba(255,255,255,.36);border-radius:24px;cursor:pointer;color:#fff;background:radial-gradient(ellipse at 10% 0,rgba(136,176,177,.22),transparent 70%),linear-gradient(135deg,#235c61,#153f45);box-shadow:inset 0 1px rgba(255,255,255,.35),inset 0 -12px 25px rgba(0,25,30,.12),0 18px 24px -19px rgba(17,52,57,.7);}
+.home-day-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#d6e5e4;min-height:23px;}
+.home-day-badge{border:1px solid #ffffff33;border-radius:9px;background:#ffffff14;padding:4px 7px;font-size:11px;letter-spacing:0;text-transform:none;white-space:nowrap;}
+.home-day h2{font-family:var(--serif);font-size:28px;font-weight:500;line-height:1.12;margin:auto 0 9px;letter-spacing:-.025em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.home-day-meta{display:flex;gap:5px;align-items:center;font-size:12px;color:#e0eae8;line-height:1.2;}
+.home-day-meta i{width:7px;height:7px;border-radius:50%;box-shadow:0 0 0 1px #ffffff30;flex:none;}
+.home-day-meta span{margin-left:5px;}
+.home-day-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #ffffff24;margin-top:auto;padding-top:11px;font-size:12px;color:#e0eae8;}
+.home-day-footer>span:last-child{font-size:20px;}
+.home-day-buttons{display:flex;gap:9px;margin-top:auto;}
+.home-day-buttons button{font:600 12px inherit;font-family:inherit;font-size:12px;min-height:42px;flex:1;border:1px solid #ffffff44;border-radius:12px;padding:10px 7px;color:white;background:#ffffff12;cursor:pointer;}
+.home-day-buttons button:first-child{background:#f5f3e8;color:#1a4f54;}
+.home-activity,.home-actions{display:flex;flex-direction:column;min-height:0;gap:10px;}
+.home-activity{flex:1.08 1 0;min-height:148px;max-height:210px;}
+.home-actions{flex:1 1 0;min-height:140px;max-height:190px;}
+.home-section-head{display:flex;justify-content:space-between;align-items:center;flex:none;min-height:26px;}
+.home-section-head h2{font:500 22px var(--serif);letter-spacing:-.02em;margin:0;}
+.home-section-head button{font-family:inherit;font-size:12px;color:var(--accent);background:none;border:0;padding:6px 0;cursor:pointer;}
+.home-activity-card,.home-actions-card{flex:1;min-height:0;background:var(--glass-surface,var(--bg2));border:1px solid var(--glass-border,var(--border));box-shadow:var(--glass-highlight),var(--glass-shadow);border-radius:22px;overflow:hidden;}
+.home-activity-card{display:flex;flex-direction:column;}
+#view-dashboard .dash-kpi3{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:0;padding:14px 0 10px;flex:1;min-height:0;align-items:center;}
+#view-dashboard .dash-kpi-c{background:none!important;border:0;border-radius:0;box-shadow:none!important;padding:0 18px;}
+#view-dashboard .dash-kpi-c::before{display:none;}
+#view-dashboard .dash-kpi-c+.dash-kpi-c{border-left:1px solid var(--border);}
+#view-dashboard .dash-kpi-cv{font:500 33px/1.05 var(--serif);letter-spacing:-.025em;}
+#view-dashboard .dash-kpi-cl{font-size:12px;text-transform:none;letter-spacing:0;margin-top:5px;line-height:1.2;color:var(--text2);}
+#view-dashboard .dash-splitcard{display:block;width:100%;flex:none;margin:0;padding:0 18px 14px;border:0;border-radius:0;background:none!important;box-shadow:none!important;font-family:inherit;color:var(--text2);cursor:pointer;text-align:left;}
+#view-dashboard .dash-splitcard::before{display:none;}
+#view-dashboard .dash-splitbar{height:6px;display:flex;border-radius:9px;overflow:hidden;background:var(--bg3);}
+#view-dashboard .dash-splitbar i{display:block;height:100%;}
+#view-dashboard .dash-splitlegend{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;margin-top:10px;font-size:11px;line-height:1.2;}
+#view-dashboard .dash-splitlegend>span{display:flex;gap:5px;align-items:center;min-width:0;}
+#view-dashboard .dash-splitlegend>span>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+#view-dashboard .dash-splitlegend i{width:6px;height:6px;border-radius:50%;flex:none;}
+#view-dashboard .dash-splitlegend b{font-weight:500;}
+.home-actions-card{display:flex;flex-direction:column;padding:0 16px;}
+.home-action{display:flex;flex:1;align-items:center;gap:11px;min-height:44px;padding:9px 0;text-align:left;background:none;border:0;font-family:inherit;color:var(--text2);cursor:pointer;}
+.home-action+.home-action{border-top:1px solid var(--border);}
+.home-action-icon{width:34px;height:34px;border-radius:11px;background:var(--accent-l);color:var(--accent);display:grid;place-items:center;font-size:21px;flex:none;}
+.home-action-icon.amber{background:var(--amber-l);color:var(--amber-d);}
+.home-action-text{flex:1;min-width:0;}
+.home-action-text strong{display:block;color:var(--text);font-size:13px;font-weight:600;line-height:1.25;}
+.home-action-text small{display:block;font-size:11px;color:var(--text3);margin-top:4px;line-height:1.2;}
+.home-action>b{font:500 27px var(--serif);color:var(--accent);}
+.home-action>span:last-child{font-size:18px;color:var(--text3);}
+@media(max-height:780px){#view-dashboard.active{gap:11px;padding-top:8px;padding-bottom:14px;}#view-dashboard .dash-greeting-title{font-size:31px}.home-day{padding:16px}.home-day h2{font-size:26px}.home-activity,.home-actions{gap:7px}#view-dashboard .dash-kpi3{padding:10px 0 8px}#view-dashboard .dash-kpi-cv{font-size:29px}#view-dashboard .dash-splitcard{padding-bottom:11px}#view-dashboard .dash-splitlegend{margin-top:8px}}
+@media(max-height:670px){#view-dashboard.active{gap:8px;padding:6px 16px 12px}#view-dashboard .dash-greeting-eyebrow{margin-bottom:5px!important;font-size:9px}#view-dashboard .dash-greeting-title{font-size:27px}#view-dashboard #dash-hero{min-height:105px}.home-day{padding:11px 15px;border-radius:19px}.home-day h2{font-size:23px;margin:5px 0}.home-day-meta{font-size:11px}.home-day-footer{padding-top:5px}.home-section-head{min-height:23px}.home-section-head h2{font-size:20px}.home-activity{min-height:125px}.home-actions{min-height:120px}.home-action{gap:8px;padding:6px 0}.home-action-icon{width:28px;height:28px}.home-action-text small{font-size:10px;margin-top:2px}#view-dashboard .dash-kpi-cv{font-size:26px}#view-dashboard .dash-kpi-cl{font-size:11px;margin-top:2px}#view-dashboard .dash-splitlegend{gap:3px 9px;font-size:10px;margin-top:6px}#view-dashboard .dash-splitcard{padding-bottom:9px}#view-dashboard .dash-kpi3{padding:8px 0 6px}}
+/* Entrée : continuité de fond, emblème gravé, une action lisible. */
+#lockscreen{background:var(--bg)!important;padding:calc(var(--safe-top) + 24px) 30px calc(var(--safe-bot) + 48px)!important;}
+#lockscreen>div:first-of-type{margin-top:clamp(65px,17vh,150px)!important;gap:23px!important;}
+.lock-monogram{width:108px!important;height:108px!important;border-radius:29px!important;background:radial-gradient(ellipse at 12% 0,rgba(201,225,217,.19),transparent 70%),linear-gradient(135deg,#38696d,#1A4F54 55%,#10383e)!important;border:1px solid rgba(255,255,255,.32)!important;box-shadow:inset 0 1px rgba(255,255,255,.45),inset 0 -9px 20px rgba(0,20,25,.13),0 20px 32px -21px rgba(14,54,59,.65)!important;display:grid;place-items:center;}
+.lock-monogram .atlas-monogram{width:78px!important;height:78px!important;color:#F5F0DF!important;filter:drop-shadow(0 1px 1px rgba(0,20,20,.15));}
+.lock-title{font:500 42px var(--serif)!important;letter-spacing:-.04em!important;}
+#unlock-btn{justify-content:center;gap:12px;min-height:59px;border-radius:19px;background:var(--glass-surface,var(--bg2))!important;border:1px solid var(--glass-border,var(--border))!important;box-shadow:var(--glass-highlight),var(--glass-shadow)!important;color:var(--accent)!important;}
+#unlock-btn>.lock-btn-text{flex:none!important;text-align:left;}
+#unlock-btn>.lock-btn-text .lock-btn-title{font-size:15px!important;color:var(--accent)!important;}
+#unlock-btn>svg,#unlock-hint{display:none!important;}
+#lock-hint:empty{display:none;}
+/* Réglages : champs existants regroupés, sans contrôles obsolètes. */
+#view-reglages .regl-hero{padding:16px 20px 20px;border:0;}
+#view-reglages .regl-hero .courr-title{margin:0;}
+#view-reglages .regl-scroll{padding:0 20px 30px;}
+.regl-detail{margin:0 0 10px;border-radius:18px;border:1px solid var(--glass-border,var(--border));background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);overflow:hidden;}
+.regl-detail summary{list-style:none;display:flex;align-items:center;gap:12px;padding:19px 17px;min-height:64px;cursor:pointer;}
+.regl-detail summary::-webkit-details-marker{display:none;}
+.regl-detail-title{font-size:14px;font-weight:600;flex:1;}
+.regl-summary{font-size:11px;color:var(--text3);max-width:43%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.regl-chevron{font-size:20px;color:var(--text3);transition:transform .18s;}
+.regl-detail[open] .regl-chevron{transform:rotate(90deg);}
+.regl-detail[open]>summary{border-bottom:1px solid var(--border);}
+.regl-detail-body{padding:5px 15px 15px;}
+#view-reglages .regl-row{padding:12px 0;border:0;display:flex;flex-direction:column;align-items:stretch;gap:8px;}
+#view-reglages .regl-label{width:auto;font-size:12px;font-weight:500;color:var(--text2);}
+#view-reglages .regl-input{width:100%;min-width:0;min-height:46px;padding:12px;border:1px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--text);font-size:16px;box-sizing:border-box;}
+#view-reglages .regl-section{margin:22px 2px 10px;font-size:10px;letter-spacing:.14em;}
+.regl-links{border:1px solid var(--glass-border,var(--border));border-radius:18px;background:var(--glass-surface,var(--bg2));padding:0 17px;margin:10px 0 22px;}
+.regl-links button{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;background:none;font-family:inherit;color:var(--text);padding:16px 0;min-height:50px;font-size:13px;text-align:left;cursor:pointer;}
+.regl-links button+button{border-top:1px solid var(--border);}
+#view-reglages .regl-save-btn{margin:12px 0 20px;width:100%;min-height:48px;border-radius:14px;}
+.regl-about{box-shadow:none;background:transparent;border-color:var(--border);}
+/* Rapport : présentation écran uniquement, mise en page imprimée préservée. */
+@media screen{
+ #rapport-view{padding-bottom:calc(25px + var(--safe-bot));}
+ .rap-topbar{border:0;gap:10px;padding-left:20px;padding-right:20px;}
+ .rap-topt{font-size:22px;font-weight:500;}
+ .rap-print{font-size:12px;padding:10px 12px;border-radius:12px;font-weight:600;}
+ .rap-pick{padding:8px 20px 28px;max-width:760px;margin:auto;}
+ .rap-m0{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding:19px;background:var(--glass-surface,var(--bg2));border:1px solid var(--glass-border,var(--border));border-radius:20px;box-shadow:var(--glass-highlight),var(--glass-shadow);}
+ .rap-m0 select{min-height:46px;width:100%;}
+ .rap-pick-sec{margin:25px 2px 12px;font-size:10px;}
+ .rap-pill{border-radius:14px;min-height:48px;font-size:14px;background:var(--glass-surface,var(--bg2));border-color:var(--glass-border,var(--border));box-shadow:var(--glass-highlight),var(--glass-shadow);font-weight:500;}
+ .rap-page{background:transparent;color:var(--text);box-shadow:none;padding:12px 20px 24px;margin:0 auto;--border:var(--border2);}
+ .rap-sub{font-size:11px;color:var(--text3);letter-spacing:.04em;margin-bottom:8px;}
+ .rap-h1{font-size:29px;font-weight:500;line-height:1.15;margin-bottom:22px;}
+ .rap-kpis{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--glass-border,var(--border2));border-radius:21px;padding:5px 0;background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);overflow:hidden;margin:0 0 18px;}
+ .rap-kpi{padding:14px 17px;}.rap-kpi:nth-child(even){border-left:1px solid var(--border2)}
+ .rap-kpi b{font-size:31px;font-weight:500}.rap-kpi span{font-size:10px;color:var(--text3);letter-spacing:.04em}
+ .rap-sec{padding:19px 16px;border:1px solid var(--glass-border,var(--border2));border-radius:20px;background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);margin-top:16px;}
+ .rap-sec-t{font-size:22px;font-weight:500;margin-bottom:16px;}
+ .rap-row{font-size:12px;margin:12px 0;gap:8px;}.rap-row .n{width:36%;font-weight:500}.rap-row .v{color:var(--text2);width:62px}
+ .rap-tb{width:100%;font-size:12px;table-layout:fixed}.rap-tb td,.rap-tb th{overflow-wrap:anywhere;padding:10px 3px}.rap-tb th:first-child{width:48%}
+ .rap-note{color:var(--text3)!important;font-size:11px!important;line-height:1.5}
+}
+/* Le rappel de sauvegarde partage le même budget vertical que les cartes. */
+#view-dashboard.active{gap:12px;padding-bottom:14px}
+#view-dashboard #bkp-banner{flex:0 0 auto;margin:0!important;padding:4px 10px!important;min-height:38px;font-size:11px!important;}
+#view-dashboard #bkp-banner button{padding:7px 10px!important;font-size:11px;}
+#view-dashboard #dash-hero{min-height:180px}
+.home-day{padding:16px}
+.home-day h2,.home-day-top,.home-day-meta,.home-day-footer{flex-shrink:0}
+.home-activity{min-height:164px}.home-actions{min-height:130px}
+@container (max-height:610px){
+ #view-dashboard .dash-greeting-title{font-size:28px}
+ #view-dashboard .dash-greeting-eyebrow{margin-bottom:5px!important}
+ #view-dashboard #dash-hero{min-height:153px}
+ .home-day{padding:12px 15px}.home-day h2{font-size:24px;margin:5px 0}.home-day-top{min-height:20px;font-size:9px}.home-day-footer{padding-top:5px;font-size:11px}.home-day-footer>span:last-child{font-size:16px}
+ .home-activity{min-height:145px}.home-actions{min-height:116px}.home-activity,.home-actions{gap:6px}
+ #view-dashboard .dash-kpi3{padding:8px 0 6px}#view-dashboard .dash-kpi-cv{font-size:28px}#view-dashboard .dash-splitcard{padding-bottom:10px}#view-dashboard .dash-splitlegend{margin-top:7px;font-size:10px}
+ .home-action{padding:6px 0}.home-action-text small{font-size:10px;margin-top:2px}
+}
+#view-dashboard.active{gap:10px}
+.home-day h2{line-height:1.2}
+#view-dashboard .dash-kpi3{padding-bottom:14px}
+@container (max-height:610px){#view-dashboard .dash-kpi3{padding-bottom:8px}}
+.regl-detail summary{box-sizing:border-box;min-height:70px}
+@media screen{#rapport-view{background:var(--bg)!important;}.rap-kpi:last-child:nth-child(odd){grid-column:1/-1;border-top:1px solid var(--border2)}}
+@media screen{.rap-tb th{font-size:9px;letter-spacing:.02em;white-space:nowrap;overflow-wrap:normal;}}
+@media(max-height:780px){#view-dashboard.active{gap:8px;padding-top:6px;padding-bottom:6px}}
+
+</style>
+<script>
+function atlasSettingsSummary(){
+ const p=getProfil();const values={profil:p.nom||'Identité et signature',exercice:getPratique()==='interne'?'En formation':'Chirurgien sénior',documents:([p.secr1,p.secr2].filter(Boolean).length+' destinataire'+([p.secr1,p.secr2].filter(Boolean).length>1?'s':'')),sync:getSyncCfg().url?'Configurée':'Désactivée'};
+ Object.entries(values).forEach(([key,value])=>{const el=document.getElementById('rs-'+key);if(el)el.textContent=value;});
+}
+(function(){
+ const nav=document.querySelector('.bottomnav');
+ const sync=()=>{if(nav){const h=nav.getBoundingClientRect().height;if(h>0)document.documentElement.style.setProperty('--home-nav-height',h+'px');}};
+ if(typeof ResizeObserver!=='undefined'&&nav)new ResizeObserver(sync).observe(nav);
+ window.addEventListener('resize',sync);sync();
+ // Collapse settings only on explicit summary clicks; all fields stay mounted for saving.
+ document.querySelectorAll('.regl-detail').forEach(el=>el.addEventListener('toggle',()=>{if(el.open)atlasSettingsSummary();}));
+})();
+
+</script>
 </body></html>
