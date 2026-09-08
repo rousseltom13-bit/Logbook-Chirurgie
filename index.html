@@ -2588,10 +2588,12 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
         <div class="bk-grid">
           <button class="bk-card" onclick="document.getElementById('import-file-input').click()">
             <div class="bk-ic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11m-4-4 4 4 4-4M5 13l-2 4v4h18v-4l-2-4M3 17h5l1 2h6l1-2h5"/></svg></div>
-            <div class="bk-tx"><div class="bk-t">Importer un fichier</div><div class="bk-s">Fusion sans doublon · bilan détaillé</div></div>
+            <div class="bk-tx"><div class="bk-t">Importer un fichier</div><div class="bk-s">Fusion conservatrice · paquets de radios</div></div>
             <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
         </div>
+        <button class="bk-card" style="width:100%;margin-top:12px" onclick="document.getElementById('reference-file-input').click()"><div class="bk-tx"><div class="bk-t">Restaurer une référence</div><div class="bk-s">Remplacer les données par celles d’une sauvegarde</div></div><span aria-hidden="true">›</span></button>
+        <input type="file" id="reference-file-input" accept=".json" style="display:none" onchange="importData(event,true)">
         <input type="file" id="import-file-input" accept=".json" style="display:none;" onchange="importData(event)">
         <div id="import-status" style="display:none;margin-top:8px;padding:8px 12px;border-radius:var(--radius);font-size:var(--fs-body2);"></div>
         <div id="sv-storage"></div>
@@ -2644,7 +2646,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
         </div>
         
 
-        </div></details><div class="regl-links"><button onclick="sw('sauvegarde')">Sauvegarde<span>›</span></button><button onclick="setupBiometric()">Configurer le déverrouillage<span>›</span></button><button onclick="toggleTheme()">Changer d’apparence<span>◐</span></button></div><button class="regl-save-btn" onclick="reglSave()">Enregistrer les réglages</button><details class="regl-detail regl-about"><summary><span class="regl-detail-title">À propos</span><span class="regl-summary">Atlas v179</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><button class="regl-save-btn" onclick="replayIntro()">Revoir l’introduction</button></div></details></div></div>
+        </div></details><div class="regl-links"><button onclick="sw('sauvegarde')">Sauvegarde<span>›</span></button><button onclick="setupBiometric()">Configurer le déverrouillage<span>›</span></button><button onclick="toggleTheme()">Changer d’apparence<span>◐</span></button></div><button class="regl-save-btn" onclick="reglSave()">Enregistrer les réglages</button><details class="regl-detail regl-about"><summary><span class="regl-detail-title">À propos</span><span class="regl-summary">Atlas v181</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><button class="regl-save-btn" onclick="replayIntro()">Revoir l’introduction</button></div></details></div></div>
 
     <!-- COURRIERS -->
 
@@ -5848,6 +5850,7 @@ async function _radioHash(data){
   try{
     let bytes;
     if(data instanceof Blob){bytes=new Uint8Array(await data.arrayBuffer());}
+    else if(typeof data==='string'&&/^data:[^,]*;base64,/.test(data)){const raw=atob(data.slice(data.indexOf(',')+1));bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));}
     else if(typeof TextEncoder!=='undefined'){bytes=new TextEncoder().encode(String(data));}
     else{const str=String(data);bytes=new Uint8Array(str.length);for(let i=0;i<str.length;i++)bytes[i]=str.charCodeAt(i)&0xff;}
     if(typeof crypto!=='undefined'&&crypto.subtle&&crypto.subtle.digest){
@@ -12568,7 +12571,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v178',
+    version:'atlas-v181',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -12634,12 +12637,68 @@ async function exportRadiosOnly(){
 }
 
 
-function importData(e){
+let _atlasImportBusy=false;
+function atlasReferencePlan(p){
+  const arrays=['blocs','planned','patients','journees','astuces','pathos','implant_catalog'];
+  if(!p||!p.settings||typeof p.settings!=='object'||!p.oxford_cfg||!p.oxford_cfg.knee||!p.oxford_cfg.hip||arrays.some(k=>!Array.isArray(p[k])))throw new Error('Choisissez une sauvegarde complète des données Atlas, pas un paquet de radios.');
+  for(const k of ['blocs','planned','patients']){
+    const ids=new Set();for(const x of p[k]){if(!x||typeof x!=='object'||!x.id||ids.has(String(x.id)))throw new Error('Identifiant absent ou en double dans '+k);ids.add(String(x.id));}
+  }
+  const map={blocs:'orlog_blocs',planned:'orlog_planned',patients:'atlas_patients',journees:'atlas_journees',astuces:'atlas_astuces',pathos:'atlas_pathos',implant_catalog:'atlas_implant_catalog',oxford_cfg:'atlas_oxford_cfg'};
+  const writes={};Object.entries(map).forEach(([a,b])=>writes[b]=JSON.stringify(p[a]));
+  const settings={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode'};
+  Object.entries(settings).forEach(([a,b])=>{const v=p.settings[a];if(v!==null&&typeof v!=='string')throw new Error('Réglage invalide : '+a);writes[b]=v;});
+  writes.atlas_reference_radio_counts=JSON.stringify(Object.fromEntries(p.blocs.map(b=>[String(b.id),b.radioCount||{}])));
+  return writes;
+}
+function atlasWriteReference(writes){
+  const before={};Object.keys(writes).forEach(k=>before[k]=localStorage.getItem(k));
+  // Write recovery copy before replacing anything. A quota failure cancels the operation.
+  localStorage.setItem('atlas_before_reference',JSON.stringify({date:new Date().toISOString(),values:before}));
+  try{Object.entries(writes).forEach(([k,v])=>{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);});}
+  catch(e){Object.entries(before).forEach(([k,v])=>{if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v);});throw e;}
+}
+async function atlasRecountRadioMetadata(){
+  const db=await openRadioDB();
+  const counts=await new Promise((res,rej)=>{const all=new Map();const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').openCursor();rq.onsuccess=()=>{const c=rq.result;if(!c){res(all);return;}const r=c.value;if(r.data){const k=String(r.blocId);const x=all.get(k)||{};x[r.type]=(x[r.type]||0)+1;all.set(k,x);}c.continue();};rq.onerror=()=>rej(rq.error);tx.onabort=()=>rej(tx.error||new Error('Lecture radios interrompue'));});
+  const next=blocs.map(b=>({...b,radioCount:counts.get(String(b.id))||{}}));
+  localStorage.setItem('orlog_blocs',JSON.stringify(next));blocs=next;
+  renderAll();if(currentViewName()==='stats')renderStats();
+  return atlasRadioReferenceBalance();
+}
+async function atlasRestoreReference(p){
+  const writes=atlasReferencePlan(p);
+  const ids=new Set(p.blocs.map(b=>String(b.id))),removed=blocs.filter(b=>!ids.has(String(b.id))).length;
+  if(!await aconfirm({title:'Restaurer cette référence ?',msg:p.blocs.length+' blocs remplaceront les '+blocs.length+' blocs actuels. '+removed+' dossier(s) absent(s) du fichier seront retirés. Implants, suivis, dossiers programmés et réglages seront repris du fichier. Les images présentes seront conservées ; importez ensuite les paquets de radios.',ok:'Restaurer la référence'}))return;
+  await ensureRadioMigration();
+  atlasWriteReference(writes);
+  blocs=p.blocs;planned=p.planned;patients=p.patients;journees=p.journees;astuces=p.astuces;pathos=p.pathos;implantCatalog=p.implant_catalog;OXFORD_CFG=p.oxford_cfg;
+  statSpecFilter=[];
+  let radioMessage='';
+  try{radioMessage=await atlasRecountRadioMetadata();}
+  catch(e){radioMessage='Le contrôle des radios a échoué : '+e.message+'. Les compteurs du fichier ne sont pas encore vérifiés.';}
+  refreshDatalists();syncNavPratique();renderAll();
+  const st=document.getElementById('import-status');st.style.display='block';st.style.background='var(--amber-l)';st.style.color='var(--text)';st.textContent='Référence restaurée : '+blocs.length+' blocs, '+removed+' retiré(s). '+radioMessage+' Importez tous les paquets de radios puis rechargez l’application pour appliquer tous les réglages.';
+}
+
+function atlasRadioReferenceBalance(){
+  let expected;try{expected=JSON.parse(localStorage.getItem('atlas_reference_radio_counts')||'null');}catch(e){}
+  if(!expected)return 'Compteurs radios vérifiés.';
+  let missing=0,extra=0;
+  for(const b of blocs){const e=expected[String(b.id)];if(!e)continue;const a=b.radioCount||{};for(const t of new Set([...Object.keys(e),...Object.keys(a)])){const d=(Number(a[t])||0)-(Number(e[t])||0);if(d<0)missing-=d;else extra+=d;}}
+  return missing||extra?'Écart avec la référence : '+missing+' image(s) manquante(s), '+extra+' supplémentaire(s), selon les compteurs par dossier et catégorie.':'Les compteurs radios correspondent à la référence, par dossier et catégorie.';
+}
+
+function importData(e,reference=false){
   const file=e.target.files[0];if(!file)return;
+  if(_atlasImportBusy){showToast('Un import est déjà en cours');e.target.value='';return;}
+  _atlasImportBusy=true;
   const reader=new FileReader();
+  reader.onerror=()=>{_atlasImportBusy=false;e.target.value='';showToast('Lecture du fichier impossible');};
   reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
+      if(reference){await atlasRestoreReference(parsed);return;}
       if(Array.isArray(parsed.implant_catalog)&&typeof implantCatalog!=='undefined'){
         parsed.implant_catalog.forEach(c=>{if(c&&c.label&&!implantCatalog.find(x=>x.label===c.label&&x.spec===c.spec))implantCatalog.push(c);});
         saveImplantCatalog();
@@ -12673,7 +12732,7 @@ function importData(e){
         importedPlanned = parsed.planned || [];
         importedRadios = [];
       } else {
-        importedBlocs = parsed.blocs || parsed;
+        importedBlocs = parsed.blocs || (Array.isArray(parsed.radios)?[]:parsed);
         importedPlanned = parsed.planned || [];
         importedRadios = parsed.radios || [];
       }
@@ -12750,6 +12809,10 @@ function importData(e){
             rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;out.push({key:v.key,blocId:v.blocId,type:v.type,name:v.name,date:v.date,hash:v.hash||null,ord:(v.ord!==undefined?v.ord:(v.idx||0))});c.continue();}else res(out);};
             rq.onerror=rej;
           });
+          for(const x of existing){
+            const stored=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(x.key);rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});
+            x.hash=stored&&stored.data?await _radioHash(stored.data):null;
+          }
           const haveKey=new Set(existing.map(x=>x.key));
           const haveHash=new Set(existing.filter(x=>x.hash).map(x=>x.blocId+'|'+x.type+'|'+x.hash));
           const haveSig2=new Set(existing.filter(x=>x.name&&x.date).map(x=>x.blocId+'|'+x.type+'|'+x.name+'|'+x.date));
@@ -12764,7 +12827,8 @@ function importData(e){
             const hash=await _radioHash(r.data);
             const sigH=r.blocId+'|'+r.type+'|'+hash;
             const sig2=(r.name&&r.date)?(r.blocId+'|'+r.type+'|'+r.name+'|'+r.date):null;
-            if(haveHash.has(sigH)||(sig2&&haveSig2.has(sig2))){radiosSkipped++;continue;}
+            touched.add(r.blocId);
+            if(haveHash.has(sigH)){radiosSkipped++;continue;}
             const ok=r.blocId+'|'+r.type;
             const ord=(maxOrd[ok]!==undefined?maxOrd[ok]:-1)+1;maxOrd[ok]=ord;
             const key=(typeof r.key==='string'&&r.key.slice(0,2)==='r_'&&!haveKey.has(r.key))?r.key:_radioUid();
@@ -12789,13 +12853,14 @@ function importData(e){
           }
         }catch(e){radioRestoreError=true;console.error('[OrLog import] Erreur restauration radios:',e);}
       }
+      if(importedRadios.length){try{await atlasRecountRadioMetadata();}catch(e){radioRestoreError=true;}}
       // v163 : suivi des paquets reçus par backup_id — détecte un paquet manquant
       let packInfo='';
       if(isRadiosBatch&&parsed.backup_id&&parsed.total_batches){
         try{
           const J=JSON.parse(localStorage.getItem('atlas_rx_imports')||'{}');
           const j=J[parsed.backup_id]||{seen:[],total:parsed.total_batches};
-          if(parsed.batch&&!j.seen.includes(parsed.batch))j.seen.push(parsed.batch);
+          if(!radioRestoreError&&radiosFailed===0&&parsed.batch&&!j.seen.includes(parsed.batch))j.seen.push(parsed.batch);else if(radioRestoreError||radiosFailed)j.seen=j.seen.filter(n=>n!==parsed.batch);
           j.seen.sort((a,b)=>a-b);j.total=parsed.total_batches;j.ts=Date.now();
           J[parsed.backup_id]=j;
           const ids=Object.keys(J);if(ids.length>10){ids.sort((a,b)=>(J[a].ts||0)-(J[b].ts||0));delete J[ids[0]];}
@@ -12821,15 +12886,16 @@ function importData(e){
       } else {
         summary = 'Fusion '+(okAll?'OK':'partielle')+` — ${added} ajouté(s), ${updated} mis à jour, ${blocs.length} blocs`+(radioDetail?' · '+radioDetail:'')+(settingsApplied>0?' · '+settingsApplied+' réglage(s) appliqué(s)':'')+'.';
       }
+      if(importedRadios.length)summary+=' '+atlasRadioReferenceBalance();
       st.textContent = summary;
-      setTimeout(()=>{st.style.display='none';},okAll?4000:10000);
+      if(!importedRadios.length)setTimeout(()=>{st.style.display='none';},okAll?4000:10000);
     }catch(err){
       console.error('[OrLog import] Stack:', err);
       const st=document.getElementById('import-status');
       st.style.display='block';st.style.background='var(--red-l)';st.style.color='var(--red-d)';
       st.textContent='Erreur : '+err.message+' (voir Console pour la stack complète)';
     }
-    e.target.value='';
+    finally{_atlasImportBusy=false;e.target.value='';}
   };
   reader.readAsText(file,'UTF-8');
 }
@@ -15117,4 +15183,12 @@ function atlasSettingsSummary(){
 })();
 
 </script>
+
+<style id="atlas-v181-home-legend">
+#view-dashboard .dash-splitlegend:has(>span:nth-child(3)):not(:has(>span:nth-child(4))){
+  grid-template-columns:repeat(3,max-content);
+  justify-content:space-between;
+  column-gap:8px;
+}
+</style>
 </body></html>
