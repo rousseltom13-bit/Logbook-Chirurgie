@@ -4371,30 +4371,53 @@ let activeTagFilters=new Set();
 let chartActivity=null,chartLearning=null,chartRole=null,chartEvol=null,chartLearningTrauma=null;
 let detailBlocIdx=-1,curDetTab='info';
 let detailReturn=null,lastBlocsListModal=null;
-let atlasCardTransitionOrigin=null,atlasCardTransitionTarget='';
+let atlasCardTransitionOrigin=null,atlasCardTransitionTarget='',atlasTransitionBusy=false;
 function atlasMotionAllowed(){return !(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
-function atlasOpenWithCardTransition(source,targetSelector,navigate){
-  atlasCardTransitionOrigin=source||null;atlasCardTransitionTarget=targetSelector||'';
+function atlasRunCardTransition(source,navigate,resolveTarget){
+  if(atlasTransitionBusy)return;
   if(!source||!document.startViewTransition||!atlasMotionAllowed()){navigate();return;}
+  atlasTransitionBusy=true;
+  const root=document.documentElement;
+  root.classList.add('atlas-card-moving');
+  source.classList.add('atlas-transition-source');
   source.style.viewTransitionName='atlas-shared-card';
-  const transition=document.startViewTransition(()=>{
-    navigate();
-    const target=document.querySelector(targetSelector);
-    if(target)target.style.viewTransitionName='atlas-shared-card';
-  });
-  const cleanup=()=>{source.style.viewTransitionName='';const target=document.querySelector(targetSelector);if(target)target.style.viewTransitionName='';};
-  transition.finished.then(cleanup,cleanup);
+  let target=null;
+  const cleanup=()=>{
+    source.style.viewTransitionName='';source.classList.remove('atlas-transition-source');
+    if(target)target.style.viewTransitionName='';
+    document.querySelectorAll('.view.active').forEach(el=>el.classList.add('atlas-transition-settled'));
+    root.classList.remove('atlas-card-moving');atlasTransitionBusy=false;
+  };
+  try{
+    const transition=document.startViewTransition(()=>{
+      source.style.viewTransitionName='';
+      navigate();target=resolveTarget();
+      if(target)target.style.viewTransitionName='atlas-shared-card';
+    });
+    transition.finished.then(cleanup,cleanup);
+  }catch(error){cleanup();navigate();}
+}
+function atlasOpenWithCardTransition(source,targetSelector,navigate){
+  if(atlasTransitionBusy)return;
+  const container=source&&source.closest('.view');
+  atlasCardTransitionOrigin=source?{element:source,viewId:container&&container.id,click:source.getAttribute('onclick'),scroll:Array.from(document.querySelectorAll('.views,.view,.bloclist-scroll,.stats-scroll')).map(el=>({el,top:el.scrollTop}))}:null;
+  atlasCardTransitionTarget=targetSelector;
+  atlasRunCardTransition(source,navigate,()=>document.querySelector(targetSelector));
 }
 function atlasOpenBlocFromCard(source,bi,returnFn){atlasOpenWithCardTransition(source,'#det-hero',()=>openBlocDetail(bi,returnFn));}
 function atlasOpenPlannedFromCard(source,idx,returnView){atlasOpenWithCardTransition(source,'#pdet-content .planned-preop-hero',()=>openPlannedDetail(idx,returnView));}
 function atlasBackWithCardTransition(navigate){
-  const source=atlasCardTransitionOrigin;
-  const target=atlasCardTransitionTarget?document.querySelector(atlasCardTransitionTarget):null;
-  if(!source||!source.isConnected||!target||!document.startViewTransition||!atlasMotionAllowed()){navigate();atlasCardTransitionOrigin=null;atlasCardTransitionTarget='';return;}
-  target.style.viewTransitionName='atlas-shared-card';
-  const transition=document.startViewTransition(()=>{navigate();if(source.isConnected)source.style.viewTransitionName='atlas-shared-card';});
-  const cleanup=()=>{target.style.viewTransitionName='';if(source.isConnected)source.style.viewTransitionName='';atlasCardTransitionOrigin=null;atlasCardTransitionTarget='';};
-  transition.finished.then(cleanup,cleanup);
+  if(atlasTransitionBusy)return;
+  const origin=atlasCardTransitionOrigin;
+  const hero=atlasCardTransitionTarget?document.querySelector(atlasCardTransitionTarget):null;
+  atlasCardTransitionOrigin=null;atlasCardTransitionTarget='';
+  const goBack=()=>{navigate();if(origin)origin.scroll.forEach(({el,top})=>{if(el.isConnected)el.scrollTop=top;});};
+  atlasRunCardTransition(origin?hero:null,goBack,()=>{
+    if(!origin)return null;
+    if(origin.element.isConnected)return origin.element;
+    const view=document.getElementById(origin.viewId);
+    return view?Array.from(view.querySelectorAll('[onclick]')).find(el=>el.getAttribute('onclick')===origin.click):null;
+  });
 }
 function reopenBlocsListModal(){if(lastBlocsListModal)openBlocsListModal(lastBlocsListModal.title,lastBlocsListModal.blocsList,lastBlocsListModal.options);}
 function toggleDetMenu(e){if(e)e.stopPropagation();const m=document.getElementById('det-menu');if(!m)return;m.style.display=(m.style.display==='none')?'block':'none';}
@@ -4575,6 +4598,7 @@ async function scanLabel(ev){
 
 // ── NAVIGATION ──
 function sw(v){
+  document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   const vEl=document.getElementById('view-'+v);const bEl=document.getElementById('bn-'+v);
@@ -4948,6 +4972,7 @@ function switchDetTab(tab,btn){
   if(tab==='suivi'&&detailBlocIdx>=0)renderDetSuivi(detailBlocIdx);
 }
 function openBlocDetail(bi, returnFn){
+  document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
   detailBlocIdx=bi;const b=blocs[bi];
   detailReturn=(typeof returnFn==='function')?returnFn:null;
   const{dc,tc,sl}=statusClasses(b.statut);
@@ -4956,6 +4981,7 @@ function openBlocDetail(bi, returnFn){
   const nc=(b.complications||[]).length;
   const complList=(b.complications||[]).map(c=>`<div style="padding:10px 0;border-bottom:0.5px solid var(--border);"><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;"><span class="compl-tag">${esc(c.type)}</span><span style="font-size:var(--fs-tag);color:var(--text3);">${fmtDate(c.date)}</span></div>${c.detail?`<div style="font-size:var(--fs-body2);color:var(--text2);font-family:var(--serif);line-height:1.6;">${escNl(c.detail)}</div>`:''}</div>`).join('');
   // Hero Atlas
+  document.getElementById('det-hero').style.setProperty('--spec',getSpecConfig(b.spec).color);
   const eyebrow=document.getElementById('det-eyebrow');
   const patient=document.getElementById('det-patient');
   const intervHero=document.getElementById('det-interv-hero');
@@ -7947,7 +7973,7 @@ function openBlocsListModal(title, blocsList, options){
       sub='Dernière information · '+fmtDate(last);
     }
     const specColor=(getSpecConfig(b.spec||'')||{}).color||'var(--accent)';
-    return `<div class="blc-card" onclick="setTimeout(()=>openBlocDetail(${bi},reopenBlocsListModal),100);" style="--spec:${specColor}">
+    return `<div class="blc-card" onclick="atlasOpenBlocFromCard(this,${bi},reopenBlocsListModal)" style="--spec:${specColor}">
       <div class="blc-date"><span class="d">${day}</span><span class="mo">${mo}</span></div>
       <div class="blc-mid">
         <div class="blc-toprow"><div class="blc-pat">${esc(b.patient)||'—'}</div>${statusVaries?`<span class="bloc-status-pill ${pillCls}">${pillLbl}</span>`:''}</div>
@@ -12195,6 +12221,7 @@ window._plannedDraftRadios=[];
 
 function currentViewName(){const el=document.querySelector('.view.active');return el?el.id.replace('view-',''):'';}
 function openPlannedWorkspace(name){
+  document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
   const view=document.getElementById('view-'+name);if(view)view.classList.add('active');
@@ -12615,7 +12642,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v172',
+    version:'atlas-v173',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14886,6 +14913,32 @@ html,body,#app{background:var(--bg)!important;}
 @media(prefers-reduced-motion: reduce){
   ::view-transition-group(atlas-shared-card),::view-transition-old(atlas-shared-card),::view-transition-new(atlas-shared-card){animation-duration:.01ms!important;}
 }
+
+
+/* v173 — one motion owner during shared-card navigation. */
+html.atlas-card-moving .view.active,
+html.atlas-card-moving .view.active *,
+html.atlas-card-moving .atlas-transition-source{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important;
+}
+html.atlas-card-moving .atlas-transition-source{transform:none!important;}
+html.atlas-card-moving .view.active{pointer-events:none;}
+.view.atlas-transition-settled,.view.atlas-transition-settled *{animation:none!important;}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;}
+#view-detail #det-hero{
+  position:relative;margin:14px 16px 16px;padding:19px 20px 17px;
+  border:1px solid var(--glass-border);border-radius:23px;overflow:hidden;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--spec,var(--accent)) 8%,var(--bg2)),var(--bg2) 72%);
+  box-shadow:var(--glass-highlight),var(--glass-shadow);
+}
+#det-hero::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--spec,var(--accent));}
+#det-hero .atlas-det-eyebrow{font-size:10px;letter-spacing:.08em;line-height:1.5;margin:0 0 13px;}
+#det-hero .det-spec-badge{border-radius:12px;width:36px;height:36px;}
+#det-hero .atlas-det-patient{font-size:clamp(24px,6.6vw,31px);line-height:1.12;overflow-wrap:anywhere;margin:0 0 8px;font-weight:500;}
+#det-hero .atlas-det-interv{font-family:inherit;font-size:15px;line-height:1.4;font-style:normal;font-weight:500;margin:0;color:var(--text2);}
+#det-hero .atlas-det-meta-row{margin-top:16px;padding-top:13px;border-top:1px solid var(--border);gap:7px 9px;}
+#det-hero .atlas-det-role,#det-hero .atlas-det-meta-txt{font-size:12px;line-height:1.4;}
+@media(max-width:370px){#view-detail #det-hero{margin-left:12px;margin-right:12px;padding:16px;}}
 
 </style>
 </body></html>
