@@ -2646,7 +2646,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
         </div>
         
 
-        </div></details><div class="regl-links"><button onclick="sw('sauvegarde')">Sauvegarde<span>›</span></button><button onclick="setupBiometric()">Configurer le déverrouillage<span>›</span></button><button onclick="toggleTheme()">Changer d’apparence<span>◐</span></button></div><button class="regl-save-btn" onclick="reglSave()">Enregistrer les réglages</button><details class="regl-detail regl-about"><summary><span class="regl-detail-title">À propos</span><span class="regl-summary">Atlas v181</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><button class="regl-save-btn" onclick="replayIntro()">Revoir l’introduction</button></div></details></div></div>
+        </div></details><div class="regl-links"><button onclick="sw('sauvegarde')">Sauvegarde<span>›</span></button><button onclick="setupBiometric()">Configurer le déverrouillage<span>›</span></button><button onclick="toggleTheme()">Changer d’apparence<span>◐</span></button></div><button class="regl-save-btn" onclick="reglSave()">Enregistrer les réglages</button><details class="regl-detail regl-about"><summary><span class="regl-detail-title">À propos</span><span class="regl-summary">Atlas v182</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><button class="regl-save-btn" onclick="replayIntro()">Revoir l’introduction</button></div></details></div></div>
 
     <!-- COURRIERS -->
 
@@ -12571,7 +12571,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v181',
+    version:'atlas-v182',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -15184,11 +15184,11 @@ function atlasSettingsSummary(){
 
 </script>
 
-<style id="atlas-v181-home-legend">
+<style id="atlas-v182-home-legend">
 #view-dashboard .dash-splitlegend:has(>span:nth-child(3)):not(:has(>span:nth-child(4))){
   grid-template-columns:repeat(3,max-content);
-  justify-content:space-between;
-  column-gap:8px;
+  justify-content:start;
+  column-gap:10px;
 }
 </style>
 </body></html>
