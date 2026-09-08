@@ -11424,7 +11424,7 @@ function renderDocForm(){
     }catch(e){return '';}
   };
   const CARDS=[['patient','Patient & séjour','var(--green)'],['interv','Intervention & gestes','var(--accent)'],['suites','Suites & ordonnances','var(--purple)']];
-  host.innerHTML=trameBar+'<div class="doc-overview-intro"><span>Préparation des documents</span><h2>Vérifier avant de générer</h2><p>Ouvrez chaque rubrique pour vérifier les informations et adapter les choix préremplis.</p></div>'+CARDS.map(c=>{
+  host.innerHTML=trameBar+'<div class="doc-overview-intro"><h2>Modalités de l’intervention</h2></div>'+CARDS.map(c=>{
     const k=c[0],title=c[1],col=c[2];
     const list=buckets[k];if(!list.length)return '';
     const open=!!window._docSecOpen[k];
@@ -12672,7 +12672,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v176',
+    version:'atlas-v178',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -15046,5 +15046,24 @@ html.atlas-card-moving .view.active{pointer-events:none;}
 #doc-form:not(:has(.edc.open)) .edc-head{min-height:92px;padding:20px 16px;gap:7px 12px;}
 #doc-form:not(:has(.edc.open)) .edc-sum{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.5;}
 #doc-form:not(:has(.edc.open)) .edc{border-color:color-mix(in srgb,var(--text) 16%,var(--bg2));}
+</style>
+<style id="atlas-documents-v177">
+/* Espacement des champs libres associés aux pastilles. */
+#doc-step1 .doc-pills + .doc-fin{margin-top:10px;}
+</style>
+<style id="atlas-documents-v178">
+/* v178 — présentation sobre, sans texte d'aide ajouté. */
+#doc-step1 .doc-overview-intro{padding:10px 5px 24px;}
+#doc-step1 .doc-overview-intro h2{margin:0;font-size:25px;line-height:1.18;max-width:23ch;}
+#doc-step2 .doc-tabsrow{padding:12px 16px;gap:8px;background:var(--bg)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+#doc-step2 .doc-tab{min-height:42px;padding:9px 15px;border:1px solid var(--border2);border-radius:13px;box-shadow:none;font-size:13px;line-height:1.3;}
+#doc-step2 .doc-tab.on{background:var(--accent)!important;color:white!important;border-color:var(--accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
+#doc-step2 #doc-text{min-width:0;margin:0 14px;padding:18px 17px;background:var(--bg2)!important;border:1px solid var(--border2)!important;border-radius:17px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.65;letter-spacing:0;box-shadow:0 4px 16px -12px rgba(20,35,35,.25)!important;}
+#doc-step2 #doc-text:focus-visible{border-color:var(--accent)!important;outline:2px solid var(--accent-l);outline-offset:-3px;}
+#doc-step2 .doc-foot{padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));gap:7px;background:var(--bg)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+#doc-step2 .doc-act{min-width:0;min-height:46px;padding:10px 7px;border-radius:13px;font-size:13px;line-height:1.3;border:1px solid var(--border2);background:var(--bg2);box-shadow:none;}
+#doc-step2 .doc-act:first-child{background:transparent;border-color:transparent;color:var(--text3);margin-right:4px;}
+#doc-step2 .doc-act-p{background:var(--accent)!important;color:#fff!important;border-color:var(--accent);}
+#doc-step2 .doc-act:focus-visible,#doc-step2 .doc-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 </style>
 </body></html>
