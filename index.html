@@ -1925,6 +1925,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
           </button>
         </div>
       </section>
+      <section id="internal-home-section"><div class="home-section-head"><h2>Épinglés</h2><button onclick="atlasSearchCarnet()">Choisir ↗</button></div><div id="internal-home-pins"></div></section>
       <section class="home-actions"><div class="home-section-head"><h2>À traiter</h2><button onclick="atlasHomeActions('all')">Tout voir ↗</button></div><div class="home-actions-card" id="home-action-rows"></div></section>
       <div hidden><span id="d-total-trend"></span><span id="d-principal"></span><span id="d-compl-pct"></span><span id="d-compl-trend"></span><span id="d-compl-sub"></span></div>
       <div class="dash-tabs-atlas" id="dash-tabs" style="display:none;">
@@ -4655,6 +4656,8 @@ function renderDashHome(){
     '<button class="home-action" onclick="atlasHomeActions(\'missing\')"><span class="home-action-icon" aria-hidden="true">▤</span><span class="home-action-text"><strong>Dossiers à compléter</strong><small>Radios ou implants</small></span><b>'+sum.missing+'</b><span aria-hidden="true">›</span></button>'+
     '<button class="home-action" onclick="atlasHomeActions(\'stale\')"><span class="home-action-icon amber" aria-hidden="true">◷</span><span class="home-action-text"><strong>Suivis à revoir</strong><small>Opérés depuis plus de 6 mois</small></span><b>'+sum.stale+'</b><span aria-hidden="true">›</span></button>';
   const internal=getPratique()==='interne';
+  document.getElementById('view-dashboard').classList.toggle('internal-home',internal);
+  if(internal){atlasRenderInternalHome(sum,hero);return;}
   const pending=internal?pendingJournees():[];
   const upcoming=upcomingPlanned();
   const nextDay=typeof upcomingJournees==='function'?upcomingJournees()[0]:null;
@@ -15118,4 +15121,77 @@ function atlasSettingsSummary(){
   column-gap:10px;
 }
 </style>
-<style id="atlas-v183-empty-home">#view-dashboard .home-day{box-sizing:border-box;min-height:0;flex:1 1 auto;}#view-dashboard .home-day-buttons{flex-shrink:0;}#view-dashboard .home-day-buttons button{box-sizing:border-box;min-width:0;font-weight:600;}</style></body></html>
+<style id="atlas-v183-empty-home">#view-dashboard .home-day{box-sizing:border-box;min-height:0;flex:1 1 auto;}#view-dashboard .home-day-buttons{flex-shrink:0;}#view-dashboard .home-day-buttons button{box-sizing:border-box;min-width:0;font-weight:600;}</style><script>
+function atlasCarnetEntries(){
+  return astuces.map(a=>({kind:'astuces',item:a,title:displayInterv(a.interv)||'Fiche générale',subtitle:a.chirurgien||'Astuce opératoire',text:[a.interv,a.spec,a.chirurgien,a.installation,a.abord,a.synthese,a.divers].join(' ')})).concat(pathos.map(p=>({kind:'patho',item:p,title:p.titre||'Sans titre',subtitle:'Fiche pathologie',text:[p.titre,p.spec,p.classif,p.clinique,p.imagerie,p.pec,p.astuces].join(' ')})));
+}
+function atlasCarnetNormalize(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+function atlasOpenCarnetTab(tab){sw('planning');const q=document.getElementById('ast-search');if(q)q.value='';setCarnetTab(tab);}
+function atlasOpenCarnetEntry(kind,id){closeModal('internal-carnet-modal');if(kind==='patho')openPathoSheet(id);else openAstuceSheet(id);}
+function atlasTogglePin(kind,id){
+ const entry=atlasCarnetEntries().find(e=>e.kind===kind&&e.item.id===id);if(!entry)return;
+ if(!entry.item.homePinned&&atlasCarnetEntries().filter(e=>e.item.homePinned).length>=2){showToast('Deux favoris maximum : retire une épingle pour en choisir une autre.');return;}
+ entry.item.homePinned=!entry.item.homePinned;
+ if(kind==='patho')savePathos();else saveAstuces();
+ atlasRenderCarnetSearch();renderDash();
+}
+function atlasRenderCarnetSearch(){
+ const host=document.getElementById('internal-carnet-results');host.replaceChildren();
+ const q=atlasCarnetNormalize(document.getElementById('internal-carnet-query').value).trim();
+ const entries=atlasCarnetEntries().filter(e=>q.split(/\s+/).every(t=>atlasCarnetNormalize(e.text).includes(t)));
+ for(const kind of ['astuces','patho']){
+ const group=entries.filter(e=>e.kind===kind);if(!group.length)continue;
+ const h=document.createElement('h3');h.textContent=kind==='patho'?'Fiches pathologies':'Astuces opératoires';host.append(h);
+ group.forEach(e=>{
+ const row=document.createElement('div');row.className='internal-result';
+ const open=document.createElement('button');open.className='internal-entry';
+ const title=document.createElement('strong');title.textContent=e.title;
+ const sub=document.createElement('small');sub.textContent=e.subtitle;open.append(title,sub);
+ open.onclick=()=>atlasOpenCarnetEntry(kind,e.item.id);
+ const pin=document.createElement('button');pin.className='internal-pin';pin.textContent=e.item.homePinned?'★':'☆';pin.setAttribute('aria-label',(e.item.homePinned?'Désépingler ':'Épingler ')+e.title);pin.setAttribute('aria-pressed',String(!!e.item.homePinned));pin.onclick=()=>atlasTogglePin(kind,e.item.id);
+ row.append(open,pin);host.append(row);
+ });}
+ if(!entries.length){const p=document.createElement('p');p.textContent=q?'Aucun résultat':'Votre carnet est vide';host.append(p);}
+}
+function atlasSearchCarnet(){openModal('internal-carnet-modal');document.getElementById('internal-carnet-query').value='';atlasRenderCarnetSearch();}
+function atlasRenderInternalHome(sum,hero){
+ hero.innerHTML='<section class="home-day internal-carnet"><div class="home-day-top">Mon carnet</div><h2>Mes repères</h2><button class="internal-search" onclick="atlasSearchCarnet()">Intervention, pathologie… <span aria-hidden="true">⌕</span></button><div class="home-day-buttons"><button onclick="atlasOpenCarnetTab(\'astuces\')">Astuces</button><button onclick="atlasOpenCarnetTab(\'patho\')">Fiches</button></div></section>';
+ const area=document.getElementById('internal-home-pins');area.replaceChildren();
+ const entries=atlasCarnetEntries().filter(e=>e.item.homePinned).slice(0,2);
+ for(let i=0;i<2;i++){
+ const e=entries[i],button=document.createElement('button');button.className='internal-favorite';
+ const strong=document.createElement('strong'),small=document.createElement('small');
+ strong.textContent=e?e.title:(i?'Nouvelle fiche':'Nouvelle astuce');small.textContent=e?e.subtitle:(i?'Pathologie':'Intervention');button.append(strong,small);
+ button.onclick=e?()=>atlasOpenCarnetEntry(e.kind,e.item.id):()=>{if(i)openPathoSheet(null);else openAstuceSheet(null);};area.append(button);
+ }
+ document.getElementById('home-action-rows').innerHTML='<button class="home-action" onclick="atlasHomeActions(\'missing\')"><span class="home-action-text"><strong>Dossiers à compléter</strong></span><b>'+sum.missing+'</b><span aria-hidden="true">›</span></button>';
+}
+</script>
+<div class="modal-overlay" id="internal-carnet-modal" onclick="if(event.target===this)closeModal('internal-carnet-modal')"><div class="modal internal-carnet-dialog" role="dialog" aria-modal="true" aria-labelledby="internal-carnet-title"><div class="internal-dialog-head"><h2 id="internal-carnet-title">Mon carnet</h2><button aria-label="Fermer" onclick="closeModal('internal-carnet-modal')">×</button></div><input type="search" id="internal-carnet-query" aria-label="Rechercher dans le carnet" placeholder="Intervention, pathologie…" oninput="atlasRenderCarnetSearch()"><div id="internal-carnet-results"></div></div></div>
+<style>
+#internal-home-section{display:none}
+#view-dashboard.internal-home #internal-home-section{display:flex;flex-direction:column;gap:8px;min-height:96px;flex:0 0 auto}
+#view-dashboard.internal-home{gap:12px}
+#view-dashboard.internal-home #dash-hero{min-height:170px;max-height:210px;flex:1.15 1 0}
+#view-dashboard.internal-home .internal-carnet{padding:15px 18px;gap:8px;cursor:default}
+#view-dashboard.internal-home .internal-carnet h2{margin:0;font-size:27px}
+.internal-search{width:100%;min-height:44px;display:flex;justify-content:space-between;align-items:center;border:1px solid #ffffff55;border-radius:12px;padding:10px 12px;background:#ffffffed;color:#3c585a;font:14px inherit;font-family:inherit;text-align:left;cursor:pointer}
+#view-dashboard.internal-home .home-day-buttons{margin-top:0}
+#view-dashboard.internal-home .home-day-buttons button{min-height:40px;padding:7px}
+#view-dashboard.internal-home .home-activity{min-height:128px;max-height:170px}
+#view-dashboard.internal-home .home-actions{flex:0 0 48px;min-height:48px}
+#view-dashboard.internal-home .home-actions>.home-section-head{display:none}
+#internal-home-pins{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.internal-favorite{min-width:0;min-height:65px;text-align:left;padding:11px 12px;border-radius:16px;border:1px solid var(--glass-border,var(--border));background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);font-family:inherit;color:var(--text);cursor:pointer}
+.internal-favorite strong,.internal-entry strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:600}
+.internal-favorite small,.internal-entry small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--text3);margin-top:5px}
+.internal-carnet-dialog{width:min(560px,100%);max-height:85dvh;display:flex;flex-direction:column;box-sizing:border-box;padding:20px;gap:14px}
+.internal-dialog-head{display:flex;align-items:center;justify-content:space-between}.internal-dialog-head h2{margin:0;font-family:var(--serif)}
+.internal-dialog-head button,.internal-pin{border:0;background:var(--bg3);color:var(--accent);border-radius:12px;min-width:44px;min-height:44px;font-size:24px;cursor:pointer}
+#internal-carnet-query{box-sizing:border-box;width:100%;min-height:48px;border:1px solid var(--border2);border-radius:13px;background:var(--bg2);color:var(--text);padding:12px;font:16px inherit;font-family:inherit}
+#internal-carnet-results{overflow-y:auto;min-height:0}#internal-carnet-results h3{font-size:13px;color:var(--text3);margin:18px 0 9px}
+.internal-result{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border);padding:8px 0}.internal-entry{flex:1;min-width:0;min-height:48px;text-align:left;border:0;background:none;color:var(--text);font-family:inherit;cursor:pointer}
+@media(max-height:740px){#view-dashboard.internal-home{gap:8px;padding-top:6px;padding-bottom:8px}#view-dashboard.internal-home #dash-hero{min-height:154px}#view-dashboard.internal-home .internal-carnet{padding:10px 14px;gap:5px}#view-dashboard.internal-home .internal-carnet h2{font-size:23px}#view-dashboard.internal-home #internal-home-section{min-height:84px;gap:4px}.internal-favorite{min-height:57px;padding:8px 10px}}
+</style>
+
+</body></html>
