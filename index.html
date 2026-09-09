@@ -8481,8 +8481,8 @@ const DOC_DOCS={
 };
 const ANTICO_OPTS=['INNOHEP 4500 UI','LOVENOX 4000 UI','XARELTO 10 mg','ELIQUIS 2,5 mg','Aucun'];
 function anticoIsHBPM(a){return /INNOHEP|LOVENOX/i.test(a||'');}
-const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge',matGilet:"Un gilet orthopédique d'immobilisation / écharpe",matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet',matDujarrier:"Une attelle d'immobilisation coude au corps type Dujarrier",matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
-function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,''),def:defs.indexOf(k)>=0})));}
+const MAT_LABELS={matCannes:'Une paire de cannes anglaises',matCryo:'Une attelle de cryothérapie compressive',matRehausseur:'Un réhausseur de toilettes',matAttelle:'Une attelle de genou en extension (type FAG)',matBotte:'Une botte de marche',matChaussure:'Une chaussure de décharge de l’avant-pied (type SOBER)',matDeambulateur:'Un déambulateur',matAttellePoignet:'Une attelle amovible de poignet (type MANULOC)',matDujarrier:"Une attelle d'immobilisation coude au corps type Dujarrier",matBas:'Bas de contention veineuse classe 2 — 2 paires',matFauteuil:'Un fauteuil roulant (location 1 mois)'};
+function _mat(defs){return [{t:'hdr',l:'Ordonnance de matériel'}].concat(Object.keys(MAT_LABELS).map(k=>({k,t:'check',l:MAT_LABELS[k].replace(/^(Une |Un )/,'').replace(/^./,c=>c.toUpperCase()),def:defs.indexOf(k)>=0})));}
 const _AINS={k:'ains',t:'check',l:'AINS (ibuprofène 5 j) + IPP associé',def:true};
 const _VISLIBRES=[{k:'vlOn',t:'check',l:'Vis 3,5 libre(s) en compression inter-fragmentaire',def:false},{k:'vlNb',t:'num',l:'Nombre de vis libres',def:'1',show:f=>f.vlOn}];
 function _vlLine(f){return f.vlOn?("Mise en place de "+(f.vlNb||'1')+" vis 3,5 libre(s) inter-fragmentaire(s) en compression.\n"):'';}
@@ -8647,7 +8647,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matGilet'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat([])),
   palette:[..._COMMON,
     {k:'paAO',t:'seg',l:'Classification AO (13-)',o:['A (extra-articulaire)','B (articulaire partielle)','C1','C2','C3'],def:'C2'},
     {k:'paAbord',t:'seg',l:'Abord',o:["Ostéotomie de l'olécrâne",'Para-tricipitale','Trans-tricipitale'],def:"Ostéotomie de l'olécrâne"},
@@ -8673,7 +8673,7 @@ const DOC_OPTS={
     _AINS,
     {k:'antico',t:'seg',l:'Anticoagulant post-opératoire',o:ANTICO_OPTS,def:'Aucun'},
     {k:'anticoJours',t:'num',l:'Durée anticoagulation (jours)',def:'10',show:f=>f.antico!=='Aucun'},
-    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat(['matGilet'])),
+    {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'}].concat(_amp(false)).concat(_mat([])),
   pilon:[..._COMMON,
     {k:'plAO',t:'seg',l:'Classification AO (43-)',o:['B1','B2','B3','C1','C2','C3'],def:'C2'},
     {k:'plOuverte',t:'check',l:'Fracture ouverte',def:false},
@@ -8978,6 +8978,15 @@ Object.keys(DOC_OPTS).forEach(key=>{
  if(!opts.some(o=>o.k==='fermeture'))opts.push({k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Agrafes','Fils'],def:['lca','menisc'].includes(key)?'Fils':'Agrafes'});
  opts.splice(opts.findIndex(o=>o.k==='pansement')+1,0,{k:'pansementJours',t:'num',l:'Pansement : renouvellement tous les … jours',def:'4'});
  opts.splice(opts.findIndex(o=>o.k==='fermeture')+1,0,{k:'filsType',t:'seg',l:'Type de fils cutanés',o:['Résorbables','Non résorbables'],def:'',show:f=>f.fermeture==='Fils'});
+});
+// Keep closure and dressing choices together, before equipment in every template.
+Object.values(DOC_OPTS).forEach(opts=>{
+ const keys=['fermeture','filsType','pansement','pansementJours'];
+ const group=keys.map(k=>opts.find(o=>o.k===k)).filter(Boolean);
+ const anchor=opts.findIndex(o=>o.k==='pansement'||(o.t==='hdr'&&/matériel/i.test(o.l||'')));
+ const before=opts.slice(0,anchor).filter(o=>!keys.includes(o.k));
+ const after=opts.slice(anchor).filter(o=>!keys.includes(o.k));
+ opts.splice(0,opts.length,...before,...group,...after);
 });
 function docPansementFrequency(f){const n=Number(f.pansementJours);return Number.isInteger(n)&&n>0?(n===1?'chaque jour':'tous les '+n+' jours'):'fréquence à préciser';}
 function docClosure(f){return f.fermeture==='Agrafes'?'agrafes':f.filsType==='Résorbables'?'fils résorbables':f.filsType==='Non résorbables'?'fils non résorbables':'fils (type à préciser)';}
