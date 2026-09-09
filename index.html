@@ -4301,6 +4301,7 @@ let detailReturn=null,lastBlocsListModal=null;
 let atlasCardTransitionOrigin=null,atlasCardTransitionTarget='',atlasTransitionBusy=false;
 function atlasMotionAllowed(){return !(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
 function atlasRunCardTransition(source,navigate,resolveTarget){
+  atlasStopNavigationMotion();
   if(atlasTransitionBusy)return;
   if(!source||!document.startViewTransition||!atlasMotionAllowed()){navigate();return;}
   atlasTransitionBusy=true;
@@ -4525,7 +4526,57 @@ async function scanLabel(ev){
 }
 
 // ── NAVIGATION ──
+// Navigation presentation only; the original navigation callbacks own all state.
+let atlasNavTransition=null,atlasStatsMotionOrigin=null;
+function atlasStopNavigationMotion(){
+  if(atlasNavTransition){const t=atlasNavTransition;atlasNavTransition=null;if(t.atlasFinish)t.atlasFinish();t.skipTransition();}
+}
+function atlasNavigateMotion(navigate,resolveTarget,options={}){
+  atlasStopNavigationMotion();
+  const source=document.querySelector('.view.active');
+  if(!source||atlasTransitionBusy||!document.startViewTransition||!atlasMotionAllowed()) {navigate();return;}
+  const root=document.documentElement;
+  const rect=source.getBoundingClientRect();
+  let target=null,ran=false;
+  const once=()=>{if(ran)return;ran=true;navigate();};
+  const reset=()=>{
+    source.style.viewTransitionName='';
+    if(target)target.style.viewTransitionName='';
+    root.classList.remove('atlas-nav-moving','atlas-nav-widget','atlas-nav-return');
+  };
+  // An interrupted transition is cleaned before naming the next snapshot.
+  document.querySelectorAll('[data-atlas-nav-surface]').forEach(el=>{el.style.viewTransitionName='';el.removeAttribute('data-atlas-nav-surface');});
+  root.classList.remove('atlas-nav-widget','atlas-nav-return');
+  root.classList.add('atlas-nav-moving');
+  root.style.setProperty('--atlas-nav-from',(options.direction===-1?'-90px':'90px'));
+  root.style.setProperty('--atlas-nav-to',(options.direction===-1?'75px':'-75px'));
+  if(options.card){
+    const c=options.card;
+    const pct=(n,d)=>Math.max(0,Math.min(100,n/Math.max(1,d)*100)).toFixed(3)+'%';
+    root.style.setProperty('--atlas-nav-inset','inset('+pct(c.top-rect.top,rect.height)+' '+pct(rect.right-c.right,rect.width)+' '+pct(rect.bottom-c.bottom,rect.height)+' '+pct(c.left-rect.left,rect.width)+' round 22px)');
+    root.classList.add('atlas-nav-widget');
+    if(options.back)root.classList.add('atlas-nav-return');
+  }
+  source.style.viewTransitionName='atlas-navigation';source.setAttribute('data-atlas-nav-surface','');
+  try{
+    const transition=document.startViewTransition(()=>{
+      if(ran)return;source.style.viewTransitionName='';once();target=resolveTarget();
+      if(target){target.style.viewTransitionName='atlas-navigation';target.setAttribute('data-atlas-nav-surface','');}
+    });
+    transition.atlasFinish=()=>{once();reset();};
+    atlasNavTransition=transition;
+    transition.finished.then(()=>{if(atlasNavTransition===transition){reset();atlasNavTransition=null;}},()=>{if(atlasNavTransition===transition){reset();atlasNavTransition=null;}});
+  }catch(error){reset();once();}
+}
 function sw(v){
+  const current=document.querySelector('.view.active');
+  const order=['dashboard','planning','saisie','blocs','stats'];
+  if(!current||current.id==='view-'+v){atlasStopNavigationMotion();atlasSwitchView(v);return;}
+  const direction=order.indexOf(v)<order.indexOf(current.id.replace('view-',''))?-1:1;
+  atlasNavigateMotion(()=>atlasSwitchView(v),()=>document.getElementById('view-'+v),{direction});
+}
+
+function atlasSwitchView(v){
   document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
@@ -7404,12 +7455,17 @@ function showStatsPage(){
   const sc=document.querySelector('#view-stats .stats-scroll');if(sc){sc.scrollTop=0;sc.classList.toggle('hub-lock',hub);}
   rerenderCurrentStatsTab();
 }
-function openStatsPage(id){curStatsPage=id;if(id==='interventions'){statTraumaSeg=null;statTraumaSub=null;statGroupId=null;}showStatsPage();}
+function openStatsPage(id){
+  const source=Array.from(document.querySelectorAll('#shub-grid .shub-card')).find(el=>(el.getAttribute('onclick')||'').includes("'"+id+"'"));
+  const card=curStatsPage===null&&source?source.getBoundingClientRect():null;
+  atlasStatsMotionOrigin=card;
+  atlasNavigateMotion(()=>{curStatsPage=id;if(id==='interventions'){statTraumaSeg=null;statTraumaSub=null;statGroupId=null;}showStatsPage();},()=>document.getElementById('view-stats'),{card});
+}
 function backToStatsHub(){
   if(curStatsPage==='interventions'&&statGroupId){statGroupId=null;renderTopInterventions();return;}
   if(curStatsPage==='interventions'&&statTraumaSub){statTraumaSub=null;renderTopInterventions();return;}
   if(curStatsPage==='interventions'&&statTraumaSeg){statTraumaSeg=null;renderTopInterventions();return;}
-  curStatsPage=null;showStatsPage();
+  atlasNavigateMotion(()=>{curStatsPage=null;showStatsPage();},()=>document.getElementById('view-stats'),{card:atlasStatsMotionOrigin,back:true,direction:-1});
 }
 function renderStatsHub(){
   const host=document.getElementById('shub-grid');if(!host)return;
@@ -15118,4 +15174,26 @@ function atlasSettingsSummary(){
   column-gap:10px;
 }
 </style>
-<style id="atlas-v183-empty-home">#view-dashboard .home-day{box-sizing:border-box;min-height:0;flex:1 1 auto;}#view-dashboard .home-day-buttons{flex-shrink:0;}#view-dashboard .home-day-buttons button{box-sizing:border-box;min-width:0;font-weight:600;}</style></body></html>
+<style id="atlas-v183-empty-home">#view-dashboard .home-day{box-sizing:border-box;min-height:0;flex:1 1 auto;}#view-dashboard .home-day-buttons{flex-shrink:0;}#view-dashboard .home-day-buttons button{box-sizing:border-box;min-width:0;font-weight:600;}</style><style>
+/* v184 — snapshots animate; live layouts and the bottom bar never move. */
+html.atlas-nav-moving .view,html.atlas-nav-moving .view *{animation:none!important;}
+html.atlas-nav-moving::view-transition{pointer-events:none;}
+html.atlas-nav-moving::view-transition-old(root),html.atlas-nav-moving::view-transition-new(root){animation:none;mix-blend-mode:normal;}
+html.atlas-nav-moving::view-transition-group(atlas-navigation){animation-duration:320ms;animation-timing-function:cubic-bezier(.22,.75,.22,1);overflow:clip;}
+html.atlas-nav-moving::view-transition-old(atlas-navigation){animation:atlas-nav-out 320ms cubic-bezier(.22,.75,.22,1) both;mix-blend-mode:normal;}
+html.atlas-nav-moving::view-transition-new(atlas-navigation){animation:atlas-nav-in 320ms cubic-bezier(.22,.75,.22,1) both;mix-blend-mode:normal;}
+@keyframes atlas-nav-out{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(var(--atlas-nav-to))}}
+@keyframes atlas-nav-in{from{opacity:0;transform:translateX(var(--atlas-nav-from))}to{opacity:1;transform:translateX(0)}}
+html.atlas-nav-widget::view-transition-group(atlas-navigation){animation-duration:480ms;}
+html.atlas-nav-widget::view-transition-new(atlas-navigation){animation:atlas-widget-open 480ms cubic-bezier(.22,.75,.22,1) both;}
+html.atlas-nav-widget::view-transition-old(atlas-navigation){animation:atlas-widget-recede 480ms cubic-bezier(.22,.75,.22,1) both;}
+html.atlas-nav-return::view-transition-old(atlas-navigation){animation:atlas-widget-close 480ms cubic-bezier(.22,.75,.22,1) both;z-index:2;}
+html.atlas-nav-return::view-transition-new(atlas-navigation){animation:atlas-widget-restore 480ms cubic-bezier(.22,.75,.22,1) both;}
+@keyframes atlas-widget-open{from{clip-path:var(--atlas-nav-inset);background:var(--bg)}to{clip-path:inset(0% 0% 0% 0% round 22px);background:var(--bg)}}
+@keyframes atlas-widget-recede{to{opacity:.15;transform:scale(.94)}}
+@keyframes atlas-widget-close{0%{clip-path:inset(0% 0% 0% 0% round 22px);opacity:1}80%{clip-path:var(--atlas-nav-inset);opacity:1}100%{clip-path:var(--atlas-nav-inset);opacity:0}}
+@keyframes atlas-widget-restore{from{opacity:.2;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){html.atlas-nav-moving::view-transition-group(*),html.atlas-nav-moving::view-transition-old(*),html.atlas-nav-moving::view-transition-new(*){animation:none!important;}}
+
+</style>
+</body></html>
