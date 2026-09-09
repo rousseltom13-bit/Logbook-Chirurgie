@@ -8971,6 +8971,16 @@ const DOC_OPTS={
 DOC_OPTS.pth_revision=DOC_OPTS.pth.concat([{k:'revPieces',t:'seg',l:'Pièces changées',o:['Insert seul','1 pièce','2 pièces','2 pièces + reconstruction'],def:'2 pièces'}]);
 const REV_CCAM={'Insert seul':'NEKA004','1 pièce':'NEKA009','2 pièces':'NEKA003','2 pièces + reconstruction':'NEKA008'};
 const _MEN_REPAIR=/Suture|rampe|Racine/i;
+// Shared postoperative choices for every document template.
+Object.keys(DOC_OPTS).forEach(key=>{
+ const opts=DOC_OPTS[key];
+ if(!opts.some(o=>o.k==='pansement'))opts.push({k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'});
+ if(!opts.some(o=>o.k==='fermeture'))opts.push({k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Agrafes','Fils'],def:['lca','menisc'].includes(key)?'Fils':'Agrafes'});
+ opts.splice(opts.findIndex(o=>o.k==='pansement')+1,0,{k:'pansementJours',t:'num',l:'Pansement : renouvellement tous les … jours',def:'4'});
+ opts.splice(opts.findIndex(o=>o.k==='fermeture')+1,0,{k:'filsType',t:'seg',l:'Type de fils cutanés',o:['Résorbables','Non résorbables'],def:'',show:f=>f.fermeture==='Fils'});
+});
+function docPansementFrequency(f){const n=Number(f.pansementJours);return Number.isInteger(n)&&n>0?(n===1?'chaque jour':'tous les '+n+' jours'):'fréquence à préciser';}
+function docClosure(f){return f.fermeture==='Agrafes'?'agrafes':f.filsType==='Résorbables'?'fils résorbables':f.filsType==='Non résorbables'?'fils non résorbables':'fils (type à préciser)';}
 function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.menLat||'')||!!f.menMedOut||!!f.menLatOut;}
 function detectInter(interv){
   const s=(interv||'').toLowerCase();
@@ -9096,7 +9106,7 @@ Nettoyage abondant.
 ${f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
 `:''}${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
 Fermeture plan par plan.
-Agrafes à la peau.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${f.pansement}.
 
 ${_dSigBloc()}`;
@@ -9146,7 +9156,7 @@ Flexion à ${f.flexion}°, extension complète.
 
 Cimentation plateau ${f.plateauT}/insert ${f.insertMm}, fémur ${f.femurT}${f.rotule?', rotule '+f.boutonT:''}.
 ${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Vicryl 2 + Stratafix capsulo-synovial, Vicryl 0 sous-cutané.
-Agrafes. Pansement ${f.pansement}.
+Fermeture cutanée par ${docClosure(f)}. Pansement ${f.pansement}.
 
 ${_dSigBloc()}`;
 }
@@ -9221,7 +9231,7 @@ Tiroir antérieur négatif.
 Isométrie satisfaisante en fin d'intervention.
 
 ${_garrotFin(f)}Fermeture des plans sous-cutanés au Vicryl 2-0.
-Fermeture plan cutané au Vicryl 3-0 rapide.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -9254,6 +9264,7 @@ ${_sutureMatLine(f)}
 ${f.chondroplastie?'Chondroplastie de régularisation.\n':''}${f.synovectomie?'Synovectomie partielle.\n':''}Lavage articulaire abondant.
 
 ${_garrotFin(f)}Fermeture des voies d'abord par points séparés.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -9302,7 +9313,7 @@ function _chFin(f){
   return `
 Contrôle scopique final de face et de profil : réduction anatomique, matériel en place.
 ${_garrotFin(f)}Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.${f.immo&&f.immo!=='Aucune'?'\n'+(f.immo==='Botte de marche'?'Botte de marche.':'Attelle postérieure.'):''}
 
 ${_dSigBloc()}`;
@@ -9419,7 +9430,7 @@ Testing en fin d'intervention : arc de flexion-extension et pronosupination comp
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${_garrotFin(f)}
 Consignes : ${f.immo==='Attelle 90° — mobilisation protégée'?'attelle postérieure à 90° avec mobilisation protégée dans le secteur stable, selon le testing per-opératoire':(f.immo==='Aucune'?'mobilisation immédiate selon douleurs':'attelle postérieure antalgique pour quelques jours puis mobilisation précoce')} ; pas de port de charge pendant 6 semaines.
@@ -9487,7 +9498,7 @@ ${f.paTransposition?`Transposition antérieure sous-cutanée du nerf ulnaire.
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${_garrotFin(f)}
 Consignes : ${f.immo==='Aucune'?'mobilisation immédiate du coude selon douleurs':'attelle postérieure antalgique pour quelques jours puis mobilisation précoce du coude'} ; pas de port de charge pendant 6 semaines.
@@ -9552,7 +9563,7 @@ ${_vlLine(f)}Contrôle scopique de face et de profil : réduction articulaire sa
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan, sans tension.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${_garrotFin(f)}
 Consignes : décharge stricte du membre inférieur pendant ${f.dechargeSem||'6'} semaines, surélévation du membre, mobilisation précoce de la cheville selon tolérance.
@@ -9673,7 +9684,7 @@ Testing de la pronosupination : complète et sans ressaut.
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${_garrotFin(f)}
 Consignes : ${_dxImmoTxt(f)}. Mobilisation immédiate des doigts et de l'épaule. Pas de port de charge jusqu'à consolidation.
@@ -9812,7 +9823,7 @@ ${f.petitePlaque?`Ostéosynthèse complémentaire par plaque ${f.plaqueModele||'
   const fin=`Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${(!_psIsFem(f))?_garrotFin(f):''}
 Consignes : ${f.appui||'appui partiel pendant 6 semaines'}${is2t1?' ; deuxième temps de greffe à programmer à 6-8 semaines':''}.
@@ -9940,7 +9951,7 @@ Réinsertion des muscles pelvi-trochantériens et de la capsule par points trans
 Lavage abondant.
 ${f.redon?`Mise en place d'un drain de Redon aspiratif${seq.length>1?' par voie':''}.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 
 Consignes : ${fix?'appui autorisé selon douleurs sous couvert de cannes ou déambulateur, précautions anti-luxation pendant 6 semaines':'décharge stricte du membre inférieur pendant '+(f.dechargeSem||'6')+' semaines'}.
@@ -10040,7 +10051,7 @@ ${(f.arthrotomie&&hasLat)?`Réinsertion du mur méniscal et fermeture de l'arthr
   const fin=`Lavage abondant.
 ${(f.redon&&!isPercut)?`Mise en place d'un drain de Redon aspiratif.
 `:''}Fermeture plan par plan.
-Fermeture cutanée par ${f.fermeture==='Agrafes'?'agrafes':'fils'}.
+Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'sec').toLowerCase()}.
 ${_garrotFin(f)}
 Consignes : décharge stricte pendant ${f.dechargeSem||'6'} semaines, mobilisation du genou autorisée.
@@ -10077,7 +10088,7 @@ Exposition du foyer de fracture, réduction anatomique satisfaisante sous contr�
 Ostéosynthèse par plaque verrouillée antérieure${f.rxPlaqueModele?' '+f.rxPlaqueModele:''}, ${f.rxNbVis||'—'} vis épiphysaires verrouillées et ${f.rxNbVisDia||'—'} vis diaphysaires.
 ${f.kapandji?(f.brochesGardees?'Broches de Kapandji laissées en place, recourbées et enfouies en sous-cutané.':'Ablation des broches de réduction.')+'\n':''}Contrôle scopique final de face et de profil : réduction et matériel en place, absence de vis intra-articulaire.
 ${_garrotFin(f)}Rinçage abondant. Réinsertion du carré pronateur.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 ${f.immo==='Manchette plâtrée'?'Immobilisation par manchette plâtrée.':'Attelle amovible de poignet à visée antalgique.'}
 
@@ -10133,7 +10144,7 @@ ${temps}
 ${_vlLine(f)}
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Fils'?'Fils.':'Agrafes.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -10167,7 +10178,7 @@ Verrouillage distal ${(f.tbVerrDist||'statique').toLowerCase()} par ${f.tbNbVisD
 ${_vlLine(f)}
 Contrôle scopique final de face et de profil : réduction et matériel en place, absence de trouble de rotation.
 ${_garrotFin(f)}Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -10205,7 +10216,7 @@ ${_vlLine(f)}Fermeture de la coiffe des rotateurs sur les fils repères.
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 Attelle de Dujarrier${f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'}.
 
@@ -10250,7 +10261,7 @@ Réduction anatomique satisfaisante maintenue au davier.
 ${fix}${plaque}
 Contrôle scopique de face et de profil : réduction, longueur, axe et rotation satisfaisants, matériel en place.
 Rinçage abondant.
-${f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''}Fermeture plan par plan. ${f.fermeture==='Fils'?'Fils.':'Agrafes.'}
+${f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''}Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -10285,7 +10296,7 @@ Test de flexion jusqu'à ${f.crashDeg||'—'}° : montage stable, absence de dé
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 ${_garrotFin(f)}Rinçage abondant.
-${f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''}Fermeture plan par plan. ${f.fermeture==='Fils'?'Fils.':'Agrafes.'}
+${f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''}Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
@@ -10322,7 +10333,7 @@ ${_vlLine(f)}Testing de la flexion-extension : montage stable.
 
 Contrôle scopique final de face et de profil : réduction et matériel en place.
 ${_garrotFin(f)}Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 Attelle de Dujarrier${f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'}.
 
@@ -10355,7 +10366,7 @@ ${compr}Ostéosynthèse par plaque supérieure verrouillée${loc}${f.clPlaqueMod
 
 Contrôle scopique final : réduction et matériel en place.
 Rinçage abondant.
-Fermeture plan par plan. ${f.fermeture==='Agrafes'?'Agrafes.':'Fils.'}
+Fermeture plan par plan. Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 Attelle de Dujarrier${f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'}.
 
@@ -10411,10 +10422,10 @@ function _crhAppui(f){
   return "Appui selon consignes opératoires";
 }
 function _crhFils(f){
-  const i=f._inter;
-  if(i==='lca'||i==='menisc')return "Fils résorbables : pas d'ablation nécessaire";
-  if(f.fermeture==='Fils')return "Ablation des fils à J15";
-  return "Ablation des agrafes à J15";
+ if(f.fermeture==='Agrafes')return "Ablation des agrafes à J15";
+ if(f.filsType==='Résorbables')return "Fils résorbables : pas d'ablation nécessaire";
+ if(f.filsType==='Non résorbables')return "Ablation des fils non résorbables à J15";
+ return "Type de fils cutanés à préciser";
 }
 function _crhMotif(f){
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
@@ -10590,7 +10601,7 @@ L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateSt
 ${_crhMeniscLine(f)}${_crhRadioLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-— Pansements à renouveler tous les 4 jours
+— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
 — ${_crhFils(f)}
 — Kinésithérapie de rééducation
 — ${_crhAppui(f)}
@@ -10616,13 +10627,13 @@ function buildOrdoPharma(f){
   const agr=_crhFils(f)==='Ablation des agrafes à J15';
   const moderne=/Aquacel|Mepilex/i.test(f.pansement||'');
   const pans=[];
-  pans.push('— Sets de pansement stériles : '+(moderne?'5':'8'));
+  pans.push('— Sets de pansement stériles : quantité suffisante pour un renouvellement '+docPansementFrequency(f)+" jusqu’à cicatrisation");
   pans.push('— Compresses stériles 10×10 cm : 2 boîtes');
   pans.push('— BISEPTINE solution pour application cutanée : 1 flacon');
   pans.push('— Sérum physiologique en unidoses : 1 boîte');
   pans.push('— Sparadrap hypoallergénique : 1 rouleau');
-  if(/Aquacel/i.test(f.pansement||''))pans.push('— Pansements hydrofibre (type Aquacel) + plaques hydrocolloïdes (type Duoderm) : 5');
-  if(/Mepilex/i.test(f.pansement||''))pans.push('— Pansements hydrocellulaires adhésifs (type Mepilex Border) : 5');
+  if(/Aquacel/i.test(f.pansement||''))pans.push('— Pansements hydrofibre (type Aquacel) + plaques hydrocolloïdes (type Duoderm) : quantité suffisante jusqu’à cicatrisation');
+  if(/Mepilex/i.test(f.pansement||''))pans.push('— Pansements hydrocellulaires adhésifs (type Mepilex Border) : quantité suffisante jusqu’à cicatrisation');
   if(agr)pans.push('— Ôte-agrafes stérile à usage unique : 1 (pour ablation des agrafes à J15)');
   if(f.antico&&anticoIsHBPM(f.antico))pans.push("— Collecteur d'aiguilles usagées (DASRI) : 1");
   return `ORDONNANCE PHARMACEUTIQUE
@@ -10632,7 +10643,7 @@ Date : ${doc_dateStr(f.dateInter)}
 
 ${lines.join('\n')}
 
-MATÉRIEL DE PANSEMENT (jusqu'à cicatrisation) :
+MATÉRIEL DE PANSEMENT (${f.pansement}, renouvellement ${docPansementFrequency(f)}, jusqu'à cicatrisation) :
 ${pans.join('\n')}
 
 Renouvellement non autorisé sauf avis médical.
@@ -10656,8 +10667,9 @@ function buildOrdoIDE(f){
 Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
 Date : ${doc_dateStr(f.dateInter)}
 
-${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) tous les 4 jours
-${_crhFils(f)==='Ablation des agrafes à J15'?'— Ablation des agrafes à J15\n':''}— Surveillance de la cicatrice (rougeur, écoulement, désunion)
+${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) ${docPansementFrequency(f)}
+— ${_crhFils(f)}
+— Surveillance de la cicatrice (rougeur, écoulement, désunion)
 — Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
 
 ${_dSig()}${_dRpps()}`;
@@ -11081,7 +11093,7 @@ function docContent(doc){
     if(inter==='rotule')return _croPost(buildCRO_ROTULE(f));
     if(inter==='olecrane')return _croPost(buildCRO_OLECRANE(f));
     if(inter==='clavicule')return _croPost(buildCRO_CLAVICULE(f));
-    return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\n'+_dSigBloc();
+    return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\nFermeture cutanée par '+docClosure(f)+'.\nPansement '+f.pansement+'.\n\n'+_dSigBloc();
   }
   if(doc==='CRH')return buildCRH(f);
   if(doc==='Ordo pharma')return buildOrdoPharma(f);
@@ -11154,7 +11166,13 @@ function openBlocDocs(bi,forcedInter){
   renderDocStep();
   document.getElementById('doc-modal').classList.add('open');
 }
-function setDocF(k,v){DOCF[k]=v;docOverrides={};
+function setDocF(k,v){
+ if(k==='pansement'){
+  DOCF._pansementFrequencies=DOCF._pansementFrequencies||{};
+  DOCF._pansementFrequencies[DOCF.pansement]=DOCF.pansementJours;
+  DOCF.pansementJours=DOCF._pansementFrequencies[v]||'4';
+ }
+ DOCF[k]=v;docOverrides={};
   if(k==='paAO'&&DOCF._inter==='palette'){
     DOCF.paAbord=/^A/.test(v)?'Para-tricipitale':"Ostéotomie de l'olécrâne";
   }
@@ -11292,7 +11310,7 @@ function renderDocForm(){
   // v137 : formulaire en 3 cartes repliables (option A) — le moteur des champs ne change pas
   const visible=opts.filter(o=>!o.show||o.show(DOCF));
   const PAT=new Set(['civ','ddn','dateSortie','consultSem','aides','anesthesie']);
-  const SUI=/^(fermeture|pansement|immo|appui|dechargeSem|vitC|ains|antico|anticoJours|redon|amp\w*|mat(?!Prealable)[A-Z]\w*)$/;
+  const SUI=/^(fermeture|filsType|pansementJours|pansement|immo|appui|dechargeSem|vitC|ains|antico|anticoJours|redon|amp\w*|mat(?!Prealable)[A-Z]\w*)$/;
   const buckets={patient:[],interv:[],suites:[]};
   visible.forEach(o=>{
     if(o.t==='hdr'){(/Ordonnance/i.test(o.l||'')?buckets.suites:buckets.interv).push(o);return;}
@@ -11344,7 +11362,7 @@ function renderDocForm(){
   }).join('');
 }
 function docSecToggle(k){window._docSecOpen=window._docSecOpen||{};window._docSecOpen[k]=!window._docSecOpen[k];renderDocForm();}
-function docGenerate(){docStep=2;docIdx=0;renderDocStep();}
+function docGenerate(){if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
 function docBackToForm(){docStep=1;renderDocStep();}
 function renderDocModal(){
   const tb=document.getElementById('doc-tabs');
