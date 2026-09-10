@@ -6060,6 +6060,14 @@ async function renderDetRadios(bi){
   }
 
   el.innerHTML=html;
+  const fields=document.getElementById('atlas-radio-date-fields');fields.replaceChildren();
+  if(curRadioTab==='suivi'){
+    const date=el.querySelector('#radio-upload-date');
+    if(date){const upload=date.parentElement.parentElement;fields.append(upload);upload.style.marginTop='0';date.parentElement.style.flexDirection='column';date.style.width='100%';date.style.flex='auto';
+      const file=upload.querySelector('input[type=file]');file.addEventListener('change',()=>document.getElementById('atlas-radio-date').close());}
+    const add=document.createElement('button');add.className='ar-add';add.textContent='+ Ajouter une radio';add.onclick=atlasShowRadioDate;el.append(add);
+  }
+  atlasAdaptiveRadios(el);
 
   // Reconstruire lbImgs pour navigation lightbox selon onglet
   _rebuildLbCtx(bi, radios, suiviImgs);
@@ -6078,13 +6086,7 @@ function renderRadioGrid(bi, entries, slot, isDated){
 }
 
 function renderRadioUploadFixed(bi, slot, labelTxt){
-  return `<div style="margin-top:14px;">
-    <div style="font-size:var(--fs-tag);color:var(--text3);margin-bottom:6px;font-weight:500;">${labelTxt}</div>
-    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:white;padding:8px 16px;border-radius:var(--radius);font-size:var(--fs-body2);font-weight:500;">
-      + Photo
-      <input type="file" accept="image/*" multiple style="display:none;" onchange="handleUploadIDB(event,${bi},'${slot}')">
-    </label>
-  </div>`;
+ return `<label class="ar-add" aria-label="${labelTxt}">+ Ajouter une radio<input type="file" accept="image/*" multiple style="display:none" onchange="handleUploadIDB(event,${bi},'${slot}')"></label>`;
 }
 
 function switchRadioTab(tab,bi){ curRadioTab=tab; renderDetRadios(bi); }
@@ -15275,5 +15277,48 @@ function atlasRenderInternalHome(sum,hero){
 #lightbox .lb-controls button,#lightbox .lb-nav button{background:#243337;color:#edf3ef;border:1px solid #ffffff18;border-radius:12px;min-height:44px;}
 #lightbox .lb-controls input{min-width:0;width:85px;flex:1;}
 </style>
+
+<style id="atlas-v192-radio-layout">
+#view-detail:has(#det-radios.active) #det-hero{margin:8px 18px;padding:12px 16px;border-radius:18px;background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);}
+#view-detail:has(#det-radios.active) #det-eyebrow,#view-detail:has(#det-radios.active) #det-meta-row{display:none;}
+#view-detail:has(#det-radios.active) #det-patient{font-size:23px;margin:0 0 5px;line-height:1.15;}
+#view-detail:has(#det-radios.active) #det-interv-hero{font-size:13px;line-height:1.3;}
+#view-detail:has(#det-radios.active) .atlas-det-topbar{padding-top:7px;padding-bottom:7px;}
+#det-radios.active.ar-adaptive{display:flex;flex-direction:column;box-sizing:border-box;padding:12px 18px!important;gap:0;}
+#det-radios.ar-adaptive .radio-tabs{flex:none;margin-bottom:12px!important;}
+#det-radios.ar-adaptive .radio-grid{flex:1;min-height:0;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr);gap:10px;touch-action:pan-y;}
+#det-radios.ar-adaptive .radio-grid.ar-one{grid-template-columns:minmax(0,270px);justify-content:center;}
+#det-radios.ar-adaptive .radio-grid.ar-many{grid-template-rows:repeat(2,minmax(0,1fr));}
+#det-radios.ar-adaptive .radio-thumb{width:100%;height:100%;min-height:0;aspect-ratio:auto!important;}
+#det-radios.ar-adaptive .radio-thumb[hidden]{display:none!important;}
+#det-radios.ar-adaptive .radio-thumb img{height:100%!important;width:100%!important;object-fit:contain!important;padding:5px;}
+#det-radios .ar-pages{display:flex;flex:none;align-items:center;justify-content:center;gap:12px;min-height:38px;font-size:12px;color:var(--text3);}
+#det-radios .ar-pages button{min-width:44px;min-height:38px;border:0;border-radius:10px;background:transparent;color:var(--accent);font-size:22px;}
+#det-radios .ar-pages button:disabled{opacity:.3;}
+#det-radios .ar-add{display:flex;align-items:center;justify-content:center;flex:none;width:100%;min-height:48px;box-sizing:border-box;margin:0;border:1px solid var(--border2);border-radius:14px;background:var(--glass-surface,var(--bg2));color:var(--accent);box-shadow:var(--glass-highlight),0 7px 14px -12px #245457;font:500 14px -apple-system,sans-serif;cursor:pointer;}
+#atlas-radio-date{background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:22px;padding:22px;width:calc(100% - 40px);max-width:370px;box-sizing:border-box;}
+#atlas-radio-date::backdrop{background:#142c3666;}
+#atlas-radio-date h3{margin:0 0 20px;font-family:var(--serif);font-size:23px;}
+#atlas-radio-date input[type=date]{min-width:0;width:100%;box-sizing:border-box;margin:8px 0 14px;}
+#atlas-radio-date label:has(input[type=file]){display:flex!important;justify-content:center;min-height:44px;align-items:center;}
+</style>
+<dialog id="atlas-radio-date"><h3>Radio de suivi</h3><div id="atlas-radio-date-fields"></div><button type="button" onclick="document.getElementById('atlas-radio-date').close()" class="btn-secondary" style="margin-top:14px;width:100%">Fermer</button></dialog>
+<script>
+function atlasAdaptiveRadios(el){
+ el.classList.add('ar-adaptive');
+ const grid=el.querySelector('.radio-grid'),thumbs=grid?[...grid.children]:[];
+ const pager=document.createElement('div');pager.className='ar-pages';
+ const add=el.querySelector('.ar-add');if(add)el.insertBefore(pager,add);else el.append(pager);
+ let page=0;const total=Math.ceil(thumbs.length/4);
+ function draw(){const visible=thumbs.slice(page*4,page*4+4);thumbs.forEach(t=>t.hidden=!visible.includes(t));if(grid){grid.classList.toggle('ar-one',visible.length===1);grid.classList.toggle('ar-many',visible.length>2);}
+ pager.replaceChildren();if(total>1){const prev=document.createElement('button'),next=document.createElement('button'),label=document.createElement('span');prev.textContent='‹';next.textContent='›';prev.setAttribute('aria-label','Page précédente');next.setAttribute('aria-label','Page suivante');prev.disabled=page===0;next.disabled=page===total-1;label.textContent=(page*4+1)+'–'+Math.min(thumbs.length,page*4+4)+' / '+thumbs.length;label.setAttribute('aria-live','polite');prev.onclick=()=>{page--;draw()};next.onclick=()=>{page++;draw()};pager.append(prev,label,next);}}
+ if(grid){let start=null,suppress=false;grid.addEventListener('pointerdown',e=>start={x:e.clientX,y:e.clientY});grid.addEventListener('pointerup',e=>{if(start&&Math.abs(e.clientX-start.x)>60&&Math.abs(e.clientY-start.y)<60){page=Math.max(0,Math.min(total-1,page+(e.clientX<start.x?1:-1)));suppress=true;draw()}start=null});grid.addEventListener('pointercancel',()=>start=null);grid.addEventListener('click',e=>{if(suppress){e.preventDefault();e.stopImmediatePropagation();suppress=false}},true);}
+ draw();requestAnimationFrame(atlasSizeRadios);
+}
+function atlasSizeRadios(){const el=document.getElementById('det-radios');if(!el||!el.classList.contains('active')||!document.getElementById('view-detail').classList.contains('active'))return;const nav=document.querySelector('.bottomnav'),bottom=nav?nav.getBoundingClientRect().top:innerHeight;const height=bottom-el.getBoundingClientRect().top;el.style.height=Math.max(240,height-2)+'px';}
+function atlasShowRadioDate(){document.getElementById('atlas-radio-date').showModal();}
+window.addEventListener('resize',atlasSizeRadios);
+if(window.visualViewport)visualViewport.addEventListener('resize',atlasSizeRadios);
+</script>
 
 </body></html>
