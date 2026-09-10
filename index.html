@@ -4990,58 +4990,34 @@ const EVT_CONFIG = {
 };
 const STATUT_LABEL_EVT = {vert:'Bon résultat',excellent:'Excellent résultat',orange:'Séquelles / Vigilance',rouge:'Complication active',gris:'Neutre',pdv:'Perdu de vue',deces:'Décès'};
 
+function atlasFollowUpDelay(start,end){
+ const parse=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'')?Date.parse(s+'T12:00:00Z'):NaN;
+ const days=Math.round((parse(end)-parse(start))/86400000);
+ return Number.isFinite(days)&&days>=0?'J+'+days:'';
+}
 function renderDetSuivi(bi){
-  const b=blocs[bi];
-  const evts=getBlocEvenements(b);
-  const el=document.getElementById('det-suivi');if(!el)return;
-
-  let html='';
-
-  if(!evts.length){
-    html='<div style="padding:24px 0;text-align:center;color:var(--text3);"><div style="font-size:var(--fs-title);margin-bottom:8px;">📅</div><div style="font-size:var(--fs-body2);">Aucun événement enregistré</div></div>';
-  } else {
-    const _sf=getBlocStatutFinal(b);
-    const _SFCOL={vert:'var(--green-d)',excellent:'var(--green-d)',orange:'var(--amber-d)',rouge:'var(--red-d)',gris:'var(--text3)',pdv:'var(--text3)',deces:'var(--text2)'};
-    const _sfCol=_SFCOL[_sf]||'var(--text3)';
-    if(_sf&&_sf!=='gris'){html+=`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb, ${_sfCol} 10%, var(--bg2));border:1px solid color-mix(in srgb, ${_sfCol} 30%, var(--border));margin-bottom:14px;"><span style="width:10px;height:10px;border-radius:50%;background:${_sfCol};flex-shrink:0;"></span><span style="font-size:var(--fs-body2);font-weight:600;color:var(--text2);">Résultat actuel</span><span style="margin-left:auto;font-size:14px;font-weight:700;color:${_sfCol};">${STATUT_LABEL_EVT[_sf]||_sf}</span></div>`;}
-    // Timeline
-    html+='<div style="padding:4px 0 8px;">';
-    evts.forEach((evt,i)=>{
-      const cfg=EVT_CONFIG[evt.type]||EVT_CONFIG.consultation;
-      const{dc,sl}=statusClasses(evt.statut||'gris');
-      const isLast=i===evts.length-1;
-      const statLabel=evt.type==='fin_suivi'
-        ? (STATUT_LABEL_EVT[evt.statut]||evt.statut)
-        : sl;
-      const typeExtra=evt.complType?` — ${evt.complType}`:'';
-      const clavienBadge='';
-      html+=`<div class="timeline-item">
-        ${!isLast?'<div class="timeline-line"></div>':''}
-        <div class="timeline-dot" style="background:${cfg.dotColor};box-shadow:0 0 0 2px var(--bg), 0 0 0 4px color-mix(in srgb, ${cfg.dotColor} 55%, var(--bg));"></div>
-        <div class="timeline-body">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span class="timeline-badge" style="background:${cfg.badgeBg};color:${cfg.badgeColor};">${cfg.label}${typeExtra}</span>
-            ${clavienBadge}
-            ${evt.statut&&evt.statut!=='gris'?`<span class="sdot ${dc}" style="width:6px;height:6px;"></span><span style="font-size:var(--fs-tag);color:var(--text3);">${statLabel}</span>`:''}
-          </div>
-          <div class="timeline-date" style="margin-top:3px;">${fmtDate(evt.date)}${evt.type==='fin_suivi'?' · <strong style="color:var(--green-d);">FIN DE SUIVI</strong>':''}</div>
-          ${evt.comment?`<div class="timeline-comment" style="margin-top:4px;">${escNl(evt.comment)}</div>`:''}
-          ${mesuresLineHtml(evt,b)}
-        </div>
-        <button onclick="deleteEvt(${bi},'${evt.id}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 0 0 8px;align-self:flex-start;margin-top:2px;" title="Supprimer">×</button>
-      </div>`;
-    });
-    html+='</div>';
-    html+=renderEvolutionCard(b,evts);
-  }
-
-  // Boutons d'action
-  html+=`<div style="display:flex;gap:8px;margin-top:14px;">
-    <button class="chip-btn" style="flex:1;text-align:center;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--accent);font-weight:700;" onclick="openConsultModal(${bi})">+ Événement</button>
-    <button class="chip-btn" style="flex:1;text-align:center;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-weight:700;" onclick="openFinSuiviModal(${bi})">Fin de suivi</button>
-  </div>`;
-
-  el.innerHTML=html;
+ const b=blocs[bi],el=document.getElementById('det-suivi');if(!b||!el)return;
+ const evts=getBlocEvenements(b),sf=getBlocStatutFinal(b),fin=getBlocFinSuivi(b);
+ const colors={vert:'var(--green-d)',excellent:'var(--green-d)',orange:'var(--amber-d)',rouge:'var(--red-d)',gris:'var(--text3)',pdv:'var(--text3)',deces:'var(--text2)'};
+ const color=colors[sf]||'var(--text3)';
+ const delay=atlasFollowUpDelay(b.date,fin&&fin.date?fin.date:todayStr());
+ let html=`<section class="su-summary" style="--su-color:${color}"><div class="su-summary-top"><strong>${fin?'Suivi terminé':'Suivi en cours'}</strong><span>${esc(delay)}</span></div><span class="su-status">${esc(STATUT_LABEL_EVT[sf]||'Non renseigné')}</span></section>`;
+ if(!evts.length)html+='<div class="su-empty">Aucun événement enregistré</div>';
+ else{
+ html+='<div class="su-timeline">';
+ evts.forEach((evt,i)=>{
+ const cfg=EVT_CONFIG[evt.type]||EVT_CONFIG.consultation;
+ const {sl}=statusClasses(evt.statut||'gris');
+ const label=evt.type==='fin_suivi'?(STATUT_LABEL_EVT[evt.statut]||evt.statut):sl;
+ const eventColor=colors[evt.statut]||cfg.dotColor;
+ const title=(evt.type==='reprise_chir'?'Reprise chirurgicale':cfg.label)+(evt.complType?' — '+evt.complType:'');
+ const recul=atlasFollowUpDelay(b.date,evt.date);
+ html+=`<article class="su-event" style="--su-color:${eventColor};--su-dot:${evt.statut==='rouge'?eventColor:cfg.dotColor}"><div class="su-event-card"><div class="su-event-head"><div class="su-event-heading"><h3>${esc(title)}</h3><div class="su-date">${esc(fmtDate(evt.date))}${recul?'<span>'+esc(recul)+'</span>':''}</div></div><details class="su-options"><summary aria-label="Options de l’événement du ${esc(fmtDate(evt.date))}">•••</summary><button type="button" onclick="deleteEvt(${bi},${esc(JSON.stringify(evt.id))})">Supprimer l’événement</button></details></div>${evt.comment?'<div class="su-comment">'+escNl(evt.comment)+'</div>':''}${mesuresLineHtml(evt,b,false)}${evt.statut&&evt.statut!=='gris'?'<span class="su-status">'+esc(label||evt.statut)+'</span>':''}</div></article>`;
+ });
+ html+='</div>'+renderEvolutionCard(b,evts);
+ }
+ html+=`<div class="su-actions"><button type="button" class="su-primary" onclick="openConsultModal(${bi})">+ Événement</button><button type="button" onclick="openFinSuiviModal(${bi})">Terminer le suivi</button></div>`;
+ el.innerHTML=html;
 }
 
 
@@ -5425,9 +5401,9 @@ function normalizeAmp(m){
   if(m.re!=null)a.re=m.re;
   return a;
 }
-function mesuresLineHtml(evt,b){
+function mesuresLineHtml(evt,b,showDelay=true){
   const m=evt.mesures;
-  const delay=delaiPostOpLabel(b,evt.date);
+  const delay=showDelay?delaiPostOpLabel(b,evt.date):'';
   if(!m&&!delay)return'';
   let chips='';
   if(delay)chips+='<span class="ms-chip delay">'+delay+'</span>';
@@ -15235,4 +15211,31 @@ function atlasRenderInternalHome(sum,hero){
 @container (max-height:610px){#view-dashboard .dash-kpi3{padding:10px 0;}#view-dashboard .dash-kpi-cv{font-size:28px;}#view-dashboard .dash-splitcard{padding-bottom:10px;}}
 @media(max-width:360px){#view-dashboard .dash-kpi-c{padding:0 4px;}#view-dashboard .dash-kpi-cv{font-size:26px;}}
 </style>
+<style id="atlas-v190-followup">
+#det-suivi .su-summary{padding:14px 16px;border-radius:18px;border:1px solid color-mix(in srgb,var(--su-color) 24%,var(--border));background:color-mix(in srgb,var(--su-color) 7%,var(--bg2));margin-bottom:20px;}
+#det-suivi .su-summary-top{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;margin-bottom:10px;}
+#det-suivi .su-summary-top strong{font-weight:600;}#det-suivi .su-summary-top>span{color:var(--accent);font-size:12px;white-space:nowrap;}
+#det-suivi .su-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;line-height:1.3;font-weight:500;padding:5px 9px;border-radius:9px;color:var(--su-color);background:color-mix(in srgb,var(--su-color) 10%,var(--bg2));}
+#det-suivi .su-status:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;flex:none;}
+#det-suivi .su-timeline{position:relative;padding-left:19px;}
+#det-suivi .su-timeline:before{content:'';position:absolute;left:4px;top:25px;bottom:25px;width:1px;background:var(--border2);}
+#det-suivi .su-event{position:relative;margin-bottom:14px;}
+#det-suivi .su-event:before{content:'';position:absolute;left:-19px;top:24px;width:9px;height:9px;border:2px solid var(--bg);box-shadow:0 0 0 1px color-mix(in srgb,var(--su-dot) 45%,var(--border));border-radius:50%;background:var(--su-dot);box-sizing:border-box;}
+#det-suivi .su-event-card{min-width:0;padding:15px 14px;border-radius:20px;border:1px solid var(--glass-border,var(--border));background:var(--glass-surface,var(--bg2));box-shadow:var(--glass-highlight),var(--glass-shadow);}
+#det-suivi .su-event-head{display:flex;justify-content:space-between;align-items:flex-start;gap:5px;}
+#det-suivi .su-event-heading{min-width:0;flex:1;}#det-suivi .su-event h3{margin:0;font-family:var(--sans, -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif);font-size:15px;line-height:1.35;font-weight:600;overflow-wrap:anywhere;}
+#det-suivi .su-date{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:5px;color:var(--text3);font-size:12px;}#det-suivi .su-date>span{color:var(--accent);font-weight:500;}
+#det-suivi .su-comment{margin:12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.55;color:var(--text2);overflow-wrap:anywhere;}
+#det-suivi .su-event-card>.su-status{margin-top:8px;}
+#det-suivi .su-options{position:relative;flex:none;margin:-8px -8px 0 0;}
+#det-suivi .su-options summary{list-style:none;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;letter-spacing:2px;}
+#det-suivi .su-options summary::-webkit-details-marker{display:none;}
+#det-suivi .su-options[open]{z-index:3;}
+#det-suivi .su-options button{position:absolute;right:0;top:42px;min-height:46px;width:205px;max-width:65vw;padding:12px;border:1px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--red-d);font-family:inherit;font-size:13px;text-align:left;box-shadow:0 10px 24px -12px #0005;cursor:pointer;}
+#det-suivi .su-actions{display:flex;gap:9px;margin-top:18px;}
+#det-suivi .su-actions button{flex:1;min-width:0;min-height:48px;padding:11px 8px;border:1px solid var(--border2);border-radius:14px;background:var(--bg2);color:var(--text2);font:500 13px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;}
+#det-suivi .su-actions .su-primary{flex:1.15;background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:inset 0 1px #ffffff30;}
+#det-suivi .su-empty{text-align:center;color:var(--text3);font-size:14px;padding:28px 12px;}
+</style>
+
 </body></html>
