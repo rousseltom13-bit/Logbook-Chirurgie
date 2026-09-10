@@ -1917,8 +1917,9 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
         <div class="home-section-head"><h2>Mon activité</h2><button onclick="openRapport()">Rapport ↗</button></div>
         <div class="home-activity-card">
           <div class="dash-kpi3" id="dash-kpi-row3">
-            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-mois">0</div><div class="dash-kpi-cl">blocs ce mois</div></div>
-            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-total">0</div><div class="dash-kpi-cl">blocs réalisés</div></div>
+            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-total">0</div><div class="dash-kpi-cl">Blocs réalisés</div></div>
+            <div class="dash-kpi-c"><div class="dash-kpi-cv" id="d-mois">0</div><div class="dash-kpi-cl">Ce mois</div></div>
+            <div class="dash-kpi-c"><div class="dash-kpi-cv home-complication-value" id="d-compl-pct">0 %</div><div class="dash-kpi-cl">Complications</div></div>
           </div>
           <button class="dash-splitcard" id="dash-split-card" onclick="sw('stats')" aria-label="Répartition de l’activité par spécialité, ouvrir les statistiques">
             <div class="dash-splitbar" id="dash-split"></div><div class="dash-splitlegend" id="dash-split-legend"></div>
@@ -1927,7 +1928,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </section>
       <section id="internal-home-section"><div class="home-section-head"><h2>Épinglés</h2><button onclick="atlasSearchCarnet()">Choisir ↗</button></div><div id="internal-home-pins"></div></section>
       <section class="home-actions"><div class="home-section-head"><h2>À traiter</h2><button onclick="atlasHomeActions('all')">Tout voir ↗</button></div><div class="home-actions-card" id="home-action-rows"></div></section>
-      <div hidden><span id="d-total-trend"></span><span id="d-principal"></span><span id="d-compl-pct"></span><span id="d-compl-trend"></span><span id="d-compl-sub"></span></div>
+      <div hidden><span id="d-total-trend"></span><span id="d-principal"></span><span id="d-compl-trend"></span><span id="d-compl-sub"></span></div>
       <div class="dash-tabs-atlas" id="dash-tabs" style="display:none;">
         <button class="dash-tab-atlas active" onclick="switchDashTab('recent',this)">Activité</button>
       </div>
@@ -4583,7 +4584,7 @@ function renderDash(){
 
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-principal').textContent=principal+' en principal';
-  document.getElementById('d-compl-pct').textContent=cPct+'%';
+  document.getElementById('d-compl-pct').textContent=(total?100*allC.length/total:0).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
   document.getElementById('d-compl-sub').textContent=allC.length+' cas / '+total+' blocs';
 
   // Badges trend (comparaison vs mois précédent)
@@ -4681,8 +4682,8 @@ document.addEventListener('DOMContentLoaded',syncPratiqueUI);
 function renderComplications(){
   // Collecter toutes complications depuis evenements + complications legacy
 const allC=[];blocs.forEach(b=>{
-  const evts=(b.evenements||[]).filter(e=>e.type==='complication');
-  evts.forEach(e=>allC.push({type:e.complType||'Complication',date:e.date,clavien:e.clavien||'',detail:e.comment||'',patient:b.patient,interv:b.interv}));
+  const evts=(b.evenements||[]).filter(atlasIsComplicationEvent);
+  evts.forEach(e=>allC.push({type:e.complType||(e.type==='reprise_chir'?'Reprise chirurgicale':'Complication'),date:e.date,clavien:e.clavien||'',detail:e.comment||'',patient:b.patient,interv:b.interv}));
   if(!evts.length)(b.complications||[]).forEach(c=>allC.push({...c,patient:b.patient,interv:b.interv}));
 });
   const counts={};allC.forEach(c=>{counts[c.type]=(counts[c.type]||0)+1;});
@@ -4948,9 +4949,10 @@ function getBlocEvenements(b){
   return evts.sort((a,b)=>(a.date||'').localeCompare(b.date||''));
 }
 // Le bloc a-t-il une complication dans son historique (pour les stats) ?
+function atlasIsComplicationEvent(e){return e.type==='complication'||(e.type==='reprise_chir'&&e.statut==='rouge');}
 function getBlocHasComplication(b){
   if((b.complications||[]).length>0) return true;
-  return (b.evenements||[]).some(e=>e.type==='complication');
+  return (b.evenements||[]).some(atlasIsComplicationEvent);
 }
 // Statut final calculé = dernier événement chronologique ayant un statut
 function getBlocStatutFinal(b){
@@ -15221,4 +15223,16 @@ function atlasRenderInternalHome(sum,hero){
 @media(max-height:740px){#view-dashboard.internal-home{gap:8px;padding-top:6px;padding-bottom:8px}#view-dashboard.internal-home #dash-hero{min-height:154px}#view-dashboard.internal-home .internal-carnet{padding:10px 14px;gap:5px}#view-dashboard.internal-home .internal-carnet h2{font-size:23px}#view-dashboard.internal-home #internal-home-section{min-height:84px;gap:4px}.internal-favorite{min-height:57px;padding:8px 10px}}
 </style>
 
+<style id="atlas-v189-activity">
+#view-dashboard .dash-kpi3{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:20px 0 18px;}
+#view-dashboard .dash-kpi-c{text-align:center;padding:0 8px;min-width:0;}
+#view-dashboard .dash-kpi-cv{font-size:clamp(25px,8.2vw,34px);font-weight:500;line-height:1.1;white-space:nowrap;letter-spacing:-.035em;}
+#view-dashboard .dash-kpi-cl{font-size:11px;line-height:1.25;margin-top:6px;white-space:nowrap;}
+#view-dashboard .home-complication-value{color:var(--red-d,var(--red));}
+#view-dashboard .home-activity-card{border-radius:23px;}
+#view-dashboard .dash-splitcard{padding:0 16px 16px;}
+#view-dashboard .dash-splitbar{height:7px;}
+@container (max-height:610px){#view-dashboard .dash-kpi3{padding:10px 0;}#view-dashboard .dash-kpi-cv{font-size:28px;}#view-dashboard .dash-splitcard{padding-bottom:10px;}}
+@media(max-width:360px){#view-dashboard .dash-kpi-c{padding:0 4px;}#view-dashboard .dash-kpi-cv{font-size:26px;}}
+</style>
 </body></html>
