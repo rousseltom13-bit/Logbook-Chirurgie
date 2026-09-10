@@ -2095,6 +2095,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
       </div>
       <!-- Tabs -->
       <div class="atlas-det-tabs" id="det-tabs-bar">
+        <span class="atlas-det-indicator" aria-hidden="true"></span>
         <button class="atlas-det-tab active" onclick="switchDetTab('info',this)">Infos</button>
         <button class="atlas-det-tab" onclick="switchDetTab('suivi',this)">Suivi <span class="atlas-det-tab-count" id="det-suivi-count"></span></button>
         <button class="atlas-det-tab" onclick="switchDetTab('radios',this)">Radios <span class="atlas-det-tab-count" id="det-radios-count"></span></button>
@@ -4849,11 +4850,18 @@ function renderBlocs(){
   }).join('');
 }
 // ── DETAIL BLOC ──
+function atlasSetDetailIndicator(tab){
+  const bar=document.getElementById('det-tabs-bar');if(!bar)return;
+  const index={info:0,suivi:1,radios:2}[tab]??0;
+  const marker=bar.querySelector('.atlas-det-indicator');
+  if(marker)marker.style.transform='translate3d('+(index*100)+'%,0,0)';
+}
 function switchDetTab(tab,btn){
   document.querySelectorAll('.atlas-det-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');document.getElementById('det-'+tab).classList.add('active');
   curDetTab=tab;
+  atlasSetDetailIndicator(tab);
   if(tab==='radios'&&detailBlocIdx>=0)renderDetRadios(detailBlocIdx);
   if(tab==='suivi'&&detailBlocIdx>=0)renderDetSuivi(detailBlocIdx);
 }
@@ -4923,6 +4931,7 @@ function openBlocDetail(bi, returnFn){
   document.querySelectorAll('.atlas-det-tab')[0].classList.add('active');
   document.getElementById('det-info').classList.add('active');
   curDetTab='info';
+  atlasSetDetailIndicator('info');
   {const _pv=(document.querySelector('.view.active')||{id:''}).id.replace('view-','');if(_pv&&_pv!=='detail')window._detPrevView=_pv;}
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
@@ -15321,4 +15330,9 @@ window.addEventListener('resize',atlasSizeRadios);
 if(window.visualViewport)visualViewport.addEventListener('resize',atlasSizeRadios);
 </script>
 
+<style id="atlas-v193-detail-indicator">
+#det-tabs-bar{isolation:isolate;}
+#det-tabs-bar>.atlas-det-tab{flex:1 1 0;min-width:0;margin-bottom:0;border-bottom-color:transparent!important;}
+#det-tabs-bar>.atlas-det-indicator{position:absolute;bottom:0;left:0;width:33.333333%;height:2px;background:var(--accent);pointer-events:none;z-index:1;transform:translate3d(0,0,0);will-change:transform;transition:none!important;}
+</style>
 </body></html>
