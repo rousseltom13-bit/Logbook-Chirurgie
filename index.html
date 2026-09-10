@@ -4529,6 +4529,7 @@ async function scanLabel(ev){
 
 // ── NAVIGATION ──
 function sw(v){
+  const heroMotion=document.getElementById('det-hero')._atlasHeroMotion;if(heroMotion)heroMotion.cancel();
   document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.bnav-item').forEach(e=>e.classList.remove('active'));
@@ -4856,9 +4857,34 @@ function atlasSetDetailIndicator(tab){
   const marker=bar.querySelector('.atlas-det-indicator');
   if(marker)marker.style.transform='translate3d('+(index*100)+'%,0,0)';
 }
+function atlasDetailHeroFrame(){
+  const hero=document.getElementById('det-hero');
+  if(!hero)return null;
+  const style=getComputedStyle(hero);
+  return {height:hero.getBoundingClientRect().height+'px',paddingTop:style.paddingTop,paddingBottom:style.paddingBottom,marginTop:style.marginTop,marginBottom:style.marginBottom};
+}
+function atlasAnimateRadioHero(before,previous,tab){
+  const hero=document.getElementById('det-hero');
+  if(!hero)return;
+  if(hero._atlasHeroMotion){hero._atlasHeroMotion.cancel();hero._atlasHeroMotion=null;}
+  if(!before||previous===tab||(previous!=='radios'&&tab!=='radios')||window.matchMedia('(prefers-reduced-motion: reduce)').matches||!hero.animate)return;
+  const after=atlasDetailHeroFrame();
+  const motion=hero.animate([
+    {...before,boxSizing:'border-box',overflow:'hidden'},
+    {...after,boxSizing:'border-box',overflow:'hidden'}
+  ],{duration:200,easing:'cubic-bezier(.2,.7,.25,1)'});
+  hero._atlasHeroMotion=motion;
+  let tick;
+  const size=()=>{atlasSizeRadios();if(hero._atlasHeroMotion===motion)tick=requestAnimationFrame(size);};
+  tick=requestAnimationFrame(size);
+  const finish=()=>{cancelAnimationFrame(tick);if(hero._atlasHeroMotion===motion){hero._atlasHeroMotion=null;atlasSizeRadios();}};
+  motion.onfinish=finish;motion.oncancel=finish;
+}
+
 let atlasDetailTabTurn=0;
 function switchDetTab(tab,btn){
   const previous=curDetTab,turn=++atlasDetailTabTurn,bi=detailBlocIdx;
+  const heroBefore=atlasDetailHeroFrame();
   const order={info:0,suivi:1,radios:2},direction=order[tab]>=order[previous]?1:-1;
   document.querySelectorAll('.atlas-det-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.det-panel').forEach(p=>{if(p._atlasTabMotion){p._atlasTabMotion.cancel();p._atlasTabMotion=null;}p.classList.remove('active');});
@@ -4866,6 +4892,7 @@ function switchDetTab(tab,btn){
   btn.classList.add('active');panel.classList.add('active');
   curDetTab=tab;
   atlasSetDetailIndicator(tab);
+  atlasAnimateRadioHero(heroBefore,previous,tab);
   const arrive=()=>{
     if(previous===tab||turn!==atlasDetailTabTurn||curDetTab!==tab||detailBlocIdx!==bi||!panel.classList.contains('active')||!document.getElementById('view-detail').classList.contains('active'))return;
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||!panel.animate)return;
