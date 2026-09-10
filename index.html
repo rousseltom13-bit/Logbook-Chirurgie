@@ -3363,15 +3363,15 @@ button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
   </div>
 </div>
 <div class="lightbox" id="lightbox" onclick="closeLB()">
-  <button class="lb-close" onclick="closeLB()">×</button>
-  <img id="lb-img" alt="" onclick="event.stopPropagation()">
+  <button class="lb-close" aria-label="Fermer la radio" onclick="closeLB()">×</button>
+  <div id="lb-stage"><img id="lb-img" alt="Radiographie" draggable="false"></div>
   <div class="lb-info" id="lb-info"></div>
   <div class="lb-controls" onclick="event.stopPropagation()">
     <button onclick="lbZoom(-0.4)" title="Dézoomer" aria-label="Dézoomer">−</button>
     <input type="range" id="lb-zoom" min="1" max="4" step="0.1" value="1" oninput="lbSetZoom(this.value)" aria-label="Zoom">
     <button onclick="lbZoom(0.4)" title="Zoomer" aria-label="Zoomer">+</button>
     <button onclick="lbRotate()" title="Pivoter 90°" aria-label="Pivoter">⟳</button>
-    <button class="lb-reset" onclick="lbResetView()">Reset</button>
+    <button class="lb-reset" onclick="lbResetView()">Ajuster</button>
   </div>
   <div class="lb-nav" onclick="event.stopPropagation()"><button onclick="lbNav(-1)">← Préc.</button><button onclick="lbNav(1)">Suiv. →</button></div>
 </div>
@@ -6009,7 +6009,7 @@ async function renderDetRadios(bi){
   const counts={preop:preImgs.length, postop:postImgs.length, suivi:suiviImgs.length};
 
   // ── Barre d'onglets ──
-  const tabs=[{k:'preop',label:'Préopératoire'},{k:'postop',label:'Postopératoire'},{k:'suivi',label:'Suivi'}];
+  const tabs=[{k:'preop',label:'Préop'},{k:'postop',label:'Postop'},{k:'suivi',label:'Suivi'}];
   let html=`<div class="radio-tabs" style="margin-bottom:14px;">`;
   tabs.forEach(t=>{
     const n=counts[t.k];
@@ -6071,7 +6071,7 @@ function renderRadioGrid(bi, entries, slot, isDated){
   entries.forEach((entry,i)=>{
     const {img,idx} = entry;
     const lbl=img.name.substring(0,14);
-    html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${slot}',${idx})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${slot}',${idx})">×</button><div class="radio-lbl">${lbl}</div></div>`;
+    html+=`<div class="radio-thumb" onclick="openLBFromDB(${bi},'${slot}',${idx})"><img src="${img.data}" alt="radio" loading="lazy"><button class="radio-del" onclick="event.stopPropagation();delRadioIDB(${bi},'${slot}',${idx})">×</button></div>`;
   });
   html+='</div>';
   return html;
@@ -6107,7 +6107,7 @@ async function openLBFreeByGlobalIdx(bi,globalIdx){
   lbImgs=suiviImgs; lbIdx=globalIdx;
   const img=lbImgs[lbIdx]; if(!img)return;
   document.getElementById('lb-img').src=img.data;
-  document.getElementById('lb-info').textContent=(img.date?calcDelayLabel(blocs[bi].date,img.date)+' · ':'')+img.name;
+  lbImgs=lbImgs.map(x=>({...x,_atlasLabel:'Suivi · '+(calcDelayLabel(b.date,x.date)||'Date non renseignée')}));atlasRadioInfo();
   document.getElementById('lightbox').classList.add('show');
 }
 async function delRadioIDB(bi,type,idx){
@@ -6190,7 +6190,7 @@ async function openLBFree(bi,idx){
   const img=lbImgs[idx];if(!img)return;
   document.getElementById('lb-img').src=img.data;
   const delay=calcDelayLabel(b.date,img.date);
-  document.getElementById('lb-info').textContent=(delay?delay+' · ':'')+img.name;
+  lbImgs=lbImgs.map(x=>({...x,_atlasLabel:'Suivi · '+(calcDelayLabel(b.date,x.date)||'Date non renseignée')}));atlasRadioInfo();
   document.getElementById('lightbox').classList.add('show');
 }
 async function openLBFromDB(bi,type,idx){
@@ -6200,7 +6200,7 @@ async function openLBFromDB(bi,type,idx){
   const img=lbImgs[idx];
   if(!img)return;
   document.getElementById('lb-img').src=img.data;
-  document.getElementById('lb-info').textContent=img.name+' · '+type+' · '+img.date;
+  lbImgs=lbImgs.map(x=>({...x,_atlasLabel:type}));atlasRadioInfo();
   document.getElementById('lightbox').classList.add('show');
 }
 function openLB(bi,type,idx){openLBFromDB(bi,type,idx);}
@@ -6210,20 +6210,38 @@ function closeLB(){document.getElementById('lightbox').classList.remove('show');
 let _lbScale=1,_lbRot=0,_lbTx=0,_lbTy=0;
 function _lbApply(){var im=document.getElementById('lb-img');if(im)im.style.transform='translate('+_lbTx+'px,'+_lbTy+'px) scale('+_lbScale+') rotate('+_lbRot+'deg)';}
 function lbResetView(){_lbScale=1;_lbRot=0;_lbTx=0;_lbTy=0;var z=document.getElementById('lb-zoom');if(z)z.value=1;_lbApply();}
-function lbSetZoom(v){_lbScale=Math.max(1,Math.min(4,parseFloat(v)||1));if(_lbScale<=1){_lbTx=0;_lbTy=0;}_lbApply();}
+function lbSetZoom(v){_lbScale=Math.max(1,Math.min(4,parseFloat(v)||1));var z=document.getElementById('lb-zoom');if(z)z.value=_lbScale;if(_lbScale<=1){_lbTx=0;_lbTy=0;}_lbApply();}
 function lbZoom(d){var nv=Math.max(1,Math.min(4,Math.round((_lbScale+d)*10)/10));_lbScale=nv;var z=document.getElementById('lb-zoom');if(z)z.value=nv;if(_lbScale<=1){_lbTx=0;_lbTy=0;}_lbApply();}
 function lbRotate(){_lbRot=(_lbRot+90)%360;_lbApply();}
 (function _lbInitViewer(){
-  var im=document.getElementById('lb-img');if(!im)return;
-  im.addEventListener('load',lbResetView); // chaque nouvelle image (ouverture/navigation) réinitialise la vue
-  var dragging=false,sx=0,sy=0;
-  im.addEventListener('pointerdown',function(e){if(_lbScale<=1)return;dragging=true;sx=e.clientX-_lbTx;sy=e.clientY-_lbTy;im.style.transition='none';try{im.setPointerCapture(e.pointerId);}catch(_){}im.style.cursor='grabbing';});
-  im.addEventListener('pointermove',function(e){if(!dragging)return;_lbTx=e.clientX-sx;_lbTy=e.clientY-sy;_lbApply();});
-  function endDrag(){dragging=false;im.style.transition='';im.style.cursor='';}
-  im.addEventListener('pointerup',endDrag);im.addEventListener('pointercancel',endDrag);
-  im.addEventListener('dblclick',function(e){e.stopPropagation();if(_lbScale>1){lbResetView();}else{lbZoom(1.4);}});
+ const im=document.getElementById('lb-img'),stage=document.getElementById('lb-stage');if(!im||!stage)return;
+ im.addEventListener('load',lbResetView);
+ const points=new Map();let last=null,distance=0,startX=0,startY=0,multi=false,lastTap=0;
+ stage.addEventListener('click',e=>e.stopPropagation());
+ stage.addEventListener('pointerdown',e=>{
+  e.preventDefault();stage.setPointerCapture(e.pointerId);points.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(points.size===1){startX=e.clientX;startY=e.clientY;multi=false;last={x:e.clientX,y:e.clientY};}
+  if(points.size===2){multi=true;const [a,b]=[...points.values()];distance=Math.hypot(a.x-b.x,a.y-b.y);last={x:(a.x+b.x)/2,y:(a.y+b.y)/2};}
+ });
+ stage.addEventListener('pointermove',e=>{
+  if(!points.has(e.pointerId))return;e.preventDefault();points.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(points.size===2){const [a,b]=[...points.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+   if(distance&&last){const old=_lbScale,next=Math.max(1,Math.min(4,old*d/distance)),rect=stage.getBoundingClientRect(),cx=last.x-rect.left-rect.width/2,cy=last.y-rect.top-rect.height/2;
+    _lbTx=mid.x-last.x+cx-(cx-_lbTx)*next/old;_lbTy=mid.y-last.y+cy-(cy-_lbTy)*next/old;lbSetZoom(next);}
+   distance=d;last=mid;
+  }else if(points.size===1){if(last&&_lbScale>1){_lbTx+=e.clientX-last.x;_lbTy+=e.clientY-last.y;_lbApply();}last={x:e.clientX,y:e.clientY};}
+ });
+ stage.addEventListener('pointerup',e=>{
+  const moved=Math.hypot(e.clientX-startX,e.clientY-startY);points.delete(e.pointerId);
+  if(!multi&&points.size===0){if(_lbScale===1&&Math.abs(e.clientX-startX)>65&&Math.abs(e.clientY-startY)<70){lbNav(e.clientX<startX?1:-1);lastTap=0;}
+   else if(moved<10){const now=Date.now();if(now-lastTap<300){if(_lbScale>1)lbResetView();else lbSetZoom(2.4);lastTap=0;}else lastTap=now;}}
+  last=points.size===1?[...points.values()][0]:null;distance=0;
+ });
+ stage.addEventListener('pointercancel',()=>{points.clear();last=null;distance=0;multi=true;lastTap=0;});
+ new MutationObserver(()=>{if(!document.getElementById('lightbox').classList.contains('show')){points.clear();last=null;distance=0;lastTap=0;lbResetView();}}).observe(document.getElementById('lightbox'),{attributes:true,attributeFilter:['class']});
 })();
-function lbNav(dir){lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbImgs[lbIdx];document.getElementById('lb-img').src=img.data;document.getElementById('lb-info').textContent=img.name+' · '+img.date;}
+function atlasRadioInfo(){const img=lbImgs[lbIdx];document.getElementById('lb-info').textContent=img?(img._atlasLabel||'Radio')+' · '+(lbIdx+1)+' / '+lbImgs.length:'';}
+function lbNav(dir){if(!lbImgs.length)return;lbResetView();lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;const img=lbImgs[lbIdx];document.getElementById('lb-img').src=img.data;atlasRadioInfo();}
 
 // ── EDITION ──
 function openEditModal(){
@@ -15236,6 +15254,26 @@ function atlasRenderInternalHome(sum,hero){
 #det-suivi .su-actions button{flex:1;min-width:0;min-height:48px;padding:11px 8px;border:1px solid var(--border2);border-radius:14px;background:var(--bg2);color:var(--text2);font:500 13px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;}
 #det-suivi .su-actions .su-primary{flex:1.15;background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:inset 0 1px #ffffff30;}
 #det-suivi .su-empty{text-align:center;color:var(--text3);font-size:14px;padding:28px 12px;}
+</style>
+
+<style id="atlas-v191-radios">
+#det-radios .radio-tabs{display:flex;gap:3px;padding:4px;background:var(--bg3,var(--bg));border:1px solid var(--border);border-radius:15px;}
+#det-radios .rtab{flex:1;min-width:0;min-height:44px;padding:8px 3px;border-radius:11px;font-size:13px;}
+#det-radios .rtab.active{background:var(--bg2)!important;color:var(--accent)!important;box-shadow:0 3px 9px #173b3b18;}
+#det-radios .radio-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+#det-radios .radio-thumb{border-radius:18px;overflow:hidden;background:#101719!important;border:1px solid var(--border);box-shadow:0 9px 18px -12px #234b4d;aspect-ratio:3/4;height:auto;}
+#det-radios .radio-thumb img{width:100%;height:100%;object-fit:contain;display:block;}
+#det-radios .radio-del{width:32px;height:32px;min-width:32px;background:#162126d9;color:white;font-size:20px;border:1px solid #ffffff40;border-radius:50%;}
+#det-radios .radio-lbl{background:#e9f1ed;color:#195157;border-radius:8px;left:9px;bottom:9px;padding:5px 8px;font-size:12px;}
+#radio-upload-date{min-width:0;width:0;max-width:100%;box-sizing:border-box;}
+#lightbox{background:#101719!important;padding:max(12px,env(safe-area-inset-top)) 12px max(16px,env(safe-area-inset-bottom));overflow:hidden;}
+#lb-stage{position:relative;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0;overflow:hidden;touch-action:none;margin-top:42px;}
+#lightbox #lb-img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:0;transition:none!important;touch-action:none;user-select:none;-webkit-user-drag:none;}
+#lightbox .lb-close{top:max(8px,env(safe-area-inset-top));right:12px;min-width:44px;min-height:44px;}
+#lightbox .lb-info{position:static;color:#d1dddd;font-size:13px;padding:12px 0 4px;flex-shrink:0;}
+#lightbox .lb-controls,#lightbox .lb-nav{position:static;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%;margin:8px 0 0;}
+#lightbox .lb-controls button,#lightbox .lb-nav button{background:#243337;color:#edf3ef;border:1px solid #ffffff18;border-radius:12px;min-height:44px;}
+#lightbox .lb-controls input{min-width:0;width:85px;flex:1;}
 </style>
 
 </body></html>
