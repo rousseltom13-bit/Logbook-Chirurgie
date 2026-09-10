@@ -4856,14 +4856,26 @@ function atlasSetDetailIndicator(tab){
   const marker=bar.querySelector('.atlas-det-indicator');
   if(marker)marker.style.transform='translate3d('+(index*100)+'%,0,0)';
 }
+let atlasDetailTabTurn=0;
 function switchDetTab(tab,btn){
+  const previous=curDetTab,turn=++atlasDetailTabTurn,bi=detailBlocIdx;
+  const order={info:0,suivi:1,radios:2},direction=order[tab]>=order[previous]?1:-1;
   document.querySelectorAll('.atlas-det-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.det-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');document.getElementById('det-'+tab).classList.add('active');
+  document.querySelectorAll('.det-panel').forEach(p=>{if(p._atlasTabMotion){p._atlasTabMotion.cancel();p._atlasTabMotion=null;}p.classList.remove('active');});
+  const panel=document.getElementById('det-'+tab);
+  btn.classList.add('active');panel.classList.add('active');
   curDetTab=tab;
   atlasSetDetailIndicator(tab);
-  if(tab==='radios'&&detailBlocIdx>=0)renderDetRadios(detailBlocIdx);
-  if(tab==='suivi'&&detailBlocIdx>=0)renderDetSuivi(detailBlocIdx);
+  const arrive=()=>{
+    if(previous===tab||turn!==atlasDetailTabTurn||curDetTab!==tab||detailBlocIdx!==bi||!panel.classList.contains('active')||!document.getElementById('view-detail').classList.contains('active'))return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches||!panel.animate)return;
+    panel._atlasTabMotion=panel.animate([
+      {opacity:.55,transform:'translate3d('+(direction*8)+'px,0,0)'},
+      {opacity:1,transform:'translate3d(0,0,0)'}
+    ],{duration:180,easing:'cubic-bezier(.2,.7,.25,1)'});
+  };
+  if(tab==='radios'&&bi>=0){Promise.resolve(renderDetRadios(bi)).then(arrive);}
+  else {if(tab==='suivi'&&bi>=0)renderDetSuivi(bi);arrive();}
 }
 function openBlocDetail(bi, returnFn){
   document.querySelectorAll('.atlas-transition-settled').forEach(el=>el.classList.remove('atlas-transition-settled'));
@@ -15334,5 +15346,13 @@ if(window.visualViewport)visualViewport.addEventListener('resize',atlasSizeRadio
 #det-tabs-bar{isolation:isolate;}
 #det-tabs-bar>.atlas-det-tab{flex:1 1 0;min-width:0;margin-bottom:0;border-bottom-color:transparent!important;}
 #det-tabs-bar>.atlas-det-indicator{position:absolute;bottom:0;left:0;width:33.333333%;height:2px;background:var(--accent);pointer-events:none;z-index:1;transform:translate3d(0,0,0);will-change:transform;transition:none!important;}
+</style>
+<style id="atlas-v194-tab-motion">
+@media(prefers-reduced-motion:no-preference){
+#det-tabs-bar>.atlas-det-indicator{transition:transform 200ms cubic-bezier(.2,.7,.25,1)!important;}
+}
+@media(prefers-reduced-motion:reduce){
+#det-tabs-bar>.atlas-det-indicator{transition:none!important;}
+}
 </style>
 </body></html>
