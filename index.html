@@ -11218,7 +11218,8 @@ function openBlocDocs(bi,forcedInter){
   }
   if(inter==='pth'){const saved=atlasModelRead();if(saved)saved.current.params.forEach(o=>DOCF[o.k]=o.def||'');}
   docAutoCCAM();
-  docTabs=(DOC_DOCS[inter]||['CRO','CRH']).slice();
+  if(!forcedInter){const model=amlLookup(b.spec||'',b.interv||'');if(model)amlInitSession(DOCF,model);}
+  docTabs=DOCF._amlModel?Object.keys(DOCF._amlModel.docs):(DOC_DOCS[inter]||['CRO','CRH']).slice();
   docIdx=0;docOverrides={};docStep=1;
   renderDocStep();
   document.getElementById('doc-modal').classList.add('open');
@@ -11327,20 +11328,21 @@ function renderDocStep(){
 const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
-  if(!DOCF||DOCF._inter===k){renderDocForm();return;}
+  if(!DOCF||(DOCF._inter===k&&!DOCF._amlModel)){renderDocForm();return;}
   const keep={ddn:DOCF.ddn,dateSortie:DOCF.dateSortie,aides:DOCF.aides,civ:DOCF.civ};
   openBlocDocs(DOCF._bi,k);
   Object.assign(DOCF,keep);
   renderDocForm();
 }
 function renderDocForm(){
+  if(typeof amlChangingSource!=='undefined'&&amlChangingSource)return;
   const host=document.getElementById('doc-form');if(!host)return;
-  const opts=atlasModelOptions(DOCF);
+  const opts=amlFormOptions(DOCF);
   const tEl=document.getElementById('doc-trame');if(tEl)tEl.textContent=TRAME_LABELS[DOCF._inter]||DOCF._inter;
   const trameBar=window._trameEdit
     ?('<div class="doc-pills" style="margin-bottom:12px;">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div>')
     :'';
-  const renderOpt=o=>{if(/^_am_/.test(o.k||''))return atlasModelRenderOption(o);
+  const renderOpt=o=>{if(o._aml)return amlRenderOption(o);if(/^_am_/.test(o.k||''))return atlasModelRenderOption(o);
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:var(--fs-tag);color:var(--text3);">'+o.l+'</div>';
     }
@@ -11419,7 +11421,7 @@ function renderDocForm(){
   }).join('');
 }
 function docSecToggle(k){window._docSecOpen=window._docSecOpen||{};window._docSecOpen[k]=!window._docSecOpen[k];renderDocForm();}
-function docGenerate(){if(DOCF._inter==='pth'){try{const saved=atlasModelRead();if(saved){const missing=saved.current.params.find(p=>!String(DOCF[p.k]||'').trim());if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing.l);return;}}}catch(e){showToast('Modèle PTH invalide : '+e.message);return;}}if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
+function docGenerate(){if(DOCF._amlModel){try{const missing=amlMissing(DOCF);if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing);return;}}catch(e){alert('Modèle à vérifier : '+e.message);return;}}if(!DOCF._amlModel&&DOCF._inter==='pth'){try{const saved=atlasModelRead();if(saved){const missing=saved.current.params.find(p=>!String(DOCF[p.k]||'').trim());if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing.l);return;}}}catch(e){showToast('Modèle PTH invalide : '+e.message);return;}}if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
 function docBackToForm(){docStep=1;renderDocStep();}
 function renderDocModal(){
   const tb=document.getElementById('doc-tabs');
@@ -12660,7 +12662,7 @@ async function exportData(){
     pathos:(typeof pathos!=='undefined'?pathos:[]),
     implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
     oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null),
-    settings:{active_specs:_lsRaw('atlas_active_specs'),pratique:_lsRaw('atlas_pratique'),profil:_lsRaw('atlas_profil'),prenom:_lsRaw('atlas_prenom'),rapport_m0:_lsRaw('atlas_rapport_m0'),theme:_lsRaw('orlog_theme'),quickmode:_lsRaw('orlog_quickmode'),pth_models:_lsRaw('atlas_pth_documents_v1')}
+    settings:{active_specs:_lsRaw('atlas_active_specs'),pratique:_lsRaw('atlas_pratique'),profil:_lsRaw('atlas_profil'),prenom:_lsRaw('atlas_prenom'),rapport_m0:_lsRaw('atlas_rapport_m0'),theme:_lsRaw('orlog_theme'),quickmode:_lsRaw('orlog_quickmode'),pth_models:_lsRaw('atlas_pth_documents_v1'),document_library:_lsRaw('atlas_document_library_v1')}
   };
   const json=JSON.stringify(payload);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
@@ -12722,8 +12724,9 @@ function atlasReferencePlan(p){
   }
   const map={blocs:'orlog_blocs',planned:'orlog_planned',patients:'atlas_patients',journees:'atlas_journees',astuces:'atlas_astuces',pathos:'atlas_pathos',implant_catalog:'atlas_implant_catalog',oxford_cfg:'atlas_oxford_cfg'};
   const writes={};Object.entries(map).forEach(([a,b])=>writes[b]=JSON.stringify(p[a]));
-  const settings={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1'};
-  p.settings={...p.settings,pth_models:p.settings.pth_models??null};
+  const settings={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1',document_library:'atlas_document_library_v1'};
+  p.settings={...p.settings,pth_models:p.settings.pth_models??null,document_library:p.settings.document_library??null};
+  if(p.settings.document_library!==null)amlValidateStore(JSON.parse(p.settings.document_library));
   if(p.settings.pth_models!==null){const model=JSON.parse(p.settings.pth_models);atlasModelValidate(model.current);if(model.previous)atlasModelValidate(model.previous);}
   Object.entries(settings).forEach(([a,b])=>{const v=p.settings[a];if(v!==null&&typeof v!=='string')throw new Error('Réglage invalide : '+a);writes[b]=v;});
   writes.atlas_reference_radio_counts=JSON.stringify(Object.fromEntries(p.blocs.map(b=>[String(b.id),b.radioCount||{}])));
@@ -12791,6 +12794,7 @@ function importData(e,reference=false){
   reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
+      if(parsed.settings?.document_library)amlValidateStore(JSON.parse(parsed.settings.document_library));
       if(parsed.settings?.pth_models){const m=JSON.parse(parsed.settings.pth_models);atlasModelValidate(m.current);if(m.previous)atlasModelValidate(m.previous);}
       if(reference){await atlasRestoreReference(parsed);return;}
       if(Array.isArray(parsed.implant_catalog)&&typeof implantCatalog!=='undefined'){
@@ -12804,7 +12808,7 @@ function importData(e,reference=false){
       // v162 : réglages — appliqués SEULEMENT si absents en local ; la licence n'est ni exportée ni importée
       let settingsApplied=0;
       if(parsed.settings&&typeof parsed.settings==='object'){
-        const SET_MAP={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1'};
+        const SET_MAP={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1',document_library:'atlas_document_library_v1'};
         Object.keys(SET_MAP).forEach(k=>{
           const v=parsed.settings[k];
           if(typeof v==='string'&&v!==''){try{if(localStorage.getItem(SET_MAP[k])===null){localStorage.setItem(SET_MAP[k],v);settingsApplied++;}}catch(e){}}
@@ -15502,13 +15506,13 @@ function atlasModelRender(doc,f,m){
  return m.docs[doc].filter(b=>!b.when||String(f[b.when.k]??'')===b.when.value).map(b=>b.text.replace(/\{\{([^{}]+)\}\}/g,(_,k)=>/^v\d+$/.test(k)?String(values[+k.slice(1)]??''):String(f[k]??''))).join('');
 }
 function atlasModelOptions(f){const opts=DOC_OPTS[f._inter]||[];if(f._inter!=='pth')return opts;const saved=atlasModelRead();return saved?opts.concat(saved.current.params):opts;}
-function docContent(doc){
+function docContentV196(doc){
  if(DOCF._inter!=='pth'||!ATLAS_MODEL_BASE[doc])return docContentNative(doc);
  const saved=atlasModelRead();if(!saved)return docContentNative(doc);
  const t=atlasModelRender(doc,DOCF,saved.current);if(doc==='CRO')return _croPost(t);if(doc==='Ordo kiné'){const side=coteStrD(DOCF),nl=t.indexOf('\n');let result=side&&nl>0&&!/CÔTÉ/i.test(t.slice(0,nl))?t.slice(0,nl)+' — CÔTÉ '+side.toUpperCase()+t.slice(nl):t;const a=_ampTxt(DOCF),K='Rééducation au cabinet conseillée.';if(a)result=result.includes(K)?result.replace(K,K+'\n\n'+a):a+'\n\n'+result;return result;}return t;
 }
 let atlasModelDraft=null,atlasModelDoc='CRO',atlasModelDirty=false,atlasModelPreview=false,atlasModelF=null;
-function atlasOpenModels(){
+function atlasOpenModelsPTH(){
  try{atlasModelDraft=JSON.parse(JSON.stringify(atlasModelRead()?.current||atlasModelBlank()));}catch(e){showToast(e.message);return;}
  atlasModelDoc='CRO';atlasModelDirty=false;atlasModelPreview=false;
  atlasModelF={_inter:'pth',cote:'Gauche',dateInter:'2026-09-13',nom:'EXEMPLE',prenom:'Alex',ddn:'1970-01-01',ccam:'NEKA020'};
@@ -15554,5 +15558,1880 @@ function atlasModelRenderOption(o){
 }
 
 document.getElementById('atlas-model-editor').addEventListener('cancel',e=>{e.preventDefault();atlasCloseModels();});
+</script>
+<style id="atlas-v197-library">
+#aml-dialog{box-sizing:border-box;width:min(100%,820px);max-width:100%;height:100dvh;max-height:100dvh;margin:auto;padding:0;border:0;border-radius:0;background:var(--bg);color:var(--text);overflow:hidden;}
+#aml-dialog[open]{display:flex;flex-direction:column;}#aml-dialog::backdrop{background:#102d3966;}
+.aml-header{padding:calc(14px + env(safe-area-inset-top)) 20px 15px;border-bottom:1px solid var(--border);flex:none;}
+.aml-topline{display:flex;align-items:center;gap:12px;margin-bottom:12px;}.aml-topline>span{flex:1;min-width:0;color:var(--text3);font-size:12px;letter-spacing:.08em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#aml-dialog button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.aml-iconbutton{display:grid;place-items:center;border:1px solid var(--border);background:var(--bg2);color:var(--accent);border-radius:14px;width:42px;height:42px;flex:none;font-size:26px;}
+#aml-title{font-family:var(--serif);font-size:clamp(23px,6vw,31px);font-weight:500;line-height:1.12;overflow-wrap:anywhere;margin:0;}
+#aml-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 20px 24px;scrollbar-width:thin;}
+#aml-foot{flex:none;padding:12px 20px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;background:var(--bg);border-top:1px solid var(--border);}
+.aml-primary,.aml-secondary{min-height:48px;border-radius:15px;padding:11px 16px;font-weight:650;font-size:14px;line-height:1.35;border:1px solid var(--border2);}
+.aml-primary{background:var(--accent);color:#fff;box-shadow:inset 0 1px 0 #ffffff40,0 5px 12px #164b501c;flex:1;}.aml-secondary{background:var(--bg2);color:var(--accent);}
+.aml-search input{width:100%;box-sizing:border-box;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;color:var(--text);padding:14px 16px;font-family:inherit;font-size:16px;min-width:0;}
+.aml-filters{display:flex;gap:7px;overflow:auto;padding:14px 0 18px;scrollbar-width:none;}.aml-chip{white-space:nowrap;border:1px solid var(--border);background:var(--bg2);color:var(--text2);border-radius:25px;padding:10px 15px;font-size:13px;}.aml-chip.on{background:var(--accent);border-color:var(--accent);color:white;}
+.aml-list{display:grid;gap:10px;}.aml-row{width:100%;box-sizing:border-box;display:flex;align-items:center;text-align:left;gap:13px;min-height:88px;padding:15px;background:var(--glass-surface,var(--bg2));border:1px solid var(--glass-border,var(--border));border-radius:20px;box-shadow:var(--glass-highlight),var(--glass-shadow);color:var(--text);}
+.aml-row>span:nth-child(2){min-width:0;flex:1;}.aml-row strong{display:block;font-size:16px;line-height:1.25;font-weight:650;overflow-wrap:anywhere;}.aml-row small{display:block;font-size:12px;line-height:1.4;color:var(--text3);margin-top:5px;}.aml-mini{display:block;font-size:11px;color:var(--accent);line-height:1.4;margin-top:7px;}.aml-chevron{font-size:24px;color:var(--text3);flex:none;}
+.aml-spec-icon,.aml-doc-icon{display:grid;place-items:center;width:44px;height:44px;flex:none;background:color-mix(in srgb,currentColor 12%,var(--bg2));border-radius:14px;box-shadow:inset 0 1px 0 #ffffff80;}.aml-spec-icon svg,.aml-doc-icon svg{width:25px;height:25px;}.aml-doc-icon{color:var(--accent);}.aml-row:nth-child(2) .aml-doc-icon{color:#6b8b61}.aml-row:nth-child(3) .aml-doc-icon{color:#8d658e}.aml-row:nth-child(4) .aml-doc-icon{color:#b67d4b}.aml-row:nth-child(5) .aml-doc-icon{color:#b77567}.aml-row:nth-child(6) .aml-doc-icon{color:#5c7e98} 
+.aml-summary{display:flex;align-items:center;gap:15px;padding:8px 4px 22px;}.aml-summary strong{font-family:var(--serif);font-size:25px;font-weight:500;display:block;}.aml-summary span:not(.aml-spec-icon){font-size:12px;color:var(--text3);display:block;margin-top:4px;}
+.aml-actions{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap;}.aml-actions>button{flex:1;}
+.aml-history{margin-top:22px;font-size:13px;color:var(--text3);}.aml-history summary,.aml-preview-settings summary{cursor:pointer;padding:10px 0;}.aml-history button{background:transparent;color:var(--accent);border:0;padding:14px 12px 8px 0;font-size:13px;}
+.aml-empty{text-align:center;padding:40px 15px;color:var(--text3);font-family:var(--serif);font-size:22px;}
+.aml-preview-settings{margin-bottom:15px;color:var(--text2);font-size:13px;}.aml-preview-settings[open]{background:var(--bg2);border:1px solid var(--border);padding:5px 14px 14px;border-radius:16px;}
+#aml-preview-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;}#aml-preview-fields label{min-width:0;font-size:12px;color:var(--text2);}
+#aml-preview-fields input:not([type=checkbox]),#aml-preview-fields select{display:block;box-sizing:border-box;width:100%;min-width:0;font-family:inherit;font-size:16px;color:var(--text);background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:10px;margin-top:5px;}
+#aml-preview-fields input[type=checkbox]{display:block;accent-color:var(--accent);width:22px;height:22px;}
+.aml-preview{white-space:pre-wrap;overflow-wrap:anywhere;font:15px/1.7 var(--serif);padding:20px;margin:0;background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:20px;}
+#aml-document .am-block{margin-bottom:12px;}#aml-document .am-block-head button{min-width:40px;min-height:44px;color:var(--accent);padding:0 8px;}
+.aml-edit-text{white-space:pre-wrap;overflow-wrap:anywhere;min-height:180px;max-height:42dvh;overflow:auto;padding:14px;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;color:var(--text);font:16px/1.7 var(--serif);outline-offset:3px;}
+#aml-copy-source{max-width:100%;box-sizing:border-box;width:100%;font-size:16px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);padding:10px;border-radius:10px;}
+#aml-copy-docs .aml-check{display:flex;align-items:center;gap:12px;padding:8px 0;color:var(--text);font-size:15px;}#aml-copy-docs input{display:inline;width:21px;min-height:21px;height:21px;margin:0;accent-color:var(--accent);}
+#aml-modal-actions{flex-wrap:wrap;margin-top:16px;justify-content:flex-end;}#aml-modal-actions button{border:1px solid var(--border2);border-radius:12px;background:var(--bg2);color:var(--accent);padding:10px 14px;font-size:14px;min-height:44px;}#aml-modal-actions button:last-child{background:var(--accent);color:#fff;}
+@media(min-width:650px){#aml-list{grid-template-columns:repeat(2,minmax(0,1fr));}#aml-dialog{border-radius:24px;height:calc(100dvh - 36px);}.aml-header{padding-top:18px;}}
+</style>
+<dialog id="aml-dialog" aria-labelledby="aml-title"><header class="aml-header"><div class="aml-topline"><button type="button" class="aml-iconbutton" onclick="amlBack()" aria-label="Retour">‹</button><span id="aml-sub">Bibliothèque</span><button type="button" class="aml-iconbutton" onclick="amlClose()" aria-label="Fermer">×</button></div><h2 id="aml-title">Modèles de documents</h2></header><main id="aml-body"></main><footer id="aml-foot"></footer></dialog>
+
+<script>
+function am_buildCRO_PTH(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_PTH_0",`COMPTE-RENDU OPÉRATOIRE — PTH {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : {{v5}}.
+CCAM : {{v6}}
+{{v7}}Rappel des implants : Cotyle {{v8}}{{v9}} taille {{v10}}{{v11}} / Tige {{v12}}{{v13}}{{v14}} taille {{v15}}{{v16}} / Tête {{v17}} {{v18}} col {{v19}}{{v20}}
+
+Installation en décubitus latéral {{v21}}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+{{v22}}
+
+Temps fémoral :
+Exposition du fût fémoral jambe au zénith.
+Ablation du reliquat de col à l'emporte-pièce.
+Tunnelisation à la dague.
+Évidement du grand trochanter à la curette.
+On passe les râpes de tailles successives jusqu'à la râpe taille {{v23}}.
+Essais sur râpe en place col {{v24}}.
+La stabilité est excellente et les longueurs sont restaurées.
+{{v25}}
+{{v26}}
+Réduction de la hanche.
+Nettoyage abondant.
+{{v27}}{{v28}}{{v29}}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Fermeture cutanée par {{v30}}.
+Pansement {{v31}}.
+
+{{v32}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication||('Arthroplastie totale de hanche '+cote)),(f.ccam),(f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''),(f.cupType==='Double mobilité'?'double mobilité ':''),(f.cotyleModele),(f.cotyleTaille),(f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''),(f.tigeModele),(f.tigeLat?' Latéralisée':''),(f.tigeFix==='Cimentée'?' cimentée':''),(f.tigeTaille),(f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''),(f.teteTaille),(f.teteMat),(f.teteCol),(f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''),(cote==='gauche'?'droit':'gauche'),(f.renfort?`Fraisages de tailles croissantes.
+Mise en place d'un renfort acétabulaire${f.renfortModele?' '+f.renfortModele:''}, fixé par ${f.renfortNbVis||'—'} vis.
+Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille} dans le renfort, légèrement plus antéversé que le transverse.`:`Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
+Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
+`:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "renfort / renfortModele", "Texte lié", "renfort / renfortModele / renfortNbVis / cupType / cotyleModele / cotyleTaille", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol / insertMat", "crochet / crochetMarque / crochetLong / crochetNbVis", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_PTG(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_PTG_0",`COMPTE-RENDU OPÉRATOIRE — PTG {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Arthroplastie totale de genou {{v5}} dans le cadre d'une {{v6}} avec déformation en {{v7}} de {{v8}}°.
+CCAM : {{v9}}
+Rappel des implants : Fémur {{v10}} taille {{v11}} / Plateau {{v12}} taille {{v13}} / Insert {{v14}} mm{{v15}}
+
+Installation en décubitus dorsal.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord médiale para-patellaire.
+Arthrotomie médiale para-patellaire.
+Éversion de la rotule.
+Résection des ostéophytes périphériques.
+Résection du corps adipeux de Hoffa.
+Résection du pivot central.
+
+Coupe tibiale première :
+Guide tibial extra-médullaire.
+Résection tibiale proximale selon planification.
+Contrôle de l'espace par l'hémi-espaceur.
+
+Temps fémoral :
+Guide fémoral intra-médullaire.
+Résections distale, antérieure, postérieure et chanfreins.
+Trial fémoral taille {{v16}}.
+Ouverture espace flexion au Mehary, ablation ostéophytes postérieurs et ménisques.
+
+Temps tibial :
+Trial plateau {{v17}}, empreinte au ciseau, essai PE {{v18}} mm.
+
+{{v19}}Bilan ligamentaire :
+Balance satisfaisante en flexion et en extension.
+Flexion à {{v20}}°, extension complète.
+
+Cimentation plateau {{v21}}/insert {{v22}}, fémur {{v23}}{{v24}}.
+{{v25}}{{v26}}Vicryl 2 + Stratafix capsulo-synovial, Vicryl 0 sous-cutané.
+Fermeture cutanée par {{v27}}. Pansement {{v28}}.
+
+{{v29}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.indication||'gonarthrose tricompartimentale'),((f.deformation||'varus').toLowerCase()),(f.degres),(f.ccam),(f.modele||'ACS'),(f.femurT),(f.modele||'ACS'),(f.plateauT),(f.insertMm),(f.rotule?' / Bouton rotulien taille '+f.boutonT:''),(f.femurT),(f.plateauT),(f.insertMm),(f.rotule?'Resurfaçage patellaire. No thumb test positif.\n\n':''),(f.flexion),(f.plateauT),(f.insertMm),(f.femurT),(f.rotule?', rotule '+f.boutonT:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "indication", "deformation", "degres", "ccam", "modele", "femurT", "modele", "plateauT", "insertMm", "rotule / boutonT", "femurT", "plateauT", "insertMm", "rotule", "flexion", "plateauT", "insertMm", "femurT", "rotule / boutonT", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_LCA(f){
+  const cote=coteStrD(f);
+  const prel=f.greffon==='DT4'
+    ?amTake("buildCRO_LCA_0",`Incision verticale en regard de la patte d'oie.
+Prélèvement du demi-tendineux au stripper atraumatique après ablation des vinculas.
+Le tendon est laissé pédiculé au tibia, enroulé dans une compresse imbibée de Vancomycine et réintroduit dans sa gaine pendant la durée du temps arthroscopique.`,[],[])
+    :amTake("buildCRO_LCA_1",`Incision verticale en regard de la patte d'oie.
+Prélèvement du demi-tendineux et du droit interne au stripper atraumatique après ablation des vinculas.
+Les ischio-jambiers sont laissés pédiculés au tibia, enroulés dans une compresse imbibée de Vancomycine et réintroduits dans leur gaine pendant la durée du temps arthroscopique.`,[],[]);
+  return amTake("buildCRO_LCA_2",`COMPTE-RENDU OPÉRATOIRE — LCA {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Reconstruction du ligament croisé antérieur du genou {{v5}} par technique {{v6}}.{{v7}}
+CCAM : {{v8}}
+
+Installation en décubitus dorsal, genou fléchi à 90°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Prélèvement du greffon :
+{{v9}}
+
+{{v10}}
+Temps arthroscopique :
+Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
+Exploration systématique du genou :
+- Compartiment fémoro-patellaire : {{v11}}
+- Compartiment médial : {{v12}}
+- Compartiment latéral : {{v13}}
+- Échancrure : LCA rompu / LCP intact
+{{v14}}
+Section du ligament suspenseur du Hoffa et ablation du reliquat de LCA en prenant soin de préserver son pied au niveau de son insertion tibiale.
+
+Temps tibial :
+Réalisation du tunnel tibial à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation tibiale initiale à la mèche de {{v15}} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Temps fémoral :
+Contre-abord centimétrique 1 cm proximal et postérieur à l'épicondyle latéral.
+Ouverture du fascia lata.
+Réalisation du tunnel fémoral outside-in à l'aide du guide adapté orienté à 55°.
+Mise en place de la broche puis tunnelisation fémorale initiale à la mèche de {{v16}} mm après confirmation du positionnement sous arthroscopie.
+Nettoyage du tunnel au shaver.
+
+Préparation du greffon :
+On détermine la longueur du greffon à l'aide du tigerstick passé dans les tunnels.
+Faufilage au XBRAID pour préparation du greffon selon technique {{v17}}.
+Calibrage définitif à {{v18}} mm au tibia et {{v19}} mm au fémur.
+
+On monte le greffon sous arthroscopie à l'aide de fils relais.
+Cyclage du genou.
+Fixation au fémur par vis d'interférence {{v20}}.
+Fixation tibiale par vis d'interférence {{v21}} à 30° de flexion.
+{{v22}}
+Test de Lachman négatif.
+Tiroir antérieur négatif.
+Isométrie satisfaisante en fin d'intervention.
+
+{{v23}}Fermeture des plans sous-cutanés au Vicryl 2-0.
+Fermeture cutanée par {{v24}}.
+Pansement {{v25}}.
+
+{{v26}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.greffon),(f.ressaut?' Ressaut rotatoire présent en pré-opératoire.':''),(f.ccam),(prel),(_garrotLine(f)),(_cartLine(f.cartFP)||'RAS'),(_menBlock(f,'med')),(_menBlock(f,'lat')),(_sutureMatLine(f)),(f.diamTib),(f.diamFem),(f.greffon),(f.diamTib),(f.diamFem),(f.visFem),(f.visTib),(f.retourExterne?`
+Retour externe :
+Abord tibial postérieur au tubercule de Gerdy.
+Réalisation d'un passage reliant le tunnel fémoral et la partie postérieure du Gerdy en passant sous le fascia lata.
+Réalisation d'un tunnel de diamètre 6 mm orienté vers la patte d'oie.
+À l'aide de fils relais, passage du retour externe dans le tunnel et fixation au tibia par endobouton RT en extension et rotation neutre.
+`:''),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "greffon", "ressaut", "ccam", "Texte lié", "Texte lié", "cartFP", "Texte lié", "Texte lié", "Texte lié", "diamTib", "diamFem", "greffon", "diamTib", "diamFem", "visFem", "visTib", "retourExterne", "Texte lié", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_MENISC(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_MENISC_0",`COMPTE-RENDU OPÉRATOIRE — ARTHROSCOPIE DU GENOU {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Lésion méniscale du genou {{v5}}.
+CCAM : {{v6}}
+
+Installation en décubitus dorsal, genou fléchi à 90°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v7}}
+Temps arthroscopique :
+Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
+Exploration systématique du genou :
+- Compartiment fémoro-patellaire : {{v8}}
+- Compartiment médial : {{v9}}
+- Compartiment latéral : {{v10}}
+- Échancrure : pivot central intact
+{{v11}}
+{{v12}}{{v13}}Lavage articulaire abondant.
+
+{{v14}}Fermeture des voies d'abord par points séparés.
+Fermeture cutanée par {{v15}}.
+Pansement {{v16}}.
+
+{{v17}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.ccam),(_garrotLine(f)),(_cartLine(f.cartFP)||'RAS'),(_menBlock(f,'med')),(_menBlock(f,'lat')),(_sutureMatLine(f)),(f.chondroplastie?'Chondroplastie de régularisation.\n':''),(f.synovectomie?'Synovectomie partielle.\n':''),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "cartFP", "Texte lié", "Texte lié", "Texte lié", "chondroplastie", "synovectomie", "Texte lié", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_CHEVILLE(f){
+  const cote=coteStrD(f);
+  const head=amTake("buildCRO_CHEVILLE_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
+
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides opératoires : {{v4}}
+Anesthésie : {{v5}}
+
+Indication : {{v6}} de la cheville {{v7}}.
+CCAM : {{v8}}
+`,[(CH_TITRE[f.chLesion]||'FRACTURE DE LA CHEVILLE'),((cote==='droit'?'droite':cote).toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(CH_INDIC[f.chLesion]||'Fracture'),(cote==='droit'?'droite':cote),(f.ccam)],["chLesion", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "chLesion", "Texte lié", "ccam"]);
+  const prep=amTake("buildCRO_CHEVILLE_1",`Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v0}}`,[(f.garrotOn?`Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'300'} mmHg.
+`:'')],["garrotOn / garrot"]);
+  if(_chPostFixed(f)){
+    return head+amTake("buildCRO_CHEVILLE_2",`
+Installation en décubitus ventral, coussin sous le cou-de-pied.
+`,[],[])+prep+amTake("buildCRO_CHEVILLE_3",`
+Abord postéro-latéral.
+Hémostases sous-cutanées, respect du nerf sural.
+
+Temps tibial postérieur :
+Passage en dedans des tendons fibulaires.
+Exposition du fragment marginal postérieur, réduction anatomique satisfaisante.
+{{v0}}
+Contrôle scopique.
+
+Temps fibulaire :
+Par le même abord, passage en dehors des tendons fibulaires.
+Exposition du foyer fibulaire, réduction anatomique satisfaisante maintenue à la pince.
+{{v1}}{{v2}}
+Contrôle scopique.
+{{v3}}{{v4}}{{v5}}`,[(_chPostLine(f)),(_chComprLine(f)),(_chPlaqueLine(f)),(_chMedBlock(f)),(_chSyndBlock(f)),(_chFin(f))],["Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié"]);
+  }
+  return head+amTake("buildCRO_CHEVILLE_4",`
+Installation en décubitus dorsal, coussin sous la fesse homolatérale.
+`,[],[])+prep+amTake("buildCRO_CHEVILLE_5",`
+Temps latéral :
+Abord latéral centré sur la fibula.
+Hémostases sous-cutanées, respect du nerf fibulaire superficiel.
+Exposition du foyer, évacuation de l'hématome, lavage.
+Réduction anatomique satisfaisante, maintenue à la pince.
+{{v0}}{{v1}}
+Contrôle scopique : réduction et matériel en place.
+{{v2}}{{v3}}{{v4}}`,[(_chComprLine(f)),(_chPlaqueLine(f)),(_chMedBlock(f)),(_chSyndBlock(f)),(_chFin(f))],["Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié"]);
+}
+function am_buildCRO_TETERAD(f){
+  const cote=coteStrD(f);
+  const cf=(cote==='droit')?'droite':cote;
+  const g=f.trGeste||'Vissage';
+  const head=amTake("buildCRO_TETERAD_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE LA TÊTE RADIALE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de la tête radiale {{v5}}, Mason {{v6}}{{v7}}.
+CCAM : {{v8}}
+
+Installation en décubitus dorsal, membre supérieur sur table à bras.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v9}}`,[(cf.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cf),(f.trMason||'III'),(f.trInstable?", dans le cadre d'un coude instable"+(f.trTriade?' (triade malheureuse)':''):''),(f.ccam),(_garrotLine(f))],["toUpperCase", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "trMason", "trInstable / trTriade", "ccam", "Texte lié"]);
+  let corps=amTake("buildCRO_TETERAD_1",`Abord latéral de Kaplan centré sur la tête radiale.
+Passage dans l'intervalle entre le court extenseur radial du carpe et l'extenseur commun des doigts.
+Avant-bras maintenu en pronation (protection de la branche postérieure du nerf radial).
+Arthrotomie en avant du complexe ligamentaire collatéral latéral, qui est préservé.
+Exposition de la tête radiale, évacuation de l'hémarthrose et des fragments ostéo-chondraux libres.
+`,[],[]);
+  if(g==='Vissage'){
+    corps+=amTake("buildCRO_TETERAD_2",`Réduction anatomique des fragments, stabilisation provisoire par broches.
+Ostéosynthèse par {{v0}} vis sans tête en compression, enfouies sous le cartilage.
+`,[(f.trVisNb||'2')],["trVisNb"]);
+  } else if(g==='Plaque'){
+    corps+=amTake("buildCRO_TETERAD_3",`Réduction anatomique des fragments, stabilisation provisoire par broches.
+Ostéosynthèse par plaque spécifique de tête radiale{{v0}} positionnée dans la zone non articulaire (safe zone), {{v1}} vis.
+`,[(f.trPlaqueModele?' '+f.trPlaqueModele:''),(f.trVisNb||'4')],["trPlaqueModele", "trVisNb"]);
+  } else if(g==='Résection'){
+    corps+=amTake("buildCRO_TETERAD_4",`Fracture non reconstructible : résection de la tête radiale au ras du col, régularisation de la tranche.
+Vérification de l'absence de fragment intra-articulaire résiduel.
+`,[],[]);
+  } else {
+    corps+=amTake("buildCRO_TETERAD_5",`Fracture non reconstructible : résection de la tête radiale au ras du col.
+Préparation du canal, essais de taille et de hauteur — respect de l'interligne huméro-ulnaire (pas de surdimensionnement).
+Mise en place d'une prothèse de tête radiale{{v0}} taille {{v1}}.
+Contrôle du centrage et de la course de la cupule sur le capitulum en flexion-extension et pronosupination.
+`,[(f.trProthModele?' '+f.trProthModele:''),(f.trProthTaille||'—')],["trProthModele", "trProthTaille"]);
+  }
+  if(f.trRepCoro)corps+=amTake("buildCRO_TETERAD_6",`Réparation de la coronoïde : réduction et fixation du fragment{{v0}}.
+`,[(f.trCoroMode==='Suture-lasso'?' par suture-lasso de la capsule antérieure':' par vissage')],["trCoroMode"]);
+  if(f.trRepExt)corps+=amTake("buildCRO_TETERAD_7",`Réinsertion du complexe ligamentaire collatéral latéral (LUCL) par ancre à la face postéro-inférieure de l'épicondyle latéral, au point isométrique.
+`,[],[]);
+  if(f.trRepInt)corps+=amTake("buildCRO_TETERAD_8",`Abord médial complémentaire, repérage et protection du nerf ulnaire.
+Réinsertion du ligament collatéral médial par ancre à l'épicondyle médial.
+`,[],[]);
+  corps+=amTake("buildCRO_TETERAD_9",`Contrôle scopique de face et de profil : {{v0}}.
+Testing en fin d'intervention : arc de flexion-extension et pronosupination complets, stabilité en valgus et en varus, absence de ressaut postéro-latéral.
+`,[(_trOsteo(f)?'réduction anatomique, matériel en place':(_trProth(f)?'prothèse en place, interlignes respectés':'résection complète, interlignes respectés'))],["Texte lié"]);
+  const fin=amTake("buildCRO_TETERAD_10",`Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : {{v4}} ; pas de port de charge pendant 6 semaines.
+
+{{v5}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(_garrotFin(f)),(f.immo==='Attelle 90° — mobilisation protégée'?'attelle postérieure à 90° avec mobilisation protégée dans le secteur stable, selon le testing per-opératoire':(f.immo==='Aucune'?'mobilisation immédiate selon douleurs':'attelle postérieure antalgique pour quelques jours puis mobilisation précoce')),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "immo", "Signature"]);
+  return head+'\n'+corps+'\n'+fin;
+}
+function am_buildCRO_PALETTE(f){
+  const cote=coteStrD(f);
+  const cf=(cote==='droit')?'droite':cote;
+  const artic=_paArtic(f);
+  const osteo=_paOsteo(f);
+  const m=f.paMontage||'Postéro-latérale + médiale';
+  const hasPL=/Postéro-latérale/.test(m);
+  const hasMed=/médiale/i.test(m);
+  const ao=(f.paAO||'C2').replace(' (extra-articulaire)','').replace(' (articulaire partielle)','');
+  const head=amTake("buildCRO_PALETTE_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE LA PALETTE HUMÉRALE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de la palette humérale {{v5}}, classée AO 13-{{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus latéral, bras sur appui, avant-bras pendant.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v8}}`,[(cf.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cf),(ao),(f.ccam),(_garrotLine(f))],["toUpperCase", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "Texte lié", "ccam", "Texte lié"]);
+  let corps=amTake("buildCRO_PALETTE_1",`Abord postérieur médian du coude.
+Repérage et libération du nerf ulnaire au bord médial, mis sur lacs et protégé pendant toute l'intervention.
+`,[],[]);
+  if(osteo){
+    corps+=amTake("buildCRO_PALETTE_2",`Préparation de la fixation de l'olécrâne avant l'ostéotomie : {{v0}}.
+Ostéotomie de l'olécrâne en chevron à la scie oscillante, complétée à l'ostéotome.
+Relèvement du fragment olécrânien avec l'appareil extenseur, exposition de la surface articulaire de la palette humérale.
+`,[(f.paOsteoFix==='Haubanage'?'mise en place des broches et méchage du trajet du cerclage, puis retrait des broches':'présentation de la plaque verrouillée et méchage des trajets de vis')],["paOsteoFix"]);
+  } else {
+    corps+=amTake("buildCRO_PALETTE_3",`Voie {{v0}}, exposition des colonnes médiale et latérale.
+Repérage et protection du nerf radial au bord latéral.
+`,[(f.paAbord==='Trans-tricipitale'?'trans-tricipitale : discision longitudinale du triceps dans l\'axe':'para-tricipitale : relèvement du triceps de part et d\'autre, sans désinsertion')],["paAbord"]);
+  }
+  corps+=amTake("buildCRO_PALETTE_4",`Réduction anatomique {{v0}}, stabilisation provisoire par broches.
+`,[(artic?'de la surface articulaire puis des colonnes':'des colonnes médiale et latérale')],["Texte lié"]);
+  if(f.paNovastep)corps+=amTake("buildCRO_PALETTE_5",`{{v0}}{{v1}} vis Novastep en compression.
+`,[(artic?'Fixation première de la surface articulaire par ':'Mise en place de '),(f.paNovastepNb||'1')],["Texte lié", "paNovastepNb"]);
+  if(hasPL)corps+=amTake("buildCRO_PALETTE_6",`Mise en place d'une plaque postéro-latérale verrouillée{{v0}}, {{v1}} vis épiphysaires, {{v2}} vis diaphysaires.
+`,[(f.paPlaquePL?' '+f.paPlaquePL:''),(f.paVisEpiPL||'3'),(f.paVisDiaPL||'3')],["paPlaquePL", "paVisEpiPL", "paVisDiaPL"]);
+  if(hasMed)corps+=amTake("buildCRO_PALETTE_7",`Mise en place d'une plaque médiale verrouillée{{v0}}, {{v1}} vis épiphysaires, {{v2}} vis diaphysaires.
+`,[(f.paPlaqueMed?' '+f.paPlaqueMed:''),(f.paVisEpiMed||'3'),(f.paVisDiaMed||'3')],["paPlaqueMed", "paVisEpiMed", "paVisDiaMed"]);
+  corps+=_vlLine(f);
+  if(osteo)corps+=amTake("buildCRO_PALETTE_8",`Réduction de l'ostéotomie de l'olécrâne et ostéosynthèse par {{v0}}.
+`,[(f.paOsteoFix==='Haubanage'?'haubanage sur les trajets préparés':'la plaque verrouillée préparée')],["paOsteoFix"]);
+  corps+=amTake("buildCRO_PALETTE_9",`Contrôle scopique de face et de profil : réduction anatomique, matériel en place{{v0}}.
+Testing de la flexion-extension et de la pronosupination : mobilité complète, montage stable.
+{{v1}}Contrôle du nerf ulnaire en fin d'intervention{{v2}}.
+`,[(osteo?', ostéotomie réduite et fixée':''),(f.paTransposition?`Transposition antérieure sous-cutanée du nerf ulnaire.
+`:''),(f.paTransposition?'':', laissé en place dans sa gouttière')],["Texte lié", "paTransposition", "paTransposition"]);
+  const fin=amTake("buildCRO_PALETTE_10",`Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : {{v4}} ; pas de port de charge pendant 6 semaines.
+
+{{v5}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(_garrotFin(f)),(f.immo==='Aucune'?'mobilisation immédiate du coude selon douleurs':'attelle postérieure antalgique pour quelques jours puis mobilisation précoce du coude'),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "immo", "Signature"]);
+  return head+'\n'+corps+'\n'+fin;
+}
+function am_buildCRO_PILON(f){
+  const cote=coteStrD(f);
+  const isAL=(f.plAbord||'Antéro-latéral')==='Antéro-latéral';
+  const fibNow=f.plFibule==='À synthéser dans ce temps';
+  const fibDone=f.plFibule==='Déjà synthésée';
+  const head=amTake("buildCRO_PILON_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DU PILON TIBIAL {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture du pilon tibial {{v5}}, classée AO 43-{{v6}}{{v7}}{{v8}}.
+CCAM : {{v9}}
+
+Installation en décubitus dorsal, coussin sous la fesse homolatérale.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v10}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote==='droit'?'droit':'gauche'),(f.plAO||'C2'),(f.plOuverte?', ouverte classée Gustilo '+(f.plGustilo||'I'):''),(f.plFE?', traitée initialement par fixateur externe pontant (prise en charge séquentielle)':''),(f.ccam),(_garrotLine(f))],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "plAO", "plOuverte / plGustilo", "plFE", "ccam", "Texte lié"]);
+  let corps='';
+  if(f.plFE)corps+=amTake("buildCRO_PILON_1",`Ablation du fixateur externe, nettoyage et désinfection des orifices de fiches, nouveau badigeon et re-champage.
+`,[],[]);
+  if(fibDone)corps+=amTake("buildCRO_PILON_2",`La fibula a été synthésée lors du temps initial : longueur et rotation contrôlées, matériel laissé en place.
+`,[],[]);
+  if(f.plFE||fibDone)corps+='\n';
+  if(fibNow){
+    corps+=amTake("buildCRO_PILON_3",`Temps fibulaire :
+Abord latéral direct de la fibula.
+Réduction avec restitution de la longueur, stabilisation provisoire au davier.
+{{v0}}Ostéosynthèse par plaque tiers de tube{{v1}}, {{v2}} vis.
+
+`,[(f.plFibCompr==='Vis antéro-postérieure'?`Vissage inter-fragmentaire en compression par vis antéro-postérieure.
+`:(f.plFibCompr==='Nice knot'?`Compression du trait par nice knot.
+`:'')),(f.plFibPlaque?' '+f.plFibPlaque:''),(f.plFibVis||'6')],["plFibCompr", "plFibPlaque", "plFibVis"]);
+  }
+  corps+=`${(fibNow)?'Temps tibial :\n':''}`;
+  corps+=isAL
+    ?amTake("buildCRO_PILON_4",`Abord antéro-latéral du pilon tibial, dans l'axe du 4e rayon.
+Repérage et protection du nerf fibulaire superficiel.
+Ouverture du rétinaculum des extenseurs, passage en dehors des tendons extenseurs, relevés en dedans au ras de l'os.
+`,[],[])
+    :amTake("buildCRO_PILON_5",`Abord antéro-médial du pilon tibial, en dedans du tendon du muscle tibial antérieur.
+Respect de la veine grande saphène et du nerf saphène.
+`,[],[]);
+  corps+=amTake("buildCRO_PILON_6",`Arthrotomie antérieure, exposition de la surface articulaire, évacuation de l'hémarthrose et des débris ostéo-chondraux libres.
+Réduction articulaire de l'arrière vers l'avant : réduction du fragment postérieur, puis désimpaction du dôme central, puis réduction {{v0}}.
+Stabilisation provisoire par broches, contrôle scopique de la congruence articulaire.
+Mise en place de vis sous-chondrales en rappel, en compression.
+{{v1}}Ostéosynthèse par plaque {{v2}} verrouillée{{v3}}, {{v4}} vis épiphysaires, {{v5}} vis diaphysaires.
+{{v6}}Contrôle scopique de face et de profil : réduction articulaire satisfaisante, restitution de l'axe et de la longueur, matériel en place, absence de vis intra-articulaire.
+`,[(isAL?'du fragment antéro-latéral (Tillaux-Chaput)':'de la colonne médiale'),(_platComblement(f)),(isAL?'antéro-latérale':'antéro-médiale'),(f.plPlaqueModele?' '+f.plPlaqueModele:''),(f.plVisEpi||'4'),(f.plVisDia||'3'),(_vlLine(f))],["Texte lié", "Texte lié", "Texte lié", "plPlaqueModele", "plVisEpi", "plVisDia", "Texte lié"]);
+  const fin=amTake("buildCRO_PILON_7",`Lavage abondant.
+{{v0}}Fermeture plan par plan, sans tension.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : décharge stricte du membre inférieur pendant {{v4}} semaines, surélévation du membre, mobilisation précoce de la cheville selon tolérance.
+
+{{v5}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(_garrotFin(f)),(f.dechargeSem||'6'),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "dechargeSem", "Signature"]);
+  return head+'\n'+_platCrete(f)+corps+'\n'+fin;
+}
+function am_buildCRO_DEUXOS(f){
+  const cote=coteStrD(f);
+  const cf=(cote==='droit')?'droite':cote;
+  const l=_dxLes(f);
+  const both=_dxBoth(f);
+  const titres={'2 os':"FRACTURE DE LA DIAPHYSE DES DEUX OS DE L'AVANT-BRAS",'Diaphyse radiale':'FRACTURE DE LA DIAPHYSE RADIALE','Diaphyse ulnaire':'FRACTURE DE LA DIAPHYSE ULNAIRE','Galeazzi':'FRACTURE DE GALEAZZI','Monteggia':'FRACTURE DE MONTEGGIA'};
+  const indics={'2 os':"Fracture déplacée de la diaphyse des deux os de l'avant-bras "+cote,
+    'Diaphyse radiale':'Fracture déplacée de la diaphyse radiale '+cf,
+    'Diaphyse ulnaire':'Fracture déplacée de la diaphyse ulnaire '+cf,
+    'Galeazzi':'Fracture de la diaphyse radiale associée à une lésion de la radio-ulnaire distale (fracture de Galeazzi), côté '+cote,
+    'Monteggia':"Fracture de la diaphyse ulnaire associée à une luxation de la tête radiale (fracture de Monteggia), côté "+cote};
+  const head=amTake("buildCRO_DEUXOS_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
+
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides opératoires : {{v4}}
+Anesthésie : {{v5}}
+
+Indication : {{v6}}{{v7}}.
+CCAM : {{v8}}
+
+Installation en décubitus dorsal, membre supérieur sur table à bras.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v9}}`,[(titres[l]),(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(indics[l]),(f.dxOuverte?', ouverte classée Gustilo '+(f.dxGustilo||'I'):''),(f.ccam),(_garrotLine(f))],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "dxOuverte / dxGustilo", "ccam", "Texte lié"]);
+  let corps='';
+  if(f.dxOuverte)corps+=amTake("buildCRO_DEUXOS_1",`Parage initial : excision économique des berges cutanées contuses, excision des tissus dévitalisés, lavage abondant au sérum physiologique.
+
+`,[],[]);
+  if(both){
+    const radFirst=(f.dxPremier||'Radius')==='Radius';
+    corps+=amTake("buildCRO_DEUXOS_2",`L'os présentant le trait de fracture le plus simple est synthésé en premier afin de restituer la longueur : {{v0}}.
+
+`,[(radFirst?'temps radius puis temps ulna':'temps ulna puis temps radius')],["Texte lié"]);
+    corps+=radFirst?(_dxTempsRadius(f,true)+_dxTempsUlna(f,true)):(_dxTempsUlna(f,true)+_dxTempsRadius(f,true));
+  } else if(_dxRad(f)){
+    corps+=_dxTempsRadius(f,false);
+  } else {
+    corps+=_dxTempsUlna(f,false);
+  }
+  if(l==='Monteggia')corps+=amTake("buildCRO_DEUXOS_3",`Contrôle scopique de la tête radiale : réduction obtenue après réduction anatomique de l'ulna, stabilité vérifiée en flexion-extension et en pronosupination.
+`,[],[]);
+  let controle=amTake("buildCRO_DEUXOS_4",`Contrôle scopique de face et de profil{{v0}} : réduction anatomique, matériel en place{{v1}}.
+Testing de la pronosupination : complète et sans ressaut.
+`,[(both?' des deux os':''),(_dxRad(f)?', courbure pronatrice du radius restaurée':'')],["Texte lié", "Signature"]);
+  if(_dxRad(f)){
+    controle+=f.dxDrujBroche
+      ?amTake("buildCRO_DEUXOS_5",`Testing de la radio-ulnaire distale : instabilité persistante — brochage radio-ulnaire distal par une broche, avant-bras en supination, sous contrôle scopique.
+`,[],[])
+      :amTake("buildCRO_DEUXOS_6",`Testing de la radio-ulnaire distale : stable.
+`,[],[]);
+  }
+  const fin=amTake("buildCRO_DEUXOS_7",`Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : {{v4}}. Mobilisation immédiate des doigts et de l'épaule. Pas de port de charge jusqu'à consolidation.
+
+{{v5}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(_garrotFin(f)),(_dxImmoTxt(f)),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "Signature", "Signature"]);
+  return head+'\n'+corps+controle+'\n'+fin;
+}
+function am_buildCRO_PSEUDO(f){
+  const cote=coteStrD(f);
+  const seg=_psSeg(f);
+  const strat=f.strat||'1 temps';
+  const is2t1=/1er temps/.test(strat);
+  const is2t2=/2e temps/.test(strat);
+  const segNom=_psIsFem(f)?'du fémur':(_psIsTib(f)?'de la diaphyse tibiale':'du pilon tibial');
+  const cors=_psCorrections(f);
+  const coteAdj=_psIsTib(f)?(cote==='droit'?'droite':cote):cote;
+  const indic='Pseudarthrose '+segNom+' '+coteAdj+
+    (f.matPrealable&&f.matPrealable!=='Aucun'?' sur '+(f.matPrealable==='Clou'?'clou centromédullaire':'plaque'):'')+
+    (cors.length?', avec cal vicieux ('+cors.map(c=>c.replace(/^d[eu] la |^du /,'')).join(', ')+')':'')+
+    (is2t1?'. Premier temps d\'une prise en charge en deux temps (membrane induite)':'')+
+    (is2t2?'. Deuxième temps (greffe dans la membrane induite)':'')+'.';
+  const titre=_psIsFem(f)?'PSEUDARTHROSE DU FÉMUR':(_psIsTib(f)?'PSEUDARTHROSE DE LA DIAPHYSE TIBIALE':'PSEUDARTHROSE DU PILON TIBIAL');
+  const head=amTake("buildCRO_PSEUDO_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
+
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides opératoires : {{v4}}
+Anesthésie : {{v5}}
+
+Indication : {{v6}}
+CCAM : {{v7}}
+
+Installation en {{v8}}.
+Badigeon et champage stérile.
+Antibiothérapie selon avis du CRIOAC, réalisée une fois les prélèvements bactériologiques per-opératoires effectués.
+Check-list.
+{{v9}}`,[(titre),(coteAdj.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(indic),(f.ccam),(_psIsFem(f)?'décubitus latéral '+(cote==='gauche'?'droit':'gauche'):'décubitus dorsal'),((!_psIsFem(f)&&f.garrotOn)?_garrotLine(f):'')],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "garrotOn"]);
+  let corps='';
+  // Greffe de crête (temps dédié) — sauf 1er temps de 2 temps
+  const psGreffeOk=!_psIsTib(f)||f.petitePlaque||is2t2;
+  if(!is2t1&&f.greffeCrete&&psGreffeOk)corps+=_platCrete({comblement:'Autogreffe de crête iliaque'});
+  // Abord + ablation du matériel
+  if(_psIsFem(f)){
+    corps+=amTake("buildCRO_PSEUDO_1",`Abord latéral par voie rétro-vaste, passage en arrière du muscle vaste latéral, clip ou ligature des artères perforantes.
+Exposition du foyer de pseudarthrose.
+`,[],[]);
+  } else if(_psIsPil(f)){
+    corps+=amTake("buildCRO_PSEUDO_2",`Abord {{v0}} du pilon tibial, reprise de la cicatrice existante.
+Exposition du foyer de pseudarthrose.
+`,[((f.pilVoie||'antéro-latérale')==='Antéro-latérale'?'antéro-latéral':'antéro-médial')],["pilVoie"]);
+  } else {
+    corps+=amTake("buildCRO_PSEUDO_3",`Abord de la voie d'entrée du clou, genou fléchi.
+`,[],[]);
+  }
+  if(f.matPrealable==='Plaque'){
+    corps+=amTake("buildCRO_PSEUDO_4",`Ablation de la plaque et des vis en place.
+`,[],[]);
+  } else if(f.matPrealable==='Clou'){
+    corps+=amTake("buildCRO_PSEUDO_5",`Ablation du matériel de verrouillage puis extraction du clou centromédullaire.
+`,[],[]);
+  }
+  // Prélèvements
+  corps+=amTake("buildCRO_PSEUDO_6",`Réalisation de {{v0}} prélèvements profonds multiples à visée bactériologique (tissus péri-matériel et foyer), adressés en culture prolongée.
+`,[(f.nbPrelev||'5')],["nbPrelev"]);
+  if(_psIsTib(f)&&f.realesage)corps+=amTake("buildCRO_PSEUDO_7",`Réalésage centromédullaire progressif ; les produits d'alésage sont adressés en bactériologie.
+`,[],[]);
+  // Parage / avivement
+  if(is2t2){
+    corps+=amTake("buildCRO_PSEUDO_8",`Ablation de l'espaceur en ciment en préservant soigneusement la membrane induite.
+`,[],[]);
+  } else if(!(_psIsTib(f)&&!f.petitePlaque&&!is2t1)){
+    corps+=amTake("buildCRO_PSEUDO_9",`{{v0}}Excision du tissu fibreux de pseudarthrose, avivement des berges jusqu'en zone osseuse saine et saignante.
+{{v1}}{{v2}}`,[(_psIsTib(f)?`Contre-abord direct en regard du foyer de pseudarthrose.
+`:''),(_psIsFem(f)&&f.decortication?`Décortication ostéo-musculaire du foyer selon Judet.
+`:''),(_psIsTib(f)?'':`Recanalisation des fûts médullaires.
+`)],["Texte lié", "decortication", "Texte lié"]);
+  }
+  // Correction du cal vicieux
+  if(cors.length&&!is2t2)corps+=amTake("buildCRO_PSEUDO_10",`Correction {{v0}} au foyer, contrôle scopique de l'axe, de la rotation et de la longueur.
+`,[(cors.join(', '))],["Texte lié"]);
+  // Ostéosynthèse par segment
+  if(_psIsFem(f)){
+    const m=f.femMontage||'Clou antérograde + plaque';
+    const hasClou=/Clou/.test(m);
+    const hasPlaque=/plaque|Plaque/.test(m);
+    const retro=/rétrograde/.test(m);
+    if(hasClou&&retro)corps+=amTake("buildCRO_PSEUDO_11",`Contre-abord en regard du tendon patellaire, genou fléchi, passage para-tendineux interne.
+Point d'entrée à la pointe carrée sous contrôle scopique.
+Montée du guide, alésage progressif.
+Enclouage centromédullaire rétrograde {{v0}}, verrouillage statique : {{v1}} vis proximales, {{v2}} vis distales.
+`,[(f.clouModele||''),(f.clouVisProx||'2'),(f.clouVisDist||'2')],["clouModele", "clouVisProx", "clouVisDist"]);
+    if(hasClou&&!retro)corps+=amTake("buildCRO_PSEUDO_12",`Enclouage centromédullaire antérograde {{v0}} après alésage, verrouillage statique : {{v1}} vis proximales, {{v2}} vis distales.
+`,[(f.clouModele||''),(f.clouVisProx||'2'),(f.clouVisDist||'2')],["clouModele", "clouVisProx", "clouVisDist"]);
+    if(hasPlaque)corps+=amTake("buildCRO_PSEUDO_13",`Ostéosynthèse complémentaire par plaque latérale {{v0}} pontant le foyer, {{v1}} vis — montage optimisé clou + plaque.
+`,[(f.plaqueModele||''),(f.nbVisPlaque||'4')],["plaqueModele", "nbVisPlaque"]);
+    if(!hasClou&&!hasPlaque)corps+='';
+  } else if(_psIsTib(f)){
+    corps+=amTake("buildCRO_PSEUDO_14",`Mise en place d'un nouveau clou centromédullaire {{v0}} de diamètre supérieur ({{v1}} mm), verrouillage statique : {{v2}} vis proximales, {{v3}} vis distales.
+{{v4}}`,[(f.clouModele||''),(f.clouDiam||'11'),(f.clouVisProx||'2'),(f.clouVisDist||'2'),(f.petitePlaque?`Ostéosynthèse complémentaire par plaque ${f.plaqueModele||''} en regard du foyer, en compression.
+`:'')],["clouModele", "clouDiam", "clouVisProx", "clouVisDist", "petitePlaque / plaqueModele"]);
+  } else {
+    corps+=amTake("buildCRO_PSEUDO_15",`Mise en place d'une nouvelle plaque {{v0}} {{v1}}, {{v2}} vis épiphysaires, {{v3}} vis diaphysaires.
+`,[((f.pilVoie||'antéro-latérale').toLowerCase()),(f.plaqueModele||''),(f.pilVisEpi||'4'),(f.pilVisDia||'3')],["pilVoie", "plaqueModele", "pilVisEpi", "pilVisDia"]);
+  }
+  corps+=_vlLine(f);
+  // Espaceur (1er temps) ou greffe
+  if(is2t1){
+    corps+=amTake("buildCRO_PSEUDO_16",`Mise en place d'un espaceur en ciment aux antibiotiques moulé dans le défect osseux (technique de la membrane induite).
+`,[],[]);
+  } else {
+    const g=psGreffeOk?_psGreffeTxt(f):'';
+    if(g)corps+=amTake("buildCRO_PSEUDO_17",`Comblement du défect {{v0}}par {{v1}}, impacté{{v2}}.
+`,[(is2t2?'dans la chambre de membrane induite ':''),(g),(_psIsTib(f)&&f.petitePlaque?' en regard du foyer':' au foyer')],["Texte lié", "Texte lié", "petitePlaque"]);
+  }
+  corps+=amTake("buildCRO_PSEUDO_18",`Contrôle scopique de face et de profil : axe, rotation et longueur satisfaisants, matériel en place.
+`,[],[]);
+  const fin=amTake("buildCRO_PSEUDO_19",`Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : {{v4}}{{v5}}.
+Antibiothérapie post-opératoire adaptée secondairement aux résultats microbiologiques, selon l'avis du centre de référence (CRIOAC).
+
+{{v6}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),((!_psIsFem(f))?_garrotFin(f):''),(f.appui||'appui partiel pendant 6 semaines'),(is2t1?' ; deuxième temps de greffe à programmer à 6-8 semaines':''),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "appui", "Texte lié", "Signature"]);
+  return head+'\n'+corps+'\n'+fin;
+}
+function am_buildCRO_BASSIN(f){
+  const cote=coteStrD(f);
+  const v=_bsVoies(f);
+  const fix=_bsFix(f);
+  const synth=!fix||f.synthAssoc;
+  const lesion=f.lesion||'';
+  const titre=v.sym?'DISJONCTION DE LA SYMPHYSE PUBIENNE':("FRACTURE DE L'ACÉTABULUM — "+lesion.toUpperCase()+' '+cote.toUpperCase());
+  const indic=(v.sym?'Disjonction de la symphyse pubienne':("Fracture de l'acétabulum type "+lesion.toLowerCase()+' '+cote))
+    +(f.colAssoc?', associée à une fracture du col fémoral':'')
+    +(fix?'. Décision d\'arthroplastie totale de hanche avec renfort de reconstruction ("fix and replace")'+(synth?' associée à une ostéosynthèse':'')+' compte tenu du terrain et du type fracturaire':'')+'.';
+  const head=amTake("buildCRO_BASSIN_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : {{v5}}
+CCAM : {{v6}}{{v7}}
+
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+`,[(titre),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(indic),(f.ccam),(fix?' + NEKA020 en association (arthroplastie totale de hanche)':'')],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié"]);
+  const blocSym=amTake("buildCRO_BASSIN_1",`
+Temps antérieur — symphyse pubienne :
+Sondage vésical préalable.
+Installation en décubitus dorsal.
+Badigeon et champage stérile.
+Incision de Pfannenstiel, deux travers de doigt au-dessus de la symphyse.
+Ouverture de la ligne blanche entre les muscles droits de l'abdomen.
+Accès à l'espace de Retzius, vessie refoulée et protégée par un écarteur malléable.
+Exposition de la symphyse et des branches pubiennes.
+Réduction par davier de Jungbluth appuyé sur les tubercules pubiens.
+Mise en place d'une plaque symphysaire pré-moulée {{v0}} fixée par {{v1}} vis bicorticales.
+Contrôle scopique : face, inlet, outlet — réduction et matériel satisfaisants.
+`,[(f.plaqueSymModele||''),(f.visSymNb||'4')],["plaqueSymModele", "visSymNb"]);
+  const blocAnt=amTake("buildCRO_BASSIN_2",`
+{{v0}}Sondage vésical préalable.
+Installation en décubitus dorsal, hanche homolatérale légèrement fléchie (détente du psoas et des vaisseaux).
+Badigeon et champage stérile.
+Incision de Pfannenstiel. Ouverture de la ligne blanche entre les muscles droits de l'abdomen.
+Accès à l'espace de Retzius, vessie refoulée et protégée par un écarteur malléable.
+Exposition de la branche ilio-pubienne.
+Recherche systématique d'une corona mortis : ligature-coagulation.
+Dissection sous-périostée le long de la ligne innominée, pédicule obturateur repéré et protégé, vaisseaux iliaques externes refoulés à l'écarteur malléable.
+Exposition de la lame quadrilatère jusqu'à la grande échancrure sciatique.
+{{v1}}Réduction par davier colinéaire et poussoir appuyé sur la lame quadrilatère, stabilisation provisoire par broches.
+Mise en place d'une plaque supra-pectinéale moulée le long du détroit supérieur {{v2}}, fixée par {{v3}} vis.
+{{v4}}{{v5}}{{v6}}Contrôle scopique : face, inlet, outlet, ¾ obturateur, ¾ alaire — réduction et matériel satisfaisants.
+`,[((v.post&&synth)||v.sym?'Temps antérieur — voie de Stoppa modifiée :\n':''),(f.fenetreIliaque?`Fenêtre iliaque latérale associée : décollement de la fosse iliaque interne depuis la crête iliaque, exposition de l'aile.
+`:''),(f.plaqueAntModele||''),(f.visAntNb||'6'),(f.visQuadri?`Vis d'appui de la lame quadrilatère.
+`:''),(f.fenetreIliaque?`Plaque de crête iliaque complémentaire par la fenêtre latérale.
+`:''),(f.visRameau?`Vis rétrograde percutanée du rameau pubien sous contrôle scopique.
+`:'')],["Texte lié", "fenetreIliaque", "plaqueAntModele", "visAntNb", "visQuadri", "fenetreIliaque", "visRameau"]);
+  const blocPost=amTake("buildCRO_BASSIN_3",`
+{{v0}}Installation en décubitus latéral {{v1}}, genou fléchi et hanche étendue pendant toute l'intervention pour détendre le nerf sciatique.
+Badigeon et champage stérile.
+Incision centrée sur le grand trochanter, remontant vers l'épine iliaque postéro-supérieure.
+Ouverture du fascia lata, discision des fibres du grand fessier.
+Repérage et protection du nerf sciatique.
+Ténotomie du piriforme et de l'obturateur interne à 1,5 cm de leur insertion (protection de la vascularisation céphalique), écarteurs placés dans la petite échancrure au contact osseux.
+Exposition de la {{v2}}.
+{{v3}}Réduction par davier à pointes et davier de Matta, stabilisation provisoire par broches.
+{{v4}}Mise en place d'une plaque de reconstruction moulée en console {{v5}}, fixée par {{v6}} vis.
+Contrôle de la stabilité et de la mobilité de hanche.
+Contrôle scopique : face, ¾ obturateur, ¾ alaire — réduction et matériel satisfaisants, absence de vis intra-articulaire.
+Contrôle du nerf sciatique en fin de temps opératoire.
+{{v7}}`,[((v.ant&&synth)||v.sym?'Temps postérieur — voie de Kocher-Langenbeck :\n':''),(cote==='gauche'?'droit':'gauche'),(lesion==='Colonne postérieure'?'colonne postérieure':'paroi postérieure et de la colonne postérieure'),(f.impaction?`Relèvement de l'impaction marginale, comblement par substitut osseux.
+`:''),((+f.visLag>0)?`Mise en place de ${f.visLag} vis inter-fragmentaire(s) 3,5 en compression.
+`:''),(f.plaquePostModele||''),(f.visPostNb||'6'),(fix?'':`Réinsertion des muscles pelvi-trochantériens.
+`)],["Texte lié", "Texte lié", "Texte lié", "impaction", "visLag", "plaquePostModele", "visPostNb", "Texte lié"]);
+  const blocPTH=amTake("buildCRO_BASSIN_4",`
+Temps d'arthroplastie :
+{{v0}}Capsulotomie. Luxation de la hanche, coupe du col fémoral à l'emporte-pièce et extraction de la tête.
+{{v1}}Fraisage prudent de l'acétabulum jusqu'au fond du cotyle, sans compromettre les fragments synthésés.
+{{v2}}Mise en place d'un renfort de reconstruction {{v3}}, fixé par {{v4}} vis dans l'ilion{{v5}}.
+Cimentation d'un cotyle double mobilité {{v6}} taille {{v7}} dans le renfort, orienté à 45° d'inclinaison et légèrement antéversé.
+Exposition du fût fémoral, préparation aux râpes de tailles successives jusqu'à la taille {{v8}}.
+Essais : stabilité satisfaisante, longueurs restaurées.
+{{v9}}
+Réduction. Stabilité et mobilité satisfaisantes.
+Réinsertion des muscles pelvi-trochantériens et de la capsule par points trans-osseux.
+`,[(v.post&&synth?`Poursuite par la même voie postérieure.
+`:`Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
+Badigeon et champage stérile.
+Voie d'abord postéro-latérale, ténotomie des pelvi-trochantériens sur fils repères.
+`),(f.greffeTete?`La tête fémorale est conservée : greffon morcelé préparé pour comblement acétabulaire.
+`:''),(f.greffeTete?`Comblement des défects osseux par la greffe autologue morcelée, impactée.
+`:''),(f.renfortModele||'type Burch-Schneider'),(f.renfortNbVis||'4'),(lesion!=='Symphyse pubienne'?' et la patte ischiatique':''),(f.cotyleModele||''),(f.cotyleTaille||'52'),(f.tigeTaille||'12'),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele||''} cimentée taille ${f.tigeTaille||'12'}, maintenue en position jusqu'à polymérisation complète, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
+Ablation du ciment excédentaire.`:`Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`)],["Texte lié", "greffeTete", "greffeTete", "renfortModele", "renfortNbVis", "Texte lié", "cotyleModele", "cotyleTaille", "tigeTaille", "tigeFix / tigeModele / tigeTaille / teteTaille / teteCol"]);
+  let corps='';
+  const seq=[];
+  if(synth){
+    if(v.sym)seq.push(blocSym);
+    else{
+      if(v.antFirst){if(v.ant)seq.push(blocAnt);if(v.post)seq.push(blocPost);}
+      else{if(v.post)seq.push(blocPost);if(v.ant)seq.push(blocAnt);}
+    }
+  }
+  if(fix)seq.push(blocPTH);
+  corps=seq.join('');
+  const fin=amTake("buildCRO_BASSIN_5",`
+Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+
+Consignes : {{v3}}.
+
+{{v4}}`,[(f.redon?`Mise en place d'un drain de Redon aspiratif${seq.length>1?' par voie':''}.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(fix?'appui autorisé selon douleurs sous couvert de cannes ou déambulateur, précautions anti-luxation pendant 6 semaines':'décharge stricte du membre inférieur pendant '+(f.dechargeSem||'6')+' semaines'),(_dSigBloc())],["redon", "Texte lié", "pansement", "dechargeSem", "Signature"]);
+  return head+corps+fin;
+}
+function am_buildCRO_PLATEAU(f){
+  const cote=coteStrD(f);
+  const m=f.montage||'';
+  const isPercut=/^Vissage/.test(m);
+  const hasLat=/Plaque latérale/.test(m);
+  const hasPM=/postéro-médiale/.test(m);
+  const hasMed=(m==='Plaque médiale')||(m==='Plaque latérale + médiale');
+  const double=hasLat&&(hasPM||hasMed);
+  const head=amTake("buildCRO_PLATEAU_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DU PLATEAU TIBIAL {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture du plateau tibial {{v5}} Schatzker {{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus dorsal, genou légèrement fléchi sur appui.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v8}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.schatzker||'—'),(f.ccam),(_garrotLine(f))],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "schatzker", "ccam", "Texte lié"]);
+  let corps=_platCrete(f);
+  if(isPercut){
+    corps+=amTake("buildCRO_PLATEAU_1",`Réduction fermée sous amplificateur de brillance, stabilisation provisoire par broches.
+`,[],[]);
+    if(m==='Vissage percutané + greffe'){
+      corps+=amTake("buildCRO_PLATEAU_2",`Abord direct centimétrique {{v0}}.
+Ouverture d'une fenêtre corticale métaphysaire.
+Relèvement de l'enfoncement au chasse-greffon sous contrôle scopique.
+{{v1}}`,[(((f.fenetre||'Latérale')==='Médiale')?'médial':'latéral'),(_platComblement(f))],["fenetre", "Texte lié"]);
+    }
+    corps+=amTake("buildCRO_PLATEAU_3",`Mise en place de {{v0}} vis canulées de {{v1}} mm en rappel, sous-chondrales, en compression, sur broches guides.
+`,[(f.visNb||'2'),(f.visDiam||'6,5')],["visNb", "visDiam"]);
+  } else {
+    if(hasPM){
+      corps+=amTake("buildCRO_PLATEAU_4",`{{v0}}Genou fléchi, membre en rotation externe.
+Abord postéro-médial. Passage dans l'intervalle entre les muscles ischio-jambiers et le chef médial du gastrocnémien.
+Décollement du muscle poplité au ras de l'os, protégeant le paquet vasculo-nerveux poplité.
+Exposition de la console postéro-médiale. Réduction du fragment, maintien au davier.
+Mise en place d'une plaque d'appui postéro-médiale {{v1}} vissée en console : {{v2}} vis épiphysaires, {{v3}} vis diaphysaires.
+
+`,[(double?'Temps postéro-médial :\n':''),(f.plaqueMedModele||''),(f.visEpiMed||'2'),(f.visDiaMed||'2')],["Texte lié", "plaqueMedModele", "visEpiMed", "visDiaMed"]);
+    }
+    if(hasMed){
+      corps+=amTake("buildCRO_PLATEAU_5",`{{v0}}Abord direct médial. Exposition de la console médiale au ras de l'os.
+Réduction du fragment, maintien au davier.
+Mise en place d'une plaque médiale {{v1}} : {{v2}} vis épiphysaires, {{v3}} vis diaphysaires.
+
+`,[(double?'Temps médial :\n':''),(f.plaqueMedModele||''),(f.visEpiMed||'2'),(f.visDiaMed||'2')],["Texte lié", "plaqueMedModele", "visEpiMed", "visDiaMed"]);
+    }
+    if(hasLat){
+      corps+=amTake("buildCRO_PLATEAU_6",`{{v0}}Incision antéro-latérale centrée sur le tubercule de Gerdy.
+Ouverture du fascia lata et décollement de son insertion du tubercule de Gerdy.
+Relèvement du muscle tibial antérieur au ras de l'os.
+{{v1}}{{v2}}{{v3}}{{v4}}Réduction, stabilisation provisoire par broches.
+Mise en place d'une plaque latérale verrouillée {{v5}} : {{v6}} vis épiphysaires en rappel sous-chondral, {{v7}} vis diaphysaires.
+`,[(double?'Temps latéral :\n':''),(f.distracteur?`Mise en place d'un distracteur fémoro-tibial temporaire, distraction du compartiment pour exposition de la surface articulaire.
+`:''),(f.arthrotomie?`Arthrotomie sous-méniscale, ménisque relevé sur fils repères, exposition de la surface articulaire.
+`:''),(f.relevement?`Relèvement de l'enfoncement au chasse-greffon.
+`:''),(f.relevement?_platComblement(f):''),(f.plaqueLatModele||''),(f.visEpiLat||'4'),(f.visDiaLat||'3')],["Texte lié", "distracteur", "arthrotomie", "relevement", "relevement", "plaqueLatModele", "visEpiLat", "visDiaLat"]);
+    }
+    if(f.visAdd)corps+=amTake("buildCRO_PLATEAU_7",`Mise en place de {{v0}} vis canulée(s) {{v1}} additionnelle(s) en rappel sous-chondral.
+`,[(f.visAddNb||'1'),(f.visAddModele||'')],["visAddNb", "visAddModele"]);
+  }
+  const controle=amTake("buildCRO_PLATEAU_8",`Contrôle scopique de face et de profil{{v0}} : réduction satisfaisante, matériel en place.
+{{v1}}{{v2}}`,[((f.arthrotomie&&hasLat)?` et contrôle direct de la surface articulaire par l'arthrotomie sous-méniscale`:''),((f.arthrotomie&&hasLat)?`Réinsertion du mur méniscal et fermeture de l'arthrotomie sous-méniscale.
+`:''),((f.distracteur&&hasLat)?`Ablation du distracteur.
+`:'')],["arthrotomie", "arthrotomie", "distracteur"]);
+  const fin=amTake("buildCRO_PLATEAU_9",`Lavage abondant.
+{{v0}}Fermeture plan par plan.
+Fermeture cutanée par {{v1}}.
+Pansement {{v2}}.
+{{v3}}
+Consignes : décharge stricte pendant {{v4}} semaines, mobilisation du genou autorisée.
+
+{{v5}}`,[((f.redon&&!isPercut)?`Mise en place d'un drain de Redon aspiratif.
+`:''),(docClosure(f)),((f.pansement||'sec').toLowerCase()),(_garrotFin(f)),(f.dechargeSem||'6'),(_dSigBloc())],["redon", "Texte lié", "pansement", "Texte lié", "dechargeSem", "Signature"]);
+  return head+'\n'+corps+'\n'+controle+'\n'+fin;
+}
+function am_buildCRO_RADIUS(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_RADIUS_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DU RADIUS DISTAL {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de l'extrémité distale du radius {{v5}}.
+CCAM : {{v6}}
+
+Installation en décubitus dorsal, membre supérieur sur table à bras.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v7}}{{v8}}
+Voie d'abord antérieure de Henry.
+Ouverture de la gaine du fléchisseur radial du carpe, refoulement du paquet vasculaire radial.
+Désinsertion du carré pronateur au ras de son bord radial.
+Exposition du foyer de fracture, réduction anatomique satisfaisante sous contrôle scopique.
+Ostéosynthèse par plaque verrouillée antérieure{{v9}}, {{v10}} vis épiphysaires verrouillées et {{v11}} vis diaphysaires.
+{{v12}}Contrôle scopique final de face et de profil : réduction et matériel en place, absence de vis intra-articulaire.
+{{v13}}Rinçage abondant. Réinsertion du carré pronateur.
+Fermeture plan par plan. Fermeture cutanée par {{v14}}.
+Pansement {{v15}}.
+{{v16}}
+
+{{v17}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.ccam),(f.garrotOn?`Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'250'} mmHg.
+`:''),(f.kapandji?`
+Réduction première par manœuvres externes sous contrôle scopique.
+Embrochage intrafocal selon la technique de Kapandji.
+`:''),(f.rxPlaqueModele?' '+f.rxPlaqueModele:''),(f.rxNbVis||'—'),(f.rxNbVisDia||'—'),(f.kapandji?(f.brochesGardees?'Broches de Kapandji laissées en place, recourbées et enfouies en sous-cutané.':'Ablation des broches de réduction.')+'\n':''),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(f.immo==='Manchette plâtrée'?'Immobilisation par manchette plâtrée.':'Attelle amovible de poignet à visée antalgique.'),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "garrotOn / garrot", "kapandji", "rxPlaqueModele", "rxNbVis", "rxNbVisDia", "kapandji / brochesGardees", "Texte lié", "Texte lié", "pansement", "immo", "Signature"]);
+}
+function am_buildCRO_FEMUR(f){
+  const cote=coteStrD(f);
+  const gamma=/Gamma/.test(f.fmGeste);
+  const long_=f.fmGeste!=='Clou Gamma court';
+  const titre=f.fmGeste==='Clou T2 antérograde'?'ENCLOUAGE CENTROMÉDULLAIRE DU FÉMUR':('FRACTURE '+(f.fmGeste==='Clou Gamma court'?'PERTROCHANTÉRIENNE':'TROCHANTÉRO-DIAPHYSAIRE')+' DU FÉMUR');
+  const indic=f.fmGeste==='Clou T2 antérograde'?('Fracture de la diaphyse fémorale '+(cote==='droit'?'droite':cote)):((f.fmGeste==='Clou Gamma court'?'Fracture pertrochantérienne':'Fracture trochantéro-diaphysaire')+' du fémur '+cote);
+  const dims=(f.fmDiam||f.fmLong)?((f.fmDiam?', diamètre '+f.fmDiam+' mm':'')+(f.fmLong?', longueur '+f.fmLong+' mm':'')):'';
+  const abord=f.fmAbord?(amTake("buildCRO_FEMUR_0",'Abord direct du foyer pour aide à la réduction.\n',[],[])+((+f.fmCerclages>0)?('Mise en place de '+f.fmCerclages+' cerclage'+(+f.fmCerclages>1?'s':'')+'.\n'):'')):'';
+  const alesage=f.fmAlesage?'Alésage progressif.\n':'';
+  let temps;
+  if(gamma){
+    const verr=long_
+      ?('Verrouillage distal '+(f.fmVerrDist||'statique').toLowerCase()+' par '+(f.fmNbVisDist||'2')+' vis, trous ronds réalisés à main levée sous contrôle scopique.')
+      :('Verrouillage distal '+(f.fmVerrDist||'statique').toLowerCase()+" à l'aide de l'ancillaire.");
+    temps=amTake("buildCRO_FEMUR_1",`Point d'entrée à la pointe carrée, légèrement médial au sommet du grand trochanter.
+Mise en place du guide, position contrôlée en scopie.
+{{v0}}Enchâssement du clou Gamma (Stryker) angulation {{v1}}{{v2}}.
+Mise en place de la broche de Kirschner cervico-céphalique à l'aide de l'ancillaire, position contrôlée en scopie de face et de profil.
+Mesure, méchage et mise en place de la vis cervico-céphalique de {{v3}} mm, mise en compression du foyer.
+Mise en place de la contre-vis.
+{{v4}}`,[(alesage),(f.fmAngle||'125°'),(dims),(f.fmVisCervLong||'—'),(verr)],["Texte lié", "fmAngle", "Texte lié", "fmVisCervLong", "Texte lié"]);
+  }else{
+    temps=amTake("buildCRO_FEMUR_2",`Point d'entrée dans la fossette piriforme à la pointe carrée.
+Mise en place du guide, position contrôlée en scopie.
+{{v0}}Enchâssement du clou T2 (Stryker) antérograde{{v1}}.
+Verrouillage proximal par {{v2}} à l'aide de l'ancillaire.
+Verrouillage distal {{v3}} par {{v4}} vis, trous ronds réalisés à main levée sous contrôle scopique.`,[(alesage),(dims),(f.fmVerrProx||'2 vis'),((f.fmVerrDist||'statique').toLowerCase()),(f.fmNbVisDist||'2')],["Texte lié", "Texte lié", "fmVerrProx", "fmVerrDist", "fmNbVisDist"]);
+  }
+  return amTake("buildCRO_FEMUR_3",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
+
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides opératoires : {{v4}}
+Anesthésie : {{v5}}
+
+Indication : {{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus dorsal sur table orthopédique.
+Réduction par traction sous contrôle scopique de face et de profil.
+{{v8}}Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+{{v9}}Incision proximale centrée sur le grand trochanter.
+{{v10}}
+{{v11}}
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. Fermeture cutanée par {{v12}}.
+Pansement {{v13}}.
+
+{{v14}}`,[(titre),(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(indic),(f.ccam),(f.fmGeste==='Clou Gamma long'?'Réduction en rotation externe pour prévenir un trouble de rotation.\n':''),(abord),(temps),(_vlLine(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "fmGeste", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_TIBIA(f){
+  const cote=coteStrD(f);
+  const dims=(f.tbDiam||f.tbLong)?((f.tbDiam?', diamètre '+f.tbDiam+' mm':'')+(f.tbLong?', longueur '+f.tbLong+' mm':'')):'';
+  const abord=f.tbAbord?(amTake("buildCRO_TIBIA_0",'Abord direct du foyer pour aide à la réduction.\n',[],[])+((+f.tbCerclages>0)?('Mise en place de '+f.tbCerclages+' cerclage'+(+f.tbCerclages>1?'s':'')+'.\n'):'')):'';
+  return amTake("buildCRO_TIBIA_1",`COMPTE-RENDU OPÉRATOIRE — ENCLOUAGE CENTROMÉDULLAIRE DU TIBIA {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de la diaphyse tibiale {{v5}}.
+CCAM : {{v6}}
+
+Installation en décubitus dorsal, jambe pendante.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v7}}
+{{v8}}Abord trans-tendineux patellaire.
+Point d'entrée à la pointe carrée, position contrôlée en scopie de face et de profil.
+Mise en place du guide, réduction sous contrôle scopique.
+{{v9}}Enchâssement du clou T2 (Stryker){{v10}}.
+{{v11}}Verrouillage proximal par {{v12}} vis à l'aide de l'ancillaire.
+Verrouillage distal {{v13}} par {{v14}} vis, trous ronds réalisés à main levée sous contrôle scopique.
+{{v15}}
+Contrôle scopique final de face et de profil : réduction et matériel en place, absence de trouble de rotation.
+{{v16}}Rinçage abondant.
+Fermeture plan par plan. Fermeture cutanée par {{v17}}.
+Pansement {{v18}}.
+
+{{v19}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote==='droit'?'droite':cote),(f.ccam),(_garrotLine(f)),(abord),(f.tbAlesage?'Alésage progressif.\n':''),(dims),(f.tbPoller?'Mise en place d\'une vis de Poller pour contrôle de la réduction.\n':''),(f.tbVerrProx||'2'),((f.tbVerrDist||'statique').toLowerCase()),(f.tbNbVisDist||'2'),(_vlLine(f)),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "Texte lié", "tbAlesage", "Texte lié", "tbPoller", "tbVerrProx", "tbVerrDist", "tbNbVisDist", "Texte lié", "Texte lié", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_HUMERUS(f){
+  const cote=coteStrD(f);
+  const dims=(f.hmDiam||f.hmLong)?((f.hmDiam?', diamètre '+f.hmDiam+' mm':'')+(f.hmLong?', longueur '+f.hmLong+' mm':'')):'';
+  const abord=f.hmAbord?(amTake("buildCRO_HUMERUS_0",'Abord direct du foyer pour aide à la réduction.\n',[],[])+((+f.hmCerclages>0)?('Mise en place de '+f.hmCerclages+' cerclage'+(+f.hmCerclages>1?'s':'')+'.\n'):'')):'';
+  return amTake("buildCRO_HUMERUS_1",`COMPTE-RENDU OPÉRATOIRE — ENCLOUAGE CENTROMÉDULLAIRE DE L'HUMÉRUS {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de la diaphyse humérale {{v5}}.
+CCAM : {{v6}}
+
+Installation en position demi-assise (beach chair).
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+{{v7}}Abord de la partie antérieure de l'acromion.
+Ouverture du deltoïde dans le sens de ses fibres.
+Ouverture de la coiffe des rotateurs, mise sur fils repères.
+Point d'entrée à la pointe carrée, position contrôlée en scopie de face et de profil.
+Mise en place du guide, réduction sous contrôle scopique.
+{{v8}}Enchâssement du clou T2 (Stryker) antérograde{{v9}}.
+Vérification de l'enfouissement de l'extrémité proximale du clou sous l'os sous-chondral.
+Verrouillage proximal par {{v10}} vis à l'aide de l'ancillaire.
+Verrouillage distal {{v11}} par {{v12}} vis postéro-antérieures, trous ronds réalisés à main levée sous contrôle scopique.
+{{v13}}Fermeture de la coiffe des rotateurs sur les fils repères.
+
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. Fermeture cutanée par {{v14}}.
+Pansement {{v15}}.
+Attelle de Dujarrier{{v16}}.
+
+{{v17}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote==='droit'?'droite':cote),(f.ccam),(abord),(f.hmAlesage?'Alésage progressif.\n':''),(dims),(f.hmVerrProx||'2'),((f.hmVerrDist||'statique').toLowerCase()),(f.hmNbVisDist||'2'),(_vlLine(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "hmAlesage", "Texte lié", "hmVerrProx", "hmVerrDist", "hmNbVisDist", "Texte lié", "Texte lié", "pansement", "immo", "Signature"]);
+}
+function am_buildCRO_FEMURPLAQUE(f){
+  const cote=coteStrD(f);
+  const cf=cote==='droit'?'droite':cote;
+  const distal=f.fpGeste==='Plaque fémur distal';
+  const titre=distal?"FRACTURE DE L'EXTRÉMITÉ DISTALE DU FÉMUR":'FRACTURE DE LA DIAPHYSE FÉMORALE';
+  const indic=distal
+    ?(f.fpArtic==='Extra-articulaire'?'Fracture supracondylaire extra-articulaire du fémur '+cote:(f.fpArtic==='Articulaire complexe'?'Fracture supracondylaire et intercondylaire complexe du fémur '+cote:'Fracture supracondylaire et intercondylaire du fémur '+cote))
+    :('Fracture de la diaphyse fémorale '+cf);
+  const fix=(f.fpVisComp?('Vissage inter-fragmentaire en compression par '+(f.fpNbVisComp||'—')+' vis.\n'):'')
+    +(f.fpCercl==='Cerclages métalliques'?('Mise en place de '+(f.fpNbCercl||'—')+' cerclages métalliques.\n'):'')
+    +(f.fpCercl==='Cerclages type Arthrex'?('Mise en place de '+(f.fpNbCercl||'—')+amTake("buildCRO_FEMURPLAQUE_0",' cerclages type Arthrex (FiberTape).\n',[],[])):'');
+  const plaque=distal
+    ?('Ostéosynthèse par plaque verrouillée anatomique du fémur distal'+(f.fpPlaqueModele?' '+f.fpPlaqueModele:'')+', fixée par '+(f.fpVisEpi||'—')+' vis épiphysaires verrouillées et '+(f.fpVisDia||'—')+' vis diaphysaires.')
+    :('Ostéosynthèse par plaque verrouillée'+(f.fpPlaqueModele?' '+f.fpPlaqueModele:'')+' pontant le foyer, fixée par '+(f.fpVisProx||'—')+' vis proximales et '+(f.fpVisDist||'—')+' vis distales.');
+  return amTake("buildCRO_FEMURPLAQUE_1",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
+
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides opératoires : {{v4}}
+Anesthésie : {{v5}}
+
+Indication : {{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus latéral.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Abord latéral centré sur {{v8}}.
+Incision du fascia lata dans le sens de ses fibres.
+Passage en arrière du vaste latéral (voie rétro-vaste).
+{{v9}} des artères perforantes rencontrées.
+Exposition du foyer de fracture, évacuation de l'hématome et lavage.
+Réduction anatomique satisfaisante maintenue au davier.
+{{v10}}{{v11}}
+Contrôle scopique de face et de profil : réduction, longueur, axe et rotation satisfaisants, matériel en place.
+Rinçage abondant.
+{{v12}}Fermeture plan par plan. Fermeture cutanée par {{v13}}.
+Pansement {{v14}}.
+
+{{v15}}`,[(titre),(cf.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(indic),(f.ccam),(distal?'le fémur distal':'le foyer de fracture'),(f.fpPerf==='Ligature'?'Ligature':'Clip'),(fix),(plaque),(f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "toUpperCase", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "fpPerf", "Texte lié", "Texte lié", "redon", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_ROTULE(f){
+  const cote=coteStrD(f);const cf=cote==='droit'?'droite':cote;
+  return amTake("buildCRO_ROTULE_0",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE LA ROTULE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture de la rotule {{v5}}.
+CCAM : {{v6}}
+
+Installation en décubitus dorsal, genou fléchi à 30°.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v7}}
+Abord antérieur médian centré sur la patella.
+Exposition du foyer de fracture, évacuation de l'hématome.
+Arthrotomie pour contrôle de la réduction et lavage articulaire abondant.
+Réduction maintenue par deux daviers à pointe.
+{{v8}}Mise en place de deux broches parallèles, perpendiculaires au foyer de fracture, sous contrôle scopique.
+Passage du fil de cerclage au ras des broches et réalisation d'une figure en 8 selon la technique du haubanage.
+Serrage du cerclage.
+Recoupe des broches.
+Test de flexion jusqu'à {{v9}}° : montage stable, absence de déplacement du foyer.
+
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+{{v10}}Rinçage abondant.
+{{v11}}Fermeture plan par plan. Fermeture cutanée par {{v12}}.
+Pansement {{v13}}.
+
+{{v14}}`,[(cf.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cf),(f.ccam),(_garrotLine(f)),(f.visNovastep?'Fixation des fragments intermédiaires par '+(f.nbVisNova||'—')+' vis perdues (Novastep).\n':''),(f.crashDeg||'—'),(_garrotFin(f)),(f.redon?"Mise en place d'un drain de Redon aspiratif.\n":''),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["toUpperCase", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "visNovastep / nbVisNova", "crashDeg", "Texte lié", "redon", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRO_OLECRANE(f){
+  const cote=coteStrD(f);
+  const hauban=f.olGeste!=='Plaque verrouillée';
+  const geste=hauban
+    ?amTake("buildCRO_OLECRANE_0",`Mise en place de deux broches parallèles sous contrôle scopique.
+Passage du fil de cerclage dans un tunnel transosseux ulnaire et au ras des broches, réalisation d'une figure en 8 selon la technique du haubanage.
+Serrage du cerclage.
+Recoupe des broches.`,[],[])
+    :`Ostéosynthèse par plaque verrouillée olécrânienne${f.olPlaqueModele?' '+f.olPlaqueModele:''}, fixée par ${f.olVisEpi||'—'} vis épiphysaires verrouillées et ${f.olVisDia||'—'} vis diaphysaires.`;
+  return amTake("buildCRO_OLECRANE_1",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE L'OLÉCRÂNE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture {{v5}}de l'olécrâne {{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus latéral, membre supérieur sur appui.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+{{v8}}
+Abord postérieur centré sur l'olécrâne.
+Exposition du foyer de fracture, évacuation de l'hématome, lavage articulaire.
+Réduction anatomique maintenue au davier.
+{{v9}}
+{{v10}}Testing de la flexion-extension : montage stable.
+
+Contrôle scopique final de face et de profil : réduction et matériel en place.
+{{v11}}Rinçage abondant.
+Fermeture plan par plan. Fermeture cutanée par {{v12}}.
+Pansement {{v13}}.
+Attelle de Dujarrier{{v14}}.
+
+{{v15}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.olTrait==='Complexe'?'complexe ':''),(cote),(f.ccam),(_garrotLine(f)),(geste),(_vlLine(f)),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "olTrait", "Texte lié", "ccam", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "pansement", "immo", "Signature"]);
+}
+function am_buildCRO_CLAVICULE(f){
+  const cote=coteStrD(f);const cf=cote==='droit'?'droite':cote;
+  const loc=f.clLoc==='Quart externe'?' de quart externe':(f.clLoc==='Tiers proximal'?' du tiers proximal':'');
+  const compr=f.clCompr==='Vis antéro-postérieure'?amTake("buildCRO_CLAVICULE_0",'Vissage inter-fragmentaire en compression par vis antéro-postérieure.\n',[],[]):(f.clCompr==='Nice knot'?amTake("buildCRO_CLAVICULE_1",'Compression du trait par nice knot.\n',[],[]):'');
+  return amTake("buildCRO_CLAVICULE_2",`COMPTE-RENDU OPÉRATOIRE — FRACTURE DE LA CLAVICULE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : Fracture {{v5}} de la clavicule {{v6}}.
+CCAM : {{v7}}
+
+Installation en décubitus dorsal, dossier légèrement relevé.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Abord direct centré sur la clavicule.
+Dissection sous-cutanée, repérage et respect des rameaux sensitifs supra-claviculaires.
+Exposition du foyer de fracture, évacuation de l'hématome, lavage.
+Réduction anatomique satisfaisante maintenue au davier.
+{{v8}}Ostéosynthèse par plaque supérieure verrouillée{{v9}}{{v10}}, fixée par {{v11}} vis médiales et {{v12}} vis latérales.
+
+Contrôle scopique final : réduction et matériel en place.
+Rinçage abondant.
+Fermeture plan par plan. Fermeture cutanée par {{v13}}.
+Pansement {{v14}}.
+Attelle de Dujarrier{{v15}}.
+
+{{v16}}`,[(cf.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.clLoc==='Quart externe'?'du quart externe':(f.clLoc==='Tiers proximal'?'du tiers proximal':'de la diaphyse')),(cf),(f.ccam),(compr),(loc),(f.clPlaqueModele?' '+f.clPlaqueModele:''),(f.clVisMed||'—'),(f.clVisLat||'—'),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(f.immo==='Dujarrier strict'?' — immobilisation stricte coude au corps':' à visée antalgique'),(_dSigBloc())],["toUpperCase", "dateInter", "Signature", "aides", "anesthesie", "clLoc", "Texte lié", "ccam", "Texte lié", "Texte lié", "clPlaqueModele", "clVisMed", "clVisLat", "Texte lié", "pansement", "immo", "Signature"]);
+}
+function am_buildCRH(f){
+  const inter=f._inter;
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildCRH_0",`Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.
+{{v8}}{{v9}}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements ({{v10}}) à renouveler {{v11}}
+— {{v12}}
+— Kinésithérapie de rééducation
+— {{v13}}
+{{v14}}— Antalgiques selon prescription
+{{v15}}
+Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+{{v19}} — {{v20}}{{v21}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),(_crhAppui(f)),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))),(_dSig()),(_dService()),(_dChefHopLine())],["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "segment", "Signature", "Signature", "Signature"]);
+}
+function am_buildOrdoPharma(f){
+  const lines=[];
+  if(f.antico&&f.antico!=='Aucun'){
+    lines.push('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours');
+  }
+  lines.push('— PARACETAMOL 1 g — 1 comprimé toutes les 6 h si douleur (max 4 g/j)');
+  if(f.ains){
+    lines.push('— IBUPROFENE 400 mg — 1 comprimé matin, midi et soir pendant 5 jours, au milieu des repas (si pas de contre-indication)');
+    lines.push('— ESOMEPRAZOLE 20 mg — 1 comprimé par jour pendant la durée du traitement par AINS');
+  }
+  if(f.vitC)lines.push('— VITAMINE C 500 mg — 1 comprimé par jour pendant 45 jours');
+  const agr=_crhFils(f)==='Ablation des agrafes à J15';
+  const moderne=/Aquacel|Mepilex/i.test(f.pansement||'');
+  const pans=[];
+  pans.push('— Sets de pansement stériles : quantité suffisante pour un renouvellement '+docPansementFrequency(f)+" jusqu’à cicatrisation");
+  pans.push('— Compresses stériles 10×10 cm : 2 boîtes');
+  pans.push('— BISEPTINE solution pour application cutanée : 1 flacon');
+  pans.push('— Sérum physiologique en unidoses : 1 boîte');
+  pans.push('— Sparadrap hypoallergénique : 1 rouleau');
+  if(/Aquacel/i.test(f.pansement||''))pans.push('— Pansements hydrofibre (type Aquacel) + plaques hydrocolloïdes (type Duoderm) : quantité suffisante jusqu’à cicatrisation');
+  if(/Mepilex/i.test(f.pansement||''))pans.push('— Pansements hydrocellulaires adhésifs (type Mepilex Border) : quantité suffisante jusqu’à cicatrisation');
+  if(agr)pans.push('— Ôte-agrafes stérile à usage unique : 1 (pour ablation des agrafes à J15)');
+  if(f.antico&&anticoIsHBPM(f.antico))pans.push("— Collecteur d'aiguilles usagées (DASRI) : 1");
+  return amTake("buildOrdoPharma_0",`ORDONNANCE PHARMACEUTIQUE
+
+Patient : {{v0}} — né(e) le {{v1}}
+Date : {{v2}}
+
+{{v3}}
+
+MATÉRIEL DE PANSEMENT ({{v4}}, renouvellement {{v5}}, jusqu'à cicatrisation) :
+{{v6}}
+
+Renouvellement non autorisé sauf avis médical.
+{{v7}}{{v8}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(lines.join('\n')),(f.pansement),(docPansementFrequency(f)),(pans.join('\n')),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]);
+}
+function am_buildOrdoMateriel(f){
+  const items=Object.keys(MAT_LABELS).filter(k=>f[k]).map(k=>'— '+(k==='matFauteuil'?('Un fauteuil roulant avec repose-jambe côté '+coteStrD(f)+' (location 1 mois)'):MAT_LABELS[k]));
+  return amTake("buildOrdoMateriel_0",`ORDONNANCE — MATÉRIEL MÉDICAL
+
+Patient : {{v0}} — né(e) le {{v1}}
+Date : {{v2}}
+
+{{v3}}
+
+{{v4}}{{v5}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(items.length?items.join('\n'):'(Aucun matériel sélectionné — coche le matériel dans le formulaire précédent)'),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "Signature", "Signature"]);
+}
+function am_buildOrdoIDE(f){
+  const inj=(f.antico&&f.antico!=='Aucun'&&anticoIsHBPM(f.antico))?('— Injection '+f.antico+' SC 1x/jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildOrdoIDE_0",`ORDONNANCE INFIRMIÈRE
+
+Patient : {{v0}} — né(e) le {{v1}}
+Date : {{v2}}
+
+{{v3}}— Surveillance et renouvellement du pansement ({{v4}}) {{v5}}
+— {{v6}}
+— Surveillance de la cicatrice (rougeur, écoulement, désunion)
+— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
+
+{{v7}}{{v8}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(inj),(f.pansement||'selon protocole'),(docPansementFrequency(f)),(_crhFils(f)),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]);
+}
+function am_buildOrdoKine(f){
+  const inter=f._inter;
+  const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+  if(inter==='lca'){
+    const su=docSuture(f);
+    return amTake("buildOrdoKine_0",`ORDONNANCE KINÉSITHÉRAPIE — URGENT
+Kinésithérapie après reconstruction du LCA {{v0}} selon la technique du {{v1}}
+
+{{v2}}
+{{v3}}
+Semaine 1 → Semaine 3 :
+Verrouillage actif en extension + flexion 60°
+Travail en chaîne fermée — Recurvatum interdit
+{{v4}}
+Objectif à 1 mois : pas de flessum
+
+Semaine 3 → 2e mois :
+Flexion 120° + pas de flessum 0°{{v5}}
+Indolence en fin de 2e mois
+Travail en chaîne fermée — Vélo sans résistance
+
+2e mois → 4e mois :
+Genou stable et mobile
+Travail de proprioception + renforcement musculaire plus soutenu
+Reprise progressive marche, vélo, natation, course sur terrain plat
+
+Test isocinétique au 4e mois
+
+4e mois → 6e mois :
+Réathlétisation — Renforcement musculaire en chaîne ouverte
+Reprise sport plus soutenu mais CI sport pivot/contact
+
+6e mois → 9e mois :
+Reprise du sport
+Reprise progressive de l'entraînement sport/pivot dès M7
+Entraînement plus soutenu mais pas de compétition
+
+9e mois → 12e mois :
+Reprise compétition (temps partiel puis complet vers 1 an)
+
+{{v6}}{{v7}}`,[(coteStrD(f)),(f.greffon),(intro),(su?`
+⚠ SUTURE MÉNISCALE ASSOCIÉE :
+Appui avec 2 cannes anglaises pendant 1 mois.
+Flexion limitée à 90° jusqu'à la 6e semaine. Pas de flexion en charge ni rotation forcée.
+`:''),(su?'Appui avec 2 cannes anglaises (1 mois — suture méniscale associée)':'Appui complet autorisé'),(su?' (flexion limitée à 90° jusqu\'à la 6e semaine)':''),(_dSig()),(_dRpps())],["Texte lié", "greffon", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='menisc'){
+    const su=docSuture(f);
+    return amTake("buildOrdoKine_1",`ORDONNANCE KINÉSITHÉRAPIE — ARTHROSCOPIE MÉNISCALE
+
+{{v0}}
+
+{{v1}}
+
+Nombre de séances : 15, à adapter selon progression clinique
+{{v2}}{{v3}}`,[(intro),(su?`SUTURE MÉNISCALE — protocole protégé :
+S1 à S6 : appui avec 2 cannes anglaises pendant 1 mois ; flexion limitée à 90° jusqu'à la 6e semaine ; pas de flexion en charge ni rotation forcée.
+S6 et au-delà : récupération progressive des amplitudes, renforcement en chaîne fermée puis ouverte, proprioception.
+Reprise sportive progressive à partir de M3-M4 selon évolution.`:`MÉNISCECTOMIE PARTIELLE :
+Appui complet immédiat. Récupération des amplitudes, lutte contre l'épanchement.
+Renforcement quadricipital et proprioception dès la sédation des douleurs.
+Reprise sportive progressive à partir de S4-S6 selon évolution.`),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='rotule'){
+    return amTake("buildOrdoKine_2",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA ROTULE
+
+{{v0}}
+
+Respect des consignes d'appui : {{v1}}.
+Mobilisation progressive du genou en flexion, sans forcer, selon la stabilité du montage.
+Récupération de l'extension active, verrouillage du quadriceps (isométrique puis progressif).
+Lutte contre l'épanchement et l'œdème (cryothérapie).
+Reprise de la marche selon les consignes d'appui.
+
+Nombre de séances : 25, à renouveler selon évolution
+{{v2}}{{v3}}`,[(intro),(_crhAppui(f).toLowerCase()),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='teteradiale'){
+    const prot=f.immo==='Attelle 90° — mobilisation protégée';
+    return amTake("buildOrdoKine_3",`ORDONNANCE KINÉSITHÉRAPIE — FRACTURE DE LA TÊTE RADIALE
+
+À débuter précocement, dès la sédation des douleurs.
+
+{{v0}}
+
+{{v1}}Mobilisation du poignet et de la main dès J1.
+Pas de mobilisation contre résistance ni de port de charge pendant 6 semaines{{v2}}.
+Récupération progressive des amplitudes complètes — la raideur est la complication principale.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v3}}{{v4}}`,[(intro),(prot?`Mobilisation protégée du coude dans le secteur stable défini en per-opératoire, coude au corps entre les séances.
+`:`Mobilisation précoce du coude en flexion-extension et pronosupination, active aidée, selon douleurs.
+`),((f.trRepExt||f.trRepInt)?' (protection des réparations ligamentaires — pas de varus ni de valgus forcé)':''),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "trRepExt / trRepInt", "Signature", "Signature"]);
+  }
+  if(inter==='palette'){
+    return amTake("buildOrdoKine_4",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA PALETTE HUMÉRALE
+
+À débuter précocement, dès la sédation des douleurs.
+
+{{v0}}
+
+Mobilisation précoce du coude en flexion-extension, active aidée, selon douleurs — la raideur est la complication principale.
+Mobilisation de la pronosupination, du poignet et de la main dès J1.
+Pas de mobilisation contre résistance ni de port de charge pendant 6 semaines{{v1}}.
+Récupération progressive des amplitudes complètes, travail en actif aidé puis actif.
+Signaler tout signe de syndrome douloureux régional complexe ou d'irritation du nerf ulnaire.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v2}}{{v3}}`,[(intro),(_paOsteo(f)?" (protection de l'ostéotomie de l'olécrâne)":''),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='olecrane'){
+    return amTake("buildOrdoKine_5",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE L'OLÉCRÂNE
+
+{{v0}}
+
+Mobilisation précoce du coude en flexion-extension, active aidée, selon douleurs.
+Mobilisation du poignet et de la main dès J1.
+Pas de port de charge pendant 6 semaines.
+Récupération progressive des amplitudes complètes, prono-supination incluse.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 15, à renouveler selon évolution
+{{v1}}{{v2}}`,[(intro),(_dSig()),(_dRpps())],["Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='clavicule'){
+    return amTake("buildOrdoKine_6",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA CLAVICULE
+
+{{v0}}
+
+Mobilisation pendulaire de l'épaule précoce selon douleurs.
+Mobilisation du coude, du poignet et de la main dès J1.
+Élévation active limitée à 90° jusqu'à la 6e semaine, pas de port de charge.
+Récupération progressive des amplitudes complètes puis renforcement à partir de la 6e semaine.
+
+Nombre de séances : 15, à renouveler selon évolution
+{{v1}}{{v2}}`,[(intro),(_dSig()),(_dRpps())],["Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='femurplaque'){
+    const distal=f.fpGeste==='Plaque fémur distal';
+    return amTake("buildOrdoKine_7",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU FÉMUR PAR PLAQUE
+
+{{v0}}
+
+Respect des consignes d'appui : {{v1}}.
+{{v2}}
+Travail des transferts et de l'équilibre.
+Lutte contre l'œdème.
+
+Nombre de séances : 30, à renouveler selon évolution
+{{v3}}{{v4}}`,[(intro),(_crhAppui(f).toLowerCase()),(distal?`Récupération prioritaire des amplitudes du genou (flexion progressive, extension complète — prévention de la raideur).
+Verrouillage et renforcement du quadriceps.`:`Entretien des amplitudes de hanche et de genou.
+Renforcement progressif du quadriceps et des muscles fessiers.`),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='humerus'){
+    const strict=f.immo==='Dujarrier strict';
+    return amTake("buildOrdoKine_8",`ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DE L'HUMÉRUS
+
+{{v0}}
+
+{{v1}}
+
+Mobilisation pendulaire de l'épaule{{v2}}.
+Mobilisation active du coude, du poignet et de la main dès J1.
+Récupération progressive des amplitudes de l'épaule (auto-passif puis actif).
+Renforcement de la coiffe des rotateurs et du deltoïde à partir de la 6e semaine.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v3}}{{v4}}`,[(strict?"À débuter à l'ablation de l'immobilisation (3e semaine post-opératoire).":"À débuter précocement selon douleurs."),(intro),(strict?" à partir de l'ablation de l'immobilisation":' précoce'),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='tibia'){
+    return amTake("buildOrdoKine_9",`ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DU TIBIA
+
+{{v0}}
+
+Reprise de la marche selon les consignes d'appui : {{v1}}.
+Entretien des amplitudes du genou et de la cheville.
+Renforcement du quadriceps et du triceps sural.
+Lutte contre l'œdème (surélévation, drainage).
+Proprioception et reprise progressive des activités selon consolidation.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v2}}{{v3}}`,[(intro),(_crhAppui(f).toLowerCase()),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='femur'){
+    return amTake("buildOrdoKine_10",`ORDONNANCE KINÉSITHÉRAPIE — ENCLOUAGE DU FÉMUR
+
+{{v0}}
+
+Reprise de la marche selon les consignes d'appui : {{v1}}.
+Verticalisation précoce et travail des transferts.
+Renforcement du quadriceps et des muscles fessiers.
+Entretien des amplitudes de hanche et de genou.
+Travail de l'équilibre et prévention des chutes.
+
+Nombre de séances : 30, à renouveler selon évolution
+{{v2}}{{v3}}`,[(intro),(_crhAppui(f).toLowerCase()),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='deuxos'){
+    const babp=!!f.dxDrujBroche||f.immo==='BABP postérieur 3 semaines';
+    return amTake("buildOrdoKine_11",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE L'AVANT-BRAS
+
+{{v0}}
+
+{{v1}}
+
+Mobilisation active des doigts et de l'épaule dès J1 (auto-exercices){{v2}}.
+Récupération progressive des amplitudes du coude et de la pronosupination{{v3}}.
+Pas de port de charge jusqu'à consolidation radiographique.
+Renforcement progressif de la préhension et travail cicatriciel.
+Signaler tout signe de syndrome douloureux régional complexe.
+
+Nombre de séances : 15, à renouveler selon évolution
+{{v4}}{{v5}}`,[(babp?"À débuter à l'ablation de l'attelle BABP ("+(f.dxDrujBroche?(f.dxDrujSem||'3'):'3')+"e semaine post-opératoire).":"À débuter dès la sédation des douleurs, hors attelle."),(intro),(babp?'':', coude libre'),(f.dxDrujBroche?" à l'ablation de la broche radio-ulnaire distale":''),(_dSig()),(_dRpps())],["dxDrujBroche / dxDrujSem", "Texte lié", "Texte lié", "dxDrujBroche", "Signature", "Signature"]);
+  }
+  if(inter==='radius'){
+    const platre=f.immo==='Manchette plâtrée';
+    return amTake("buildOrdoKine_12",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU RADIUS DISTAL
+
+{{v0}}
+
+{{v1}}
+
+Mobilisation active des doigts, du coude et de l'épaule dès J1 (auto-exercices).
+Récupération des amplitudes du poignet : flexion-extension, inclinaisons, prono-supination.
+Lutte contre l'œdème et travail cicatriciel.
+Renforcement progressif de la préhension à partir de la 6e semaine.
+Signaler tout signe de syndrome douloureux régional complexe (douleur disproportionnée, œdème, raideur diffuse).
+
+Nombre de séances : 15, à renouveler selon évolution
+{{v2}}{{v3}}`,[(platre?"À débuter à l'ablation de la manchette plâtrée (3e semaine post-opératoire).":"À débuter dès la sédation des douleurs, hors attelle."),(intro),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='pilon'){
+    return amTake("buildOrdoKine_13",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU PILON TIBIAL
+
+À débuter immédiatement.
+
+{{v0}}
+
+⚠ DÉCHARGE STRICTE du membre inférieur pendant {{v1}} semaines (cannes anglaises).
+Mobilisation précoce de la cheville en flexion dorsale-plantaire selon tolérance, hors appui.
+Lutte contre l'œdème (surélévation, drainage, cryothérapie) et travail cicatriciel.
+Entretien musculaire isométrique (triceps sural, fibulaires) et mobilisation des orteils.
+À la reprise d'appui ({{v2}}e semaine, selon contrôle radiographique) : remise en charge progressive, travail du déroulé du pas, proprioception.
+
+Nombre de séances : 25, à renouveler selon évolution
+{{v3}}{{v4}}`,[(intro),(f.dechargeSem||'6'),(f.dechargeSem||'6'),(_dSig()),(_dRpps())],["Texte lié", "dechargeSem", "dechargeSem", "Signature", "Signature"]);
+  }
+  if(inter==='cheville'){
+    return amTake("buildOrdoKine_14",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DE LA CHEVILLE
+
+À débuter à l'ablation de la botte (6e semaine post-opératoire).
+
+{{v0}}
+
+Récupération des amplitudes tibio-taliennes et sous-taliennes.
+Lutte contre l'œdème (drainage, cryothérapie) et travail cicatriciel.
+Reprise progressive de l'appui complet et du déroulé du pas.
+Renforcement des fibulaires et du triceps sural.
+Proprioception et équilibre unipodal.
+Réentraînement à la marche et aux escaliers ; reprise de la course à partir du 3e mois selon évolution.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v1}}{{v2}}`,[(intro),(_dSig()),(_dRpps())],["Texte lié", "Signature", "Signature"]);
+  }
+  if(inter==='pseudarthrose'){
+    return amTake("buildOrdoKine_15",`ORDONNANCE KINÉSITHÉRAPIE — CURE DE PSEUDARTHROSE
+
+À débuter immédiatement.
+
+{{v0}}
+
+{{v1}} sous couvert de cannes anglaises.
+Mobilisation des articulations sus- et sous-jacentes selon tolérance.
+Entretien musculaire isométrique, lutte contre l'œdème, travail cicatriciel.
+À la consolidation : remise en charge progressive, renforcement, proprioception, travail de la marche.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v2}}{{v3}}`,[(intro),(f.appui||'Appui partiel pendant 6 semaines'),(_dSig()),(_dRpps())],["Texte lié", "appui", "Signature", "Signature"]);
+  }
+  if(inter==='bassin'){
+    const fix=_bsFix(f);
+    return amTake("buildOrdoKine_16",`ORDONNANCE KINÉSITHÉRAPIE — {{v0}}
+
+À débuter immédiatement.
+
+{{v1}}
+{{v2}}
+Nombre de séances : 20, à renouveler selon évolution
+{{v3}}{{v4}}`,[(fix?'FIX AND REPLACE (ACÉTABULUM + PTH)':'OSTÉOSYNTHÈSE DU BASSIN / ACÉTABULUM'),(intro),(fix?`
+Appui autorisé selon douleurs sous couvert de cannes ou déambulateur.
+⚠ PRÉCAUTIONS ANTI-LUXATION pendant 6 semaines : pas de flexion de hanche > 90°, pas d'adduction ni de rotation forcée.
+Travail de la marche et sevrage progressif des aides.
+Renforcement du moyen fessier et du quadriceps en chaîne fermée.
+`:`
+⚠ DÉCHARGE STRICTE du membre inférieur pendant ${f.dechargeSem||'6'} semaines (cannes ou déambulateur).
+Mobilisation douce de la hanche selon tolérance, sans secteur forcé.
+Entretien musculaire isométrique (quadriceps, fessiers), mobilisation de la cheville.
+Prévention des complications de décubitus, verticalisation précoce.
+À la reprise d'appui : remise en charge progressive, travail de la marche, renforcement, équilibre.
+`),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "dechargeSem", "Signature", "Signature"]);
+  }
+  if(inter==='plateau'){
+    return amTake("buildOrdoKine_17",`ORDONNANCE KINÉSITHÉRAPIE — OSTÉOSYNTHÈSE DU PLATEAU TIBIAL
+
+À débuter immédiatement.
+
+{{v0}}
+
+⚠ DÉCHARGE STRICTE du membre inférieur pendant {{v1}} semaines (cannes anglaises).
+Mobilisation précoce du genou en flexion-extension selon tolérance, sans limitation d'amplitude sauf consigne contraire.
+Réveil et entretien musculaire du quadriceps (isométrique), verrouillage actif.
+Lutte contre l'œdème (cryothérapie, surélévation) et travail cicatriciel.
+À la reprise d'appui ({{v2}}e semaine) : remise en charge progressive, travail de la marche, renforcement quadriceps et moyen fessier, proprioception.
+Reprise de la course à partir du 4e mois selon évolution radio-clinique.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v3}}{{v4}}`,[(intro),(f.dechargeSem||'6'),(f.dechargeSem||'6'),(_dSig()),(_dRpps())],["Texte lié", "dechargeSem", "dechargeSem", "Signature", "Signature"]);
+  }
+  if(inter==='ptg'){
+    const pa=f.protectArthro;
+    return amTake("buildOrdoKine_18",`ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE GENOU
+
+{{v0}}
+{{v1}}
+Phase 1 — J1 → S2 :
+Appui complet autorisé sous couvert de cannes anglaises.
+Récupération de l'extension complète (priorité absolue — pas de coussin sous le genou).
+Flexion progressive selon tolérance{{v2}}.
+Réveil et verrouillage du quadriceps. Lutte contre l'œdème : cryothérapie pluriquotidienne, surélévation.
+Travail de la marche.
+
+Phase 2 — S2 → S6 :
+Flexion progressive{{v3}} (objectif ≥ 110°), extension 0°.
+Sevrage progressif des cannes selon verrouillage quadricipital.
+Renforcement quadriceps et moyen fessier en chaîne fermée. Escaliers.
+Vélo d'appartement dès 95-100° de flexion.
+
+Phase 3 — S6 → M3 :
+Renforcement et endurance. Proprioception et équilibre.
+Marche quotidienne, vélo, natation.
+
+Objectifs finaux : extension complète, flexion ≥ 110-120°, marche sans aide technique, escaliers en alterné.
+
+Nombre de séances : 30, à renouveler selon évolution
+{{v4}}{{v5}}`,[(intro),(pa?`
+⚠ PROTECTION DE L'ARTHROTOMIE :
+Flexion limitée à 90° pendant 1 mois, puis récupération progressive des amplitudes.
+`:''),(pa?' (limitée à 90° — cf. supra)':' (objectif 90° à J15)'),(pa?' après M1':''),(_dSig()),(_dRpps())],["Texte lié", "Texte lié", "Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+  return amTake("buildOrdoKine_19",`ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE HANCHE
+
+{{v0}}
+
+Phase 1 — J1 → S3 :
+Appui complet immédiat sous couvert de cannes anglaises.
+Respect des précautions anti-luxation pendant 6 semaines (pas de flexion > 90°, pas d'adduction ni de rotation forcée).
+Travail de la marche. Réveil musculaire : abducteurs, quadriceps, grand fessier.
+Lutte contre le flessum de hanche.
+
+Phase 2 — S3 → S6 :
+Sevrage progressif des cannes (objectif : marche sans boiterie, pas de Trendelenburg).
+Renforcement des abducteurs et extenseurs. Amplitudes fonctionnelles sans forcer.
+
+Phase 3 — S6 → M3 :
+Levée progressive des précautions selon avis chirurgical.
+Renforcement global, proprioception, équilibre.
+Vélo, natation, marche quotidienne. Reprise des activités.
+
+Objectifs finaux : marche sans aide ni boiterie, hanche indolore, autonomie complète.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v1}}{{v2}}`,[(intro),(_dSig()),(_dRpps())],["Texte lié", "Signature", "Signature"]);
+}
+// Exact intervention identity; saved copies never reference another user's editable model.
+const AML_KEY='atlas_document_library_v1';
+const AML_DOCS=['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'];
+const AML_CRO={pth:'PTH',pth_revision:'PTH',ptg:'PTG',lca:'LCA',menisc:'MENISC',cheville:'CHEVILLE',plateau:'PLATEAU',bassin:'BASSIN',pseudarthrose:'PSEUDO',deuxos:'DEUXOS',pilon:'PILON',palette:'PALETTE',teteradiale:'TETERAD',radius:'RADIUS',femur:'FEMUR',tibia:'TIBIA',humerus:'HUMERUS',femurplaque:'FEMURPLAQUE',rotule:'ROTULE',olecrane:'OLECRANE',clavicule:'CLAVICULE'};
+const AML_SHARED=new Set([..._COMMON.map(o=>o.k),'cote','dateInter','nom','prenom','age','ccam','fermeture','filsType','pansement','pansementJours','antico','anticoJours','ains','consultSem','dateSortie','immo','appui','dechargeSem','vitC','redon',...Object.values(DOC_OPTS).flatMap(opts=>opts.map(o=>o.k).filter(k=>/^amp/.test(k||''))),...Object.keys(MAT_LABELS)]);
+const amlCopy=x=>JSON.parse(JSON.stringify(x));
+const amlKey=(spec,interv)=>JSON.stringify([String(spec),String(interv)]);
+const amlOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+let amlCapture=null;
+function amTake(id,tpl,values,labels){
+ if(!amlCapture)throw Error('Lecture de modèle hors contexte');
+ return (tpl.match(/[^\n]*\n|[^\n]+$/g)||[]).map((text,i)=>{const key=id+'_'+i;amlCapture[key]={id:key,text,values,labels};return '\uE000'+key+'\uE001';}).join('');
+}
+function amlDefaults(source){const f={_inter:source,cote:'Gauche',dateInter:'2026-09-13',nom:'EXEMPLE',prenom:'Alex',ccam:DOC_CCAM[source]||''};(DOC_OPTS[source]||[]).forEach(o=>{if(o.k)f[o.k]=o.def??(o.t==='check'?false:'')});if(!docIsUpperLimb(f))f.anesthesie='Anesthésie générale';return f;}
+function amlTrace(source,doc,f){
+ const previous=amlCapture;amlCapture=Object.create(null);let output;
+ try{
+  if(doc==='CRO'){
+   const fn=AML_CRO[source];if(fn)output=AML_BUILDERS[fn](f);
+   else output=amTake('generic_cro',"COMPTE-RENDU OPÉRATOIRE\n\nPatient : {{v0}}\nDate : {{v1}}\nOpérateur : {{v2}}\nAnesthésie : {{v3}}\n\n{{v4}}\n\nFermeture cutanée par {{v5}}.\nPansement {{v6}}.\n\n{{v7}}",[ptNom(f),doc_dateStr(f.dateInter),_dSig(),f.anesthesie,f.detailOp||'(Description à compléter)',docClosure(f),f.pansement,_dSigBloc()],['Patient','dateInter','Signature','anesthesie','detailOp','fermeture','pansement','Signature']);
+  }else output=AML_OTHER[doc](f);
+  const captures=amlCapture;
+  const expand=(value,depth=0)=>{if(depth>20)throw Error('Passage imbriqué invalide');return String(value??'').replace(/\uE000([^\uE001]+)\uE001/g,(_,id)=>{const p=captures[id];return p?p.text.replace(/\{\{v(\d+)\}\}/g,(_,n)=>expand(p.values[+n],depth+1)):''})};
+  let cursor=0,parts=[],serial=0;const re=/\uE000([^\uE001]+)\uE001/g;let m;
+  while((m=re.exec(output))){if(m.index>cursor)parts.push({id:'gap_'+serial++,text:output.slice(cursor,m.index),values:[],labels:[]});const p=captures[m[1]];if(!p)throw Error('Passage introuvable');parts.push({...p,values:p.values.map(v=>expand(v))});cursor=re.lastIndex;}
+  if(cursor<output.length)parts.push({id:'gap_'+serial,text:output.slice(cursor),values:[],labels:[]});
+  return parts;
+ }finally{amlCapture=previous;}
+}
+const AML_BUILDERS={PTH:am_buildCRO_PTH,PTG:am_buildCRO_PTG,LCA:am_buildCRO_LCA,MENISC:am_buildCRO_MENISC,CHEVILLE:am_buildCRO_CHEVILLE,PLATEAU:am_buildCRO_PLATEAU,BASSIN:am_buildCRO_BASSIN,PSEUDO:am_buildCRO_PSEUDO,DEUXOS:am_buildCRO_DEUXOS,PILON:am_buildCRO_PILON,PALETTE:am_buildCRO_PALETTE,TETERAD:am_buildCRO_TETERAD,RADIUS:am_buildCRO_RADIUS,FEMUR:am_buildCRO_FEMUR,TIBIA:am_buildCRO_TIBIA,HUMERUS:am_buildCRO_HUMERUS,FEMURPLAQUE:am_buildCRO_FEMURPLAQUE,ROTULE:am_buildCRO_ROTULE,OLECRANE:am_buildCRO_OLECRANE,CLAVICULE:am_buildCRO_CLAVICULE};
+const AML_OTHER={'CRH':am_buildCRH,'Ordo pharma':am_buildOrdoPharma,'Ordo IDE':am_buildOrdoIDE,'Ordo matériel':am_buildOrdoMateriel,'Ordo kiné':am_buildOrdoKine};
+function amlTokens(text){return [...text.matchAll(/\{\{([^{}]+)\}\}/g)].map(m=>m[1]);}
+function amlParamValidate(p){if(!p||!/^_am_[a-z0-9_]{1,50}$/.test(p.k)||!['text','seg'].includes(p.t)||typeof p.l!=='string'||!p.l.trim()||p.l.length>100||typeof p.def!=='string'||p.def.length>2000)throw Error('Paramètre invalide');if(p.t==='seg'&&(!Array.isArray(p.o)||!p.o.length||p.o.length>20||new Set(p.o).size!==p.o.length||p.o.some(v=>typeof v!=='string'||!v.trim()||v.length>200)||(p.def&&!p.o.includes(p.def))))throw Error('Choix invalides');}
+function amlValidateModel(model){
+ if(!model||model.version!==1||typeof model.spec!=='string'||!model.spec||typeof model.interv!=='string'||!model.interv.trim()||model.interv.length>500||!model.docs||Array.isArray(model.docs))throw Error('Intervention invalide');
+ for(const [name,d] of Object.entries(model.docs)){
+  if(!AML_DOCS.includes(name)||!d||!['native','legacy','blank'].includes(d.kind)||!amlOwn(DOC_OPTS,d.source)||!Array.isArray(d.params)||d.params.length>30||!d.edits||!Array.isArray(d.extras)||d.extras.length>200||!Array.isArray(d.order)||d.order.length>1000||new Set(d.order).size!==d.order.length||d.order.some(k=>typeof k!=='string'))throw Error('Document invalide');
+  d.params.forEach(amlParamValidate);if(new Set(d.params.map(p=>p.k)).size!==d.params.length)throw Error('Paramètre en double');
+  const fields=new Set([...DOC_OPTS[d.source].map(o=>o.k),...AML_SHARED,'_interv',...d.params.map(p=>p.k)]);
+  const blocks=[...Object.values(d.edits),...d.extras];if(blocks.length>1000)throw Error('Trop de paragraphes');
+  for(const b of blocks){if(!b||typeof b.id!=='string'||typeof b.text!=='string'||b.text.length>30000||/[{}]/.test(b.text.replace(/\{\{[^{}]+\}\}/g,'')))throw Error('Paragraphe invalide');for(const k of amlTokens(b.text))if(!/^v\d+$/.test(k)&&!fields.has(k))throw Error('Pastille inconnue : '+k);if(b.when&&(!fields.has(b.when.k)||!['string','boolean'].includes(typeof b.when.value)))throw Error('Condition invalide');}
+  for(const [id,b] of Object.entries(d.edits)){if(id!==b.id||typeof b.original!=='string')throw Error('Passage lié invalide');const a=amlTokens(b.original).filter(k=>/^v\d+$/.test(k)).sort(),z=amlTokens(b.text).filter(k=>/^v\d+$/.test(k)).sort();if(JSON.stringify(a)!==JSON.stringify(z))throw Error('Conserve chaque pastille liée une seule fois dans son paragraphe');if(b.when)throw Error('La condition d’un passage existant est conservée');}
+  for(const b of d.extras)if(!/^extra_[a-z0-9_]+$/.test(b.id)||amlTokens(b.text).some(k=>/^v\d+$/.test(k)))throw Error('Nouveau paragraphe invalide');
+  if(d.kind==='legacy'){const m=atlasModelBlank();m.docs[name]=d.base;m.params=d.params;atlasModelValidate(m);}
+ }
+ return model;
+}
+function amlValidateStore(s){if(!s||s.version!==1||!s.entries||Array.isArray(s.entries)||Object.keys(s.entries).length>1000)throw Error('Bibliothèque invalide');for(const [k,e] of Object.entries(s.entries)){amlValidateModel(e.current);if(k!==amlKey(e.current.spec,e.current.interv))throw Error('Association invalide');if(e.previous){amlValidateModel(e.previous);if(k!==amlKey(e.previous.spec,e.previous.interv))throw Error('Historique invalide');}}return s;}
+function amlRead(){const raw=localStorage.getItem(AML_KEY);return raw?amlValidateStore(JSON.parse(raw)):{version:1,entries:{}};}
+function amlLookup(spec,interv){return amlRead().entries[amlKey(spec,interv)]?.current||null;}
+function amlSave(model){amlValidateModel(model);if(!Object.keys(model.docs).length)throw Error('Ajoute au moins un document');const store=amlRead(),k=amlKey(model.spec,model.interv);store.entries[k]={current:amlCopy(model),previous:store.entries[k]?.current||null};localStorage.setItem(AML_KEY,JSON.stringify(store));}
+function amlSourceDoc(source,name){
+ const d={source,kind:'native',params:[],edits:{},extras:[],order:[]};
+ if(source==='pth'){const old=atlasModelRead()?.current||atlasModelBlank();d.kind='legacy';d.base=amlCopy(old.docs[name]);d.params=amlCopy(old.params);}
+ return d;
+}
+function amlNativeModel(spec,interv){const source=detectInter(interv);return {version:1,spec,interv,docs:Object.fromEntries((DOC_DOCS[source]||[]).map(name=>[name,amlSourceDoc(source,name)]))};}
+function amlWorkingModel(spec,interv){return amlCopy(amlLookup(spec,interv)||amlNativeModel(spec,interv));}
+function amlCopyDocs(target,source,names){
+ const next=amlCopy(target),existing=new Map(),renames=new Map();
+ for(const [name,d]of Object.entries(next.docs))if(!names.includes(name))for(const p of d.params)existing.set(p.k,p);
+ for(const name of names){if(!source.docs[name])throw Error('Document source absent');const d=amlCopy(source.docs[name]);for(const p of d.params){const old=p.k;if(existing.has(old)&&JSON.stringify(existing.get(old))!==JSON.stringify(p)){if(!renames.has(old))renames.set(old,'_am_copy_'+Date.now().toString(36)+'_'+renames.size);p.k=renames.get(old);const blocks=[...(d.base||[]),...Object.values(d.edits),...d.extras];for(const block of blocks){block.text=block.text.split('{{'+old+'}}').join('{{'+p.k+'}}');if(block.original)block.original=block.original.split('{{'+old+'}}').join('{{'+p.k+'}}');if(block.when?.k===old)block.when.k=p.k;}}}next.docs[name]=d;}
+ return amlValidateModel(next);
+}
+
+function amlParts(d,name,f){
+ let parts;if(d.kind==='blank')parts=[];
+ else if(d.kind==='legacy'){const vals=ATLAS_MODEL_VALUES[name](f);parts=d.base.filter(b=>!b.when||String(f[b.when.k]??'')===b.when.value).map(b=>({...b,values:vals,labels:ATLAS_MODEL_BASE[name].labels}));}
+ else parts=amlTrace(d.source,name,f);
+ parts=parts.map(p=>{const edit=d.edits[p.id];if(!edit)return p;if(edit.original!==p.text)throw Error('Le passage source a changé : vérifie le modèle '+name);return {...p,text:edit.text};});
+ parts.push(...d.extras.filter(b=>!b.when||String(f[b.when.k]??'')===String(b.when.value)).map(b=>({...b,values:[],labels:[]})));
+ const rank=new Map(d.order.map((id,i)=>[id,i]));const moved=parts.filter(p=>rank.has(p.id)).sort((a,b)=>rank.get(a.id)-rank.get(b.id));let pos=0;return parts.map(p=>rank.has(p.id)?moved[pos++]:p);
+}
+function amlRaw(d,name,f){return amlParts(d,name,f).map(p=>p.text.replace(/\{\{([^{}]+)\}\}/g,(_,k)=>/^v\d+$/.test(k)?String(p.values[+k.slice(1)]??''):String(f[k]??''))).join('');}
+function amlPost(text,name,f){if(name==='CRO'){const saved=DOCF;try{DOCF=f;return _croPost(text)}finally{DOCF=saved;}}if(name==='Ordo kiné'){const side=coteStrD(f),nl=text.indexOf('\n');if(side&&nl>0&&!/CÔTÉ/i.test(text.slice(0,nl)))text=text.slice(0,nl)+' — CÔTÉ '+side.toUpperCase()+text.slice(nl);const a=_ampTxt(f),K='Rééducation au cabinet conseillée.';if(a)text=text.includes(K)?text.replace(K,K+'\n\n'+a):a+'\n\n'+text;}return text;}
+
+function amlSourceFields(f,name,d){
+ const result=amlDefaults(d.source);for(const key of Object.keys(result)){const actual=AML_SHARED.has(key)||d.source===f._inter?key:'_amls_'+d.source+'_'+key;if(amlOwn(f,actual))result[key]=f[actual];}
+ for(const key of AML_SHARED)if(amlOwn(f,key))result[key]=f[key];
+ for(const key of ['_bi','_spec','_interv','_implantModels'])if(amlOwn(f,key))result[key]=f[key];result._inter=d.source;
+ d.params.forEach(p=>{result[p.k]=f['_amlp_'+p.k]??p.def});return result;
+}
+function amlInitSession(f,model){
+ f._amlModel=amlCopy(model);for(const [name,d]of Object.entries(model.docs)){
+  for(const o of DOC_OPTS[d.source]){if(!o.k)continue;const k=AML_SHARED.has(o.k)||d.source===f._inter?o.k:'_amls_'+d.source+'_'+o.k;if(!amlOwn(f,k))f[k]=o.def??(o.t==='check'?false:'');}
+  for(const p of d.params)f['_amlp_'+p.k]=p.def;
+ }
+ return f;
+}
+function amlFormOptions(f){
+ if(!f._amlModel)return atlasModelOptions(f);
+ const out=[],seen=new Set();
+ for(const [name,d]of Object.entries(f._amlModel.docs)){
+  const sf=amlSourceFields(f,name,d);
+  for(const o of DOC_OPTS[d.source]){
+   if(!o.k)continue;const k=AML_SHARED.has(o.k)||d.source===f._inter?o.k:'_amls_'+d.source+'_'+o.k;if(seen.has(k))continue;seen.add(k);
+   out.push({...o,k,_aml:true,_source:d.source,_original:o.k,show:()=>!o.show||o.show(amlSourceFields(DOCF,name,d)),o:typeof o.o==='function'?o.o(sf):o.o});
+  }
+  for(const p of d.params){const k='_amlp_'+p.k;if(!seen.has(k)){seen.add(k);out.push({...p,k,_aml:true});}}
+ }
+ return out;
+}
+let amlChangingSource=false;
+function amlSetField(key,value){
+ if(!key.startsWith('_amls_')){setDocF(key,value);return;}
+ const opts=amlFormOptions(DOCF),o=opts.find(x=>x.k===key);if(!o)return;
+ const entry=Object.entries(DOCF._amlModel.docs).find(([,d])=>d.source===o._source);if(!entry)return;
+ const original=DOCF,sf=amlSourceFields(original,...entry);sf._ccamAuto=false;
+ try{amlChangingSource=true;DOCF=sf;setDocF(o._original,value);
+  for(const field of DOC_OPTS[o._source]){if(!field.k)continue;const k=AML_SHARED.has(field.k)?field.k:'_amls_'+o._source+'_'+field.k;original[k]=sf[field.k];}
+ }finally{DOCF=original;amlChangingSource=false;}
+ docOverrides={};renderDocForm();
+}
+function amlRenderOption(o){
+ const val=DOCF[o.k]??'',action=value=>esc('amlSetField('+JSON.stringify(o.k)+','+JSON.stringify(value)+')');let inner='';
+ if(o.t==='check')return `<button type="button" class="doc-cb${val?' on':''}" onclick="${action(!val)}"><span class="doc-cbx">${val?'✓':''}</span><span>${esc(o.l)}</span></button>`;
+ if(o.t==='seg'||o.t==='selx'){
+  const list=o.t==='selx'?docImplantOpts(o):o.o||[];inner=`<div class="doc-pills">${list.map(v=>`<button type="button" class="doc-pill${val===v?' on':''}" onclick="${action(v)}">${esc(v)}</button>`).join('')}</div>`;
+ }
+ if(!['seg','check'].includes(o.t)){
+  const attrs=`class="doc-fin" oninput="${esc('setDocFT('+JSON.stringify(o.k)+',this.value)')}"`;
+  inner+=o.t==='area'?`<textarea ${attrs} rows="5">${esc(val)}</textarea>`:`<input ${attrs} type="${o.t==='date'?'date':'text'}" ${o.t==='num'?'inputmode="decimal"':''} value="${esc(val)}">`;
+ }
+ return `<div class="doc-frow"><div class="doc-flabel">${esc(o.l)}${o.k.startsWith('_amls_')?` <small>· ${esc(TRAME_LABELS[o._source])}</small>`:''}</div>${inner}</div>`;
+}
+function amlContent(name){const model=DOCF._amlModel;if(!model)return docContentV196(name);const d=model.docs[name];if(!d)throw Error('Document non associé');const f=amlSourceFields(DOCF,name,d);const text=amlRaw(d,name,f);return d.kind==='blank'?text:amlPost(text,name,f);}
+function amlMissing(f){if(!f._amlModel)return null;for(const [name,d] of Object.entries(f._amlModel.docs)){const sf=amlSourceFields(f,name,d),used=new Set(amlParts(d,name,sf).flatMap(p=>amlTokens(p.text)));for(const p of d.params)if(used.has(p.k)&&!String(sf[p.k]??'').trim())return p.l+' · '+name;}return null;}
+// Saved, new intervention names are available in the existing entry forms.
+function amlCustomInterventions(spec){const built=new Set(_flatList(spec));return Object.values(amlRead().entries).map(e=>e.current).filter(m=>m.spec===spec&&!built.has(m.interv)).map(m=>m.interv);}
+function amlAppendInterventions(containerId,spec,pick){const box=document.getElementById(containerId);if(!box||!spec)return;for(const name of amlCustomInterventions(spec)){if([...box.querySelectorAll('[data-val]')].some(e=>e.dataset.val===name))continue;const b=document.createElement('button');b.type='button';b.className='interv-pill';b.dataset.val=name;b.textContent=amlShort(name);b.onclick=()=>pick(b,name);box.append(b);}}
+if(typeof document!=='undefined'){
+ const originalUp=upInterv;upInterv=function(){const result=originalUp.apply(this,arguments);amlAppendInterventions('interv-pills',document.getElementById('f-spec')?.value,pickInterv);return result;};
+ const originalEdit=eUpInterv;eUpInterv=function(){const result=originalEdit.apply(this,arguments);amlAppendInterventions('e-interv-pills',document.getElementById('e-spec')?.value,ePickInterv);return result;};
+ const originalSelect=buildIntervSelectHTML;buildIntervSelectHTML=function(spec,region){const html=originalSelect(spec,region),custom=amlCustomInterventions(spec);return html+(custom.length?'<optgroup label="Mes interventions">'+custom.map(iv=>'<option value="'+esc(iv)+'">'+esc(iv)+'</option>').join('')+'</optgroup>':'');};
+}
+
+let amlUI={page:'library',query:'',filter:'',target:null,doc:'CRO',dirty:false,preview:false,fields:{}};
+const amlId=()=>Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+function amlCatalog(){
+ const map=new Map(),add=(spec,interv)=>{if(!spec||!interv||interv.includes('__LIBRE__')||interv==='Autre')return;map.set(amlKey(spec,interv),{spec,interv});};
+ Object.keys(INTERV_HIER).forEach(spec=>_flatList(spec).forEach(interv=>add(spec,interv)));
+ if(typeof blocs!=='undefined')blocs.forEach(b=>add(b.spec,b.interv));if(typeof planned!=='undefined')planned.forEach(b=>add(b.spec,b.interv));
+ Object.values(amlRead().entries).forEach(e=>add(e.current.spec,e.current.interv));return [...map.values()].sort((a,b)=>a.interv.localeCompare(b.interv,'fr'));
+}
+function atlasOpenModels(){try{amlRead();amlUI={page:'library',query:'',filter:'',target:null,doc:'CRO',dirty:false,preview:false,fields:{}};document.getElementById('aml-dialog').showModal();amlDraw()}catch(e){alert(e.message)}}
+function amlClose(){if(amlUI.dirty&&!window.confirm('Quitter sans enregistrer ces modifications ?'))return;document.getElementById('aml-dialog').close();}
+function amlBack(){if(amlUI.page==='editor'){amlUI.page='intervention';amlDraw();return}if(amlUI.page==='intervention'){if(amlUI.dirty&&!window.confirm('Revenir à la liste sans enregistrer ?'))return;amlUI.page='library';amlUI.dirty=false;amlDraw();return}amlClose();}
+function amlChoose(spec,interv){try{amlUI.target=amlWorkingModel(spec,interv);amlUI.page='intervention';amlUI.dirty=false;amlUI.fields={};amlDraw()}catch(e){alert(e.message)}}
+function amlButton(label,fn,css=''){const b=document.createElement('button');b.type='button';b.className=css;b.textContent=label;b.onclick=fn;return b;}
+function amlIcon(spec){const c=getSpecConfig(spec);return `<span class="aml-spec-icon" style="color:${c.color}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${c.icon||'<path d="M12 4v16M4 12h16"/>'}</svg></span>`;}
+function amlDraw(){
+ const body=document.getElementById('aml-body'),foot=document.getElementById('aml-foot'),title=document.getElementById('aml-title'),sub=document.getElementById('aml-sub');body.replaceChildren();foot.replaceChildren();
+ title.textContent=amlUI.page==='library'?'Modèles de documents':amlUI.page==='intervention'?amlShort(amlUI.target.interv):amlUI.doc;
+ sub.textContent=amlUI.page==='library'?'Bibliothèque':amlUI.page==='intervention'?getSpecConfig(amlUI.target.spec).label:amlShort(amlUI.target.interv);
+ if(amlUI.page==='library'){
+  body.innerHTML='<div class="aml-search"><input id="aml-search" type="search" placeholder="Rechercher une intervention" aria-label="Rechercher une intervention"></div><div id="aml-filters" class="aml-filters"></div><div id="aml-list" class="aml-list"></div>';
+  const search=document.getElementById('aml-search');search.value=amlUI.query;search.oninput=()=>{amlUI.query=search.value;amlDrawList()};const filter=document.getElementById('aml-filters');
+  for(const [id,label] of [['','Toutes'],...Object.keys(INTERV_HIER).map(s=>[s,getSpecConfig(s).label])])filter.append(amlButton(label,()=>{amlUI.filter=id;amlDraw()},'aml-chip'+(amlUI.filter===id?' on':'')));
+  foot.append(amlButton('+ Intervention',amlNewIntervention,'aml-primary'));amlDrawList();return;
+ }
+ if(amlUI.page==='intervention'){
+  const source=detectInter(amlUI.target.interv),saved=amlLookup(amlUI.target.spec,amlUI.target.interv);
+  body.innerHTML=`<div class="aml-summary">${amlIcon(amlUI.target.spec)}<div><strong>${Object.keys(amlUI.target.docs).length} documents</strong><span>${amlUI.dirty?'Modifications en cours':saved?'Personnalisés pour cette intervention':source==='fracture'?'Trame générique actuelle':'Documents actuels'}</span></div></div><div class="aml-list" id="aml-doc-list"></div><div class="aml-actions" id="aml-actions"></div><details class="aml-history"><summary>Historique</summary><div id="aml-history-buttons"></div></details>`;
+  const list=document.getElementById('aml-doc-list');for(const name of AML_DOCS){if(!amlUI.target.docs[name])continue;const d=amlUI.target.docs[name];const b=amlButton('',()=>amlOpenDoc(name),'aml-row');b.innerHTML=`<span class="aml-doc-icon">${amlDocIcon(name)}</span><span><strong>${esc(name)}</strong><small>${d.kind==='blank'?'Création personnelle':Object.keys(d.edits).length||d.extras.length?'Formulation personnalisée':TRAME_LABELS[d.source]}</small></span><span class="aml-chevron">›</span>`;list.append(b);}
+  document.getElementById('aml-actions').append(amlButton('Créer un document',amlCreateDialog,'aml-secondary'),amlButton('Reprendre des documents',amlCopyDialog,'aml-secondary'));
+  document.getElementById('aml-history-buttons').append(amlButton('Version précédente',amlUndo),amlButton('Documents d’origine',amlReset));
+  foot.append(amlButton(amlUI.dirty?'Enregistrer les documents':'Enregistrer pour cette intervention',amlSaveUI,'aml-primary'));return;
+ }
+ amlDrawEditor(body,foot);
+}
+function amlShort(label){return label.split(' — ').pop()||label;}
+function amlDocIcon(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H5v18h14V8l-5-5zm0 0v5h5M8 12h8M8 16h6"/></svg>';}
+function amlDrawList(){
+ const host=document.getElementById('aml-list');host.replaceChildren();const normalize=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const all=amlCatalog().filter(e=>(!amlUI.filter||e.spec===amlUI.filter)&&normalize(e.interv).includes(normalize(amlUI.query)));const entries=amlRead().entries;
+ for(const entry of all){const saved=entries[amlKey(entry.spec,entry.interv)]?.current,source=detectInter(entry.interv);const b=amlButton('',()=>amlChoose(entry.spec,entry.interv),'aml-row');b.innerHTML=`${amlIcon(entry.spec)}<span><strong>${esc(amlShort(entry.interv))}</strong><small>${esc(entry.interv.includes(' — ')?entry.interv.split(' — ').slice(0,-1).join(' · '):getSpecConfig(entry.spec).label)}</small><span class="aml-mini">${saved?Object.keys(saved.docs).map(n=>n.replace('Ordo ','')).join(' · '):source==='fracture'?'Trame générique · À personnaliser':'CRO · CRH · Ordonnances'}</span></span><span class="aml-chevron">›</span>`;host.append(b);}
+ if(!all.length)host.innerHTML='<div class="aml-empty">Aucune intervention</div>';
+}
+function amlSaveUI(){try{for(const [n,d]of Object.entries(amlUI.target.docs))if(d.kind==='blank'&&!d.extras.some(b=>b.text.trim()))throw Error('Complète le document '+n+' avant de l’enregistrer');amlSave(amlUI.target);amlUI.dirty=false;amlDraw();const b=document.querySelector('#aml-foot .aml-primary');if(b)b.textContent='Enregistré';}catch(e){alert(e.message)}}
+function amlUndo(){try{const store=amlRead(),key=amlKey(amlUI.target.spec,amlUI.target.interv),e=store.entries[key];if(!e?.previous){alert('Aucune version précédente');return}if(!window.confirm('Rétablir la version précédente pour cette intervention ?'))return;[e.current,e.previous]=[e.previous,e.current];localStorage.setItem(AML_KEY,JSON.stringify(store));amlUI.target=amlCopy(e.current);amlUI.dirty=false;amlUI.fields={};amlDraw()}catch(e){alert(e.message)}}
+function amlReset(){if(!window.confirm('Retrouver les documents d’origine pour cette intervention ?'))return;amlUI.target=amlNativeModel(amlUI.target.spec,amlUI.target.interv);amlUI.dirty=true;amlUI.fields={};amlDraw();}
+function amlModal(title){const m=document.getElementById('am-edit');m.innerHTML='<h2></h2><div id="aml-modal-body"></div><div id="aml-modal-actions" class="am-buttons"></div>';m.querySelector('h2').textContent=title;m.showModal();document.getElementById('aml-modal-actions').append(amlButton('Annuler',()=>m.close()));return {m,body:document.getElementById('aml-modal-body'),actions:document.getElementById('aml-modal-actions')};}
+function amlNewIntervention(){const {m,body,actions}=amlModal('Intervention');body.innerHTML=`<label>Spécialité<select id="aml-new-spec">${Object.keys(INTERV_HIER).map(s=>`<option value="${esc(s)}">${esc(getSpecConfig(s).label)}</option>`).join('')}</select></label><label>Intitulé<input id="aml-new-name" maxlength="500"></label>`;actions.append(amlButton('Créer',()=>{const spec=document.getElementById('aml-new-spec').value,interv=document.getElementById('aml-new-name').value.trim();if(!interv)return;if(amlCatalog().some(e=>e.spec===spec&&e.interv===interv)){m.close();amlChoose(spec,interv);return}amlUI.target={version:1,spec,interv,docs:{}};amlUI.fields={};amlUI.dirty=true;amlUI.page='intervention';m.close();amlDraw()}));}
+function amlCreateDialog(){const {m,body,actions}=amlModal('Créer un document');body.innerHTML=`<label>Document<select id="aml-new-doc">${AML_DOCS.map(n=>`<option>${n}</option>`).join('')}</select></label>`;actions.append(amlButton('Continuer',()=>{const name=document.getElementById('aml-new-doc').value;if(amlUI.target.docs[name]&&!window.confirm('Remplacer le '+name+' de cette intervention par un document vierge ?'))return;const source=detectInter(amlUI.target.interv);amlUI.target.docs[name]={source,kind:'blank',params:[],edits:{},extras:[{id:'extra_'+amlId(),text:''}],order:[]};amlUI.dirty=true;m.close();amlOpenDoc(name);amlEditPart(amlUI.target.docs[name].extras[0]);}));}
+function amlCopyDialog(){
+ const {m,body,actions}=amlModal('Reprendre des documents');const entries=amlCatalog().filter(e=>amlKey(e.spec,e.interv)!==amlKey(amlUI.target.spec,amlUI.target.interv));
+ body.innerHTML='<label>Intervention source<input id="aml-copy-search" type="search" placeholder="Rechercher"></label><select id="aml-copy-source" aria-label="Intervention source"></select><div id="aml-copy-docs"></div>';
+ const sel=document.getElementById('aml-copy-source'),query=document.getElementById('aml-copy-search');let source=null;
+ const drawDocs=()=>{const e=entries[Number(sel.value)];source=e?amlWorkingModel(e.spec,e.interv):null;document.getElementById('aml-copy-docs').innerHTML=source?Object.keys(source.docs).map(n=>`<label class="aml-check"><input type="checkbox" value="${n}" checked><span>${n}</span></label>`).join(''):'';};
+ const filter=()=>{sel.replaceChildren();entries.forEach((e,i)=>{if(!e.interv.toLowerCase().includes(query.value.toLowerCase()))return;const o=document.createElement('option');o.value=i;o.textContent=getSpecConfig(e.spec).label+' · '+e.interv;sel.append(o)});drawDocs()};query.oninput=filter;sel.onchange=drawDocs;filter();
+ actions.append(amlButton('Reprendre',()=>{try{const names=[...body.querySelectorAll('input[type=checkbox]:checked')].map(e=>e.value);if(!source||!names.length)return;const replaced=names.filter(n=>amlUI.target.docs[n]);if(replaced.length&&!window.confirm('Remplacer pour cette intervention : '+replaced.join(', ')+' ?'))return;amlUI.target=amlCopyDocs(amlUI.target,source,names);amlUI.dirty=true;amlUI.fields={};m.close();amlDraw()}catch(e){alert(e.message)}}));
+}
+function amlOpenDoc(name){amlUI.doc=name;amlUI.page='editor';amlUI.preview=false;amlDraw();}
+function amlEditorFields(){const name=amlUI.doc,d=amlUI.target.docs[name];if(!amlUI.fields[name]){const f=amlDefaults(d.source);f._interv=amlUI.target.interv;f._spec=amlUI.target.spec;d.params.forEach(p=>f[p.k]=p.def);amlUI.fields[name]=f;}return amlUI.fields[name];}
+function amlDrawEditor(body,foot){
+ const d=amlUI.target.docs[amlUI.doc],f=amlEditorFields();body.innerHTML='<details class="aml-preview-settings"><summary>Choix pour l’aperçu</summary><div id="aml-preview-fields"></div></details><div id="aml-document"></div>';
+ const controls=document.getElementById('aml-preview-fields');for(const o of [...DOC_OPTS[d.source],...d.params]){if(!o.k||o.show&&!o.show(f))continue;const label=document.createElement('label');label.textContent=o.l;let input;
+  if(o.t==='seg'){input=document.createElement('select');const choices=typeof o.o==='function'?o.o(f):o.o;for(const v of ['',...(choices||[])]){const opt=document.createElement('option');opt.value=v;opt.textContent=v||'Choisir';input.append(opt)}input.value=f[o.k]??'';}
+  else{input=document.createElement('input');input.type=o.t==='check'?'checkbox':o.t==='date'?'date':'text';if(o.t==='check')input.checked=!!f[o.k];else input.value=f[o.k]??'';}
+  input.onchange=()=>{f[o.k]=o.t==='check'?input.checked:input.value;amlDraw();document.querySelector('.aml-preview-settings').open=true};label.append(input);controls.append(label);
+ }
+ const host=document.getElementById('aml-document');let parts;
+ try{parts=amlParts(d,amlUI.doc,f);}catch(e){host.textContent=e.message;return}
+ if(amlUI.preview){const pre=document.createElement('pre');pre.className='aml-preview';pre.textContent=d.kind==='blank'?amlRaw(d,amlUI.doc,f):amlPost(amlRaw(d,amlUI.doc,f),amlUI.doc,f);host.append(pre);}
+ else{
+  const visible=parts.filter(p=>p.text.trim());visible.forEach((p,i)=>{const card=document.createElement('article');card.className='am-block';const heading=document.createElement('div');heading.className='am-block-head';const tag=document.createElement('span');tag.textContent=p.when?'Conditionnel':'Paragraphe '+(i+1);const actions=document.createElement('div');const up=amlButton('↑',()=>amlMovePart(p.id,-1));up.disabled=i===0;up.setAttribute('aria-label','Monter');const down=amlButton('↓',()=>amlMovePart(p.id,1));down.disabled=i===visible.length-1;down.setAttribute('aria-label','Descendre');actions.append(up,down,amlButton('✎',()=>amlEditPart(p)));heading.append(tag,actions);const text=document.createElement('div');text.className='am-text';text.innerHTML=amlRich(p.text,p,d);card.append(heading,text);host.append(card);});
+  if(!visible.length)host.innerHTML='<div class="aml-empty">Aucun paragraphe</div>';
+  const adds=document.createElement('div');adds.className='aml-actions';adds.append(amlButton('+ Paragraphe',()=>amlEditPart({id:'extra_'+amlId(),text:'\n',values:[],labels:[]}), 'aml-secondary'),amlButton('+ Paramètre',amlAddParam,'aml-secondary'));host.append(adds);
+ }
+ foot.append(amlButton(amlUI.preview?'Modifier':'Aperçu',()=>{amlUI.preview=!amlUI.preview;amlDraw()},'aml-secondary'),amlButton('Enregistrer',amlSaveUI,'aml-primary'));
+}
+function amlLabel(k,d){return [...DOC_OPTS[d.source],...d.params].find(o=>o.k===k)?.l||({nom:'Nom',prenom:'Prénom',cote:'Côté',dateInter:'Date opératoire',_interv:'Intervention'}[k])||k;}
+function amlRich(text,p,d){return esc(text).replace(/\{\{([^{}]+)\}\}/g,(_,k)=>{const label=/^v\d+$/.test(k)?(p.labels?.[+k.slice(1)]||'Texte lié').split(' / ').map(x=>amlLabel(x,d)).join(' · '):amlLabel(k,d);return `<span contenteditable="false" class="am-token" data-key="${esc(k)}">${esc(label)}</span>`});}
+function amlMovePart(id,delta){const d=amlUI.target.docs[amlUI.doc],parts=amlParts(d,amlUI.doc,amlEditorFields()),visible=parts.filter(p=>p.text.trim()),i=visible.findIndex(p=>p.id===id),other=visible[i+delta];if(!other)return;const ids=parts.map(p=>p.id),a=ids.indexOf(id),b=ids.indexOf(other.id);[ids[a],ids[b]]=[ids[b],ids[a]];d.order=ids;amlUI.dirty=true;const scroll=document.getElementById('aml-body').scrollTop;amlDraw();document.getElementById('aml-body').scrollTop=scroll;}
+function amlEditPart(p){
+ const d=amlUI.target.docs[amlUI.doc],extra=p.id.startsWith('extra_');const {m,body,actions}=amlModal('Formulation');const fields=[...new Set([...DOC_OPTS[d.source].map(o=>o.k).filter(Boolean),...d.params.map(o=>o.k),'nom','prenom','cote','dateInter','_interv'])];
+ body.innerHTML=`<div id="aml-text" class="aml-edit-text" contenteditable="true" role="textbox" aria-label="Paragraphe" aria-multiline="true">${amlRich(p.text,p,d)}</div><label>Insérer une pastille<select id="aml-token"><option value="">Choisir</option>${fields.map(k=>`<option value="${esc(k)}">${esc(amlLabel(k,d))}</option>`).join('')}</select></label>${extra?`<label>Afficher lorsque<select id="aml-when"><option value="">Toujours</option>${fields.map(k=>`<option value="${esc(k)}" ${p.when?.k===k?'selected':''}>${esc(amlLabel(k,d))}</option>`).join('')}</select></label><label>Valeur du choix<input id="aml-when-value" value="${esc(p.when?.value??'')}"></label>`:''}`;
+ const ta=document.getElementById('aml-text');let range=null;ta.onkeyup=ta.onmouseup=ta.onblur=()=>{const sel=window.getSelection();if(sel.rangeCount&&ta.contains(sel.getRangeAt(0).commonAncestorContainer))range=sel.getRangeAt(0).cloneRange()};
+ ta.onpaste=e=>{e.preventDefault();const text=e.clipboardData.getData('text/plain'),sel=window.getSelection();if(sel.rangeCount){const r=sel.getRangeAt(0);if(ta.contains(r.commonAncestorContainer)){r.deleteContents();const n=document.createTextNode(text);r.insertNode(n);r.setStartAfter(n);r.collapse(true);sel.removeAllRanges();sel.addRange(r)}}};
+ document.getElementById('aml-token').onchange=e=>{const k=e.target.value;if(!k)return;const span=document.createElement('span');span.className='am-token';span.contentEditable='false';span.dataset.key=k;span.textContent=amlLabel(k,d);if(range&&ta.contains(range.commonAncestorContainer)){range.deleteContents();range.insertNode(span);range.setStartAfter(span);range.collapse(true)}else ta.append(span);e.target.value='';ta.focus()};
+ actions.append(amlButton('Appliquer',()=>{try{const clone=ta.cloneNode(true);clone.querySelectorAll('[data-key]').forEach(n=>n.replaceWith(document.createTextNode('{{'+n.dataset.key+'}}')));clone.querySelectorAll('br').forEach(n=>n.replaceWith(document.createTextNode('\n')));clone.querySelectorAll('div,p').forEach(n=>n.prepend(document.createTextNode('\n')));const b={id:p.id,text:clone.textContent};if(extra){const k=document.getElementById('aml-when').value;if(k)b.when={k,value:document.getElementById('aml-when-value').value};}else b.original=d.edits[p.id]?.original||p.text;
+ const next=amlCopy(amlUI.target),nd=next.docs[amlUI.doc];if(extra){const i=nd.extras.findIndex(x=>x.id===b.id);if(i>=0)nd.extras[i]=b;else nd.extras.push(b);}else nd.edits[p.id]=b;amlValidateModel(next);amlUI.target=next;amlUI.dirty=true;m.close();amlDraw()}catch(e){alert(e.message)}}));
+ if(extra&&d.extras.some(b=>b.id===p.id))actions.append(amlButton('Supprimer',()=>{d.extras=d.extras.filter(b=>b.id!==p.id);d.order=d.order.filter(id=>id!==p.id);amlUI.dirty=true;m.close();amlDraw()}));
+}
+function amlAddParam(){const {m,body,actions}=amlModal('Nouveau paramètre');body.innerHTML='<label>Intitulé<input id="aml-param-name" maxlength="100"></label><label>Choix sous forme de pastilles<textarea id="aml-param-choices" placeholder="Un choix par ligne ; vide pour du texte libre"></textarea></label>';actions.append(amlButton('Ajouter',()=>{try{const choices=document.getElementById('aml-param-choices').value.split('\n').map(s=>s.trim()).filter(Boolean),p={k:'_am_'+amlId(),l:document.getElementById('aml-param-name').value.trim(),t:choices.length?'seg':'text',o:choices,def:''};amlParamValidate(p);amlUI.target.docs[amlUI.doc].params.push(p);amlEditorFields()[p.k]='';amlUI.dirty=true;m.close();amlDraw()}catch(e){alert(e.message)}}));}
+
+function docContent(name){return amlContent(name);}
+document.getElementById('aml-dialog').addEventListener('cancel',e=>{e.preventDefault();amlClose();});
 </script>
 </body></html>
