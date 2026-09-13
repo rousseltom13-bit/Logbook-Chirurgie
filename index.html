@@ -2544,6 +2544,7 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
             <div class="bk-tx"><div class="bk-t">Rapport d'activité</div></div>
             <svg class="bk-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"></polyline></svg>
           </button>
+<button class="bk-card am-entry" onclick="atlasOpenModels()"><div class="bk-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3H5v18h14V9M13 3v6h6M8 12h5M8 16h3M15 16l5-5 2 2-5 5-3 1z"/></svg></div><div class="bk-tx"><div class="bk-t">Modèles de documents</div></div></button>
         </div>
       </div>
     </div>
@@ -11125,7 +11126,7 @@ function _croPost(t){
   }catch(e){}
   return t;
 }
-function docContent(doc){
+function docContentNative(doc){
   const f=DOCF,inter=DOCF._inter;
   if(doc==='CRO'){
     if(inter==='pth'||inter==='pth_revision')return _croPost(buildCRO_PTH(f));
@@ -11215,6 +11216,7 @@ function openBlocDocs(bi,forcedInter){
     if(/crochet/.test(ivt)){DOCF.crochet=true;if(!b.ptgIndication)DOCF.indication='Fracture pertrochantérienne';}
     else if((b.spec||'')==='Traumatologie'&&inter==='pth'&&!b.ptgIndication){DOCF.indication='Fracture du col fémoral';}
   }
+  if(inter==='pth'){const saved=atlasModelRead();if(saved)saved.current.params.forEach(o=>DOCF[o.k]=o.def||'');}
   docAutoCCAM();
   docTabs=(DOC_DOCS[inter]||['CRO','CRH']).slice();
   docIdx=0;docOverrides={};docStep=1;
@@ -11333,12 +11335,12 @@ function docSetTrame(k){
 }
 function renderDocForm(){
   const host=document.getElementById('doc-form');if(!host)return;
-  const opts=DOC_OPTS[DOCF._inter]||[];
+  const opts=atlasModelOptions(DOCF);
   const tEl=document.getElementById('doc-trame');if(tEl)tEl.textContent=TRAME_LABELS[DOCF._inter]||DOCF._inter;
   const trameBar=window._trameEdit
     ?('<div class="doc-pills" style="margin-bottom:12px;">'+Object.keys(TRAME_LABELS).map(k=>'<button type="button" class="doc-pill'+(DOCF._inter===k?' on':'')+'" onclick="docSetTrame(\''+k+'\')">'+TRAME_LABELS[k]+'</button>').join('')+'</div>')
     :'';
-  const renderOpt=o=>{
+  const renderOpt=o=>{if(/^_am_/.test(o.k||''))return atlasModelRenderOption(o);
     if(o.t==='hdr'){
       return '<div class="doc-flabel" style="margin-top:16px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;font-size:var(--fs-tag);color:var(--text3);">'+o.l+'</div>';
     }
@@ -11417,7 +11419,7 @@ function renderDocForm(){
   }).join('');
 }
 function docSecToggle(k){window._docSecOpen=window._docSecOpen||{};window._docSecOpen[k]=!window._docSecOpen[k];renderDocForm();}
-function docGenerate(){if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
+function docGenerate(){if(DOCF._inter==='pth'){try{const saved=atlasModelRead();if(saved){const missing=saved.current.params.find(p=>!String(DOCF[p.k]||'').trim());if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing.l);return;}}}catch(e){showToast('Modèle PTH invalide : '+e.message);return;}}if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
 function docBackToForm(){docStep=1;renderDocStep();}
 function renderDocModal(){
   const tb=document.getElementById('doc-tabs');
@@ -12658,7 +12660,7 @@ async function exportData(){
     pathos:(typeof pathos!=='undefined'?pathos:[]),
     implant_catalog:(typeof implantCatalog!=='undefined'?implantCatalog:[]),
     oxford_cfg:(typeof OXFORD_CFG!=='undefined'?OXFORD_CFG:null),
-    settings:{active_specs:_lsRaw('atlas_active_specs'),pratique:_lsRaw('atlas_pratique'),profil:_lsRaw('atlas_profil'),prenom:_lsRaw('atlas_prenom'),rapport_m0:_lsRaw('atlas_rapport_m0'),theme:_lsRaw('orlog_theme'),quickmode:_lsRaw('orlog_quickmode')}
+    settings:{active_specs:_lsRaw('atlas_active_specs'),pratique:_lsRaw('atlas_pratique'),profil:_lsRaw('atlas_profil'),prenom:_lsRaw('atlas_prenom'),rapport_m0:_lsRaw('atlas_rapport_m0'),theme:_lsRaw('orlog_theme'),quickmode:_lsRaw('orlog_quickmode'),pth_models:_lsRaw('atlas_pth_documents_v1')}
   };
   const json=JSON.stringify(payload);
   const sizeMb=(new Blob([json]).size/1024/1024).toFixed(1);
@@ -12720,7 +12722,9 @@ function atlasReferencePlan(p){
   }
   const map={blocs:'orlog_blocs',planned:'orlog_planned',patients:'atlas_patients',journees:'atlas_journees',astuces:'atlas_astuces',pathos:'atlas_pathos',implant_catalog:'atlas_implant_catalog',oxford_cfg:'atlas_oxford_cfg'};
   const writes={};Object.entries(map).forEach(([a,b])=>writes[b]=JSON.stringify(p[a]));
-  const settings={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode'};
+  const settings={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1'};
+  p.settings={...p.settings,pth_models:p.settings.pth_models??null};
+  if(p.settings.pth_models!==null){const model=JSON.parse(p.settings.pth_models);atlasModelValidate(model.current);if(model.previous)atlasModelValidate(model.previous);}
   Object.entries(settings).forEach(([a,b])=>{const v=p.settings[a];if(v!==null&&typeof v!=='string')throw new Error('Réglage invalide : '+a);writes[b]=v;});
   writes.atlas_reference_radio_counts=JSON.stringify(Object.fromEntries(p.blocs.map(b=>[String(b.id),b.radioCount||{}])));
   return writes;
@@ -12787,6 +12791,7 @@ function importData(e,reference=false){
   reader.onload=async ev=>{
     try{
       const parsed=JSON.parse(ev.target.result);
+      if(parsed.settings?.pth_models){const m=JSON.parse(parsed.settings.pth_models);atlasModelValidate(m.current);if(m.previous)atlasModelValidate(m.previous);}
       if(reference){await atlasRestoreReference(parsed);return;}
       if(Array.isArray(parsed.implant_catalog)&&typeof implantCatalog!=='undefined'){
         parsed.implant_catalog.forEach(c=>{if(c&&c.label&&!implantCatalog.find(x=>x.label===c.label&&x.spec===c.spec))implantCatalog.push(c);});
@@ -12799,7 +12804,7 @@ function importData(e,reference=false){
       // v162 : réglages — appliqués SEULEMENT si absents en local ; la licence n'est ni exportée ni importée
       let settingsApplied=0;
       if(parsed.settings&&typeof parsed.settings==='object'){
-        const SET_MAP={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode'};
+        const SET_MAP={active_specs:'atlas_active_specs',pratique:'atlas_pratique',profil:'atlas_profil',prenom:'atlas_prenom',rapport_m0:'atlas_rapport_m0',theme:'orlog_theme',quickmode:'orlog_quickmode',pth_models:'atlas_pth_documents_v1'};
         Object.keys(SET_MAP).forEach(k=>{
           const v=parsed.settings[k];
           if(typeof v==='string'&&v!==''){try{if(localStorage.getItem(SET_MAP[k])===null){localStorage.setItem(SET_MAP[k],v);settingsApplied++;}}catch(e){}}
@@ -15382,4 +15387,172 @@ if(window.visualViewport)visualViewport.addEventListener('resize',atlasSizeRadio
 #det-tabs-bar>.atlas-det-indicator{transition:none!important;}
 }
 </style>
+<style id="atlas-v196-models">
+#view-options .bk-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr)) minmax(0,.85fr);gap:10px!important;}
+#view-options .bk-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:8px;padding:12px 14px!important;border-radius:19px;background:var(--glass-surface,var(--bg2));border:1px solid var(--glass-border);box-shadow:var(--glass-highlight),var(--glass-shadow);}
+#view-options .bk-arrow{display:none;}#view-options .bk-t{font-size:14px;line-height:1.25;}
+#view-options .bk-ic{width:34px;height:34px;min-width:34px;border:0;border-radius:11px;color:var(--opt-color,#195157);background:color-mix(in srgb,var(--opt-color,#195157) 12%,var(--bg2));box-shadow:inset 0 1px #ffffff88;}
+#view-options .bk-ic svg{width:22px;height:22px;}
+#view-options .bk-card:nth-child(1){--opt-color:#527a85}#view-options .bk-card:nth-child(2){--opt-color:#477562}#view-options .bk-card:nth-child(3){--opt-color:#80578b}#view-options .bk-card:nth-child(4){--opt-color:#a46c43}#view-options .bk-card:nth-child(5){--opt-color:#b66b59}#view-options .bk-card:nth-child(6){--opt-color:#557790}
+#view-options .bk-card.am-entry{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:flex-start;gap:13px;--opt-color:#195157;border-color:color-mix(in srgb,var(--accent) 28%,var(--border));}
+#atlas-model-editor,#am-edit{color:var(--text);background:var(--bg);border:1px solid var(--border);}
+#atlas-model-editor{width:min(100%,720px);max-width:100%;height:100dvh;max-height:100dvh;padding:0;margin:auto;border-radius:0;}
+#atlas-model-editor[open]{display:flex;flex-direction:column;}
+#atlas-model-editor::backdrop,#am-edit::backdrop{background:#102d3966;}
+.am-head{padding:calc(16px + env(safe-area-inset-top)) 20px 12px;border-bottom:1px solid var(--border);flex:none;}
+.am-head h2{font-family:var(--serif);font-size:27px;margin:6px 0 12px;font-weight:500;}
+.am-top{display:flex;justify-content:space-between;align-items:center;color:var(--accent);font-size:12px;}
+#am-tabs{display:flex;flex-wrap:wrap;gap:3px;}#am-tabs button{flex:1;white-space:nowrap;font-size:12px;padding:9px 5px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--text3);}
+#am-tabs button.on{border-color:var(--accent);color:var(--accent);}
+#am-body{flex:1;min-height:0;overflow:auto;padding:18px;}
+.am-block{padding:12px 14px;margin-bottom:10px;background:var(--glass-surface,var(--bg2));border:1px solid var(--glass-border);border-radius:17px;box-shadow:var(--glass-highlight),var(--glass-shadow);}
+.am-block-head{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:11px;color:var(--text3);}.am-block-head>div{display:flex;flex:none;}
+#atlas-model-editor button,#am-edit button{font-family:inherit;cursor:pointer;min-height:44px;color:var(--accent);}
+.am-block-head button{border:0;background:transparent;min-width:36px;font-size:17px;}.am-block-head button:disabled{opacity:.3;}
+.am-text{white-space:pre-wrap;line-height:1.7;font-size:14px;color:var(--text2);overflow-wrap:anywhere;}.am-space{font-size:11px;color:var(--text3);}
+.am-token{display:inline;padding:3px 6px;background:var(--accent-l);color:var(--accent);border:1px solid var(--border2);border-radius:6px;font-size:12px;}
+.am-foot{padding:12px 18px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border);flex:none;display:flex;gap:8px;}.am-foot button{border:1px solid var(--border2);background:var(--bg2);border-radius:12px;padding:9px 12px;}.am-foot .am-save{flex:1;background:var(--accent);color:white!important;}
+.am-add{border:1px solid var(--border2);border-radius:12px;background:var(--bg2);padding:10px;margin:5px;}
+#am-body pre{white-space:pre-wrap;font:15px/1.7 var(--serif);background:var(--bg2);padding:20px;border-radius:18px;}
+#am-edit{width:calc(100% - 32px);max-width:500px;max-height:90dvh;overflow:auto;border-radius:20px;padding:20px;}
+#am-edit h2{font:24px var(--serif);margin:0 0 18px;}
+#am-edit label,.am-preview-controls label{display:block;font-size:12px;color:var(--text2);margin:12px 0;}
+#am-edit textarea,#am-edit input,#am-edit select,.am-preview-controls input,.am-preview-controls select{display:block;width:100%;box-sizing:border-box;min-width:0;padding:10px;border:1px solid var(--border2);border-radius:10px;background:var(--bg2);color:var(--text);font-family:inherit;font-size:16px;line-height:1.5;margin-top:5px;}
+#am-edit textarea{min-height:160px;font-size:16px;line-height:1.6;}
+.am-buttons{display:flex;gap:8px;}.am-buttons button,#am-edit>button{background:var(--bg2);border:1px solid var(--border2);padding:10px;border-radius:11px;}
+</style>
+<dialog id="atlas-model-editor"><header class="am-head"><div class="am-top"><span>PTH · Modèle habituel</span><button class="atlas-iconbtn" aria-label="Fermer" onclick="atlasCloseModels()">×</button></div><h2>Modèles de documents</h2><div id="am-tabs"></div><details><summary style="font-size:12px;color:var(--text3);margin-top:12px;cursor:pointer">Historique</summary><button class="am-add" onclick="atlasModelUndo()">Version précédente</button><button class="am-add" onclick="atlasModelRestore()">Formulation d’origine</button></details></header><main id="am-body"></main><footer class="am-foot"><button id="am-preview" onclick="atlasModelPreview=!atlasModelPreview;atlasModelDraw()">Aperçu</button><button id="am-save" class="am-save" onclick="atlasModelSave()">Enregistrer pour les prochaines PTH</button></footer></dialog>
+<dialog id="am-edit"></dialog>
+<style>
+#view-options.active{display:flex!important;flex-direction:column;min-height:0!important;height:var(--am-options-height,calc(100dvh - 180px))!important;overflow:hidden!important;}
+#view-options>.regl-hero{flex:none;padding-top:14px;padding-bottom:12px;}
+#view-options .regl-scroll{display:flex!important;flex:1!important;min-height:0!important;overflow:hidden!important;padding:8px 18px 12px!important;}
+#view-options .bk-grid{width:100%;margin-top:0!important;}
+#am-text-edit{white-space:pre-wrap;min-height:160px;padding:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text);border-radius:12px;font-size:16px;line-height:1.8;}
+</style>
+
+<script>
+const ATLAS_MODEL_BASE={"CRO": {"blocks": [{"id": "b0", "text": "COMPTE-RENDU OPÉRATOIRE — PTH {{v0}}\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "Date opératoire : {{v1}}\n"}, {"id": "b3", "text": "Opérateur : {{v2}}\n"}, {"id": "b4", "text": "Aides opératoires : {{v3}}\n"}, {"id": "b5", "text": "Anesthésie : {{v4}}\n"}, {"id": "b6", "text": "\n"}, {"id": "b7", "text": "Indication : {{v5}}.\n"}, {"id": "b8", "text": "CCAM : {{v6}}\n"}, {"id": "b9", "text": "{{v7}}Rappel des implants : Cotyle {{v8}}{{v9}} taille {{v10}}{{v11}} / Tige {{v12}}{{v13}}{{v14}} taille {{v15}}{{v16}} / Tête {{v17}} {{v18}} col {{v19}}{{v20}}\n"}, {"id": "b10", "text": "\n"}, {"id": "b11", "text": "Installation en décubitus latéral {{v21}}.\n"}, {"id": "b12", "text": "Badigeon et champage stérile.\n"}, {"id": "b13", "text": "Antibioprophylaxie pré-opératoire selon le protocole du CLIN.\n"}, {"id": "b14", "text": "Check-list.\n"}, {"id": "b15", "text": "\n"}, {"id": "b16", "text": "Voie d'abord postéro-latérale.\n"}, {"id": "b17", "text": "Hémostases sous-cutanées.\n"}, {"id": "b18", "text": "Ouverture du fascia lata.\n"}, {"id": "b19", "text": "Discision des fibres du grand fessier.\n"}, {"id": "b20", "text": "Pneumatisation de la bourse rétro-trochantérienne.\n"}, {"id": "b21", "text": "Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.\n"}, {"id": "b22", "text": "Faufilage au Vicryl 2.\n"}, {"id": "b23", "text": "Luxation de la hanche.\n"}, {"id": "b24", "text": "Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.\n"}, {"id": "b25", "text": "Ablation de la tête fémorale sans difficulté.\n"}, {"id": "b26", "text": "\n"}, {"id": "b27", "text": "Temps cotyloïdien :\n"}, {"id": "b28", "text": "Exposition du cotyle.\n"}, {"id": "b29", "text": "Ablation du labrum.\n"}, {"id": "b30", "text": "Ablation du reliquat du ligament rond de la tête fémorale.\n"}, {"id": "b31", "text": "Repérage du ligament transverse.\n"}, {"id": "b32", "text": "{{v22}}\n"}, {"id": "b33", "text": "\n"}, {"id": "b34", "text": "Temps fémoral :\n"}, {"id": "b35", "text": "Exposition du fût fémoral jambe au zénith.\n"}, {"id": "b36", "text": "Ablation du reliquat de col à l'emporte-pièce.\n"}, {"id": "b37", "text": "Tunnelisation à la dague.\n"}, {"id": "b38", "text": "Évidement du grand trochanter à la curette.\n"}, {"id": "b39", "text": "On passe les râpes de tailles successives jusqu'à la râpe taille {{v23}}.\n"}, {"id": "b40", "text": "Essais sur râpe en place col {{v24}}.\n"}, {"id": "b41", "text": "La stabilité est excellente et les longueurs sont restaurées.\n"}, {"id": "b42", "text": "{{v25}}\n"}, {"id": "b43", "text": "Impaction de l'insert {{v33}} dans le cotyle.\n", "when": {"k": "cupType", "value": "Simple mobilité"}}, {"id": "b44", "text": "{{v26}}\n"}, {"id": "b45", "text": "Réduction de la hanche.\n"}, {"id": "b46", "text": "Nettoyage abondant.\n"}, {"id": "b47", "text": "{{v27}}{{v28}}{{v29}}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.\n"}, {"id": "b48", "text": "Fermeture plan par plan.\n"}, {"id": "b49", "text": "Fermeture cutanée par {{v30}}.\n"}, {"id": "b50", "text": "Pansement {{v31}}.\n"}, {"id": "b51", "text": "\n"}, {"id": "b52", "text": "{{v32}}"}], "labels": ["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "renfort / renfortModele", "Texte lié", "renfort / renfortModele / renfortNbVis / cupType / cotyleModele / cotyleTaille", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol", "crochet / crochetMarque / crochetLong / crochetNbVis", "infiltration", "drainage", "Texte lié", "pansement", "Signature", "insertMat"]}, "CRH": {"blocks": [{"id": "b0", "text": "Cher Confrère,\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.\n"}, {"id": "b3", "text": "L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.\n"}, {"id": "b4", "text": "{{v8}}{{v9}}\n"}, {"id": "b5", "text": "Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :\n"}, {"id": "b6", "text": "\n"}, {"id": "b7", "text": "— Pansements ({{v10}}) à renouveler {{v11}}\n"}, {"id": "b8", "text": "— {{v12}}\n"}, {"id": "b9", "text": "— Kinésithérapie de rééducation\n"}, {"id": "b10", "text": "— {{v13}}\n"}, {"id": "b11", "text": "{{v14}}— Antalgiques selon prescription\n"}, {"id": "b12", "text": "{{v15}}\n"}, {"id": "b13", "text": "Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.\n"}, {"id": "b14", "text": "\n"}, {"id": "b15", "text": "Nous restons à votre disposition.\n"}, {"id": "b16", "text": "\n"}, {"id": "b17", "text": "{{v19}} — {{v20}}{{v21}}"}], "labels": ["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "segment", "Signature", "Signature", "Signature"]}, "Ordo pharma": {"blocks": [{"id": "b0", "text": "ORDONNANCE PHARMACEUTIQUE\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "Patient : {{v0}} — né(e) le {{v1}}\n"}, {"id": "b3", "text": "Date : {{v2}}\n"}, {"id": "b4", "text": "\n"}, {"id": "b5", "text": "{{v3}}\n"}, {"id": "b6", "text": "\n"}, {"id": "b7", "text": "MATÉRIEL DE PANSEMENT ({{v4}}, renouvellement {{v5}}, jusqu'à cicatrisation) :\n"}, {"id": "b8", "text": "{{v6}}\n"}, {"id": "b9", "text": "\n"}, {"id": "b10", "text": "Renouvellement non autorisé sauf avis médical.\n"}, {"id": "b11", "text": "{{v7}}{{v8}}"}], "labels": ["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]}, "Ordo IDE": {"blocks": [{"id": "b0", "text": "ORDONNANCE INFIRMIÈRE\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "Patient : {{v0}} — né(e) le {{v1}}\n"}, {"id": "b3", "text": "Date : {{v2}}\n"}, {"id": "b4", "text": "\n"}, {"id": "b5", "text": "{{v3}}— Surveillance et renouvellement du pansement ({{v4}}) {{v5}}\n"}, {"id": "b6", "text": "— {{v6}}\n"}, {"id": "b7", "text": "— Surveillance de la cicatrice (rougeur, écoulement, désunion)\n"}, {"id": "b8", "text": "— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle\n"}, {"id": "b9", "text": "\n"}, {"id": "b10", "text": "{{v7}}{{v8}}"}], "labels": ["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]}, "Ordo matériel": {"blocks": [{"id": "b0", "text": "ORDONNANCE — MATÉRIEL MÉDICAL\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "Patient : {{v0}} — né(e) le {{v1}}\n"}, {"id": "b3", "text": "Date : {{v2}}\n"}, {"id": "b4", "text": "\n"}, {"id": "b5", "text": "{{v3}}\n"}, {"id": "b6", "text": "\n"}, {"id": "b7", "text": "{{v4}}{{v5}}"}], "labels": ["Texte lié", "ddn", "dateInter", "Texte lié", "Signature", "Signature"]}, "Ordo kiné": {"blocks": [{"id": "b0", "text": "ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE HANCHE\n"}, {"id": "b1", "text": "\n"}, {"id": "b2", "text": "{{v0}}\n"}, {"id": "b3", "text": "\n"}, {"id": "b4", "text": "Phase 1 — J1 → S3 :\n"}, {"id": "b5", "text": "Appui complet immédiat sous couvert de cannes anglaises.\n"}, {"id": "b6", "text": "Respect des précautions anti-luxation pendant 6 semaines (pas de flexion > 90°, pas d'adduction ni de rotation forcée).\n"}, {"id": "b7", "text": "Travail de la marche. Réveil musculaire : abducteurs, quadriceps, grand fessier.\n"}, {"id": "b8", "text": "Lutte contre le flessum de hanche.\n"}, {"id": "b9", "text": "\n"}, {"id": "b10", "text": "Phase 2 — S3 → S6 :\n"}, {"id": "b11", "text": "Sevrage progressif des cannes (objectif : marche sans boiterie, pas de Trendelenburg).\n"}, {"id": "b12", "text": "Renforcement des abducteurs et extenseurs. Amplitudes fonctionnelles sans forcer.\n"}, {"id": "b13", "text": "\n"}, {"id": "b14", "text": "Phase 3 — S6 → M3 :\n"}, {"id": "b15", "text": "Levée progressive des précautions selon avis chirurgical.\n"}, {"id": "b16", "text": "Renforcement global, proprioception, équilibre.\n"}, {"id": "b17", "text": "Vélo, natation, marche quotidienne. Reprise des activités.\n"}, {"id": "b18", "text": "\n"}, {"id": "b19", "text": "Objectifs finaux : marche sans aide ni boiterie, hanche indolore, autonomie complète.\n"}, {"id": "b20", "text": "\n"}, {"id": "b21", "text": "Nombre de séances : 20, à renouveler selon évolution\n"}, {"id": "b22", "text": "{{v1}}{{v2}}"}], "labels": ["Texte lié", "Signature", "Signature"]}};
+const ATLAS_MODEL_VALUES={};
+ATLAS_MODEL_VALUES["CRO"]=function(f){
+  const cote=coteStrD(f);
+  return [(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication||('Arthroplastie totale de hanche '+cote)),(f.ccam),(f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''),(f.cupType==='Double mobilité'?'double mobilité ':''),(f.cotyleModele),(f.cotyleTaille),(f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''),(f.tigeModele),(f.tigeLat?' Latéralisée':''),(f.tigeFix==='Cimentée'?' cimentée':''),(f.tigeTaille),(f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''),(f.teteTaille),(f.teteMat),(f.teteCol),(f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''),(cote==='gauche'?'droit':'gauche'),(f.renfort?`Fraisages de tailles croissantes.
+Mise en place d'un renfort acétabulaire${f.renfortModele?' '+f.renfortModele:''}, fixé par ${f.renfortNbVis||'—'} vis.
+Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille} dans le renfort, légèrement plus antéversé que le transverse.`:`Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
+`:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc()),((f.insertMat||'polyéthylène').toLowerCase())];};
+ATLAS_MODEL_VALUES["CRH"]=function(f){
+  const inter=f._inter;
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return [(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),(_crhAppui(f)),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))),(_dSig()),(_dService()),(_dChefHopLine())];};
+ATLAS_MODEL_VALUES["Ordo pharma"]=function(f){
+  const lines=[];
+  if(f.antico&&f.antico!=='Aucun'){
+    lines.push('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours');
+  }
+  lines.push('— PARACETAMOL 1 g — 1 comprimé toutes les 6 h si douleur (max 4 g/j)');
+  if(f.ains){
+    lines.push('— IBUPROFENE 400 mg — 1 comprimé matin, midi et soir pendant 5 jours, au milieu des repas (si pas de contre-indication)');
+    lines.push('— ESOMEPRAZOLE 20 mg — 1 comprimé par jour pendant la durée du traitement par AINS');
+  }
+  if(f.vitC)lines.push('— VITAMINE C 500 mg — 1 comprimé par jour pendant 45 jours');
+  const agr=_crhFils(f)==='Ablation des agrafes à J15';
+  const moderne=/Aquacel|Mepilex/i.test(f.pansement||'');
+  const pans=[];
+  pans.push('— Sets de pansement stériles : quantité suffisante pour un renouvellement '+docPansementFrequency(f)+" jusqu’à cicatrisation");
+  pans.push('— Compresses stériles 10×10 cm : 2 boîtes');
+  pans.push('— BISEPTINE solution pour application cutanée : 1 flacon');
+  pans.push('— Sérum physiologique en unidoses : 1 boîte');
+  pans.push('— Sparadrap hypoallergénique : 1 rouleau');
+  if(/Aquacel/i.test(f.pansement||''))pans.push('— Pansements hydrofibre (type Aquacel) + plaques hydrocolloïdes (type Duoderm) : quantité suffisante jusqu’à cicatrisation');
+  if(/Mepilex/i.test(f.pansement||''))pans.push('— Pansements hydrocellulaires adhésifs (type Mepilex Border) : quantité suffisante jusqu’à cicatrisation');
+  if(agr)pans.push('— Ôte-agrafes stérile à usage unique : 1 (pour ablation des agrafes à J15)');
+  if(f.antico&&anticoIsHBPM(f.antico))pans.push("— Collecteur d'aiguilles usagées (DASRI) : 1");
+  return [(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(lines.join('\n')),(f.pansement),(docPansementFrequency(f)),(pans.join('\n')),(_dSig()),(_dRpps())];};
+ATLAS_MODEL_VALUES["Ordo IDE"]=function(f){
+  const inj=(f.antico&&f.antico!=='Aucun'&&anticoIsHBPM(f.antico))?('— Injection '+f.antico+' SC 1x/jour pendant '+f.anticoJours+' jours\n'):'';
+  return [(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(inj),(f.pansement||'selon protocole'),(docPansementFrequency(f)),(_crhFils(f)),(_dSig()),(_dRpps())];};
+ATLAS_MODEL_VALUES["Ordo mat\u00e9riel"]=function(f){
+  const items=Object.keys(MAT_LABELS).filter(k=>f[k]).map(k=>'— '+(k==='matFauteuil'?('Un fauteuil roulant avec repose-jambe côté '+coteStrD(f)+' (location 1 mois)'):MAT_LABELS[k]));
+  return [(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(items.length?items.join('\n'):'(Aucun matériel sélectionné — coche le matériel dans le formulaire précédent)'),(_dSig()),(_dRpps())];};
+ATLAS_MODEL_VALUES["Ordo kin\u00e9"]=function(f){
+  const inter=f._inter;
+  const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+return [(intro),(_dSig()),(_dRpps())];};
+const ATLAS_MODEL_KEY='atlas_pth_documents_v1';
+function atlasModelRead(){const raw=localStorage.getItem(ATLAS_MODEL_KEY);if(!raw)return null;const value=JSON.parse(raw);atlasModelValidate(value.current);return value;}
+function atlasModelValidate(m){
+ if(!m||m.version!==1||!m.docs||!Array.isArray(m.params)||m.params.length>30)throw Error('Modèle PTH invalide');
+ const keys=new Set();for(const p of m.params){if(!/^_am_[a-z0-9_]+$/.test(p.k)||keys.has(p.k)||!['text','seg'].includes(p.t)||typeof p.def!=='string'||p.def.length>1000||typeof p.l!=='string'||!p.l.trim()||p.l.length>100)throw Error('Paramètre invalide');keys.add(p.k);if(p.t==='seg'&&(!Array.isArray(p.o)||!p.o.length||p.o.length>12||p.o.some(x=>typeof x!=='string'||!x.trim()||x.length>200)))throw Error('Choix invalides');}
+ const fields=new Set([...DOC_OPTS.pth.map(o=>o.k).filter(Boolean),'cote','dateInter','nom','prenom',...keys]);
+ for(const [doc,base] of Object.entries(ATLAS_MODEL_BASE)){const blocks=m.docs[doc];if(!Array.isArray(blocks)||blocks.length>200)throw Error('Document invalide');const used=[];
+  for(const b of blocks){if(typeof b.text!=='string'||b.text.length>20000)throw Error('Paragraphe invalide');if(b.when&&(!fields.has(b.when.k)||typeof b.when.value!=='string'))throw Error('Condition inconnue');let rest=b.text.replace(/\{\{([^{}]+)\}\}/g,(_,k)=>{if(/^v\d+$/.test(k)){if(!base.labels[+k.slice(1)])throw Error('Passage lié inconnu');used.push(k);const origin=base.blocks.find(x=>x.text.includes('{{'+k+'}}'));if(JSON.stringify(b.when||null)!==JSON.stringify(origin?.when||null))throw Error('Ce passage lié conserve sa condition d’origine');}else if(!fields.has(k))throw Error('Pastille inconnue : '+k);return ''});if(/[{}]/.test(rest))throw Error('Pastille incomplète');}
+  const wanted=base.blocks.flatMap(b=>[...b.text.matchAll(/\{\{(v\d+)\}\}/g)].map(x=>x[1])).sort();if(JSON.stringify(used.sort())!==JSON.stringify(wanted))throw Error('Conserve chaque passage lié une seule fois dans '+doc);
+ }
+ return m;
+}
+function atlasModelBlank(){return {version:1,params:[],docs:Object.fromEntries(Object.entries(ATLAS_MODEL_BASE).map(([k,v])=>[k,JSON.parse(JSON.stringify(v.blocks))]))};}
+function atlasModelRender(doc,f,m){
+ const values=ATLAS_MODEL_VALUES[doc](f);
+ return m.docs[doc].filter(b=>!b.when||String(f[b.when.k]??'')===b.when.value).map(b=>b.text.replace(/\{\{([^{}]+)\}\}/g,(_,k)=>/^v\d+$/.test(k)?String(values[+k.slice(1)]??''):String(f[k]??''))).join('');
+}
+function atlasModelOptions(f){const opts=DOC_OPTS[f._inter]||[];if(f._inter!=='pth')return opts;const saved=atlasModelRead();return saved?opts.concat(saved.current.params):opts;}
+function docContent(doc){
+ if(DOCF._inter!=='pth'||!ATLAS_MODEL_BASE[doc])return docContentNative(doc);
+ const saved=atlasModelRead();if(!saved)return docContentNative(doc);
+ const t=atlasModelRender(doc,DOCF,saved.current);if(doc==='CRO')return _croPost(t);if(doc==='Ordo kiné'){const side=coteStrD(DOCF),nl=t.indexOf('\n');let result=side&&nl>0&&!/CÔTÉ/i.test(t.slice(0,nl))?t.slice(0,nl)+' — CÔTÉ '+side.toUpperCase()+t.slice(nl):t;const a=_ampTxt(DOCF),K='Rééducation au cabinet conseillée.';if(a)result=result.includes(K)?result.replace(K,K+'\n\n'+a):a+'\n\n'+result;return result;}return t;
+}
+let atlasModelDraft=null,atlasModelDoc='CRO',atlasModelDirty=false,atlasModelPreview=false,atlasModelF=null;
+function atlasOpenModels(){
+ try{atlasModelDraft=JSON.parse(JSON.stringify(atlasModelRead()?.current||atlasModelBlank()));}catch(e){showToast(e.message);return;}
+ atlasModelDoc='CRO';atlasModelDirty=false;atlasModelPreview=false;
+ atlasModelF={_inter:'pth',cote:'Gauche',dateInter:'2026-09-13',nom:'EXEMPLE',prenom:'Alex',ddn:'1970-01-01',ccam:'NEKA020'};
+ DOC_OPTS.pth.forEach(o=>{if(o.k)atlasModelF[o.k]=o.def??(o.t==='check'?false:'')});atlasModelF.fermeture='Agrafes';atlasModelF.anesthesie='Anesthésie générale';atlasModelF.cupType='Simple mobilité';
+ document.getElementById('atlas-model-editor').showModal();atlasModelDraw();
+}
+async function atlasCloseModels(){if(atlasModelDirty&&!window.confirm('Quitter sans enregistrer les modifications du modèle PTH ?'))return;document.getElementById('atlas-model-editor').close();}
+function atlasModelLabel(k){return (DOC_OPTS.pth.find(o=>o.k===k)||atlasModelDraft.params.find(o=>o.k===k)||{}).l||({cote:'Côté',dateInter:'Date opératoire',nom:'Nom',prenom:'Prénom'}[k])||k;}
+function atlasModelTokens(text){return esc(text).replace(/\{\{([^{}]+)\}\}/g,(_,k)=>{const label=/^v\d+$/.test(k)?ATLAS_MODEL_BASE[atlasModelDoc].labels[+k.slice(1)].split(' / ').map(atlasModelLabel).join(' · '):atlasModelLabel(k);return '<span class="am-token" contenteditable="false" data-key="'+esc(k)+'">'+esc(label)+'</span>'});}
+function atlasModelDraw(){
+ const host=document.getElementById('am-body'),tabs=document.getElementById('am-tabs');
+ tabs.innerHTML=Object.keys(ATLAS_MODEL_BASE).map((d,i)=>`<button class="${atlasModelDoc===d?'on':''}" onclick="atlasModelDoc=Object.keys(ATLAS_MODEL_BASE)[${i}];atlasModelPreview=false;atlasModelDraw()">${d}</button>`).join('');
+ document.getElementById('am-save').textContent='Enregistrer pour les prochaines PTH';
+ document.getElementById('am-preview').textContent=atlasModelPreview?'Éditer':'Aperçu';
+ if(atlasModelPreview){atlasModelDraft.params.forEach(p=>{if(atlasModelF[p.k]===undefined)atlasModelF[p.k]=p.def||''});host.innerHTML=`<div class="am-preview-controls"><label>Cotyle<select onchange="atlasModelF.cupType=this.value;atlasModelDraw()"><option ${atlasModelF.cupType==='Simple mobilité'?'selected':''}>Simple mobilité</option><option ${atlasModelF.cupType==='Double mobilité'?'selected':''}>Double mobilité</option></select></label>${atlasModelDraft.params.map((p,i)=>`<label>${esc(p.l)}${p.t==='seg'?`<select data-param-index="${i}"><option value="">Choisir</option>${p.o.map(v=>`<option value="${esc(v)}" ${atlasModelF[p.k]===v?'selected':''}>${esc(v)}</option>`).join('')}</select>`:`<input data-param-index="${i}" value="${esc(atlasModelF[p.k]||'')}">`}</label>`).join('')}</div><pre id="am-preview-text">${esc(atlasModelRender(atlasModelDoc,atlasModelF,atlasModelDraft))}</pre>`;host.querySelectorAll('[data-param-index]').forEach(el=>el.oninput=()=>{atlasModelF[atlasModelDraft.params[+el.dataset.paramIndex].k]=el.value;document.getElementById('am-preview-text').textContent=atlasModelRender(atlasModelDoc,atlasModelF,atlasModelDraft)});return;}
+ host.innerHTML=atlasModelDraft.docs[atlasModelDoc].map((b,i)=>`<article class="am-block"><div class="am-block-head"><span>${b.text.includes("{{v")?'Passage lié':'Paragraphe'} ${i+1}${b.when?' · '+esc(atlasModelLabel(b.when.k))+' = '+esc(b.when.value):''}</span><div><button aria-label="Monter" ${i===0?'disabled':''} onclick="atlasModelMove(${i},-1)">↑</button><button aria-label="Descendre" ${i===atlasModelDraft.docs[atlasModelDoc].length-1?'disabled':''} onclick="atlasModelMove(${i},1)">↓</button><button onclick="atlasModelEdit(${i})" aria-label="Modifier le paragraphe">✎</button></div></div><div class="am-text">${b.text.trim()?atlasModelTokens(b.text):'<span class="am-space">Espacement</span>'}</div></article>`).join('')+`<button class="am-add" onclick="atlasModelDraft.docs[atlasModelDoc].push({text:'\\n'});atlasModelDirty=true;atlasModelEdit(atlasModelDraft.docs[atlasModelDoc].length-1)">+ Paragraphe</button><button class="am-add" onclick="atlasModelAddParam()">+ Paramètre PTH</button>`;
+}
+function atlasModelMove(i,d){const a=atlasModelDraft.docs[atlasModelDoc],j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];atlasModelDirty=true;const h=document.getElementById('am-body'),scroll=h.scrollTop;atlasModelDraw();h.scrollTop=scroll;}
+function atlasModelEdit(i){
+ const b=atlasModelDraft.docs[atlasModelDoc][i],modal=document.getElementById('am-edit');
+ const keys=[...new Set([...DOC_OPTS.pth.map(o=>o.k).filter(Boolean),...atlasModelDraft.params.map(o=>o.k),'cote','dateInter','nom','prenom'])];
+ modal.innerHTML=`<h2>Formulation · ${esc(atlasModelDoc)}</h2><div id="am-text-edit" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Texte du paragraphe">${atlasModelTokens(b.text)}</div><label>Insérer une pastille<select id="am-insert"><option value="">Choisir</option>${keys.map(k=>`<option value="${k}">${esc(atlasModelLabel(k))}</option>`).join('')}</select></label><label>Afficher lorsque<select id="am-condition"><option value="">Toujours / condition d’origine</option>${keys.map(k=>`<option value="${k}" ${b.when?.k===k?'selected':''}>${esc(atlasModelLabel(k))}</option>`).join('')}</select></label><input id="am-condition-value" aria-label="Valeur de la condition" placeholder="Valeur exacte du choix" value="${esc(b.when?.value||'')}"><div class="am-buttons"><button id="am-edit-cancel">Annuler</button><button id="am-edit-ok">Appliquer au brouillon</button></div>`;
+ modal.showModal();const ta=document.getElementById('am-text-edit');ta.addEventListener('paste',e=>{e.preventDefault();const t=e.clipboardData.getData('text/plain');const sel=window.getSelection();if(sel.rangeCount){const r=sel.getRangeAt(0);if(ta.contains(r.commonAncestorContainer)){r.deleteContents();const n=document.createTextNode(t);r.insertNode(n);r.setStartAfter(n);r.collapse(true);sel.removeAllRanges();sel.addRange(r);}}});document.getElementById('am-insert').onchange=e=>{if(e.target.value){const span=document.createElement('span');span.className='am-token';span.contentEditable='false';span.dataset.key=e.target.value;span.textContent=atlasModelLabel(e.target.value);ta.append(span);ta.focus()}};
+ document.getElementById('am-edit-cancel').onclick=()=>modal.close();document.getElementById('am-edit-ok').onclick=()=>{const copy=JSON.parse(JSON.stringify(atlasModelDraft)),x=copy.docs[atlasModelDoc][i];const clone=ta.cloneNode(true);clone.querySelectorAll('[data-key]').forEach(n=>n.replaceWith(document.createTextNode('{{'+n.dataset.key+'}}')));clone.querySelectorAll('br').forEach(n=>n.replaceWith(document.createTextNode('\n')));clone.querySelectorAll('div,p').forEach(n=>n.prepend(document.createTextNode('\n')));x.text=clone.textContent;const k=document.getElementById('am-condition').value;x.when=k?{k,value:document.getElementById('am-condition-value').value}:null;try{atlasModelValidate(copy);atlasModelDraft=copy;atlasModelDirty=true;modal.close();atlasModelDraw()}catch(e){alert(e.message)}};
+}
+function atlasModelAddParam(){
+ const m=document.getElementById('am-edit');m.innerHTML='<h2>Nouveau paramètre PTH</h2><label>Intitulé<input id="am-param-name" maxlength="100"></label><label>Choix sous forme de pastilles<textarea id="am-param-choices" placeholder="Un choix par ligne ; laisser vide pour du texte libre"></textarea></label><button id="am-param-ok">Ajouter</button><button id="am-param-cancel">Annuler</button>';m.showModal();document.getElementById('am-param-cancel').onclick=()=>m.close();document.getElementById('am-param-ok').onclick=()=>{const l=document.getElementById('am-param-name').value.trim(),o=document.getElementById('am-param-choices').value.split('\n').map(x=>x.trim()).filter(Boolean),p={k:'_am_'+Date.now().toString(36),l,t:o.length?'seg':'text',o,def:''};const next=JSON.parse(JSON.stringify(atlasModelDraft));next.params.push(p);try{atlasModelValidate(next);atlasModelDraft=next;atlasModelDirty=true;m.close();atlasModelDraw()}catch(e){alert(e.message)}};
+}
+async function atlasModelSave(){
+ try{atlasModelValidate(atlasModelDraft);if(!window.confirm('Appliquer ces formulations aux prochaines PTH standard ? Les autres trames restent inchangées.'))return;const old=atlasModelRead();localStorage.setItem(ATLAS_MODEL_KEY,JSON.stringify({current:atlasModelDraft,previous:old?.current||null}));atlasModelDirty=false;document.getElementById('am-save').textContent='Modèle PTH enregistré';}catch(e){alert('Enregistrement impossible : '+e.message)}
+}
+async function atlasModelRestore(){if(!window.confirm('Rétablir les formulations PTH d’origine ?'))return;try{localStorage.removeItem(ATLAS_MODEL_KEY);atlasModelDraft=atlasModelBlank();atlasModelDirty=false;atlasModelDraw();document.getElementById('am-save').textContent='Formulation d’origine rétablie'}catch(e){alert(e.message)}}
+async function atlasModelUndo(){try{const s=atlasModelRead();if(!s?.previous){alert('Aucune version précédente');return}atlasModelValidate(s.previous);if(!window.confirm('Rétablir la version précédente du modèle PTH ?'))return;localStorage.setItem(ATLAS_MODEL_KEY,JSON.stringify({current:s.previous,previous:s.current}));atlasModelDraft=JSON.parse(JSON.stringify(s.previous));atlasModelDirty=false;atlasModelDraw();document.getElementById('am-save').textContent='Version précédente rétablie'}catch(e){alert(e.message)}}
+function atlasSizeOptions(){const el=document.getElementById('view-options');if(!el?.classList.contains('active'))return;const bottom=document.querySelector('.bottomnav')?.getBoundingClientRect().top||innerHeight;el.style.setProperty('--am-options-height',Math.max(360,bottom-el.getBoundingClientRect().top)+'px');}
+if(typeof document!=='undefined'){
+ const options=document.getElementById('view-options');if(options)new MutationObserver(()=>requestAnimationFrame(atlasSizeOptions)).observe(options,{attributes:true,attributeFilter:['class']});
+ window.addEventListener('resize',atlasSizeOptions);
+}
+
+function atlasModelRenderOption(o){
+ const control=o.t==='seg'?'<div class="doc-pills">'+o.o.map(v=>'<button type="button" class="doc-pill'+(DOCF[o.k]===v?' on':'')+'" onclick="'+esc('setDocF('+JSON.stringify(o.k)+','+JSON.stringify(v)+')')+'">'+esc(v)+'</button>').join('')+'</div>':'<input class="doc-fin" type="text" value="'+esc(DOCF[o.k]||'')+'" oninput="'+esc('setDocFT('+JSON.stringify(o.k)+',this.value)')+'">';
+ return '<div class="doc-frow"><div class="doc-flabel">'+esc(o.l)+'</div>'+control+'</div>';
+}
+
+document.getElementById('atlas-model-editor').addEventListener('cancel',e=>{e.preventDefault();atlasCloseModels();});
+</script>
 </body></html>
