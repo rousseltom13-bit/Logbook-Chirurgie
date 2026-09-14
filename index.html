@@ -5897,7 +5897,7 @@ function ensureRadioMigration(){
   return _radioMigP;
 }
 async function _migrateRadioIdentity(){
-  try{if(localStorage.getItem(RADIO_MIG_FLAG)==='161')return;}catch(e){}
+  try{if(localStorage.getItem(RADIO_MIG_FLAG)==='202')return;}catch(e){}
   const db=await openRadioDB();
   // Passe 1 : métadonnées seulement (jamais toutes les images en mémoire)
   const meta=await new Promise((res,rej)=>{
@@ -5910,21 +5910,19 @@ async function _migrateRadioIdentity(){
   let migrated=0,deduped=0;const seen=new Set();
   // Passe 2 : une radio à la fois
   for(const m of meta){
-    let hash=m.hash;
-    if(!hash){
-      const full=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(m.key);rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
-      if(!full)continue;
-      hash=await _radioHash(full.data);
-    }
+    // v202 : la méthode de hash a changé (contenu binaire décodé) — on recalcule TOUT une fois ici,
+    // puis les imports font confiance aux hash stockés (plus JAMAIS de re-hash de toute la base à chaque import)
+    const full=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(m.key);rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
+    if(!full)continue;
+    const hash=await _radioHash(full.data);
+    const hashOk=hash.indexOf('err:')!==0; // un hash en échec ne participe JAMAIS au dédoublonnage (sinon deux images corrompues distinctes se suppriment entre elles)
     const sig=m.blocId+'|'+m.type+'|'+hash;
-    if(seen.has(sig)){
+    if(hashOk&&seen.has(sig)){
       await new Promise((res,rej)=>{const tx=db.transaction('radios','readwrite');tx.objectStore('radios').delete(m.key);tx.oncomplete=res;tx.onerror=rej;});
       deduped++;continue;
     }
-    seen.add(sig);
-    if(m.keyOk&&m.hash)continue;
-    const full=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(m.key);rq.onsuccess=e=>res(e.target.result);rq.onerror=rej;});
-    if(!full)continue;
+    if(hashOk)seen.add(sig);
+    if(m.keyOk&&m.hash===hash)continue;
     const nk=m.keyOk?m.key:_radioUid();
     await new Promise((res,rej)=>{
       const tx=db.transaction('radios','readwrite');
@@ -5935,8 +5933,8 @@ async function _migrateRadioIdentity(){
     });
     migrated++;
   }
-  try{localStorage.setItem(RADIO_MIG_FLAG,'161');}catch(e){}
-  if(migrated||deduped)console.info('[Atlas] migration radios v161 :',migrated,'migrée(s),',deduped,'doublon(s) supprimé(s)');
+  try{localStorage.setItem(RADIO_MIG_FLAG,'202');}catch(e){}
+  if(migrated||deduped)console.info('[Atlas] migration radios v202 :',migrated,'re-hashée(s)/migrée(s),',deduped,'doublon(s) supprimé(s)');
 }
 if(typeof indexedDB!=='undefined'){setTimeout(()=>{try{ensureRadioMigration().catch(()=>{});}catch(e){}},1200);}
 
@@ -13249,7 +13247,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v183',
+    version:'atlas-v202',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -13507,10 +13505,7 @@ function importData(e,reference=false){
             rq.onsuccess=e=>{const c=e.target.result;if(c){const v=c.value;out.push({key:v.key,blocId:v.blocId,type:v.type,name:v.name,date:v.date,hash:v.hash||null,ord:(v.ord!==undefined?v.ord:(v.idx||0))});c.continue();}else res(out);};
             rq.onerror=rej;
           });
-          for(const x of existing){
-            const stored=await new Promise((res,rej)=>{const tx=db.transaction('radios','readonly');const rq=tx.objectStore('radios').get(x.key);rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);});
-            x.hash=stored&&stored.data?await _radioHash(stored.data):null;
-          }
+          // v202 : les hash stockés sont fiables depuis la re-migration '202' — plus de re-hash de toute la base ici
           const haveKey=new Set(existing.map(x=>x.key));
           const haveHash=new Set(existing.filter(x=>x.hash).map(x=>x.blocId+'|'+x.type+'|'+x.hash));
           const haveSig2=new Set(existing.filter(x=>x.name&&x.date).map(x=>x.blocId+'|'+x.type+'|'+x.name+'|'+x.date));
@@ -13525,8 +13520,9 @@ function importData(e,reference=false){
             const hash=await _radioHash(r.data);
             const sigH=r.blocId+'|'+r.type+'|'+hash;
             const sig2=(r.name&&r.date)?(r.blocId+'|'+r.type+'|'+r.name+'|'+r.date):null;
+            const hashOk=hash.indexOf('err:')!==0;
+            if((hashOk&&haveHash.has(sigH))||(sig2&&haveSig2.has(sig2))){radiosSkipped++;continue;}
             touched.add(r.blocId);
-            if(haveHash.has(sigH)){radiosSkipped++;continue;}
             const ok=r.blocId+'|'+r.type;
             const ord=(maxOrd[ok]!==undefined?maxOrd[ok]:-1)+1;maxOrd[ok]=ord;
             const key=(typeof r.key==='string'&&r.key.slice(0,2)==='r_'&&!haveKey.has(r.key))?r.key:_radioUid();
@@ -13536,7 +13532,7 @@ function importData(e,reference=false){
               tx.oncomplete=()=>{radiosRestored++;res();};
               tx.onerror=rej;
             });
-            haveKey.add(key);haveHash.add(sigH);if(sig2)haveSig2.add(sig2);touched.add(r.blocId);
+            haveKey.add(key);if(hashOk)haveHash.add(sigH);if(sig2)haveSig2.add(sig2);
           }
           radiosOrphan=[...touched].filter(bid=>!blocs.some(b=>b.id===bid)).length;
           // v161 : recompte des pastilles radio des blocs touchés (le compteur mentait après import)
@@ -13939,7 +13935,7 @@ function genRapport(start,end,label){
       +(v?('<i style="height:'+ha+'px;background:#D8D2C2;border-radius:'+(hp?'4px 4px 0 0':'4px 4px 0 0')+';"></i><i style="height:'+hp+'px;'+(ha?'border-radius:0;':'')+'"></i>')
           :'<i style="height:2px;background:#EFEBE0;"></i>')
       +'<span>'+RAP_MOIS[+k.slice(5,7)-1]+'</span></div>';});
-  h+='</div><div class="rap-note"><span style="display:inline-block;width:9px;height:9px;background:#1A4F54;border-radius:2px;vertical-align:-1px;"></span> opérateur &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#D8D2C2;border-radius:2px;vertical-align:-1px;"></span> aide opératoire</div></div>';
+  h+='</div><div class="rap-note"><span style="display:inline-block;width:9px;height:9px;background:#1A4F54;border-radius:2px;vertical-align:-1px;"></span> opérateur &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#D8D2C2;border-radius:2px;vertical-align:-1px;"></span> encadrement</div></div>';
   if(premieres.length){
     h+='<div class="rap-sec"><div class="rap-sec-t">Premières — nouvelles interventions en opérateur</div><div style="font-size:13px;line-height:1.6;">'+premieres.slice(0,12).map(esc).join(' · ')+(premieres.length>12?' · +'+(premieres.length-12)+' autres':'')+'</div></div>';
   }
