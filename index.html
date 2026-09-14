@@ -9233,7 +9233,7 @@ for(const source of ['dhs','triple']){
  DOC_OPTS[source]=DOC_OPTS[source].map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
  const at=DOC_OPTS[source].findIndex(o=>o.k==='appui');DOC_OPTS[source].splice(at+1,0,
  {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
- {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>f.appui==='Consigne personnalisée'});
  DOC_DOCS[source]=DOC_DOCS.femur.slice();
 }
 DOC_OPTS.pth_ablation=DOC_OPTS.pth.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
@@ -9260,7 +9260,7 @@ DOC_OPTS.pih=[..._COMMON.map(o=>({...o})),
  ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
 (function(){const at=DOC_OPTS.pih.findIndex(o=>o.k==='appui');DOC_OPTS.pih.splice(at+1,0,
  {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
- {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});})();
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>f.appui==='Consigne personnalisée'});})();
 DOC_DOCS.pih=DOC_DOCS.pth.slice();
 DOC_CCAM.pih='NEKA011';
 
@@ -9299,7 +9299,7 @@ for(const src of LOT205_SOURCES){
  const at=DOC_OPTS[src].findIndex(o=>o.k==='appui');
  DOC_OPTS[src].splice(at+1,0,
  {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
- {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>f.appui==='Consigne personnalisée'});
 }
 DOC_CCAM.retro='NBCB004';DOC_CCAM.tibdist='NCCA001';DOC_CCAM.fe_tibia='NCCA010';DOC_CCAM.fe_bassin='NACB001';
 function _lot205Reduction(f){
@@ -9368,17 +9368,26 @@ function _lot206Immo(opts,def,sem){return [
  {k:'immoDetails',t:'text',l:'Immobilisation — consigne',def:'',show:f=>f.immo==='Consigne personnalisée'},
  {k:'immoSem',t:'num',l:'Immobilisation — durée (semaines)',def:sem}];}
 DOC_OPTS.achille=[..._lot206Core(),
+ {k:'lacaffiniere',t:'check',l:'Artifice de La Caffinière (ouverture antérieure de la gaine)',def:false},
  ..._lot206Immo(['Attelle plâtrée antérieure en équin'],'Attelle plâtrée antérieure en équin','3'),
  ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+const _L206REPAR=cadreDef=>[
+ {k:'faufilage',t:'seg',l:'Faufilage',o:['Krackow','Kessler','Autre'],def:'Krackow'},
+ {k:'faufilageAutre',t:'text',l:'Faufilage — précision',def:'',show:f=>f.faufilage==='Autre'},
+ {k:'fixation',t:'seg',l:'Fixation',o:['Tunnels transosseux','Ancres','Ancres + tunnels'],def:'Tunnels transosseux'},
+ {k:'ancresModele',t:'selx',l:'Ancres — modèle',impType:'ancre',def:'',show:f=>f.fixation&&f.fixation!=='Tunnels transosseux'},
+ {k:'ancresNb',t:'num',l:'Ancres — nombre',def:'2',show:f=>f.fixation&&f.fixation!=='Tunnels transosseux'},
+ {k:'cadre',t:'seg',l:'Cadre de protection',o:['Cadre aux ischio-jambiers (DI)','Cerclage métallique','Cadre au PDS','Aucun'],def:cadreDef},
+ {k:'crashDeg',t:'num',l:'Crash test — flexion testée (°)',def:'90'},
+ {k:'attelleSem',t:'num',l:'Attelle en extension — durée (semaines)',def:'6'}];
 DOC_OPTS.rotulien=[..._lot206Core(),
- {k:'cadre',t:'seg',l:'Cadre de protection',o:['Cadre aux ischio-jambiers (DI)','Cerclage métallique','Cadre au PDS','Aucun'],def:'Cadre aux ischio-jambiers (DI)'},
- ..._lot206Immo(['Attelle de genou en extension'],'Attelle de genou en extension','6'),
+ ..._L206REPAR('Cadre aux ischio-jambiers (DI)'),
  ..._amp(true,'60','3','90','3'),
- ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+ ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')&&o.k!=='appui').map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
 DOC_OPTS.quadriceps=[..._lot206Core(),
- ..._lot206Immo(['Attelle de genou en extension'],'Attelle de genou en extension','6'),
+ ..._L206REPAR('Aucun'),
  ..._amp(true,'60','3','90','3'),
- ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+ ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')&&o.k!=='appui').map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
 DOC_OPTS.biceps_distal=[..._lot206Core(),
  {k:'ancresModele',t:'selx',l:'Ancres — modèle',impType:'ancre',def:''},
  {k:'ancresNb',t:'num',l:'Ancres — nombre',def:'2'},
@@ -9387,16 +9396,38 @@ DOC_OPTS.biceps_distal=[..._lot206Core(),
 (function(){const m=DOC_OPTS.biceps_distal.find(o=>o.k==='matAttellePoignet');if(m)m.def=false;})();
 for(const src of LOT206_SOURCES){
  DOC_DOCS[src]=DOC_DOCS.femur.slice();
- if(src!=='biceps_distal'){
+ if(src==='achille'){
  const at=DOC_OPTS[src].findIndex(o=>o.k==='appui');
  DOC_OPTS[src].splice(at+1,0,
  {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
- {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>f.appui==='Consigne personnalisée'});
  }
  const d=DOC_OPTS[src].find(o=>o.k==='matDeambulateur');if(d)d.def=false;
 }
 DOC_CCAM.achille='NJEA003';DOC_CCAM.rotulien='NJEA007';DOC_CCAM.quadriceps='NJEA002';DOC_CCAM.biceps_distal='MJEA019';
-function _lot206ImmoStr(f){return (f.immo==='Consigne personnalisée'?(f.immoDetails||'Immobilisation à préciser'):f.immo)+(f.immoSem?' pendant '+f.immoSem+' semaines':'');}
+function _lot206ImmoStr(f){
+ if(['rotulien','quadriceps'].includes(f._inter))return 'Attelle de genou en extension pendant '+(f.attelleSem||'6')+' semaines — appui complet immédiat sous attelle verrouillée';
+ return (f.immo==='Consigne personnalisée'?(f.immoDetails||'Immobilisation à préciser'):f.immo)+(f.immoSem?' pendant '+f.immoSem+' semaines':'');}
+function _l206Faufil(f){return f.faufilage==='Autre'?(f.faufilageAutre||'faufilage à préciser'):(f.faufilage||'Krackow');}
+function _l206Fix(f,poleAncres,poleNouage){
+ const n=parseInt(f.ancresNb)||2,anc=(n>1?n+' ancres':'une ancre')+(f.ancresModele?' '+f.ancresModele:'');
+ if(f.fixation==='Ancres')return `Mise en place de ${anc} au pôle ${poleAncres} de la rotule. Passage des fils dans le tendon et nouage, genou en extension.
+`;
+ if(f.fixation==='Ancres + tunnels')return `Mise en place de ${anc} au pôle ${poleAncres} de la rotule, complétée par des tunnels transosseux. Passage des fils et nouage au pôle ${poleNouage}, genou en extension.
+`;
+ return `Forage de trois tunnels transosseux verticaux dans la rotule. Passage des fils et nouage au pôle ${poleNouage}, genou en extension.
+`;
+}
+function _l206Cadre(f){
+ if(f.cadre==='Cadre aux ischio-jambiers (DI)')return `Prélèvement du tendon du droit interne au stripper par le même abord, laissé pédiculé sur son insertion tibiale.
+Passage du transplant en Pulvertaft dans le tendon quadricipital, mise en tension genou en extension, puis suture du droit interne sur lui-même.
+`;
+ if(f.cadre==='Cerclage métallique')return 'Protection du montage par un cerclage métallique rotulo-tibial.\n';
+ if(f.cadre==='Cadre au PDS')return 'Protection du montage par un cadre au PDS entre la rotule et la tubérosité tibiale antérieure.\n';
+ return '';
+}
+function _l206Crash(f){return `Crash test : flexion progressive jusqu'à ${f.crashDeg||'—'}° — suture continente, absence de déhiscence.
+`;}
 function _lot206Body(f){
  if(f._inter==='achille')return `Installation en décubitus ventral.
 ${_garrotLine(f)}Abord postérieur para-achilléen médial.
@@ -9404,25 +9435,20 @@ Ouverture du paraténon. Évacuation de l'hématome et repérage des extrémité
 Suture par deux hémi-Tsuge au PDS.
 Renfort par un surjet en X au Vicryl 2.
 Contrôle de la continuité du tendon et de l'équin physiologique, comparatif au côté controlatéral.
-Fermeture du paraténon.
+${f.lacaffiniere?"Incision longitudinale antérieure de la gaine (artifice de La Caffinière), autorisant une fermeture postérieure sans tension.\n":''}Fermeture du paraténon.
 `;
  if(f._inter==='rotulien')return `Installation en décubitus dorsal.
 ${_garrotLine(f)}Abord antérieur médian en regard de l'appareil extenseur.
 Exposition de la rupture et avivement du pôle inférieur de la rotule.
-Faufilage du tendon patellaire par deux points type Krackow au fil non résorbable.
-Forage de trois tunnels transosseux verticaux dans la rotule. Passage des fils et nouage au pôle supérieur, genou en extension.
-${f.cadre==='Cadre aux ischio-jambiers (DI)'?`Prélèvement du tendon du droit interne au stripper par le même abord et préparation du transplant.
-Passage du transplant dans un tunnel transversal de la tubérosité tibiale antérieure puis en cadre autour de l'appareil extenseur, au ras du pôle inférieur de la rotule.
-Mise en tension du cadre genou en extension et suture du transplant sur lui-même.
-`:(f.cadre==='Cerclage métallique'?'Protection du montage par un cerclage métallique rotulo-tibial.\n':(f.cadre==='Cadre au PDS'?'Protection du montage par un cadre au PDS entre la rotule et la tubérosité tibiale antérieure.\n':''))}Contrôle de la course de l'appareil extenseur et de la hauteur patellaire en flexion prudente.
-`;
+Faufilage du tendon patellaire par deux points type ${_l206Faufil(f)} au fil non résorbable.
+${_l206Fix(f,'inférieur','supérieur')}${_l206Cadre(f)}Contrôle de la course de l'appareil extenseur et de la hauteur patellaire en flexion prudente.
+${_l206Crash(f)}`;
  if(f._inter==='quadriceps')return `Installation en décubitus dorsal.
 ${_garrotLine(f)}Abord antérieur médian en regard de l'appareil extenseur.
 Exposition de la rupture et avivement du pôle supérieur de la rotule.
-Faufilage du tendon quadricipital par deux points type Krackow au fil non résorbable.
-Forage de trois tunnels transosseux verticaux dans la rotule. Passage des fils et nouage au pôle inférieur, genou en extension.
-Contrôle de la course de l'appareil extenseur en flexion prudente.
-`;
+Faufilage du tendon quadricipital par deux points type ${_l206Faufil(f)} au fil non résorbable.
+${_l206Fix(f,'supérieur','inférieur')}${_l206Cadre(f)}Contrôle de la course de l'appareil extenseur en flexion prudente.
+${_l206Crash(f)}`;
  return `Installation en décubitus dorsal, membre supérieur sur table à bras.
 ${_garrotLine(f)}Courte voie d'abord antérieure en regard du pli du coude.
 Repérage et protection du nerf cutané latéral de l'avant-bras.
@@ -9472,7 +9498,7 @@ Entretien de la mobilité de l'épaule, du poignet et des doigts. Travail cicatr
 ${_dSig()}${_dRpps()}`;
  return head+`${f.ampOn?`Mobilisation du genou en respectant les amplitudes autorisées : flexion limitée à ${f.amp1Deg}° pendant ${f.amp1Sem} semaines${f.amp2Deg?', puis '+f.amp2Deg+'° pendant '+f.amp2Sem+' semaines':''}.
 `:''}Verrouillage quadricipital et travail isométrique précoce.
-Marche selon les consignes d'appui, attelle en place.
+Marche en appui complet immédiat, attelle verrouillée en extension.
 Travail cicatriciel, puis renforcement progressif de l'appareil extenseur selon les consignes chirurgicales.
 
 ${_dSig()}${_dRpps()}`;
@@ -9551,11 +9577,11 @@ function lot200Missing(f){
  if(f._inter==='fe_bassin')keys.push('fichesNb');
  }else if(LOT206_SOURCES.includes(f._inter)){
  keys=[];
- if(f._inter!=='biceps_distal')keys.push('appui');
+ if(f._inter==='achille')keys.push('appui');
  if(['Appui partiel','Décharge'].includes(f.appui)&&!(Number(f.dechargeSem)>0))return 'Durée de la restriction d’appui';
  if(f.appui==='Consigne personnalisée')keys.push('appuiDetails');
  if(f.immo==='Consigne personnalisée')keys.push('immoDetails');
- if(f._inter==='rotulien')keys.push('cadre');
+ if(['rotulien','quadriceps'].includes(f._inter)){keys.push('cadre');if(f.faufilage==='Autre')keys.push('faufilageAutre');if(f.fixation&&f.fixation!=='Tunnels transosseux')keys.push('ancresModele','ancresNb');}
  if(f._inter==='biceps_distal')keys.push('ancresNb');
  }else if(f._inter==='pih'){
  keys=['tigeModele','tigeTaille','tigeFix','bipDiam','appui'];
@@ -9715,6 +9741,29 @@ const LOT201_INDIC={humprox_plaque:f=>"Fracture céphalotubérositaire de l'hum�
 function _lot201Indic(f){return LOT201_INDIC[f._inter]?LOT201_INDIC[f._inter](f):'';}
 function _lot201Garrot(f){return (f._inter==='kapandji'||f._inter==='ulna_distal')&&f.garrotOn?('Garrot pneumatique à la racine du membre gonflé à '+(f.garrot||'250')+' mmHg.\n'):'';}
 function _lot201GarrotFin(f){return (f._inter==='kapandji'||f._inter==='ulna_distal')&&f.garrotOn&&f.garrotMin?('Temps de garrot : '+f.garrotMin+' minutes.\n'):'';}
+function _l201Comp(f){
+ if(f.foyerComp==='Vis 3,5 en compression')return "Mise en place d'une vis 3,5 inter-fragmentaire en compression du foyer.\n";
+ if(f.foyerComp==='Nice knot')return 'Compression du foyer par nice knot.\n';
+ return '';
+}
+function _l201PlaqueLine(f){
+ return f.foyerComp==='Compression par la plaque (trou décalé)'
+ ?`Ostéosynthèse par plaque ${f.plaqueModele} légèrement chantournée ; méchage excentré dans le trou décalé au viseur décalé, compression du foyer obtenue au serrage — fixation par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+`
+ :`Ostéosynthèse par plaque ${f.plaqueModele}, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+`;
+}
+function _l201Nerf(f){
+ const d=f.nerfDetails?(' '+f.nerfDetails+(/\.$/.test(f.nerfDetails)?'':'.')):'';
+ return (f.nerfRapport==='Au contact — croise la plaque'
+ ?"Vérification en fin d'ostéosynthèse : le nerf radial croise la plaque ; il est contrôlé libre, sans conflit avec le matériel."
+ :"Vérification en fin d'ostéosynthèse : le nerf radial chemine à distance de la plaque, libre de tout conflit.")+d+'\n';
+}
+function _l201Greffe(f){
+ if(!f.greffeOn)return '';
+ const t=f.greffeType==='Os de banque'?'os de banque':(f.greffeType==='Substitut phosphocalcique'?'substitut phosphocalcique':'autogreffe spongieuse');
+ return 'Comblement du défect métaphysaire par '+t+(f.greffeDetails?' ('+f.greffeDetails+')':'')+'.\n';
+}
 function lot201Suites(f){
  const immo=f.immo==='Consigne personnalisée'?(f.immoDetails||'Immobilisation à préciser'):f.immo;
  if(f._inter==='kapandji')return immo+' pendant '+f.immoSem+' semaines. Ablation des broches prévue à '+f.amoSem+' semaines';
@@ -9736,20 +9785,25 @@ for(const source of LOT201_SOURCES){
  {k:'hpInstallation',t:'seg',l:'Installation',o:['Demi-assis (beach chair)','Décubitus dorsal'],def:'Demi-assis (beach chair)'},
  {k:'hpVoie',t:'seg',l:'Voie d’abord',o:['Delto-pectorale','Supéro-externe trans-deltoïdienne'],def:'Delto-pectorale'},
  {k:'hpTuberosites',t:'check',l:'Tubérosités sur fils',def:true},
+ {k:'greffeOn',t:'check',l:'Greffe / comblement métaphysaire',def:false},
+ {k:'greffeType',t:'seg',l:'Greffe — type',o:['Autogreffe spongieuse','Os de banque','Substitut phosphocalcique'],def:'Autogreffe spongieuse',show:f=>f.greffeOn},
+ {k:'greffeDetails',t:'text',l:'Greffe — précision',def:'',show:f=>f.greffeOn},
  {k:'plaqueModele',t:'selx',l:'Plaque — modèle',impType:'plaque',def:''},
  {k:'visProx',t:'num',l:'Vis céphaliques verrouillées — nombre',def:''},
  {k:'visDist',t:'num',l:'Vis diaphysaires — nombre',def:''});
- if(source==='humdia_plaque'||source==='ulna_distal')fields.push(
- {k:'plaqueModele',t:'selx',l:'Plaque — modèle',impType:'plaque',def:''},
- {k:'visProx',t:'num',l:'Vis proximales — nombre',def:''},
- {k:'visDist',t:'num',l:'Vis distales — nombre',def:''},
- ..._VISLIBRES.map(o=>({...o})));
  if(source==='humdia_plaque')fields.push(
- {k:'hdVoie',t:'seg',l:'Installation et voie',o:['Antéro-latérale','Postérieure trans-tricipitale'],def:'Antéro-latérale'});
+ {k:'hdVoie',t:'seg',l:'Installation et voie',o:['Antéro-latérale','Postérieure trans-tricipitale'],def:'Antéro-latérale'},
+ {k:'nerfRapport',t:'seg',l:'Rapport du nerf radial avec la plaque',o:['À distance de la plaque','Au contact — croise la plaque'],def:'À distance de la plaque'},
+ {k:'nerfDetails',t:'text',l:'Nerf radial — précision',def:''});
  if(source==='kapandji'||source==='ulna_distal')fields.push(
  {k:'garrotOn',t:'check',l:'Garrot',def:true},
  {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'250',show:f=>f.garrotOn},
  {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn});
+ if(source==='humdia_plaque'||source==='ulna_distal')fields.push(
+ {k:'foyerComp',t:'seg',l:'Compression du foyer',o:['Aucune','Vis 3,5 en compression','Nice knot','Compression par la plaque (trou décalé)'],def:'Aucune'},
+ {k:'plaqueModele',t:'selx',l:'Plaque — modèle',impType:'plaque',def:''},
+ {k:'visProx',t:'num',l:'Vis proximales — nombre',def:''},
+ {k:'visDist',t:'num',l:'Vis distales — nombre',def:''});
  if(source==='kapandji')fields.push(
  {k:'brocheNb',t:'num',l:'Broches — nombre',def:'2'},
  {k:'brocheDiam',t:'text',l:'Broches — diamètre (mm)',def:'1,8'},
@@ -9787,7 +9841,7 @@ Repérage de la longue portion du biceps, guide vers la gouttière bicipitale.`:
 Discision des fibres du deltoïde sans dépasser 5 cm sous le rebord acromial, protection du nerf axillaire.`}
 ${f.hpTuberosites?'Mise sur fils des tubérosités au travers de la coiffe des rotateurs.\n':''}Évacuation de l'hématome et lavage du foyer.
 Réduction de la tête humérale sous contrôle scopique, à l'aide des fils tracteurs et d'un poussoir.
-Positionnement de la plaque ${f.plaqueModele} en dehors de la gouttière bicipitale, sous le sommet du trochiter.
+${_l201Greffe(f)}Positionnement de la plaque ${f.plaqueModele} en dehors de la gouttière bicipitale, sous le sommet du trochiter.
 Fixation par ${f.visProx} vis céphaliques verrouillées et ${f.visDist} vis diaphysaires.
 Contrôle scopique de face et en rotation : absence de pénétration articulaire des vis.
 ${f.hpTuberosites?'Réduction des tubérosités et amarrage des fils à la plaque.\n':''}`:''}${f._inter==='humdia_plaque'?`${f.hdVoie==='Postérieure trans-tricipitale'?`Voie d'abord postérieure trans-tricipitale.
@@ -9797,14 +9851,11 @@ Passage entre le muscle brachial en dedans et le brachio-radial en dehors.
 Repérage du nerf radial, mis sur lacs et protégé durant tout le geste.`}
 Exposition du foyer, évacuation de l'hématome et lavage.
 Réduction anatomique satisfaisante, maintenue à la pince.
-${_vlLine(f)}Ostéosynthèse par plaque ${f.plaqueModele}, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Vérification en fin d'ostéosynthèse : le nerf radial est libre de tout conflit avec la plaque.
-`:''}${f._inter==='ulna_distal'?`Abord direct du bord postéro-médial de l'ulna distal, entre le fléchisseur ulnaire du carpe et le bord osseux.
+${_l201Comp(f)}${_l201PlaqueLine(f)}${_l201Nerf(f)}`:''}${f._inter==='ulna_distal'?`Abord direct du bord postéro-médial de l'ulna distal, entre le fléchisseur ulnaire du carpe et le bord osseux.
 Protection de la branche sensitive dorsale du nerf ulnaire.
 Exposition du foyer, évacuation de l'hématome et lavage.
 Réduction anatomique satisfaisante, maintenue à la pince.
-${_vlLine(f)}Ostéosynthèse par plaque ${f.plaqueModele}, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Contrôle de la pronosupination et de la stabilité de l'articulation radio-ulnaire distale.
+${_l201Comp(f)}${_l201PlaqueLine(f)}Contrôle de la pronosupination et de la stabilité de l'articulation radio-ulnaire distale.
 `:''}${f._inter==='kapandji'?`Réduction première par manœuvres externes sous contrôle scopique.
 Embrochage intrafocal selon la technique de Kapandji : mise en place de ${f.brocheNb} broches de ${f.brocheDiam} mm par de courtes incisions, sous contrôle scopique, avec protection des tendons extenseurs et de la branche sensitive du nerf radial.
 Contrôle scopique de face et de profil : restitution de la pente radiale et de l'antéversion épiphysaire.
@@ -11351,6 +11402,9 @@ function _crhAppui(f){
  if(LOT201_SOURCES.includes(f._inter))return lot201Suites(f);
  if(['dhs','triple'].includes(f._inter))return fixationAppui(f);
  if(f._inter==='pth_ablation')return _crhAppui({...f,_inter:'pth'});
+ if(['rotulien','quadriceps'].includes(f._inter))return "Appui complet immédiat autorisé, attelle verrouillée en extension, sous couvert de cannes anglaises";
+ if(f._inter==='achille')return fixationAppui(f)+" — attelle en équin en place";
+ if(f._inter==='biceps_distal')return "Pas de restriction d'appui — pas de port de charge avec le membre opéré";
   const i=f._inter;
   if(i==='femurplaque'){
     if(f.appui==='Appui partiel 6 semaines')return "Appui partiel pendant 6 semaines sous couvert de cannes anglaises";
@@ -11443,6 +11497,8 @@ function _crhMotif(f){
   if(i==='ablation')return "l'ablation de son matériel d'ostéosynthèse";
   return '';
 }
+function _l206ActeFix(f){return f.fixation==='Ancres'?'par ancres':(f.fixation==='Ancres + tunnels'?'par ancres et tunnels transosseux':'transosseuse');}
+function _l206ActeCadre(f){return f.cadre&&f.cadre!=='Aucun'?', protégée par un '+(f.cadre==='Cadre aux ischio-jambiers (DI)'?'cadre aux ischio-jambiers (droit interne)':(f.cadre==='Cerclage métallique'?'cerclage métallique':'cadre au PDS')):'';}
 function _crhActe(f){
  if(f._inter==='humprox_plaque')return 'une ostéosynthèse de l’humérus proximal par plaque, par voie '+f.hpVoie.toLowerCase();
  if(f._inter==='humdia_plaque')return 'une ostéosynthèse de la diaphyse humérale par plaque, par voie '+f.hdVoie.toLowerCase()+', avec repérage et protection du nerf radial';
@@ -11457,8 +11513,8 @@ function _crhActe(f){
  if(f._inter==='fe_tibia')return 'une stabilisation du tibia par fixateur externe en configuration '+(f.feConfig==='Tibio-tibial'?'tibio-tibiale':'tibio-calcanéenne pontant la cheville');
  if(f._inter==='fe_bassin')return 'une stabilisation de l’anneau pelvien par fixateur externe antérieur, fiches '+(f.fbFiches==='Supra-acétabulaires'?'supra-acétabulaires':'iliaques');
  if(f._inter==='achille')return 'une suture à ciel ouvert du tendon calcanéen (deux hémi-Tsuge au PDS, renfort par surjet en X)';
- if(f._inter==='rotulien')return 'une réinsertion transosseuse du tendon patellaire'+(f.cadre&&f.cadre!=='Aucun'?', protégée par un '+(f.cadre==='Cadre aux ischio-jambiers (DI)'?'cadre aux ischio-jambiers (droit interne)':(f.cadre==='Cerclage métallique'?'cerclage métallique':'cadre au PDS')):'');
- if(f._inter==='quadriceps')return 'une réinsertion transosseuse du tendon quadricipital';
+ if(f._inter==='rotulien')return 'une réinsertion '+_l206ActeFix(f)+' du tendon patellaire'+_l206ActeCadre(f);
+ if(f._inter==='quadriceps')return 'une réinsertion '+_l206ActeFix(f)+' du tendon quadricipital'+_l206ActeCadre(f);
  if(f._inter==='biceps_distal')return 'une réinsertion du tendon distal du biceps brachial sur la tubérosité radiale par ancres';
  if(f._inter==='pth_ablation')return 'une ablation '+(f.amoComplet==='Partielle'?'partielle':'complète')+' de '+amoMateriel(f)+', suivie de '+_crhActe({...f,_inter:'pth'});
 
@@ -13617,7 +13673,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v208',
+    version:'atlas-v209',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -18843,7 +18899,7 @@ Repérage de la longue portion du biceps, guide vers la gouttière bicipitale.`:
 Discision des fibres du deltoïde sans dépasser 5 cm sous le rebord acromial, protection du nerf axillaire.`}
 ${f.hpTuberosites?'Mise sur fils des tubérosités au travers de la coiffe des rotateurs.\n':''}Évacuation de l'hématome et lavage du foyer.
 Réduction de la tête humérale sous contrôle scopique, à l'aide des fils tracteurs et d'un poussoir.
-Positionnement de la plaque ${f.plaqueModele} en dehors de la gouttière bicipitale, sous le sommet du trochiter.
+${_l201Greffe(f)}Positionnement de la plaque ${f.plaqueModele} en dehors de la gouttière bicipitale, sous le sommet du trochiter.
 Fixation par ${f.visProx} vis céphaliques verrouillées et ${f.visDist} vis diaphysaires.
 Contrôle scopique de face et en rotation : absence de pénétration articulaire des vis.
 ${f.hpTuberosites?'Réduction des tubérosités et amarrage des fils à la plaque.\n':''}`:''),(f._inter==='humdia_plaque'?`${f.hdVoie==='Postérieure trans-tricipitale'?`Voie d'abord postérieure trans-tricipitale.
@@ -18853,19 +18909,16 @@ Passage entre le muscle brachial en dedans et le brachio-radial en dehors.
 Repérage du nerf radial, mis sur lacs et protégé durant tout le geste.`}
 Exposition du foyer, évacuation de l'hématome et lavage.
 Réduction anatomique satisfaisante, maintenue à la pince.
-${_vlLine(f)}Ostéosynthèse par plaque ${f.plaqueModele}, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Vérification en fin d'ostéosynthèse : le nerf radial est libre de tout conflit avec la plaque.
-`:''),(f._inter==='ulna_distal'?`Abord direct du bord postéro-médial de l'ulna distal, entre le fléchisseur ulnaire du carpe et le bord osseux.
+${_l201Comp(f)}${_l201PlaqueLine(f)}${_l201Nerf(f)}`:''),(f._inter==='ulna_distal'?`Abord direct du bord postéro-médial de l'ulna distal, entre le fléchisseur ulnaire du carpe et le bord osseux.
 Protection de la branche sensitive dorsale du nerf ulnaire.
 Exposition du foyer, évacuation de l'hématome et lavage.
 Réduction anatomique satisfaisante, maintenue à la pince.
-${_vlLine(f)}Ostéosynthèse par plaque ${f.plaqueModele}, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Contrôle de la pronosupination et de la stabilité de l'articulation radio-ulnaire distale.
+${_l201Comp(f)}${_l201PlaqueLine(f)}Contrôle de la pronosupination et de la stabilité de l'articulation radio-ulnaire distale.
 `:''),(f._inter==='kapandji'?`Réduction première par manœuvres externes sous contrôle scopique.
 Embrochage intrafocal selon la technique de Kapandji : mise en place de ${f.brocheNb} broches de ${f.brocheDiam} mm par de courtes incisions, sous contrôle scopique, avec protection des tendons extenseurs et de la branche sensitive du nerf radial.
 Contrôle scopique de face et de profil : restitution de la pente radiale et de l'antéversion épiphysaire.
 Broches recourbées et ${f.brochesFinition==='Enfouies'?'enfouies en sous-cutané':'laissées extériorisées avec protection des extrémités'}.
-`:''),(''),('Contrôle scopique final : réduction et matériel en place.'),(f._inter==='humdia_plaque'&&f.hdVoie==='Postérieure trans-tricipitale'?'Fermeture du plan tricipital. ':''),(docClosure(f)),(f.pansement),(f._inter==='kapandji'?lot201Suites(f)+'.\n':''),(_dSigBloc()),(_lot201Garrot(f)),(_lot201GarrotFin(f))],["_inter", "Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "_inter / hpVoie / hpTuberosites / plaqueModele / visProx / visDist", "_inter / hdVoie / plaqueModele / visProx / visDist / vlOn", "_inter / plaqueModele / visProx / visDist / vlOn", "_inter / brocheNb / brocheDiam / brochesFinition", "Texte lié", "Texte lié", "_inter / hdVoie", "Texte lié", "pansement", "_inter", "Signature", "garrotOn / garrot", "garrotMin"]);
+`:''),(''),('Contrôle scopique final : réduction et matériel en place.'),(f._inter==='humdia_plaque'&&f.hdVoie==='Postérieure trans-tricipitale'?'Fermeture du plan tricipital. ':''),(docClosure(f)),(f.pansement),(f._inter==='kapandji'?lot201Suites(f)+'.\n':''),(_dSigBloc()),(_lot201Garrot(f)),(_lot201GarrotFin(f))],["_inter", "Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "_inter / hpVoie / hpTuberosites / greffeOn / plaqueModele / visProx / visDist", "_inter / hdVoie / nerfRapport / foyerComp / plaqueModele / visProx / visDist", "_inter / foyerComp / plaqueModele / visProx / visDist", "_inter / brocheNb / brocheDiam / brochesFinition", "Texte lié", "Texte lié", "_inter / hdVoie", "Texte lié", "pansement", "_inter", "Signature", "garrotOn / garrot", "garrotMin"]);
 }
 function am_buildCRH_LOT201(f){
   const inter=f._inter;
