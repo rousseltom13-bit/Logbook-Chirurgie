@@ -9038,7 +9038,7 @@ Object.values(DOC_OPTS).forEach(opts=>{
 function docPansementFrequency(f){const n=Number(f.pansementJours);return Number.isInteger(n)&&n>0?(n===1?'chaque jour':'tous les '+n+' jours'):'fréquence à préciser';}
 function docClosure(f){return f.fermeture==='Agrafes'?'agrafes':f.filsType==='Résorbables'?'fils résorbables':f.filsType==='Non résorbables'?'fils non résorbables':'fils (type à préciser)';}
 function docSuture(f){return _MEN_REPAIR.test(f.menMed||'')||_MEN_REPAIR.test(f.menLat||'')||!!f.menMedOut||!!f.menLatOut;}
-function detectInter(interv){
+function detectInterLegacy198(interv){
   const s=(interv||'').toLowerCase();
   if(/péri-pt|peri-pt|périproth|periproth/.test(s))return 'fracture';
   if(/jumper|cyclope|pridie|corps [ée]tranger/.test(s))return 'arthroscopie';
@@ -9053,7 +9053,7 @@ function detectInter(interv){
   if(!/sacrum/.test(s)&&/bassin —|symphyse pubienne|bi-?colonne|ac[ée]tabul|paroi post|colonne ant|colonne post|transverse ± paroi/.test(s))return 'bassin';
   if(/ptg|prothèse.*genou|pfc/.test(s))return 'ptg';
   if(/pth|prothèse.*hanche|pih/.test(s))return /repris|révis|revis|changement/.test(s)?'pth_revision':'pth';
-  if(/lca|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
+  if(/\blca\b|ligamento|didt|dt4|dt3|kj\b/.test(s))return 'lca';
   if(/ménisc|menisc/.test(s))return 'menisc';
   if(/arthroscopie/.test(s))return /cheville|poignet|coude|hanche|épaule|epaule/.test(s)?'fracture':'arthroscopie';
   if(/(clou|enclouage).{0,14}hum[ée]rus|hum[ée]rus.{0,14}(clou|enclouage)|clou (long )?hum|diaphyse hum/.test(s))return 'humerus';
@@ -9067,6 +9067,462 @@ function detectInter(interv){
   if(/mall[ée]ol|bi-?mall|tri-?mall|cheville/.test(s))return 'cheville';
   if(/ablation|aom|matériel|materiel/.test(s))return 'ablation';
   return 'fracture';
+}
+
+const DOC_EXACT_198={"[\"Genou\",\"PTG\"]": "ptg", "[\"Genou\",\"RePTG\"]": "manual", "[\"Genou\",\"PUC\"]": "manual", "[\"Genou\",\"LCA (DT3+2)\"]": "lca", "[\"Genou\",\"Reprise LCA\"]": "manual", "[\"Genou\",\"Méniscectomie\"]": "menisc", "[\"Genou\",\"Suture méniscale\"]": "menisc", "[\"Genou\",\"Jumper's knee\"]": "manual", "[\"Genou\",\"Cyclope\"]": "manual", "[\"Genou\",\"Ablation de corps étranger\"]": "manual", "[\"Genou\",\"Pridie\"]": "manual", "[\"Genou\",\"Ostéotomie\"]": "manual", "[\"Genou\",\"TTA + MPFL\"]": "manual", "[\"Genou\",\"Fulkerson\"]": "manual", "[\"Genou\",\"Ablation de matériel\"]": "manual", "[\"Hanche\",\"PTH voie postérieure\"]": "pth", "[\"Hanche\",\"PTH Hueter\"]": "pth_hueter", "[\"Hanche\",\"Ablation de matériel + PTH\"]": "pth_ablation", "[\"Hanche\",\"PTH de révision\"]": "manual", "[\"Hanche\",\"Changement d'insert ± tête\"]": "manual", "[\"Hanche\",\"Ablation de matériel\"]": "manual", "[\"Epaule\",\"Réparation de coiffe\"]": "manual", "[\"Epaule\",\"Acromioplastie\"]": "manual", "[\"Epaule\",\"Bankart\"]": "manual", "[\"Epaule\",\"Butée coracoïdienne\"]": "manual", "[\"Epaule\",\"PTEi\"]": "manual", "[\"Epaule\",\"PTE anatomique\"]": "manual", "[\"Epaule\",\"Ténodèse/ténotomie long biceps\"]": "manual", "[\"Epaule\",\"Révision PTE\"]": "manual", "[\"Epaule\",\"Résection acromio-claviculaire\"]": "manual", "[\"Cheville\",\"Hallux valgus\"]": "manual", "[\"Cheville\",\"Arthrodèse avant-pied\"]": "manual", "[\"Cheville\",\"Orteils en griffe\"]": "manual", "[\"Cheville\",\"Arthroscopie de cheville\"]": "manual", "[\"Cheville\",\"Ligamentoplastie de cheville\"]": "manual", "[\"Cheville\",\"Arthrodèse de cheville\"]": "manual", "[\"Cheville\",\"Prothèse totale de cheville\"]": "manual", "[\"Cheville\",\"Hallux rigidus\"]": "manual", "[\"Cheville\",\"Haglund\"]": "manual", "[\"Main\",\"Canal carpien\"]": "manual", "[\"Main\",\"Dupuytren\"]": "manual", "[\"Main\",\"Doigt à ressort\"]": "manual", "[\"Main\",\"Prothèse trapézo-métacarpienne\"]": "manual", "[\"Main\",\"Trapézectomie\"]": "manual", "[\"Main\",\"Neurolyse nerf ulnaire\"]": "manual", "[\"Main\",\"Arthroscopie du poignet\"]": "manual", "[\"Main\",\"Transfert tendineux\"]": "manual", "[\"Main\",\"Prothèse MCP/IP\"]": "manual", "[\"Main\",\"Ostéotomies avant-bras\"]": "manual", "[\"Rachis\",\"Canal lombaire étroit\"]": "manual", "[\"Rachis\",\"Discectomie pour hernie discale\"]": "manual", "[\"Rachis\",\"Arthrodèse lombaire dégénérative\"]": "manual", "[\"Rachis\",\"Arthrodèse cervicale\"]": "manual", "[\"Rachis\",\"Scoliose\"]": "manual", "[\"Rachis\",\"Décompression cervicale\"]": "manual", "[\"Rachis\",\"Reprise arthrodèse\"]": "manual", "[\"Rachis\",\"Kyphoplastie/vertébroplastie\"]": "manual", "[\"Pediatrie\",\"Supracondylienne (embrochage)\"]": "manual", "[\"Pediatrie\",\"Deux os avant-bras (ECMES)\"]": "manual", "[\"Pediatrie\",\"ECMES fémur\"]": "manual", "[\"Pediatrie\",\"ECMES tibia\"]": "manual", "[\"Pediatrie\",\"Épiphysiolyse (vissage)\"]": "manual", "[\"Coude\",\"Prothèse totale de coude\"]": "manual", "[\"Coude\",\"Arthrolyse\"]": "manual", "[\"Coude\",\"Neurolyse ulnaire au coude\"]": "manual", "[\"Coude\",\"Arthroscopie de coude\"]": "manual", "[\"Coude\",\"Épicondylite\"]": "manual", "[\"Septique\",\"Lavage articulaire natif\"]": "manual", "[\"Septique\",\"Lavage de prothèse (DAIR)\"]": "manual", "[\"Septique\",\"Dépose de prothèse — spacer\"]": "manual", "[\"Septique\",\"Parage de plaie\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Paroi postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne antérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Bi-colonne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Transverse ± paroi\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Symphyse pubienne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Sacrum / anneau postérieur\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Fixateur externe bassin\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH + Crochet\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — Clou Gamma\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Hanche — Triple vissage\"]": "triple", "[\"Traumatologie\",\"Membre inférieur — Hanche — DHS\"]": "dhs", "[\"Traumatologie\",\"Membre inférieur — Hanche — Prothèse intermédiaire\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Plaque fémur\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou fémur T2\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou Gamma Long\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou rétrograde\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Fémur distal (plaque)\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Pseudarthrose fémur\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Genou — Fracture de rotule\"]": "rotule", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon rotulien (réinsertion)\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon quadricipital\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plateau tibial\"]": "plateau", "[\"Traumatologie\",\"Membre inférieur — Tibia — Clou tibia\"]": "tibia", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pilon tibial\"]": "pilon", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plaque tibia distal\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Fixateur externe tibia\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pseudarthrose tibia\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole latérale\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole médiale isolée\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture bi-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Équivalent bimalléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture tri-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Rupture du tendon d'Achille\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Cheville — Pseudarthrose cheville\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Pied — Calcanéum\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Talus\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Lisfranc\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Métatarsiens\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Phalanges / orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Luxation péri-talienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-fémorale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Sous-gonale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-métatarsienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 1er temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 2e temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Lambeau / couverture\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — PTEI\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — Plaque humérus proximal\"]": "humprox_plaque", "[\"Traumatologie\",\"Membre supérieur — Épaule — Clou humérus court\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Diaphyse clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Quart externe clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Luxation acromio-claviculaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Pseudarthrose clavicule\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Humérus — Plaque humérus diaphyse\"]": "humdia_plaque", "[\"Traumatologie\",\"Membre supérieur — Humérus — Clou long humérus\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Coude — Palette humérale\"]": "palette", "[\"Traumatologie\",\"Membre supérieur — Coude — Terrible triade\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Tête radiale\"]": "teteradiale", "[\"Traumatologie\",\"Membre supérieur — Coude — Olécrane\"]": "olecrane", "[\"Traumatologie\",\"Membre supérieur — Coude — Réinsertion biceps distal\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Luxation de coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Fixateur externe coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Galeazzi\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Monteggia\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse radiale\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse ulnaire\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — 2 os de l'avant-bras\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque radius distal\"]": "radius", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque ulna distal\"]": "ulna_distal", "[\"Traumatologie\",\"Membre supérieur — Poignet — Kapandji\"]": "kapandji", "[\"Traumatologie\",\"Membre supérieur — Poignet — Scaphoïde\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Luxation périlunaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Fixateur externe poignet\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — 5e métacarpien (boxeur)\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Métacarpiens\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Phalanges\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Bennett\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons fléchisseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons extenseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Reconstruction — Changement de PTC sur descellement\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Changement de PTH\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque crochet\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque fémur proximal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Ostéosynthèse par cerclages\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — Plaque fémur distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Plaque humérus distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Changement de PTC\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — Plaque humérus\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — RePTE\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Autre — Fracture sur matériel d'ostéosynthèse\"]": "manual"};
+function detectInter(interv,spec){
+ const name=String(interv||'').trim(),key=JSON.stringify([spec||'',name]);
+ if(Object.prototype.hasOwnProperty.call(DOC_EXACT_198,key))return DOC_EXACT_198[key];
+ const matches=Object.entries(DOC_EXACT_198).filter(([k])=>JSON.parse(k)[1]===name).map(([,v])=>v);
+ if(matches.length)return new Set(matches).size===1?matches[0]:'manual';
+ const leaf=name.split(' — ').pop();
+ if(/hueter|intermédiaire|intermediaire|\bpih\b|calcan|kapandji|ulna distal|révision|revision|repris|reptg|sur matériel|sur materiel/i.test(leaf))return 'manual';
+ if(/ligamentoplastie/i.test(leaf)&&/cheville|épaule|epaule/i.test(name))return 'manual';
+ if(/arthrodèse|arthrodese|prothèse totale de cheville/i.test(leaf))return 'manual';
+ const source=detectInterLegacy198(leaf);
+ return ['fracture','ablation','arthroscopie'].includes(source)?'manual':source;
+}
+DOC_OPTS.manual=[..._COMMON.map(o=>({...o})),
+ {k:'detailOp',t:'area',l:'Compte-rendu opératoire',def:''},
+ {k:'detailSejour',t:'area',l:'Compte-rendu d’hospitalisation',def:''},
+ {k:'detailPharma',t:'area',l:'Prescription pharmaceutique',def:''},
+ {k:'detailKine',t:'area',l:'Prescription de kinésithérapie',def:''},
+ {k:'fermeture',t:'seg',l:'Fermeture cutanée',o:['Agrafes','Fils'],def:'Agrafes'},
+ {k:'filsType',t:'seg',l:'Type de fils',o:['Résorbables','Non résorbables'],def:'Non résorbables',show:f=>f.fermeture==='Fils'},
+ {k:'pansement',t:'seg',l:'Pansement',o:['Sec','Aquacel Duoderm','Mepilex Border'],def:'Sec'},
+ {k:'pansementJours',t:'num',l:'Fréquence des soins (jours)',def:'4'}].concat(_mat([]));
+DOC_DOCS.manual=['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'];
+function buildCRO_MANUAL(f){return `COMPTE-RENDU OPÉRATOIRE — ${f._interv||'INTERVENTION'}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Côté : ${f.cote||'—'}
+Opérateur : ${_dSig()}
+
+${f.detailOp||'(Compte-rendu opératoire à compléter)'}
+
+${_dSigBloc()}`;}
+function buildCRH_MANUAL(f){return `COMPTE-RENDU D’HOSPITALISATION
+
+Patient : ${ptNom(f)}
+Intervention : ${f._interv||'—'}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+
+${f.detailSejour||'(Compte-rendu d’hospitalisation à compléter)'}
+
+${_dSigBloc()}`;}
+function buildPHARMA_MANUAL(f){return `ORDONNANCE PHARMACEUTIQUE
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
+
+${f.detailPharma||'(Prescription à compléter)'}
+
+${_dSig()}${_dRpps()}`;}
+function buildKINE_MANUAL(f){return `ORDONNANCE DE KINÉSITHÉRAPIE
+
+Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
+Date : ${doc_dateStr(f.dateInter)}
+
+${f.detailKine||'(Prescription à compléter)'}
+
+${_dSig()}${_dRpps()}`;}
+
+
+DOC_OPTS.pth_hueter=DOC_OPTS.pth.filter(o=>!['crochet','crochetMarque','crochetLong','crochetNbVis','renfort','renfortModele','renfortNbVis'].includes(o.k)).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
+for(const o of DOC_OPTS.pth_hueter){
+ if(o.k==='cupType'){o.def='Simple mobilité';o.o=['Simple mobilité','Double mobilité'];}
+ if(o.k==='tigeFix')o.def='Sans ciment';
+ if(o.k==='anesthesie')o.def='Anesthésie générale';
+ if(['cotyleModele','cotyleTaille','tigeModele','tigeTaille','teteTaille','teteMat','teteCol'].includes(o.k))o.def='';
+}
+DOC_DOCS.pth_hueter=DOC_DOCS.pth.slice();
+DOC_CCAM.pth_hueter=DOC_CCAM.pth;
+
+function fixationAppui(f){
+ if(f.appui==='Appui partiel'||f.appui==='Décharge')return f.appui+' pendant '+(f.dechargeSem||'—')+' semaines'+(f.appuiDetails?' — '+f.appuiDetails:'');
+ return f.appui==='Consigne personnalisée'?(f.appuiDetails||'Appui à préciser'):(f.appui||'Appui à préciser');
+}
+function amoMateriel(f){return f.amoType==='Autre'?(f.amoAutre||'matériel à préciser'):(f.amoType||'matériel à préciser');}
+function amoParagraphe(f){
+ const text={
+ 'Clou Gamma court':"Exposition et retrait de la vis cervico-céphalique et des éléments de verrouillage, puis extraction du clou Gamma court.",
+ 'Clou Gamma long':"Exposition et retrait de la vis cervico-céphalique et des éléments de verrouillage, puis extraction du clou Gamma long.",
+ 'Clou T2':"Exposition et retrait des vis de verrouillage, puis extraction du clou T2.",
+ 'Triple vissage':"Exposition et retrait des trois vis cervico-céphaliques et des rondelles éventuelles.",
+ 'DHS':"Exposition du montage DHS. Retrait des vis de plaque, de la plaque et de la vis cervico-céphalique, ainsi que de la vis antirotation si présente."
+ };
+ return 'Temps d’ablation du matériel :\nReprise des voies d’abord nécessaires pour exposer le matériel.\n'+(f.amoComplet==='Partielle'?'Ablation partielle de '+amoMateriel(f)+' : '+(f.amoDetails||'détails à préciser')+'.':(text[f.amoType]||('Ablation de '+amoMateriel(f)+'.')))+(f.amoComplet!=='Partielle'&&f.amoDetails?'\n'+f.amoDetails:'')+'\n';
+}
+function buildCRO_DHS(f){return `COMPTE-RENDU OPÉRATOIRE — DHS ${coteStrD(f).toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+Indication : ${f.indication}
+CCAM : ${f.ccam||'—'}
+
+Installation en décubitus dorsal sur table orthopédique. Contrôle scopique de face et de profil.
+${f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':f.reduction==='Réduction à foyer fermé'?'Réduction à foyer fermé sous contrôle scopique.':''}
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+Abord latéral du fémur proximal. Exposition de la face latérale du fémur.
+${f.reduction==='Réduction à foyer ouvert'?'Réduction à foyer ouvert : '+f.reductionDetails+'.\n':''}Mise en place de la broche guide cervico-céphalique sous contrôle scopique de face et de profil.
+Mesure et préparation du trajet. Mise en place de la vis cervico-céphalique de longueur ${f.dhsVisLong} mm.
+Mise en place de la plaque DHS ${f.dhsModele}, angulation ${f.dhsAngle}, ${f.dhsTrous} trous, et fixation diaphysaire par ${f.dhsNbVis} vis.
+${f.dhsAnti?'Mise en place d’une vis antirotation parallèle à la vis cervico-céphalique.\n':''}${f.dhsCompression?'Mise en compression du foyer par le dispositif de compression.\n':''}Contrôle scopique final de la réduction et du positionnement du matériel : ${f.controle}.
+Lavage et contrôle de l’hémostase. Fermeture plan par plan, puis fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;}
+function buildCRO_TRIPLE(f){return `COMPTE-RENDU OPÉRATOIRE — TRIPLE VISSAGE ${coteStrD(f).toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+Indication : ${f.indication}
+CCAM : ${f.ccam||'—'}
+
+Installation en décubitus dorsal sur table orthopédique, sans traction. Contrôle scopique de face et de profil.
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+${f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':('Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+' : '+(f.reductionDetails||'—')+'.')}
+Abords latéraux permettant le positionnement de trois broches guides sous contrôle scopique, en triangle à pointe inférieure.
+Contrôle de leur position cervico-céphalique sur les incidences de face et de profil, sans pénétration articulaire.
+Mesure et préparation des trajets. Mise en place de trois vis canulées ${f.trModele}, de diamètre ${f.trDiam} mm, de longueurs ${f.trLong1}, ${f.trLong2} et ${f.trLong3} mm.
+${f.trRondelles?'Mise en place de rondelles : '+f.trRondellesDetails+'.\n':''}Contrôle scopique final de la réduction et du positionnement du matériel : ${f.controle}.
+Lavage et contrôle de l’hémostase. Fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;}
+const LOT200_AFTER=DOC_OPTS.femur.filter(o=>!o.k||(!/^fm|^vl/.test(o.k)&&!_COMMON.some(p=>p.k===o.k))).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
+for(const o of LOT200_AFTER)if(o.k==='appui'){o.def='';o.o=['Appui complet immédiat selon douleurs','Appui partiel','Décharge','Consigne personnalisée'];}
+const LOT200_CORE=[..._COMMON.map(o=>({...o})),{k:'indication',t:'text',l:'Indication',def:''},
+ {k:'reduction',t:'seg',l:'Réduction',o:['En place','Réduction à foyer fermé','Réduction à foyer ouvert'],def:''},
+ {k:'reductionDetails',t:'text',l:'Modalités de réduction',def:'',show:f=>f.reduction&&f.reduction!=='En place'},
+ {k:'controle',t:'text',l:'Contrôle final',def:'Satisfaisant'}];
+DOC_OPTS.dhs=[...LOT200_CORE,{k:'dhsModele',t:'selx',l:'DHS — modèle',impType:'plaque',def:''},
+ {k:'dhsAngle',t:'seg',l:'Angulation',o:['130°','135°','140°','145°','150°'],def:''},
+ {k:'dhsVisLong',t:'num',l:'Vis cervico-céphalique — longueur (mm)',def:''},
+ {k:'dhsTrous',t:'num',l:'Plaque — nombre de trous',def:''},{k:'dhsNbVis',t:'num',l:'Plaque — nombre de vis',def:''},
+ {k:'dhsAnti',t:'check',l:'Vis antirotation',def:false},{k:'dhsCompression',t:'check',l:'Compression du foyer',def:false},...LOT200_AFTER];
+DOC_OPTS.triple=[...LOT200_CORE,{k:'trModele',t:'selx',l:'Vis canulées — modèle',def:''},
+ {k:'trDiam',t:'text',l:'Vis — diamètre (mm)',def:''},...['trLong1','trLong2','trLong3'].map((k,i)=>({k,t:'num',l:'Vis '+(i+1)+' — longueur (mm)',def:''})),
+ {k:'trRondelles',t:'check',l:'Rondelles',def:false},{k:'trRondellesDetails',t:'text',l:'Rondelles — nombre et position',def:'',show:f=>f.trRondelles},...LOT200_AFTER];
+for(const source of ['dhs','triple']){
+ DOC_OPTS[source]=DOC_OPTS[source].map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
+ const at=DOC_OPTS[source].findIndex(o=>o.k==='appui');DOC_OPTS[source].splice(at+1,0,
+ {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+ DOC_DOCS[source]=DOC_DOCS.femur.slice();
+}
+DOC_OPTS.pth_ablation=DOC_OPTS.pth.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
+DOC_OPTS.pth_ablation.splice(_COMMON.length,0,
+ {k:'amoType',t:'seg',l:'Matériel à retirer',o:['Clou Gamma court','Clou Gamma long','Clou T2','Triple vissage','DHS','Autre'],def:''},
+ {k:'amoAutre',t:'text',l:'Matériel — précision',def:'',show:f=>f.amoType==='Autre'},
+ {k:'amoComplet',t:'seg',l:'Ablation',o:['Complète','Partielle'],def:'Complète'},
+ {k:'amoDetails',t:'area',l:'Détails de l’ablation',def:''});
+DOC_DOCS.pth_ablation=DOC_DOCS.pth.slice();
+function lot200Missing(f){
+ let keys=[];
+ if(['dhs','triple'].includes(f._inter)){
+ keys=['indication','reduction','appui','controle'];
+ if(['Appui partiel','Décharge'].includes(f.appui)&&!(Number(f.dechargeSem)>0))return 'Durée de la restriction d’appui';
+ if(f.appui==='Consigne personnalisée')keys.push('appuiDetails');
+ if(f.reduction!=='En place'&&(f._inter==='triple'||f.reduction==='Réduction à foyer ouvert'))keys.push('reductionDetails');
+ keys.push(...(f._inter==='dhs'?['dhsModele','dhsAngle','dhsVisLong','dhsTrous','dhsNbVis']:['trModele','trDiam','trLong1','trLong2','trLong3']));
+ if(f.trRondelles)keys.push('trRondellesDetails');
+ }else if(f._inter==='pth_ablation'){keys=['amoType'];if(f.amoType==='Autre')keys.push('amoAutre');if(f.amoComplet==='Partielle')keys.push('amoDetails');}
+ const key=keys.find(k=>!String(f[k]??'').trim());return key?(DOC_OPTS[f._inter].find(o=>o.k===key)?.l||key):null;
+}
+function lot200SessionMissing(f){
+ if(!f._amlModel)return lot200Missing(f);
+ for(const [name,d] of Object.entries(f._amlModel.docs))if(d.kind==='native'&&['dhs','triple','pth_ablation'].includes(d.source)){
+ const sf=amlSourceFields(f,name,d);if(name==='CRO'){const m=lot200Missing(sf);if(m)return m;}
+ if(['CRH','Ordo kiné'].includes(name)&&['dhs','triple'].includes(d.source)){
+ if(!sf.appui)return 'Appui';if(['Appui partiel','Décharge'].includes(sf.appui)&&!(Number(sf.dechargeSem)>0))return 'Durée de la restriction d’appui';if(sf.appui==='Consigne personnalisée'&&!String(sf.appuiDetails||'').trim())return 'Consigne d’appui';
+ }}return null;
+}
+
+function buildCRO_AMOPTH(f){
+  const cote=coteStrD(f);
+  return `COMPTE-RENDU OPÉRATOIRE — ABLATION DE MATÉRIEL + PTH ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
+CCAM : ${f.ccam}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
+
+Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+${amoParagraphe(f)}
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+${f.renfort?`Fraisages de tailles croissantes.
+Mise en place d'un renfort acétabulaire${f.renfortModele?' '+f.renfortModele:''}, fixé par ${f.renfortNbVis||'—'} vis.
+Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille} dans le renfort, légèrement plus antéversé que le transverse.`:`Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.`}
+
+Temps fémoral :
+Exposition du fût fémoral jambe au zénith.
+Ablation du reliquat de col à l'emporte-pièce.
+Tunnelisation à la dague.
+Évidement du grand trochanter à la curette.
+On passe les râpes de tailles successives jusqu'à la râpe taille ${f.tigeTaille}.
+Essais sur râpe en place col ${f.teteCol}.
+La stabilité est excellente et les longueurs sont restaurées.
+${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`}
+${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
+Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
+Réduction de la hanche.
+Nettoyage abondant.
+${f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
+`:''}${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;
+}
+function buildCRH_FIXATION(f){
+  const inter='femur';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return `Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}, elle a consisté en ${_crhActe(f)}.
+${_crhMeniscLine(f)}${_crhRadioLine(f)}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+— ${_crhFils(f)}
+— Kinésithérapie de rééducation
+— ${_crhAppui(f)}
+${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
+${antico}
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+}
+function buildCRH_AMOPTH(f){
+  const inter='pth';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return `Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}, elle a consisté en ${_crhActe(f)}.
+${_crhMeniscLine(f)}${_crhRadioLine(f)}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+— ${_crhFils(f)}
+— Kinésithérapie de rééducation
+— ${_crhAppui(f)}
+${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
+${antico}
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+}
+function buildKINE_FIXATION(f){
+const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+    return `ORDONNANCE KINÉSITHÉRAPIE — ${f._inter==='dhs'?'DHS':'TRIPLE VISSAGE'}
+
+${intro}
+
+Reprise de la marche selon les consignes d'appui : ${_crhAppui(f).toLowerCase()}.
+Verticalisation précoce et travail des transferts.
+Renforcement du quadriceps et des muscles fessiers.
+Entretien des amplitudes de hanche et de genou.
+Travail de l'équilibre et prévention des chutes.
+
+Nombre de séances : 30, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+  }
+
+const LOT201_SOURCES=['humprox_plaque','humdia_plaque','ulna_distal','kapandji'];
+const LOT201_LABELS={humprox_plaque:'Plaque d’humérus proximal',humdia_plaque:'Plaque de diaphyse humérale',ulna_distal:'Plaque d’ulna distal',kapandji:'Embrochage de Kapandji'};
+function lot201IsHumerus(f){return ['humprox_plaque','humdia_plaque'].includes(f._inter);}
+function lot201Installation(f){
+ if(f._inter==='humprox_plaque')return f.hpInstallation;
+ if(f._inter==='humdia_plaque')return f.hdVoie==='Latérale'?'Décubitus dorsal avec table à bras':'Décubitus latéral';
+ return 'Décubitus dorsal avec table à bras';
+}
+function lot201Suites(f){
+ const immo=f.immo==='Consigne personnalisée'?(f.immoDetails||'Immobilisation à préciser'):f.immo;
+ if(f._inter==='kapandji')return immo+' pendant '+f.immoSem+' semaines. Ablation des broches prévue à '+f.amoSem+' semaines';
+ return immo+'. '+(f.mobilisation==='Consigne personnalisée'?(f.mobilisationDetails||'Mobilisation à préciser'):f.mobilisation);
+}
+function lot201Radio(f){return lot201IsHumerus(f)?'radiographies de l’humérus de face et de profil':'radiographies du poignet de face et de profil';}
+function lot201CloneOptions(source){
+ const keep=new Set(['fermeture','filsType','vitC','ains','antico','anticoJours','pansement','pansementJours']);
+ return DOC_OPTS[source].filter(o=>keep.has(o.k)||/^amp|^mat[A-Z]/.test(o.k||'')||o.t==='hdr').map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}));
+}
+for(const source of LOT201_SOURCES){
+ const hum=['humprox_plaque','humdia_plaque'].includes(source);
+ DOC_DOCS[source]=DOC_DOCS.radius.slice();
+ DOC_OPTS[source]=[..._COMMON.map(o=>({...o})),{k:'indication',t:'text',l:'Indication',def:''},
+ {k:'controle',t:'text',l:'Contrôle final',def:'Satisfaisant'},
+ ...lot201CloneOptions(hum?'humerus':'radius')];
+ DOC_OPTS[source].find(o=>o.k==='anesthesie').def=hum?'Anesthésie générale':'ALR (bloc axillaire)';
+ const fields=[];
+ if(source==='humprox_plaque')fields.push(
+ {k:'hpInstallation',t:'seg',l:'Installation',o:['Demi-assis','Décubitus dorsal'],def:''},
+ {k:'hpVoie',t:'seg',l:'Voie d’abord',o:['Delto-pectorale','Supéro-externe'],def:'Delto-pectorale'});
+ if(source==='humdia_plaque')fields.push(
+ {k:'hdVoie',t:'seg',l:'Installation et voie',o:['Latérale','Postérieure trans-tricipitale'],def:'Latérale'},
+ {k:'radialDetails',t:'text',l:'Nerf radial — constatations / rapport à la plaque',def:''});
+ if(source!=='kapandji')fields.push(
+ {k:'plaqueModele',t:'selx',l:'Plaque — modèle',impType:'plaque',def:''},
+ {k:'plaqueTrous',t:'num',l:'Plaque — nombre de trous',def:''},
+ {k:'visProx',t:'num',l:'Vis proximales — nombre',def:''},
+ {k:'visDist',t:'num',l:'Vis distales — nombre',def:''},
+ {k:'fixDetails',t:'area',l:'Gestes complémentaires',def:''});
+ else fields.push(
+ {k:'brocheNb',t:'num',l:'Broches — nombre',def:'2'},
+ {k:'brocheDiam',t:'text',l:'Broches — diamètre (mm)',def:'1,8'},
+ {k:'brochesFinition',t:'seg',l:'Extrémités des broches',o:['Enfouies','Extériorisées'],def:''});
+ DOC_OPTS[source].splice(_COMMON.length+1,0,...fields);
+ const at=DOC_OPTS[source].findIndex(o=>o.k==='fermeture');
+ const suites=[{k:'immo',t:'seg',l:'Immobilisation',o:[hum?'Immobilisation à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique','Consigne personnalisée'],def:hum?'Immobilisation à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique'},
+ {k:'immoDetails',t:'text',l:'Immobilisation — consigne',def:'',show:f=>f.immo==='Consigne personnalisée'}];
+ if(source==='kapandji'){
+ suites.push({k:'immoSem',t:'num',l:'Immobilisation — durée (semaines)',def:'6'},{k:'amoSem',t:'num',l:'Retrait des broches (semaines)',def:'6'});
+ // A removable splint is not the prescribed resin cast. Remains selectable if wanted.
+ const mat=DOC_OPTS[source].find(o=>o.k==='matAttellePoignet');if(mat)mat.def=false;
+ }else suites.push({k:'mobilisation',t:'seg',l:'Mobilisation',o:['Mobilisation immédiate selon douleurs','Consigne personnalisée'],def:'Mobilisation immédiate selon douleurs'},
+ {k:'mobilisationDetails',t:'text',l:'Mobilisation — consigne',def:'',show:f=>f.mobilisation==='Consigne personnalisée'});
+ DOC_OPTS[source].splice(at,0,...suites);
+}
+function buildCRO_LOT201(f){
+ return `COMPTE-RENDU OPÉRATOIRE — ${LOT201_LABELS[f._inter].toUpperCase()} — CÔTÉ ${coteStrD(f).toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+Indication : ${f.indication}
+CCAM : ${f.ccam||'—'}
+
+Installation : ${lot201Installation(f)}.
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+${f._inter==='humprox_plaque'?`${f.hpVoie==='Delto-pectorale'?'Abord delto-pectoral avec préservation de la veine céphalique.':'Abord supéro-externe, avec protection du nerf axillaire.'}
+Exposition du foyer et réduction des fragments sous contrôle scopique.
+Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, et fixation par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
+`:''}${f._inter==='humdia_plaque'?`${f.hdVoie==='Latérale'?'Abord latéral de la diaphyse humérale.':'Abord postérieur trans-tricipital de la diaphyse humérale.'}
+Repérage systématique et protection du nerf radial pendant l’exposition, la réduction et la fixation.
+Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle des rapports du nerf radial avec le montage.${f.radialDetails?' '+f.radialDetails:''}
+`:''}${f._inter==='ulna_distal'?`Abord dorsal de l’ulna distal, dans le prolongement de l’abord diaphysaire. Protection de la branche cutanée dorsale du nerf ulnaire.
+Exposition et réduction du foyer. Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle de la mobilité en pronosupination et de l’articulation radio-ulnaire distale.
+`:''}${f._inter==='kapandji'?`Repérage du foyer sous contrôle scopique. Abords limités et protection des structures tendineuses et nerveuses superficielles.
+Mise en place de ${f.brocheNb} broches intrafocales de diamètre ${f.brocheDiam} mm selon la technique de Kapandji, permettant la réduction puis la stabilisation de la fracture du radius distal.
+Contrôle de face et de profil du positionnement des broches.
+Broches recourbées et ${f.brochesFinition==='Enfouies'?'enfouies sous la peau':'laissées extériorisées avec protection des extrémités'}.
+`:''}${f.fixDetails?f.fixDetails+'\n':''}Contrôle final : ${f.controle}.
+Lavage et contrôle de l’hémostase. ${f._inter==='humdia_plaque'&&f.hdVoie==='Postérieure trans-tricipitale'?'Fermeture du plan tricipital. ':''}Fermeture plan par plan puis fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+${f._inter==='kapandji'?lot201Suites(f)+'.\n':''}
+${_dSigBloc()}`;
+}
+function buildKINE_LOT201(f){return `ORDONNANCE KINÉSITHÉRAPIE — ${LOT201_LABELS[f._inter].toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date : ${doc_dateStr(f.dateInter)}
+
+Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.
+
+${lot201Suites(f)}.
+${f._inter==='kapandji'?`Pendant l’immobilisation : entretien de la mobilité des doigts, du coude et de l’épaule.
+Mobilisation du poignet après retrait de l’immobilisation, selon le contrôle clinique et radiographique.
+`:(lot201IsHumerus(f)?`Mobilisation de l’épaule et du coude selon les consignes ci-dessus, dans le respect de la douleur.
+Entretien de la mobilité du poignet et des doigts.
+`:`Mobilisation du poignet et de la pronosupination selon les consignes ci-dessus, dans le respect de la douleur.
+Entretien de la mobilité des doigts, du coude et de l’épaule.
+`)}Travail cicatriciel et lutte contre l’œdème.
+Renforcement et reprise des efforts selon l’évolution et les consignes chirurgicales.
+
+${_dSig()}${_dRpps()}`;}
+function lot201Missing(f){
+ if(!LOT201_SOURCES.includes(f._inter))return null;
+ const keys=['indication','controle'];
+ if(f._inter==='humprox_plaque')keys.push('hpInstallation','hpVoie');
+ if(f._inter==='kapandji'){
+ keys.push('brochesFinition');
+ for(const k of ['brocheNb','brocheDiam','immoSem','amoSem']){const n=Number(String(f[k]||'').replace(',','.'));if(!(n>0)||(['brocheNb'].includes(k)&&!Number.isInteger(n)))return DOC_OPTS[f._inter].find(o=>o.k===k).l;}
+ }else keys.push('plaqueModele','plaqueTrous','visProx','visDist');
+ if(f.immo==='Consigne personnalisée')keys.push('immoDetails');
+ if(f.mobilisation==='Consigne personnalisée')keys.push('mobilisationDetails');
+ const key=keys.find(k=>!String(f[k]??'').trim());return key?(DOC_OPTS[f._inter].find(o=>o.k===key)?.l||key):null;
+}
+function lot201SessionMissing(f){
+ if(!f._amlModel)return lot201Missing(f);
+ for(const [name,d] of Object.entries(f._amlModel.docs))if(d.kind==='native'&&LOT201_SOURCES.includes(d.source)){
+ const sf=amlSourceFields(f,name,d);if(name==='CRO'){const m=lot201Missing(sf);if(m)return m;}
+ if(['CRH','Ordo kiné'].includes(name)){
+ if(sf._inter==='kapandji'&&(!(Number(sf.immoSem)>0)||!(Number(sf.amoSem)>0)))return 'Durées d’immobilisation et de retrait des broches';
+ if(sf.immo==='Consigne personnalisée'&&!sf.immoDetails)return 'Consigne d’immobilisation';
+ if(sf.mobilisation==='Consigne personnalisée'&&!sf.mobilisationDetails)return 'Consigne de mobilisation';
+ }}return null;
+}
+
+function buildCRH_LOT201(f){
+  const inter=f._inter;
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return `Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}, elle a consisté en ${_crhActe(f)}.
+${_crhMeniscLine(f)}${_crhRadioLine(f)}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+— ${_crhFils(f)}
+— Kinésithérapie de rééducation
+— ${_crhAppui(f)}
+${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
+${antico}
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${lot201Radio(f)}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
 }
 function _menLesionLine(v,sname){
   if(!v||v==='RAS')return '';
@@ -9102,6 +9558,112 @@ function _sutureMatLine(f){
 
 // ── CRO — textes types Dr Roussel (paramétrés) ──
 function _cimStr(f){return f.cimentType==='Standard'?'standard':'aux antibiotiques (gentamicine)';}
+function buildCRO_HUETER(f){
+  const cote=coteStrD(f);
+  return `COMPTE-RENDU OPÉRATOIRE — PTH ${cote.toUpperCase()} PAR VOIE DE HUETER
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
+CCAM : ${f.ccam}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
+
+Installation en décubitus dorsal sur table orthopédique avec dispositif de traction.
+Protection des points d'appui.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord antérieure de Hueter.
+Ouverture de l'aponévrose du tenseur du fascia lata et abord de l'intervalle en dedans du muscle.
+Hémostase des branches vasculaires rencontrées.
+Exposition et ouverture de la capsule antérieure.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille}.
+Mise en place d'un cotyle ${f.cotyleModele} taille ${f.cotyleTaille}, sans ciment, ${f.cupType==='Double mobilité'?'à double mobilité':'à simple mobilité'}.
+${f.cupType==='Simple mobilité'?`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
+`:''}
+
+Temps fémoral :
+Relâchement de la traction.
+Mobilisation progressive du membre en rotation externe, extension et adduction.
+Release capsulaire sous contrôle de la vue, adapté aux tensions limitant l'exposition.
+Accompagnement de la manœuvre d'élévation du fémur proximal à l'aide d'un crochet de Lambotte.
+Mise en place des écarteurs pour exposer l'entrée du canal.
+On passe les râpes de tailles successives jusqu'à la râpe taille ${f.tigeTaille}.
+Essais sur râpe en place col ${f.teteCol}.
+La stabilité est excellente et les longueurs sont restaurées.
+${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`}
+${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
+Réduction de la hanche.
+Nettoyage abondant.
+${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Fermeture plan par plan.
+Fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;
+}
+function buildCRH_HUETER(f){
+  const inter='pth';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return `Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) ${ptNom(f)}, né(e) le ${doc_dateStr(f.ddn)}, hospitalisé(e) du ${doc_dateStr(f.dateInter)} au ${doc_dateStr(f.dateSortie)} pour ${_crhMotif({...f,_inter:'pth'})?('prise en charge de '+_crhMotif({...f,_inter:'pth'})):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)}${f.anesthesie?' sous '+f.anesthesie.toLowerCase():''}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateStr(f.dateInter)}, elle a consisté en ${_crhActe(f)}.
+${_crhMeniscLine(f)}${_crhRadioLine(f)}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+— ${_crhFils(f)}
+— Kinésithérapie de rééducation
+— ${'Appui complet autorisé'}
+${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
+${antico}
+Je reverrai ${ptNom(f)} en consultation de contrôle radio-clinique dans ${f.consultSem||'6'} semaines, avec ${inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+${_dSig()} — ${_dService()}${_dChefHopLine()}`;
+}
+function buildKINE_HUETER(f){
+const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+  return `ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE HANCHE
+
+${intro}
+
+Phase 1 — J1 → S3 :
+Appui complet immédiat sous couvert de cannes anglaises.
+Travail de la marche. Réveil musculaire : abducteurs, quadriceps, grand fessier.
+Lutte contre le flessum de hanche.
+
+Phase 2 — S3 → S6 :
+Sevrage progressif des cannes (objectif : marche sans boiterie, pas de Trendelenburg).
+Renforcement des abducteurs et extenseurs. Amplitudes fonctionnelles sans forcer.
+
+Phase 3 — S6 → M3 :
+Renforcement global, proprioception, équilibre.
+Vélo, natation, marche quotidienne. Reprise des activités.
+
+Objectifs finaux : marche sans aide ni boiterie, hanche indolore, autonomie complète.
+
+Nombre de séances : 20, à renouveler selon évolution
+${_dSig()}${_dRpps()}`;
+}
 function buildCRO_PTH(f){
   const cote=coteStrD(f);
   return `COMPTE-RENDU OPÉRATOIRE — PTH ${cote.toUpperCase()}
@@ -10432,6 +10994,9 @@ ${_dSigBloc()}`;
 // ── CRH / Ordonnances (paramétrés) ──
 const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
+ if(LOT201_SOURCES.includes(f._inter))return lot201Suites(f);
+ if(['dhs','triple'].includes(f._inter))return fixationAppui(f);
+ if(f._inter==='pth_ablation')return _crhAppui({...f,_inter:'pth'});
   const i=f._inter;
   if(i==='femurplaque'){
     if(f.appui==='Appui partiel 6 semaines')return "Appui partiel pendant 6 semaines sous couvert de cannes anglaises";
@@ -10484,6 +11049,8 @@ function _crhFils(f){
  return "Type de fils cutanés à préciser";
 }
 function _crhMotif(f){
+ if(LOT201_SOURCES.includes(f._inter))return f.indication||'une intervention orthopédique';
+ if(['dhs','triple','pth_ablation'].includes(f._inter))return f.indication||'une intervention orthopédique';
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
   if(i==='pseudarthrose')return 'sa pseudarthrose '+(_psIsFem(f)?'du fémur':(_psIsTib(f)?'de la diaphyse tibiale':'du pilon tibial'))+' '+(_psIsTib(f)&&c==='droit'?'droite':c);
@@ -10522,6 +11089,16 @@ function _crhMotif(f){
   return '';
 }
 function _crhActe(f){
+ if(f._inter==='humprox_plaque')return 'une ostéosynthèse de l’humérus proximal par plaque, par voie '+f.hpVoie.toLowerCase();
+ if(f._inter==='humdia_plaque')return 'une ostéosynthèse de la diaphyse humérale par plaque, par voie '+f.hdVoie.toLowerCase()+', avec repérage et protection du nerf radial';
+ if(f._inter==='ulna_distal')return 'une ostéosynthèse de l’ulna distal par plaque, par voie dorsale';
+ if(f._inter==='kapandji')return 'un embrochage intrafocal du radius distal selon Kapandji, par '+f.brocheNb+' broches de '+f.brocheDiam+' mm';
+
+ if(f._inter==='dhs')return 'une ostéosynthèse par vis-plaque DHS'+(f.dhsAnti?' avec vis antirotation':'');
+ if(f._inter==='triple')return 'une ostéosynthèse du col fémoral par trois vis canulées';
+ if(f._inter==='pth_ablation')return 'une ablation '+(f.amoComplet==='Partielle'?'partielle':'complète')+' de '+amoMateriel(f)+', suivie de '+_crhActe({...f,_inter:'pth'});
+
+  if(f._inter==='pth_hueter')return _crhActe({...f,_inter:'pth'})+' par voie antérieure de Hueter';
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville'){
     let s='une ostéosynthèse par plaque verrouillée latérale';
@@ -11128,7 +11705,13 @@ function _croPost(t){
 }
 function docContentNative(doc){
   const f=DOCF,inter=DOCF._inter;
+  if(inter==='manual'){if(doc==='CRO')return buildCRO_MANUAL(f);if(doc==='CRH')return buildCRH_MANUAL(f);if(doc==='Ordo pharma')return buildPHARMA_MANUAL(f);if(doc==='Ordo kiné')return buildKINE_MANUAL(f);}
   if(doc==='CRO'){
+    if(LOT201_SOURCES.includes(inter))return _croPost(buildCRO_LOT201(f));
+    if(inter==='dhs')return _croPost(buildCRO_DHS(f));
+    if(inter==='triple')return _croPost(buildCRO_TRIPLE(f));
+    if(inter==='pth_ablation')return _croPost(buildCRO_AMOPTH(f));
+    if(inter==='pth_hueter')return _croPost(buildCRO_HUETER(f));
     if(inter==='pth'||inter==='pth_revision')return _croPost(buildCRO_PTH(f));
     if(inter==='ptg')return _croPost(buildCRO_PTG(f));
     if(inter==='lca')return _croPost(buildCRO_LCA(f));
@@ -11151,12 +11734,15 @@ function docContentNative(doc){
     if(inter==='clavicule')return _croPost(buildCRO_CLAVICULE(f));
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\nFermeture cutanée par '+docClosure(f)+'.\nPansement '+f.pansement+'.\n\n'+_dSigBloc();
   }
-  if(doc==='CRH')return buildCRH(f);
+  if(doc==='CRH'&&LOT201_SOURCES.includes(inter))return buildCRH_LOT201(f);
+  if(doc==='CRH'&&['dhs','triple'].includes(inter))return buildCRH_FIXATION(f);
+  if(doc==='CRH'&&inter==='pth_ablation')return buildCRH_AMOPTH(f);
+  if(doc==='CRH')return inter==='pth_hueter'?buildCRH_HUETER(f):buildCRH(f);
   if(doc==='Ordo pharma')return buildOrdoPharma(f);
   if(doc==='Ordo IDE')return buildOrdoIDE(f);
   if(doc==='Ordo matériel')return buildOrdoMateriel(f);
   if(doc==='Ordo kiné'){
-    let t=buildOrdoKine(f);
+    let t=LOT201_SOURCES.includes(inter)?buildKINE_LOT201(f):['dhs','triple'].includes(inter)?buildKINE_FIXATION(f):inter==='pth_hueter'?buildKINE_HUETER(f):buildOrdoKine(f);
     try{const _ck=coteStrD(f);if(_ck){const _nl=t.indexOf('\n');if(_nl>0&&!/CÔTÉ/i.test(t.slice(0,_nl)))t=t.slice(0,_nl)+' — CÔTÉ '+_ck.toUpperCase()+t.slice(_nl);}}catch(e){}
     const a=_ampTxt(f);
     if(a){const K='Rééducation au cabinet conseillée.';t=t.indexOf(K)>=0?t.replace(K,K+'\n\n'+a):(a+'\n\n'+t);}
@@ -11166,18 +11752,21 @@ function docContentNative(doc){
 }
 function docFinal(doc){return docOverrides[doc]!==undefined?docOverrides[doc]:docContent(doc);}
 function docIsUpperLimb(f){
+  if(LOT201_SOURCES.includes(f._inter))return true;
   if(['radius','deuxos','humerus','clavicule','olecrane','palette','teteradiale'].includes(f._inter))return true;
   const label=((f._spec||'')+' '+(f._interv||'')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
   if(/membre inferieur/.test(label))return false;
   return /membre superieur|epaule|coude|poignet|\bmain\b|doigt|humer|clavicul|olecrane|radius|radial|ulna|cubitus|avant.bras|scapho|metacarp/.test(label);
 }
 function docAnesthesiaChoices(f,choices){
+  if(f&&['ulna_distal','kapandji'].includes(f._inter))return ['ALR (bloc axillaire)','Anesthésie générale','AG + bloc analgésique'];
+  if(f&&['humprox_plaque','humdia_plaque'].includes(f._inter))return ['Anesthésie générale','AG + bloc interscalénique'];
   if(docIsUpperLimb(f||{}))return choices;
   return ['Anesthésie générale',...choices.filter(choice=>choice!=='Anesthésie générale')];
 }
 function openBlocDocs(bi,forcedInter){
   const b=blocs[bi];if(!b){showToast('Bloc introuvable');return;}
-  const inter=forcedInter||detectInter(b.interv||'');
+  const inter=forcedInter||detectInter(b.interv||'',b.spec||'');
   DOCF={_inter:inter,civ:'M.',nom:'',prenom:'',ddn:'',dateSortie:'',cote:(b.side==='Gauche')?'Gauche':'Droit',dateInter:b.date||'',age:b.age?String(b.age):'',ccam:(b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode||DOC_CCAM[inter]||'',_spec:b.spec||'',_interv:b.interv||'',_implantModels:(b.implantModels||[]).slice(),_ccamAuto:!((b.ccam&&(b.ccam.code||b.ccam))||b.ccamCode)};
   DOCF._bi=bi;window._trameEdit=false;
   window._docSecOpen={patient:false,interv:false,suites:false};
@@ -11325,7 +11914,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={...LOT201_LABELS,dhs:'DHS',triple:'Triple vissage',pth_ablation:'Ablation + PTH',pth_hueter:'PTH · Hueter',manual:'Rédaction manuelle',pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||(DOCF._inter===k&&!DOCF._amlModel)){renderDocForm();return;}
@@ -11369,7 +11958,7 @@ function renderDocForm(){
   // v137 : formulaire en 3 cartes repliables (option A) — le moteur des champs ne change pas
   const visible=opts.filter(o=>!o.show||o.show(DOCF));
   const PAT=new Set(['civ','ddn','dateSortie','consultSem','aides','anesthesie']);
-  const SUI=/^(fermeture|filsType|pansementJours|pansement|immo|appui|dechargeSem|vitC|ains|antico|anticoJours|redon|amp\w*|mat(?!Prealable)[A-Z]\w*)$/;
+  const SUI=/^(immoDetails|immoSem|amoSem|mobilisation|mobilisationDetails|appuiDetails|fermeture|filsType|pansementJours|pansement|immo|appui|dechargeSem|vitC|ains|antico|anticoJours|redon|amp\w*|mat(?!Prealable)[A-Z]\w*)$/;
   const buckets={patient:[],interv:[],suites:[]};
   visible.forEach(o=>{
     if(o.t==='hdr'){(/Ordonnance/i.test(o.l||'')?buckets.suites:buckets.interv).push(o);return;}
@@ -11421,7 +12010,18 @@ function renderDocForm(){
   }).join('');
 }
 function docSecToggle(k){window._docSecOpen=window._docSecOpen||{};window._docSecOpen[k]=!window._docSecOpen[k];renderDocForm();}
-function docGenerate(){if(DOCF._amlModel){try{const missing=amlMissing(DOCF);if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing);return;}}catch(e){alert('Modèle à vérifier : '+e.message);return;}}if(!DOCF._amlModel&&DOCF._inter==='pth'){try{const saved=atlasModelRead();if(saved){const missing=saved.current.params.find(p=>!String(DOCF[p.k]||'').trim());if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing.l);return;}}}catch(e){showToast('Modèle PTH invalide : '+e.message);return;}}if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
+function hueterMissing(f){
+ const fields=['cotyleModele','cotyleTaille','tigeModele','tigeTaille','teteTaille','teteMat','teteCol'];
+ if(f.cupType==='Simple mobilité')fields.push('insertMat');
+ if(f.tigeFix==='Cimentée')fields.push('cimentType');
+ const key=fields.find(k=>!String(f[k]??'').trim());
+ return key?(DOC_OPTS.pth_hueter.find(o=>o.k===key)?.l||key):null;
+}
+function hueterSessionMissing(f){
+ if(f._amlModel){for(const [name,d] of Object.entries(f._amlModel.docs)){if(d.source==='pth_hueter'&&name==='CRO'&&d.kind==='native'){const missing=hueterMissing(amlSourceFields(f,name,d));if(missing)return missing;}}return null;}
+ return f._inter==='pth_hueter'?hueterMissing(f):null;
+}
+function docGenerate(){const missing201=lot201SessionMissing(DOCF);if(missing201){window._docSecOpen.interv=true;window._docSecOpen.suites=true;renderDocForm();showToast('Renseigne '+missing201);return;}const missing200=lot200SessionMissing(DOCF);if(missing200){window._docSecOpen.interv=true;window._docSecOpen.suites=true;renderDocForm();showToast('Renseigne '+missing200);return;}const hm=hueterSessionMissing(DOCF);if(hm){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+hm);return;}if(DOCF._amlModel){try{const missing=amlMissing(DOCF);if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing);return;}}catch(e){alert('Modèle à vérifier : '+e.message);return;}}if(!DOCF._amlModel&&DOCF._inter==='pth'){try{const saved=atlasModelRead();if(saved){const missing=saved.current.params.find(p=>!String(DOCF[p.k]||'').trim());if(missing){window._docSecOpen.interv=true;renderDocForm();showToast('Renseigne '+missing.l);return;}}}catch(e){showToast('Modèle PTH invalide : '+e.message);return;}}if(!Number.isInteger(Number(DOCF.pansementJours))||Number(DOCF.pansementJours)<1){window._docSecOpen.suites=true;renderDocForm();showToast('Précise la fréquence des pansements en jours (entier positif).');return;}if(DOCF.fermeture==='Fils'&&!['Résorbables','Non résorbables'].includes(DOCF.filsType)){window._docSecOpen.suites=true;renderDocForm();showToast('Choisis des fils résorbables ou non résorbables.');return;}docStep=2;docIdx=0;renderDocStep();}
 function docBackToForm(){docStep=1;renderDocStep();}
 function renderDocModal(){
   const tb=document.getElementById('doc-tabs');
@@ -17210,7 +17810,7 @@ Nombre de séances : 20, à renouveler selon évolution
 const AML_KEY='atlas_document_library_v1';
 const AML_DOCS=['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'];
 const AML_CRO={pth:'PTH',pth_revision:'PTH',ptg:'PTG',lca:'LCA',menisc:'MENISC',cheville:'CHEVILLE',plateau:'PLATEAU',bassin:'BASSIN',pseudarthrose:'PSEUDO',deuxos:'DEUXOS',pilon:'PILON',palette:'PALETTE',teteradiale:'TETERAD',radius:'RADIUS',femur:'FEMUR',tibia:'TIBIA',humerus:'HUMERUS',femurplaque:'FEMURPLAQUE',rotule:'ROTULE',olecrane:'OLECRANE',clavicule:'CLAVICULE'};
-const AML_SHARED=new Set([..._COMMON.map(o=>o.k),'cote','dateInter','nom','prenom','age','ccam','fermeture','filsType','pansement','pansementJours','antico','anticoJours','ains','consultSem','dateSortie','immo','appui','dechargeSem','vitC','redon',...Object.values(DOC_OPTS).flatMap(opts=>opts.map(o=>o.k).filter(k=>/^amp/.test(k||''))),...Object.keys(MAT_LABELS)]);
+const AML_SHARED=new Set(['immoDetails','immoSem','amoSem','mobilisation','mobilisationDetails','appuiDetails',..._COMMON.map(o=>o.k),'cote','dateInter','nom','prenom','age','ccam','fermeture','filsType','pansement','pansementJours','antico','anticoJours','ains','consultSem','dateSortie','immo','appui','dechargeSem','vitC','redon',...Object.values(DOC_OPTS).flatMap(opts=>opts.map(o=>o.k).filter(k=>/^amp/.test(k||''))),...Object.keys(MAT_LABELS)]);
 const amlCopy=x=>JSON.parse(JSON.stringify(x));
 const amlKey=(spec,interv)=>JSON.stringify([String(spec),String(interv)]);
 const amlOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -17223,7 +17823,14 @@ function amlDefaults(source){const f={_inter:source,cote:'Gauche',dateInter:'202
 function amlTrace(source,doc,f){
  const previous=amlCapture;amlCapture=Object.create(null);let output;
  try{
-  if(doc==='CRO'){
+  if(LOT201_SOURCES.includes(source)&&['CRO','CRH','Ordo kiné'].includes(doc))output=({'CRO':am_buildCRO_LOT201,'CRH':am_buildCRH_LOT201,'Ordo kiné':am_buildKINE_LOT201})[doc](f);
+  else if(['dhs','triple','pth_ablation'].includes(source)&&doc==='CRO')output=({dhs:am_buildCRO_DHS,triple:am_buildCRO_TRIPLE,pth_ablation:am_buildCRO_AMOPTH})[source](f);
+  else if(['dhs','triple'].includes(source)&&doc==='CRH')output=am_buildCRH_FIXATION(f);
+  else if(source==='pth_ablation'&&doc==='CRH')output=am_buildCRH_AMOPTH(f);
+  else if(['dhs','triple'].includes(source)&&doc==='Ordo kiné')output=am_buildKINE_FIXATION(f);
+  else if(source==='pth_hueter'&&['CRO','CRH','Ordo kiné'].includes(doc)){output=({'CRO':am_buildCRO_HUETER,'CRH':am_buildCRH_HUETER,'Ordo kiné':am_buildKINE_HUETER})[doc](f);}
+  else if(source==='manual'&&['CRO','CRH','Ordo pharma','Ordo kiné'].includes(doc)){output=({'CRO':am_buildCRO_MANUAL,'CRH':am_buildCRH_MANUAL,'Ordo pharma':am_buildPHARMA_MANUAL,'Ordo kiné':am_buildKINE_MANUAL})[doc](f);}
+  else if(doc==='CRO'){
    const fn=AML_CRO[source];if(fn)output=AML_BUILDERS[fn](f);
    else output=amTake('generic_cro',"COMPTE-RENDU OPÉRATOIRE\n\nPatient : {{v0}}\nDate : {{v1}}\nOpérateur : {{v2}}\nAnesthésie : {{v3}}\n\n{{v4}}\n\nFermeture cutanée par {{v5}}.\nPansement {{v6}}.\n\n{{v7}}",[ptNom(f),doc_dateStr(f.dateInter),_dSig(),f.anesthesie,f.detailOp||'(Description à compléter)',docClosure(f),f.pansement,_dSigBloc()],['Patient','dateInter','Signature','anesthesie','detailOp','fermeture','pansement','Signature']);
   }else output=AML_OTHER[doc](f);
@@ -17262,7 +17869,7 @@ function amlSourceDoc(source,name){
  if(source==='pth'){const old=atlasModelRead()?.current||atlasModelBlank();d.kind='legacy';d.base=amlCopy(old.docs[name]);d.params=amlCopy(old.params);}
  return d;
 }
-function amlNativeModel(spec,interv){const source=detectInter(interv);return {version:1,spec,interv,docs:Object.fromEntries((DOC_DOCS[source]||[]).map(name=>[name,amlSourceDoc(source,name)]))};}
+function amlNativeModel(spec,interv){const source=detectInter(interv,spec);return {version:1,spec,interv,docs:Object.fromEntries((DOC_DOCS[source]||[]).map(name=>[name,amlSourceDoc(source,name)]))};}
 function amlWorkingModel(spec,interv){return amlCopy(amlLookup(spec,interv)||amlNativeModel(spec,interv));}
 function amlCopyDocs(target,source,names){
  const next=amlCopy(target),existing=new Map(),renames=new Map();
@@ -17280,7 +17887,7 @@ function amlParts(d,name,f){
  const rank=new Map(d.order.map((id,i)=>[id,i]));const moved=parts.filter(p=>rank.has(p.id)).sort((a,b)=>rank.get(a.id)-rank.get(b.id));let pos=0;return parts.map(p=>rank.has(p.id)?moved[pos++]:p);
 }
 function amlRaw(d,name,f){return amlParts(d,name,f).map(p=>p.text.replace(/\{\{([^{}]+)\}\}/g,(_,k)=>/^v\d+$/.test(k)?String(p.values[+k.slice(1)]??''):String(f[k]??''))).join('');}
-function amlPost(text,name,f){if(name==='CRO'){const saved=DOCF;try{DOCF=f;return _croPost(text)}finally{DOCF=saved;}}if(name==='Ordo kiné'){const side=coteStrD(f),nl=text.indexOf('\n');if(side&&nl>0&&!/CÔTÉ/i.test(text.slice(0,nl)))text=text.slice(0,nl)+' — CÔTÉ '+side.toUpperCase()+text.slice(nl);const a=_ampTxt(f),K='Rééducation au cabinet conseillée.';if(a)text=text.includes(K)?text.replace(K,K+'\n\n'+a):a+'\n\n'+text;}return text;}
+function amlPost(text,name,f){if(f._inter==='manual')return text;if(name==='CRO'){const saved=DOCF;try{DOCF=f;return _croPost(text)}finally{DOCF=saved;}}if(name==='Ordo kiné'){const side=coteStrD(f),nl=text.indexOf('\n');if(side&&nl>0&&!/CÔTÉ/i.test(text.slice(0,nl)))text=text.slice(0,nl)+' — CÔTÉ '+side.toUpperCase()+text.slice(nl);const a=_ampTxt(f),K='Rééducation au cabinet conseillée.';if(a)text=text.includes(K)?text.replace(K,K+'\n\n'+a):a+'\n\n'+text;}return text;}
 
 function amlSourceFields(f,name,d){
  const result=amlDefaults(d.source);for(const key of Object.keys(result)){const actual=AML_SHARED.has(key)||d.source===f._inter?key:'_amls_'+d.source+'_'+key;if(amlOwn(f,actual))result[key]=f[actual];}
@@ -17367,8 +17974,8 @@ function amlDraw(){
   foot.append(amlButton('+ Intervention',amlNewIntervention,'aml-primary'));amlDrawList();return;
  }
  if(amlUI.page==='intervention'){
-  const source=detectInter(amlUI.target.interv),saved=amlLookup(amlUI.target.spec,amlUI.target.interv);
-  body.innerHTML=`<div class="aml-summary">${amlIcon(amlUI.target.spec)}<div><strong>${Object.keys(amlUI.target.docs).length} documents</strong><span>${amlUI.dirty?'Modifications en cours':saved?'Personnalisés pour cette intervention':source==='fracture'?'Trame générique actuelle':'Documents actuels'}</span></div></div><div class="aml-list" id="aml-doc-list"></div><div class="aml-actions" id="aml-actions"></div><details class="aml-history"><summary>Historique</summary><div id="aml-history-buttons"></div></details>`;
+  const source=detectInter(amlUI.target.interv,amlUI.target.spec),saved=amlLookup(amlUI.target.spec,amlUI.target.interv);
+  body.innerHTML=`<div class="aml-summary">${amlIcon(amlUI.target.spec)}<div><strong>${Object.keys(amlUI.target.docs).length} documents</strong><span>${amlUI.dirty?'Modifications en cours':saved?'Personnalisés pour cette intervention':['fracture','manual'].includes(source)?'Rédaction manuelle · À personnaliser':'Documents actuels'}</span></div></div><div class="aml-list" id="aml-doc-list"></div><div class="aml-actions" id="aml-actions"></div><details class="aml-history"><summary>Historique</summary><div id="aml-history-buttons"></div></details>`;
   const list=document.getElementById('aml-doc-list');for(const name of AML_DOCS){if(!amlUI.target.docs[name])continue;const d=amlUI.target.docs[name];const b=amlButton('',()=>amlOpenDoc(name),'aml-row');b.innerHTML=`<span class="aml-doc-icon">${amlDocIcon(name)}</span><span><strong>${esc(name)}</strong><small>${d.kind==='blank'?'Création personnelle':Object.keys(d.edits).length||d.extras.length?'Formulation personnalisée':TRAME_LABELS[d.source]}</small></span><span class="aml-chevron">›</span>`;list.append(b);}
   document.getElementById('aml-actions').append(amlButton('Créer un document',amlCreateDialog,'aml-secondary'),amlButton('Reprendre des documents',amlCopyDialog,'aml-secondary'));
   document.getElementById('aml-history-buttons').append(amlButton('Version précédente',amlUndo),amlButton('Documents d’origine',amlReset));
@@ -17380,7 +17987,7 @@ function amlShort(label){return label.split(' — ').pop()||label;}
 function amlDocIcon(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H5v18h14V8l-5-5zm0 0v5h5M8 12h8M8 16h6"/></svg>';}
 function amlDrawList(){
  const host=document.getElementById('aml-list');host.replaceChildren();const normalize=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const all=amlCatalog().filter(e=>(!amlUI.filter||e.spec===amlUI.filter)&&normalize(e.interv).includes(normalize(amlUI.query)));const entries=amlRead().entries;
- for(const entry of all){const saved=entries[amlKey(entry.spec,entry.interv)]?.current,source=detectInter(entry.interv);const b=amlButton('',()=>amlChoose(entry.spec,entry.interv),'aml-row');b.innerHTML=`${amlIcon(entry.spec)}<span><strong>${esc(amlShort(entry.interv))}</strong><small>${esc(entry.interv.includes(' — ')?entry.interv.split(' — ').slice(0,-1).join(' · '):getSpecConfig(entry.spec).label)}</small><span class="aml-mini">${saved?Object.keys(saved.docs).map(n=>n.replace('Ordo ','')).join(' · '):source==='fracture'?'Trame générique · À personnaliser':'CRO · CRH · Ordonnances'}</span></span><span class="aml-chevron">›</span>`;host.append(b);}
+ for(const entry of all){const saved=entries[amlKey(entry.spec,entry.interv)]?.current,source=detectInter(entry.interv,entry.spec);const b=amlButton('',()=>amlChoose(entry.spec,entry.interv),'aml-row');b.innerHTML=`${amlIcon(entry.spec)}<span><strong>${esc(amlShort(entry.interv))}</strong><small>${esc(entry.interv.includes(' — ')?entry.interv.split(' — ').slice(0,-1).join(' · '):getSpecConfig(entry.spec).label)}</small><span class="aml-mini">${saved?Object.keys(saved.docs).map(n=>n.replace('Ordo ','')).join(' · '):['fracture','manual'].includes(source)?'Rédaction manuelle · À personnaliser':'CRO · CRH · Ordonnances'}</span></span><span class="aml-chevron">›</span>`;host.append(b);}
  if(!all.length)host.innerHTML='<div class="aml-empty">Aucune intervention</div>';
 }
 function amlSaveUI(){try{for(const [n,d]of Object.entries(amlUI.target.docs))if(d.kind==='blank'&&!d.extras.some(b=>b.text.trim()))throw Error('Complète le document '+n+' avant de l’enregistrer');amlSave(amlUI.target);amlUI.dirty=false;amlDraw();const b=document.querySelector('#aml-foot .aml-primary');if(b)b.textContent='Enregistré';}catch(e){alert(e.message)}}
@@ -17388,7 +17995,7 @@ function amlUndo(){try{const store=amlRead(),key=amlKey(amlUI.target.spec,amlUI.
 function amlReset(){if(!window.confirm('Retrouver les documents d’origine pour cette intervention ?'))return;amlUI.target=amlNativeModel(amlUI.target.spec,amlUI.target.interv);amlUI.dirty=true;amlUI.fields={};amlDraw();}
 function amlModal(title){const m=document.getElementById('am-edit');m.innerHTML='<h2></h2><div id="aml-modal-body"></div><div id="aml-modal-actions" class="am-buttons"></div>';m.querySelector('h2').textContent=title;m.showModal();document.getElementById('aml-modal-actions').append(amlButton('Annuler',()=>m.close()));return {m,body:document.getElementById('aml-modal-body'),actions:document.getElementById('aml-modal-actions')};}
 function amlNewIntervention(){const {m,body,actions}=amlModal('Intervention');body.innerHTML=`<label>Spécialité<select id="aml-new-spec">${Object.keys(INTERV_HIER).map(s=>`<option value="${esc(s)}">${esc(getSpecConfig(s).label)}</option>`).join('')}</select></label><label>Intitulé<input id="aml-new-name" maxlength="500"></label>`;actions.append(amlButton('Créer',()=>{const spec=document.getElementById('aml-new-spec').value,interv=document.getElementById('aml-new-name').value.trim();if(!interv)return;if(amlCatalog().some(e=>e.spec===spec&&e.interv===interv)){m.close();amlChoose(spec,interv);return}amlUI.target={version:1,spec,interv,docs:{}};amlUI.fields={};amlUI.dirty=true;amlUI.page='intervention';m.close();amlDraw()}));}
-function amlCreateDialog(){const {m,body,actions}=amlModal('Créer un document');body.innerHTML=`<label>Document<select id="aml-new-doc">${AML_DOCS.map(n=>`<option>${n}</option>`).join('')}</select></label>`;actions.append(amlButton('Continuer',()=>{const name=document.getElementById('aml-new-doc').value;if(amlUI.target.docs[name]&&!window.confirm('Remplacer le '+name+' de cette intervention par un document vierge ?'))return;const source=detectInter(amlUI.target.interv);amlUI.target.docs[name]={source,kind:'blank',params:[],edits:{},extras:[{id:'extra_'+amlId(),text:''}],order:[]};amlUI.dirty=true;m.close();amlOpenDoc(name);amlEditPart(amlUI.target.docs[name].extras[0]);}));}
+function amlCreateDialog(){const {m,body,actions}=amlModal('Créer un document');body.innerHTML=`<label>Document<select id="aml-new-doc">${AML_DOCS.map(n=>`<option>${n}</option>`).join('')}</select></label>`;actions.append(amlButton('Continuer',()=>{const name=document.getElementById('aml-new-doc').value;if(amlUI.target.docs[name]&&!window.confirm('Remplacer le '+name+' de cette intervention par un document vierge ?'))return;const source=detectInter(amlUI.target.interv,amlUI.target.spec);amlUI.target.docs[name]={source,kind:'blank',params:[],edits:{},extras:[{id:'extra_'+amlId(),text:''}],order:[]};amlUI.dirty=true;m.close();amlOpenDoc(name);amlEditPart(amlUI.target.docs[name].extras[0]);}));}
 function amlCopyDialog(){
  const {m,body,actions}=amlModal('Reprendre des documents');const entries=amlCatalog().filter(e=>amlKey(e.spec,e.interv)!==amlKey(amlUI.target.spec,amlUI.target.interv));
  body.innerHTML='<label>Intervention source<input id="aml-copy-search" type="search" placeholder="Rechercher"></label><select id="aml-copy-source" aria-label="Intervention source"></select><div id="aml-copy-docs"></div>';
@@ -17433,5 +18040,397 @@ function amlAddParam(){const {m,body,actions}=amlModal('Nouveau paramètre');bod
 
 function docContent(name){return amlContent(name);}
 document.getElementById('aml-dialog').addEventListener('cancel',e=>{e.preventDefault();amlClose();});
+</script>
+<script>
+function am_buildCRO_MANUAL(f){return amTake("buildCRO_MANUAL_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}}
+
+Patient : {{v1}}
+Date opératoire : {{v2}}
+Côté : {{v3}}
+Opérateur : {{v4}}
+
+{{v5}}
+
+{{v6}}`,[(f._interv||'INTERVENTION'),(ptNom(f)),(doc_dateStr(f.dateInter)),(f.cote||'—'),(_dSig()),(f.detailOp||'(Compte-rendu opératoire à compléter)'),(_dSigBloc())],["_interv", "Texte lié", "dateInter", "cote", "Signature", "detailOp", "Signature"]);}
+function am_buildCRH_MANUAL(f){return amTake("buildCRH_MANUAL_0",`COMPTE-RENDU D’HOSPITALISATION
+
+Patient : {{v0}}
+Intervention : {{v1}}
+Date opératoire : {{v2}}
+
+{{v3}}
+
+{{v4}}`,[(ptNom(f)),(f._interv||'—'),(doc_dateStr(f.dateInter)),(f.detailSejour||'(Compte-rendu d’hospitalisation à compléter)'),(_dSigBloc())],["Texte lié", "_interv", "dateInter", "detailSejour", "Signature"]);}
+function am_buildPHARMA_MANUAL(f){return amTake("buildPHARMA_MANUAL_0",`ORDONNANCE PHARMACEUTIQUE
+
+Patient : {{v0}} — né(e) le {{v1}}
+Date : {{v2}}
+
+{{v3}}
+
+{{v4}}{{v5}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(f.detailPharma||'(Prescription à compléter)'),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "detailPharma", "Signature", "Signature"]);}
+function am_buildKINE_MANUAL(f){return amTake("buildKINE_MANUAL_0",`ORDONNANCE DE KINÉSITHÉRAPIE
+
+Patient : {{v0}} — né(e) le {{v1}}
+Date : {{v2}}
+
+{{v3}}
+
+{{v4}}{{v5}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(f.detailKine||'(Prescription à compléter)'),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "detailKine", "Signature", "Signature"]);}
+</script>
+<script>
+function am_buildCRO_HUETER(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_HUETER_0",`COMPTE-RENDU OPÉRATOIRE — PTH {{v0}} PAR VOIE DE HUETER
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : {{v5}}.
+CCAM : {{v6}}
+{{v7}}Rappel des implants : Cotyle {{v8}}{{v9}} taille {{v10}}{{v11}} / Tige {{v12}}{{v13}}{{v14}} taille {{v15}}{{v16}} / Tête {{v17}} {{v18}} col {{v19}}
+
+Installation en décubitus dorsal sur table orthopédique avec dispositif de traction.
+Protection des points d'appui.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord antérieure de Hueter.
+Ouverture de l'aponévrose du tenseur du fascia lata et abord de l'intervalle en dedans du muscle.
+Hémostase des branches vasculaires rencontrées.
+Exposition et ouverture de la capsule antérieure.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+Fraisages de tailles croissantes jusqu'à la taille {{v20}}.
+Mise en place d'un cotyle {{v21}} taille {{v22}}, sans ciment, {{v23}}.
+{{v24}}
+
+Temps fémoral :
+Relâchement de la traction.
+Mobilisation progressive du membre en rotation externe, extension et adduction.
+Release capsulaire sous contrôle de la vue, adapté aux tensions limitant l'exposition.
+Accompagnement de la manœuvre d'élévation du fémur proximal à l'aide d'un crochet de Lambotte.
+Mise en place des écarteurs pour exposer l'entrée du canal.
+On passe les râpes de tailles successives jusqu'à la râpe taille {{v25}}.
+Essais sur râpe en place col {{v26}}.
+La stabilité est excellente et les longueurs sont restaurées.
+{{v27}}
+{{v28}}
+Réduction de la hanche.
+Nettoyage abondant.
+{{v29}}{{v30}}Fermeture plan par plan.
+Fermeture cutanée par {{v31}}.
+Pansement {{v32}}.
+
+{{v33}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication||('Arthroplastie totale de hanche '+cote)),(f.ccam),(f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''),(f.cupType==='Double mobilité'?'double mobilité ':''),(f.cotyleModele),(f.cotyleTaille),(f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''),(f.tigeModele),(f.tigeLat?' Latéralisée':''),(f.tigeFix==='Cimentée'?' cimentée':''),(f.tigeTaille),(f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''),(f.teteTaille),(f.teteMat),(f.teteCol),(f.cotyleTaille),(f.cotyleModele),(f.cotyleTaille),(f.cupType==='Double mobilité'?'à double mobilité':'à simple mobilité'),(f.cupType==='Simple mobilité'?`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
+`:''),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "cotyleTaille", "cotyleModele", "cotyleTaille", "cupType", "cupType / insertMat", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRH_HUETER(f){
+  const inter='pth';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildCRH_HUETER_0",`Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.
+{{v8}}{{v9}}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements ({{v10}}) à renouveler {{v11}}
+— {{v12}}
+— Kinésithérapie de rééducation
+— {{v13}}
+{{v14}}— Antalgiques selon prescription
+{{v15}}
+Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+{{v19}} — {{v20}}{{v21}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif({...f,_inter:'pth'})?('prise en charge de '+_crhMotif({...f,_inter:'pth'})):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),('Appui complet autorisé'),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))),(_dSig()),(_dService()),(_dChefHopLine())],["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "segment", "Signature", "Signature", "Signature"]);
+}
+function am_buildKINE_HUETER(f){
+const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+  return amTake("buildKINE_HUETER_0",`ORDONNANCE KINÉSITHÉRAPIE — PROTHÈSE TOTALE DE HANCHE
+
+{{v0}}
+
+Phase 1 — J1 → S3 :
+Appui complet immédiat sous couvert de cannes anglaises.
+Travail de la marche. Réveil musculaire : abducteurs, quadriceps, grand fessier.
+Lutte contre le flessum de hanche.
+
+Phase 2 — S3 → S6 :
+Sevrage progressif des cannes (objectif : marche sans boiterie, pas de Trendelenburg).
+Renforcement des abducteurs et extenseurs. Amplitudes fonctionnelles sans forcer.
+
+Phase 3 — S6 → M3 :
+Renforcement global, proprioception, équilibre.
+Vélo, natation, marche quotidienne. Reprise des activités.
+
+Objectifs finaux : marche sans aide ni boiterie, hanche indolore, autonomie complète.
+
+Nombre de séances : 20, à renouveler selon évolution
+{{v1}}{{v2}}`,[(intro),(_dSig()),(_dRpps())],["Texte lié", "Signature", "Signature"]);
+}
+</script>
+<script>
+function am_buildCRO_DHS(f){return amTake("buildCRO_DHS_0",`COMPTE-RENDU OPÉRATOIRE — DHS {{v0}}
+
+Patient : {{v1}}
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides : {{v4}}
+Anesthésie : {{v5}}
+Indication : {{v6}}
+CCAM : {{v7}}
+
+Installation en décubitus dorsal sur table orthopédique. Contrôle scopique de face et de profil.
+{{v8}}
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+Abord latéral du fémur proximal. Exposition de la face latérale du fémur.
+{{v9}}Mise en place de la broche guide cervico-céphalique sous contrôle scopique de face et de profil.
+Mesure et préparation du trajet. Mise en place de la vis cervico-céphalique de longueur {{v10}} mm.
+Mise en place de la plaque DHS {{v11}}, angulation {{v12}}, {{v13}} trous, et fixation diaphysaire par {{v14}} vis.
+{{v15}}{{v16}}Contrôle scopique final de la réduction et du positionnement du matériel : {{v17}}.
+Lavage et contrôle de l’hémostase. Fermeture plan par plan, puis fermeture cutanée par {{v18}}.
+Pansement {{v19}}.
+
+{{v20}}`,[(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':f.reduction==='Réduction à foyer fermé'?'Réduction à foyer fermé sous contrôle scopique.':''),(f.reduction==='Réduction à foyer ouvert'?'Réduction à foyer ouvert : '+f.reductionDetails+'.\n':''),(f.dhsVisLong),(f.dhsModele),(f.dhsAngle),(f.dhsTrous),(f.dhsNbVis),(f.dhsAnti?'Mise en place d’une vis antirotation parallèle à la vis cervico-céphalique.\n':''),(f.dhsCompression?'Mise en compression du foyer par le dispositif de compression.\n':''),(f.controle),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "reduction", "reduction / reductionDetails", "dhsVisLong", "dhsModele", "dhsAngle", "dhsTrous", "dhsNbVis", "dhsAnti", "dhsCompression", "controle", "Texte lié", "pansement", "Signature"]);}
+function am_buildCRO_TRIPLE(f){return amTake("buildCRO_TRIPLE_0",`COMPTE-RENDU OPÉRATOIRE — TRIPLE VISSAGE {{v0}}
+
+Patient : {{v1}}
+Date opératoire : {{v2}}
+Opérateur : {{v3}}
+Aides : {{v4}}
+Anesthésie : {{v5}}
+Indication : {{v6}}
+CCAM : {{v7}}
+
+Installation en décubitus dorsal sur table orthopédique, sans traction. Contrôle scopique de face et de profil.
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+{{v8}}
+Abords latéraux permettant le positionnement de trois broches guides sous contrôle scopique, en triangle à pointe inférieure.
+Contrôle de leur position cervico-céphalique sur les incidences de face et de profil, sans pénétration articulaire.
+Mesure et préparation des trajets. Mise en place de trois vis canulées {{v9}}, de diamètre {{v10}} mm, de longueurs {{v11}}, {{v12}} et {{v13}} mm.
+{{v14}}Contrôle scopique final de la réduction et du positionnement du matériel : {{v15}}.
+Lavage et contrôle de l’hémostase. Fermeture cutanée par {{v16}}.
+Pansement {{v17}}.
+
+{{v18}}`,[(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':('Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+' : '+(f.reductionDetails||'—')+'.')),(f.trModele),(f.trDiam),(f.trLong1),(f.trLong2),(f.trLong3),(f.trRondelles?'Mise en place de rondelles : '+f.trRondellesDetails+'.\n':''),(f.controle),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "reduction / reductionDetails", "trModele", "trDiam", "trLong1", "trLong2", "trLong3", "trRondelles / trRondellesDetails", "controle", "Texte lié", "pansement", "Signature"]);}
+function am_buildCRO_AMOPTH(f){
+  const cote=coteStrD(f);
+  return amTake("buildCRO_AMOPTH_0",`COMPTE-RENDU OPÉRATOIRE — ABLATION DE MATÉRIEL + PTH {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : {{v5}}.
+CCAM : {{v6}}
+{{v7}}Rappel des implants : Cotyle {{v8}}{{v9}} taille {{v10}}{{v11}} / Tige {{v12}}{{v13}}{{v14}} taille {{v15}}{{v16}} / Tête {{v17}} {{v18}} col {{v19}}{{v20}}
+
+Installation en décubitus latéral {{v21}}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+{{v22}}
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Ablation de la tête fémorale sans difficulté.
+
+Temps cotyloïdien :
+Exposition du cotyle.
+Ablation du labrum.
+Ablation du reliquat du ligament rond de la tête fémorale.
+Repérage du ligament transverse.
+{{v23}}
+
+Temps fémoral :
+Exposition du fût fémoral jambe au zénith.
+Ablation du reliquat de col à l'emporte-pièce.
+Tunnelisation à la dague.
+Évidement du grand trochanter à la curette.
+On passe les râpes de tailles successives jusqu'à la râpe taille {{v24}}.
+Essais sur râpe en place col {{v25}}.
+La stabilité est excellente et les longueurs sont restaurées.
+{{v26}}
+{{v27}}
+Réduction de la hanche.
+Nettoyage abondant.
+{{v28}}{{v29}}{{v30}}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Fermeture cutanée par {{v31}}.
+Pansement {{v32}}.
+
+{{v33}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication||('Arthroplastie totale de hanche '+cote)),(f.ccam),(f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''),(f.cupType==='Double mobilité'?'double mobilité ':''),(f.cotyleModele),(f.cotyleTaille),(f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''),(f.tigeModele),(f.tigeLat?' Latéralisée':''),(f.tigeFix==='Cimentée'?' cimentée':''),(f.tigeTaille),(f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''),(f.teteTaille),(f.teteMat),(f.teteCol),(f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''),(cote==='gauche'?'droit':'gauche'),(amoParagraphe(f)),(f.renfort?`Fraisages de tailles croissantes.
+Mise en place d'un renfort acétabulaire${f.renfortModele?' '+f.renfortModele:''}, fixé par ${f.renfortNbVis||'—'} vis.
+Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille} dans le renfort, légèrement plus antéversé que le transverse.`:`Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille} pour mise en place d'un cotyle définitif ${f.cupType==='Double mobilité'?'double mobilité ':''}taille ${f.cotyleTaille} ${f.cotyleModele} sans ciment légèrement plus antéversé que le transverse.
+La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
+Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
+`:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "renfort / renfortModele", "Texte lié", "Texte lié", "renfort / renfortModele / renfortNbVis / cupType / cotyleModele / cotyleTaille", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol / insertMat", "crochet / crochetMarque / crochetLong / crochetNbVis", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
+}
+function am_buildCRH_FIXATION(f){
+  const inter='femur';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildCRH_FIXATION_0",`Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.
+{{v8}}{{v9}}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements ({{v10}}) à renouveler {{v11}}
+— {{v12}}
+— Kinésithérapie de rééducation
+— {{v13}}
+{{v14}}— Antalgiques selon prescription
+{{v15}}
+Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+{{v19}} — {{v20}}{{v21}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),(_crhAppui(f)),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))),(_dSig()),(_dService()),(_dChefHopLine())],["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "segment", "Signature", "Signature", "Signature"]);
+}
+function am_buildCRH_AMOPTH(f){
+  const inter='pth';
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildCRH_AMOPTH_0",`Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.
+{{v8}}{{v9}}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements ({{v10}}) à renouveler {{v11}}
+— {{v12}}
+— Kinésithérapie de rééducation
+— {{v13}}
+{{v14}}— Antalgiques selon prescription
+{{v15}}
+Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+{{v19}} — {{v20}}{{v21}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),(_crhAppui(f)),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(inter==='pth'||inter==='pth_revision'?'radio bassin + hanche de face':(inter==='pseudarthrose'?(f.segment==='Fémur'?'radiographies du fémur de face et de profil':'radiographies de la jambe de face et de profil'):(inter==='bassin'?'radiographie du bassin de face et incidences ¾ obturateur et alaire':(inter==='plateau'?'radiographies du genou de face et de profil + schuss':(inter==='cheville'?'radiographies de la cheville de face et de profil':(inter==='pilon'?'radiographies de la cheville de face et de profil':(inter==='radius'?'radiographies du poignet de face et de profil':(inter==='deuxos'?"radiographies de l'avant-bras de face et de profil prenant le coude et le poignet":(inter==='femur'?'radiographies de la hanche et du fémur de face et de profil':(inter==='tibia'?'radiographies de la jambe de face et de profil':(inter==='humerus'?"radiographies de l'humérus de face et de profil":(inter==='femurplaque'?'radiographies du fémur de face et de profil':(inter==='rotule'?'radiographies du genou de face et de profil':(inter==='olecrane'?'radiographies du coude de face et de profil':(inter==='palette'?'radiographies du coude de face et de profil':(inter==='teteradiale'?'radiographies du coude de face et de profil':(inter==='clavicule'?'radiographie de la clavicule':'radiographies de contrôle'))))))))))))))))),(_dSig()),(_dService()),(_dChefHopLine())],["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "segment", "Signature", "Signature", "Signature"]);
+}
+function am_buildKINE_FIXATION(f){
+const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
+    return amTake("buildKINE_FIXATION_0",`ORDONNANCE KINÉSITHÉRAPIE — {{v0}}
+
+{{v1}}
+
+Reprise de la marche selon les consignes d'appui : {{v2}}.
+Verticalisation précoce et travail des transferts.
+Renforcement du quadriceps et des muscles fessiers.
+Entretien des amplitudes de hanche et de genou.
+Travail de l'équilibre et prévention des chutes.
+
+Nombre de séances : 30, à renouveler selon évolution
+{{v3}}{{v4}}`,[(f._inter==='dhs'?'DHS':'TRIPLE VISSAGE'),(intro),(_crhAppui(f).toLowerCase()),(_dSig()),(_dRpps())],["_inter", "Texte lié", "Texte lié", "Signature", "Signature"]);
+  }
+</script>
+<script>
+function am_buildCRO_LOT201(f){
+ return amTake("buildCRO_LOT201_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} — CÔTÉ {{v1}}
+
+Patient : {{v2}}
+Date opératoire : {{v3}}
+Opérateur : {{v4}}
+Aides : {{v5}}
+Anesthésie : {{v6}}
+Indication : {{v7}}
+CCAM : {{v8}}
+
+Installation : {{v9}}.
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+{{v10}}{{v11}}{{v12}}{{v13}}{{v14}}Contrôle final : {{v15}}.
+Lavage et contrôle de l’hémostase. {{v16}}Fermeture plan par plan puis fermeture cutanée par {{v17}}.
+Pansement {{v18}}.
+{{v19}}
+{{v20}}`,[(LOT201_LABELS[f._inter].toUpperCase()),(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(lot201Installation(f)),(f._inter==='humprox_plaque'?`${f.hpVoie==='Delto-pectorale'?'Abord delto-pectoral avec préservation de la veine céphalique.':'Abord supéro-externe, avec protection du nerf axillaire.'}
+Exposition du foyer et réduction des fragments sous contrôle scopique.
+Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, et fixation par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
+`:''),(f._inter==='humdia_plaque'?`${f.hdVoie==='Latérale'?'Abord latéral de la diaphyse humérale.':'Abord postérieur trans-tricipital de la diaphyse humérale.'}
+Repérage systématique et protection du nerf radial pendant l’exposition, la réduction et la fixation.
+Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle des rapports du nerf radial avec le montage.${f.radialDetails?' '+f.radialDetails:''}
+`:''),(f._inter==='ulna_distal'?`Abord dorsal de l’ulna distal, dans le prolongement de l’abord diaphysaire. Protection de la branche cutanée dorsale du nerf ulnaire.
+Exposition et réduction du foyer. Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Contrôle de la mobilité en pronosupination et de l’articulation radio-ulnaire distale.
+`:''),(f._inter==='kapandji'?`Repérage du foyer sous contrôle scopique. Abords limités et protection des structures tendineuses et nerveuses superficielles.
+Mise en place de ${f.brocheNb} broches intrafocales de diamètre ${f.brocheDiam} mm selon la technique de Kapandji, permettant la réduction puis la stabilisation de la fracture du radius distal.
+Contrôle de face et de profil du positionnement des broches.
+Broches recourbées et ${f.brochesFinition==='Enfouies'?'enfouies sous la peau':'laissées extériorisées avec protection des extrémités'}.
+`:''),(f.fixDetails?f.fixDetails+'\n':''),(f.controle),(f._inter==='humdia_plaque'&&f.hdVoie==='Postérieure trans-tricipitale'?'Fermeture du plan tricipital. ':''),(docClosure(f)),(f.pansement),(f._inter==='kapandji'?lot201Suites(f)+'.\n':''),(_dSigBloc())],["_inter", "Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "Texte lié", "_inter / hpVoie / plaqueModele / plaqueTrous / visProx / visDist", "_inter / hdVoie / plaqueModele / plaqueTrous / visProx / visDist / radialDetails", "_inter / plaqueModele / plaqueTrous / visProx / visDist", "_inter / brocheNb / brocheDiam / brochesFinition", "fixDetails", "controle", "_inter / hdVoie", "Texte lié", "pansement", "_inter", "Signature"]);
+}
+function am_buildCRH_LOT201(f){
+  const inter=f._inter;
+  const antico=(f.antico&&f.antico!=='Aucun')?('— '+f.antico+' — 1 '+(anticoIsHBPM(f.antico)?'injection sous-cutanée':'prise orale')+' par jour pendant '+f.anticoJours+' jours\n'):'';
+  return amTake("buildCRH_LOT201_0",`Cher Confrère,
+
+Nous avons reçu en hospitalisation dans notre service de chirurgie votre patient(e) {{v0}}, né(e) le {{v1}}, hospitalisé(e) du {{v2}} au {{v3}} pour {{v4}}{{v5}}.
+L'intervention s'est parfaitement déroulée au bloc opératoire le {{v6}}, elle a consisté en {{v7}}.
+{{v8}}{{v9}}
+Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
+
+— Pansements ({{v10}}) à renouveler {{v11}}
+— {{v12}}
+— Kinésithérapie de rééducation
+— {{v13}}
+{{v14}}— Antalgiques selon prescription
+{{v15}}
+Je reverrai {{v16}} en consultation de contrôle radio-clinique dans {{v17}} semaines, avec {{v18}}, ou plus tôt si vous le jugez nécessaire.
+
+Nous restons à votre disposition.
+
+{{v19}} — {{v20}}{{v21}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(doc_dateStr(f.dateSortie)),(_crhMotif(f)?('prise en charge de '+_crhMotif(f)):(CRH_ACTE[inter]||'une intervention orthopédique')+' '+_coteAcc(f)),(f.anesthesie?' sous '+f.anesthesie.toLowerCase():''),(doc_dateStr(f.dateInter)),(_crhActe(f)),(_crhMeniscLine(f)),(_crhRadioLine(f)),(f.pansement),(docPansementFrequency(f)),(_crhFils(f)),(_crhAppui(f)),(_ampTxt(f)?'— '+_ampTxt(f)+'\n':''),(antico),(ptNom(f)),(f.consultSem||'6'),(lot201Radio(f)),(_dSig()),(_dService()),(_dChefHopLine())],["Texte lié", "ddn", "dateInter", "dateSortie", "Texte lié", "anesthesie", "dateInter", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "consultSem", "Texte lié", "Signature", "Signature", "Signature"]);
+}
+function am_buildKINE_LOT201(f){return amTake("buildKINE_LOT201_0",`ORDONNANCE KINÉSITHÉRAPIE — {{v0}}
+
+Patient : {{v1}}
+Date : {{v2}}
+
+Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.
+
+{{v3}}.
+{{v4}}Travail cicatriciel et lutte contre l’œdème.
+Renforcement et reprise des efforts selon l’évolution et les consignes chirurgicales.
+
+{{v5}}{{v6}}`,[(LOT201_LABELS[f._inter].toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(lot201Suites(f)),(f._inter==='kapandji'?`Pendant l’immobilisation : entretien de la mobilité des doigts, du coude et de l’épaule.
+Mobilisation du poignet après retrait de l’immobilisation, selon le contrôle clinique et radiographique.
+`:(lot201IsHumerus(f)?`Mobilisation de l’épaule et du coude selon les consignes ci-dessus, dans le respect de la douleur.
+Entretien de la mobilité du poignet et des doigts.
+`:`Mobilisation du poignet et de la pronosupination selon les consignes ci-dessus, dans le respect de la douleur.
+Entretien de la mobilité des doigts, du coude et de l’épaule.
+`)),(_dSig()),(_dRpps())],["_inter", "Texte lié", "dateInter", "Texte lié", "_inter", "Signature", "Signature"]);}
 </script>
 </body></html>
