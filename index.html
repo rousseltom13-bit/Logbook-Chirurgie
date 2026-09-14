@@ -3773,10 +3773,10 @@ const INTERV_MIGRATION = {
   // Hanche
   'PTH voie antérolatérale': 'PTH Hueter',
   'Vissage col fémoral': 'Triple vissage',
-  'Prothèse intermédiaire': 'PTH voie postérieure',
+  'Prothèse intermédiaire': 'Membre inférieur — Hanche — Prothèse intermédiaire',
   'Autre hanche': 'Autre',
   // Trauma
-  'Fracture col fémur — DHS': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
+  'Fracture col fémur — DHS': 'Membre inférieur — Hanche — DHS',
   'Fracture col fémur — clouage': 'Membre inférieur — Hanche (trauma) — Clou Gamma',
   'Fracture tibia — enclouage': 'Membre inférieur — Tibia — Clou tibia',
   'Fracture fémur — enclouage': 'Membre inférieur — Fémur — Clou fémur T2',
@@ -4065,13 +4065,15 @@ const CCAM_MAP={
  "Pridie":"NFCC408",
  "Tendon rotulien (réinsertion)":"NJEA007",
  "Tendon quadricipital":"NJEA002",
+ "Réinsertion biceps distal":"MJEA019",
  "PTG de reconstruction":"NFKA009",
  "Changement d'insert ± tête":"NEKA004",
  "DHS":"NBCA010",
  "Prothèse intermédiaire":"NEKA011",
  "Malléole médiale isolée":"NCCA005",
+ "Plaque tibia distal":"NCCA001",
  "Équivalent bimalléolaire":"NCCA012",
- "Rupture du tendon d'Achille":"NJMB001",
+ "Rupture du tendon d'Achille":"NJEA003",
  "Pseudarthrose fémur":"NBPA005",
  "Pseudarthrose tibia":"NCPA008",
  "Pseudarthrose cheville":"NCPA008",
@@ -9067,14 +9069,17 @@ function detectInterLegacy198(interv){
   return 'fracture';
 }
 
-const DOC_EXACT_198={"[\"Genou\",\"PTG\"]": "ptg", "[\"Genou\",\"RePTG\"]": "manual", "[\"Genou\",\"PUC\"]": "manual", "[\"Genou\",\"LCA (DT3+2)\"]": "lca", "[\"Genou\",\"Reprise LCA\"]": "manual", "[\"Genou\",\"Méniscectomie\"]": "menisc", "[\"Genou\",\"Suture méniscale\"]": "menisc", "[\"Genou\",\"Jumper's knee\"]": "manual", "[\"Genou\",\"Cyclope\"]": "manual", "[\"Genou\",\"Ablation de corps étranger\"]": "manual", "[\"Genou\",\"Pridie\"]": "manual", "[\"Genou\",\"Ostéotomie\"]": "manual", "[\"Genou\",\"TTA + MPFL\"]": "manual", "[\"Genou\",\"Fulkerson\"]": "manual", "[\"Genou\",\"Ablation de matériel\"]": "manual", "[\"Hanche\",\"PTH voie postérieure\"]": "pth", "[\"Hanche\",\"PTH Hueter\"]": "pth_hueter", "[\"Hanche\",\"Ablation de matériel + PTH\"]": "pth_ablation", "[\"Hanche\",\"PTH de révision\"]": "manual", "[\"Hanche\",\"Changement d'insert ± tête\"]": "manual", "[\"Hanche\",\"Ablation de matériel\"]": "manual", "[\"Epaule\",\"Réparation de coiffe\"]": "manual", "[\"Epaule\",\"Acromioplastie\"]": "manual", "[\"Epaule\",\"Bankart\"]": "manual", "[\"Epaule\",\"Butée coracoïdienne\"]": "manual", "[\"Epaule\",\"PTEi\"]": "manual", "[\"Epaule\",\"PTE anatomique\"]": "manual", "[\"Epaule\",\"Ténodèse/ténotomie long biceps\"]": "manual", "[\"Epaule\",\"Révision PTE\"]": "manual", "[\"Epaule\",\"Résection acromio-claviculaire\"]": "manual", "[\"Cheville\",\"Hallux valgus\"]": "manual", "[\"Cheville\",\"Arthrodèse avant-pied\"]": "manual", "[\"Cheville\",\"Orteils en griffe\"]": "manual", "[\"Cheville\",\"Arthroscopie de cheville\"]": "manual", "[\"Cheville\",\"Ligamentoplastie de cheville\"]": "manual", "[\"Cheville\",\"Arthrodèse de cheville\"]": "manual", "[\"Cheville\",\"Prothèse totale de cheville\"]": "manual", "[\"Cheville\",\"Hallux rigidus\"]": "manual", "[\"Cheville\",\"Haglund\"]": "manual", "[\"Main\",\"Canal carpien\"]": "manual", "[\"Main\",\"Dupuytren\"]": "manual", "[\"Main\",\"Doigt à ressort\"]": "manual", "[\"Main\",\"Prothèse trapézo-métacarpienne\"]": "manual", "[\"Main\",\"Trapézectomie\"]": "manual", "[\"Main\",\"Neurolyse nerf ulnaire\"]": "manual", "[\"Main\",\"Arthroscopie du poignet\"]": "manual", "[\"Main\",\"Transfert tendineux\"]": "manual", "[\"Main\",\"Prothèse MCP/IP\"]": "manual", "[\"Main\",\"Ostéotomies avant-bras\"]": "manual", "[\"Rachis\",\"Canal lombaire étroit\"]": "manual", "[\"Rachis\",\"Discectomie pour hernie discale\"]": "manual", "[\"Rachis\",\"Arthrodèse lombaire dégénérative\"]": "manual", "[\"Rachis\",\"Arthrodèse cervicale\"]": "manual", "[\"Rachis\",\"Scoliose\"]": "manual", "[\"Rachis\",\"Décompression cervicale\"]": "manual", "[\"Rachis\",\"Reprise arthrodèse\"]": "manual", "[\"Rachis\",\"Kyphoplastie/vertébroplastie\"]": "manual", "[\"Pediatrie\",\"Supracondylienne (embrochage)\"]": "manual", "[\"Pediatrie\",\"Deux os avant-bras (ECMES)\"]": "manual", "[\"Pediatrie\",\"ECMES fémur\"]": "manual", "[\"Pediatrie\",\"ECMES tibia\"]": "manual", "[\"Pediatrie\",\"Épiphysiolyse (vissage)\"]": "manual", "[\"Coude\",\"Prothèse totale de coude\"]": "manual", "[\"Coude\",\"Arthrolyse\"]": "manual", "[\"Coude\",\"Neurolyse ulnaire au coude\"]": "manual", "[\"Coude\",\"Arthroscopie de coude\"]": "manual", "[\"Coude\",\"Épicondylite\"]": "manual", "[\"Septique\",\"Lavage articulaire natif\"]": "manual", "[\"Septique\",\"Lavage de prothèse (DAIR)\"]": "manual", "[\"Septique\",\"Dépose de prothèse — spacer\"]": "manual", "[\"Septique\",\"Parage de plaie\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Paroi postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne antérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Bi-colonne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Transverse ± paroi\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Symphyse pubienne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Sacrum / anneau postérieur\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Fixateur externe bassin\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH + Crochet\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — Clou Gamma\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Hanche — Triple vissage\"]": "triple", "[\"Traumatologie\",\"Membre inférieur — Hanche — DHS\"]": "dhs", "[\"Traumatologie\",\"Membre inférieur — Hanche — Prothèse intermédiaire\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Plaque fémur\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou fémur T2\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou Gamma Long\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou rétrograde\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Fémur distal (plaque)\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Pseudarthrose fémur\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Genou — Fracture de rotule\"]": "rotule", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon rotulien (réinsertion)\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon quadricipital\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plateau tibial\"]": "plateau", "[\"Traumatologie\",\"Membre inférieur — Tibia — Clou tibia\"]": "tibia", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pilon tibial\"]": "pilon", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plaque tibia distal\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Fixateur externe tibia\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pseudarthrose tibia\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole latérale\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole médiale isolée\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture bi-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Équivalent bimalléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture tri-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Rupture du tendon d'Achille\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Cheville — Pseudarthrose cheville\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Pied — Calcanéum\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Talus\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Lisfranc\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Métatarsiens\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Phalanges / orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Luxation péri-talienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-fémorale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Sous-gonale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-métatarsienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 1er temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 2e temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Lambeau / couverture\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — PTEI\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — Plaque humérus proximal\"]": "humprox_plaque", "[\"Traumatologie\",\"Membre supérieur — Épaule — Clou humérus court\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Diaphyse clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Quart externe clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Luxation acromio-claviculaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Pseudarthrose clavicule\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Humérus — Plaque humérus diaphyse\"]": "humdia_plaque", "[\"Traumatologie\",\"Membre supérieur — Humérus — Clou long humérus\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Coude — Palette humérale\"]": "palette", "[\"Traumatologie\",\"Membre supérieur — Coude — Terrible triade\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Tête radiale\"]": "teteradiale", "[\"Traumatologie\",\"Membre supérieur — Coude — Olécrane\"]": "olecrane", "[\"Traumatologie\",\"Membre supérieur — Coude — Réinsertion biceps distal\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Luxation de coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Fixateur externe coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Galeazzi\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Monteggia\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse radiale\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse ulnaire\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — 2 os de l'avant-bras\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque radius distal\"]": "radius", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque ulna distal\"]": "ulna_distal", "[\"Traumatologie\",\"Membre supérieur — Poignet — Kapandji\"]": "kapandji", "[\"Traumatologie\",\"Membre supérieur — Poignet — Scaphoïde\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Luxation périlunaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Fixateur externe poignet\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — 5e métacarpien (boxeur)\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Métacarpiens\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Phalanges\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Bennett\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons fléchisseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons extenseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Reconstruction — Changement de PTC sur descellement\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Changement de PTH\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque crochet\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque fémur proximal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Ostéosynthèse par cerclages\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — Plaque fémur distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Plaque humérus distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Changement de PTC\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — Plaque humérus\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — RePTE\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Autre — Fracture sur matériel d'ostéosynthèse\"]": "manual"};
+const DOC_EXACT_198={"[\"Genou\",\"PTG\"]": "ptg", "[\"Genou\",\"RePTG\"]": "manual", "[\"Genou\",\"PUC\"]": "manual", "[\"Genou\",\"LCA (DT3+2)\"]": "lca", "[\"Genou\",\"Reprise LCA\"]": "manual", "[\"Genou\",\"Méniscectomie\"]": "menisc", "[\"Genou\",\"Suture méniscale\"]": "menisc", "[\"Genou\",\"Jumper's knee\"]": "manual", "[\"Genou\",\"Cyclope\"]": "manual", "[\"Genou\",\"Ablation de corps étranger\"]": "manual", "[\"Genou\",\"Pridie\"]": "manual", "[\"Genou\",\"Ostéotomie\"]": "manual", "[\"Genou\",\"TTA + MPFL\"]": "manual", "[\"Genou\",\"Fulkerson\"]": "manual", "[\"Genou\",\"Ablation de matériel\"]": "manual", "[\"Hanche\",\"PTH voie postérieure\"]": "pth", "[\"Hanche\",\"PTH Hueter\"]": "pth_hueter", "[\"Hanche\",\"Ablation de matériel + PTH\"]": "pth_ablation", "[\"Hanche\",\"PTH de révision\"]": "manual", "[\"Hanche\",\"Changement d'insert ± tête\"]": "manual", "[\"Hanche\",\"Ablation de matériel\"]": "manual", "[\"Epaule\",\"Réparation de coiffe\"]": "manual", "[\"Epaule\",\"Acromioplastie\"]": "manual", "[\"Epaule\",\"Bankart\"]": "manual", "[\"Epaule\",\"Butée coracoïdienne\"]": "manual", "[\"Epaule\",\"PTEi\"]": "manual", "[\"Epaule\",\"PTE anatomique\"]": "manual", "[\"Epaule\",\"Ténodèse/ténotomie long biceps\"]": "manual", "[\"Epaule\",\"Révision PTE\"]": "manual", "[\"Epaule\",\"Résection acromio-claviculaire\"]": "manual", "[\"Cheville\",\"Hallux valgus\"]": "manual", "[\"Cheville\",\"Arthrodèse avant-pied\"]": "manual", "[\"Cheville\",\"Orteils en griffe\"]": "manual", "[\"Cheville\",\"Arthroscopie de cheville\"]": "manual", "[\"Cheville\",\"Ligamentoplastie de cheville\"]": "manual", "[\"Cheville\",\"Arthrodèse de cheville\"]": "manual", "[\"Cheville\",\"Prothèse totale de cheville\"]": "manual", "[\"Cheville\",\"Hallux rigidus\"]": "manual", "[\"Cheville\",\"Haglund\"]": "manual", "[\"Main\",\"Canal carpien\"]": "manual", "[\"Main\",\"Dupuytren\"]": "manual", "[\"Main\",\"Doigt à ressort\"]": "manual", "[\"Main\",\"Prothèse trapézo-métacarpienne\"]": "manual", "[\"Main\",\"Trapézectomie\"]": "manual", "[\"Main\",\"Neurolyse nerf ulnaire\"]": "manual", "[\"Main\",\"Arthroscopie du poignet\"]": "manual", "[\"Main\",\"Transfert tendineux\"]": "manual", "[\"Main\",\"Prothèse MCP/IP\"]": "manual", "[\"Main\",\"Ostéotomies avant-bras\"]": "manual", "[\"Rachis\",\"Canal lombaire étroit\"]": "manual", "[\"Rachis\",\"Discectomie pour hernie discale\"]": "manual", "[\"Rachis\",\"Arthrodèse lombaire dégénérative\"]": "manual", "[\"Rachis\",\"Arthrodèse cervicale\"]": "manual", "[\"Rachis\",\"Scoliose\"]": "manual", "[\"Rachis\",\"Décompression cervicale\"]": "manual", "[\"Rachis\",\"Reprise arthrodèse\"]": "manual", "[\"Rachis\",\"Kyphoplastie/vertébroplastie\"]": "manual", "[\"Pediatrie\",\"Supracondylienne (embrochage)\"]": "manual", "[\"Pediatrie\",\"Deux os avant-bras (ECMES)\"]": "manual", "[\"Pediatrie\",\"ECMES fémur\"]": "manual", "[\"Pediatrie\",\"ECMES tibia\"]": "manual", "[\"Pediatrie\",\"Épiphysiolyse (vissage)\"]": "manual", "[\"Coude\",\"Prothèse totale de coude\"]": "manual", "[\"Coude\",\"Arthrolyse\"]": "manual", "[\"Coude\",\"Neurolyse ulnaire au coude\"]": "manual", "[\"Coude\",\"Arthroscopie de coude\"]": "manual", "[\"Coude\",\"Épicondylite\"]": "manual", "[\"Septique\",\"Lavage articulaire natif\"]": "manual", "[\"Septique\",\"Lavage de prothèse (DAIR)\"]": "manual", "[\"Septique\",\"Dépose de prothèse — spacer\"]": "manual", "[\"Septique\",\"Parage de plaie\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Paroi postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne antérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Colonne postérieure\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Bi-colonne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Transverse ± paroi\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Symphyse pubienne\"]": "bassin", "[\"Traumatologie\",\"Membre inférieur — Bassin — Sacrum / anneau postérieur\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Bassin — Fixateur externe bassin\"]": "fe_bassin", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — PTH + Crochet\"]": "pth", "[\"Traumatologie\",\"Membre inférieur — Hanche — Clou Gamma\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Hanche — Triple vissage\"]": "triple", "[\"Traumatologie\",\"Membre inférieur — Hanche — DHS\"]": "dhs", "[\"Traumatologie\",\"Membre inférieur — Hanche — Prothèse intermédiaire\"]": "pih", "[\"Traumatologie\",\"Membre inférieur — Fémur — Plaque fémur\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou fémur T2\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou Gamma Long\"]": "femur", "[\"Traumatologie\",\"Membre inférieur — Fémur — Clou rétrograde\"]": "retro", "[\"Traumatologie\",\"Membre inférieur — Fémur — Fémur distal (plaque)\"]": "femurplaque", "[\"Traumatologie\",\"Membre inférieur — Fémur — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Fémur — Pseudarthrose fémur\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Genou — Fracture de rotule\"]": "rotule", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon rotulien (réinsertion)\"]": "rotulien", "[\"Traumatologie\",\"Membre inférieur — Genou — Tendon quadricipital\"]": "quadriceps", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plateau tibial\"]": "plateau", "[\"Traumatologie\",\"Membre inférieur — Tibia — Clou tibia\"]": "tibia", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pilon tibial\"]": "pilon", "[\"Traumatologie\",\"Membre inférieur — Tibia — Plaque tibia distal\"]": "tibdist", "[\"Traumatologie\",\"Membre inférieur — Tibia — Fixateur externe tibia\"]": "fe_tibia", "[\"Traumatologie\",\"Membre inférieur — Tibia — Pseudarthrose tibia\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole latérale\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Malléole médiale isolée\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture bi-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Équivalent bimalléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Fracture tri-malléolaire\"]": "cheville", "[\"Traumatologie\",\"Membre inférieur — Cheville — Rupture du tendon d'Achille\"]": "achille", "[\"Traumatologie\",\"Membre inférieur — Cheville — Pseudarthrose cheville\"]": "pseudarthrose", "[\"Traumatologie\",\"Membre inférieur — Pied — Calcanéum\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Talus\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Lisfranc\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Métatarsiens\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Phalanges / orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Pied — Luxation péri-talienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-fémorale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Sous-gonale\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Trans-métatarsienne\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Amputation — Orteils\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 1er temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Masquelet 2e temps\"]": "manual", "[\"Traumatologie\",\"Membre inférieur — Reconstruction — Lambeau / couverture\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — PTEI\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Épaule — Plaque humérus proximal\"]": "humprox_plaque", "[\"Traumatologie\",\"Membre supérieur — Épaule — Clou humérus court\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Diaphyse clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Quart externe clavicule\"]": "clavicule", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Luxation acromio-claviculaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Clavicule — Pseudarthrose clavicule\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Humérus — Plaque humérus diaphyse\"]": "humdia_plaque", "[\"Traumatologie\",\"Membre supérieur — Humérus — Clou long humérus\"]": "humerus", "[\"Traumatologie\",\"Membre supérieur — Coude — Palette humérale\"]": "palette", "[\"Traumatologie\",\"Membre supérieur — Coude — Terrible triade\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Tête radiale\"]": "teteradiale", "[\"Traumatologie\",\"Membre supérieur — Coude — Olécrane\"]": "olecrane", "[\"Traumatologie\",\"Membre supérieur — Coude — Réinsertion biceps distal\"]": "biceps_distal", "[\"Traumatologie\",\"Membre supérieur — Coude — Luxation de coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Coude — Fixateur externe coude\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Galeazzi\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Monteggia\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse radiale\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — Diaphyse ulnaire\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Avant bras — 2 os de l'avant-bras\"]": "deuxos", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque radius distal\"]": "radius", "[\"Traumatologie\",\"Membre supérieur — Poignet — Plaque ulna distal\"]": "ulna_distal", "[\"Traumatologie\",\"Membre supérieur — Poignet — Kapandji\"]": "kapandji", "[\"Traumatologie\",\"Membre supérieur — Poignet — Scaphoïde\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Luxation périlunaire\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Poignet — Fixateur externe poignet\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — 5e métacarpien (boxeur)\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Métacarpiens\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Phalanges\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Bennett\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons fléchisseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Main — Tendons extenseurs\"]": "manual", "[\"Traumatologie\",\"Membre supérieur — Reconstruction — Changement de PTC sur descellement\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Changement de PTH\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque crochet\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Plaque fémur proximal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTH — Ostéosynthèse par cerclages\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — Plaque fémur distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTG — PTG de reconstruction\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Plaque humérus distal\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTC — Changement de PTC\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — Plaque humérus\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Fracture péri-PTE — RePTE\"]": "manual", "[\"Traumatologie\",\"Péri-prothétiques — Autre — Fracture sur matériel d'ostéosynthèse\"]": "manual"};
 function detectInter(interv,spec){
  const name=String(interv||'').trim(),key=JSON.stringify([spec||'',name]);
  if(Object.prototype.hasOwnProperty.call(DOC_EXACT_198,key))return DOC_EXACT_198[key];
  const matches=Object.entries(DOC_EXACT_198).filter(([k])=>JSON.parse(k)[1]===name).map(([,v])=>v);
  if(matches.length)return new Set(matches).size===1?matches[0]:'manual';
  const leaf=name.split(' — ').pop();
- if(/hueter|intermédiaire|intermediaire|\bpih\b|calcan|kapandji|ulna distal|révision|revision|repris|reptg|sur matériel|sur materiel/i.test(leaf))return 'manual';
+ if(/proth[èe]se intermédiaire|prothese intermediaire/i.test(leaf))return 'pih';
+ if(/^(embrochage de )?kapandji$/i.test(leaf))return 'kapandji';
+ if(/^(plaque (d['’])?)?ulna distal$/i.test(leaf))return 'ulna_distal';
+ if(/hueter|calcan|révision|revision|repris|reptg|sur matériel|sur materiel/i.test(leaf))return 'manual';
  if(/ligamentoplastie/i.test(leaf)&&/cheville|épaule|epaule/i.test(name))return 'manual';
  if(/arthrodèse|arthrodese|prothèse totale de cheville/i.test(leaf))return 'manual';
  const source=detectInterLegacy198(leaf);
@@ -9187,7 +9192,7 @@ CCAM : ${f.ccam||'—'}
 Installation en décubitus dorsal sur table orthopédique, sans traction. Contrôle scopique de face et de profil.
 Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
 ${f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':('Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+' : '+(f.reductionDetails||'—')+'.')}
-Abords latéraux permettant le positionnement de trois broches guides sous contrôle scopique, en triangle à pointe inférieure.
+${f.trVoie==='Mini-abord latéral'?'Mini-abord latéral.':'Trois courtes incisions percutanées latérales.'} Positionnement de trois broches guides sous contrôle scopique, ${f.trConfig==='Parallèles'?'parallèles entre elles':(f.trConfig==='Autre'?(f.trConfigAutre||'selon la configuration retenue'):'en triangle inversé à pointe inférieure')}.
 Contrôle de leur position cervico-céphalique sur les incidences de face et de profil, sans pénétration articulaire.
 Mesure et préparation des trajets. Mise en place de trois vis canulées ${f.trModele}, de diamètre ${f.trDiam} mm, de longueurs ${f.trLong1}, ${f.trLong2} et ${f.trLong3} mm.
 ${f.trRondelles?'Mise en place de rondelles : '+f.trRondellesDetails+'.\n':''}Contrôle scopique final de la réduction et du positionnement du matériel : ${f.controle}.
@@ -9206,7 +9211,11 @@ DOC_OPTS.dhs=[...LOT200_CORE,{k:'dhsModele',t:'selx',l:'DHS — modèle',impType
  {k:'dhsVisLong',t:'num',l:'Vis cervico-céphalique — longueur (mm)',def:''},
  {k:'dhsTrous',t:'num',l:'Plaque — nombre de trous',def:''},{k:'dhsNbVis',t:'num',l:'Plaque — nombre de vis',def:''},
  {k:'dhsAnti',t:'check',l:'Vis antirotation',def:false},{k:'dhsCompression',t:'check',l:'Compression du foyer',def:false},...LOT200_AFTER];
-DOC_OPTS.triple=[...LOT200_CORE,{k:'trModele',t:'selx',l:'Vis canulées — modèle',def:''},
+DOC_OPTS.triple=[...LOT200_CORE,
+ {k:'trVoie',t:'seg',l:'Voie',o:['Percutanée','Mini-abord latéral'],def:'Percutanée'},
+ {k:'trConfig',t:'seg',l:'Configuration des vis',o:['Triangle inversé','Parallèles','Autre'],def:'Triangle inversé'},
+ {k:'trConfigAutre',t:'text',l:'Configuration — précision',def:'',show:f=>f.trConfig==='Autre'},
+ {k:'trModele',t:'selx',l:'Vis canulées — modèle',def:''},
  {k:'trDiam',t:'text',l:'Vis — diamètre (mm)',def:''},...['trLong1','trLong2','trLong3'].map((k,i)=>({k,t:'num',l:'Vis '+(i+1)+' — longueur (mm)',def:''})),
  {k:'trRondelles',t:'check',l:'Rondelles',def:false},{k:'trRondellesDetails',t:'text',l:'Rondelles — nombre et position',def:'',show:f=>f.trRondelles},...LOT200_AFTER];
 for(const source of ['dhs','triple']){
@@ -9223,6 +9232,302 @@ DOC_OPTS.pth_ablation.splice(_COMMON.length,0,
  {k:'amoComplet',t:'seg',l:'Ablation',o:['Complète','Partielle'],def:'Complète'},
  {k:'amoDetails',t:'area',l:'Détails de l’ablation',def:''});
 DOC_DOCS.pth_ablation=DOC_DOCS.pth.slice();
+
+// ── v203 : PROTHÈSE INTERMÉDIAIRE (pih) — voie postérieure maison, fixation SANS défaut (choix obligatoire, décision Tom) ──
+DOC_OPTS.pih=[..._COMMON.map(o=>({...o})),
+ {k:'indication',t:'text',l:'Indication',def:'Fracture du col fémoral'},
+ {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'',impType:'tige'},
+ {k:'tigeLat',t:'check',l:'Tige latéralisée',def:false},
+ {k:'tigeTaille',t:'num',l:'Tige — taille',def:''},
+ {k:'tigeFix',t:'seg',l:'Fixation de la tige',o:['Cimentée','Sans ciment'],def:''},
+ {k:'cimentType',t:'seg',l:'Ciment',o:['Aux antibiotiques','Standard'],def:'Aux antibiotiques',show:f=>f.tigeFix==='Cimentée'},
+ {k:'teteTaille',t:'seg',l:'Tête — diamètre',o:['22','28','32'],def:'28'},
+ {k:'teteCol',t:'seg',l:'Col',o:['standard','court','long'],def:'standard'},
+ {k:'bipModele',t:'selx',l:'Cupule bipolaire — modèle',def:'',impType:'prothese'},
+ {k:'bipDiam',t:'num',l:'Cupule bipolaire — diamètre (mm)',def:''},
+ {k:'drainage',t:'check',l:'Drain de Redon',def:false},
+ {k:'infiltration',t:'check',l:'Infiltration péri-articulaire',def:false},
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+(function(){const at=DOC_OPTS.pih.findIndex(o=>o.k==='appui');DOC_OPTS.pih.splice(at+1,0,
+ {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});})();
+DOC_DOCS.pih=DOC_DOCS.pth.slice();
+DOC_CCAM.pih='NEKA011';
+
+// ── v205 : LOT 3 — clou fémoral rétrograde, plaque tibia distal (MIPO), FE tibia, FE bassin ──
+const LOT205_SOURCES=['retro','tibdist','fe_tibia','fe_bassin'];
+DOC_OPTS.retro=[...LOT200_CORE.map(o=>({...o})),
+ {k:'clouModele',t:'selx',l:'Clou — modèle',impType:'clou',def:''},
+ {k:'clouDiam',t:'num',l:'Clou — diamètre (mm)',def:''},
+ {k:'clouLong',t:'num',l:'Clou — longueur (mm)',def:''},
+ {k:'alesage',t:'check',l:'Alésage',def:true},
+ {k:'visDist',t:'num',l:'Vis de verrouillage distales (viseur)',def:'2'},
+ {k:'visProx',t:'num',l:'Vis de verrouillage proximales (main levée)',def:'1'},
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.tibdist=[...LOT200_CORE.map(o=>({...o})),
+ {k:'tdVoie',t:'seg',l:'Voie',o:['MIPO médiale percutanée','Abord médial direct','Abord antéro-latéral'],def:'MIPO médiale percutanée'},
+ {k:'plaqueModele',t:'selx',l:'Plaque — modèle',impType:'plaque',def:''},
+ {k:'plaqueTrous',t:'num',l:'Plaque — nombre de trous',def:''},
+ {k:'visProx',t:'num',l:'Vis proximales — nombre',def:''},
+ {k:'visDist',t:'num',l:'Vis distales — nombre',def:''},
+ ..._VISLIBRES.map(o=>({...o})),
+ {k:'tdFibule',t:'seg',l:'Fibula',o:['Aucun geste','Plaque de la fibula dans le même temps'],def:'Aucun geste'},
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.fe_tibia=[...LOT200_CORE.map(o=>({...o})),
+ {k:'feConfig',t:'seg',l:'Configuration',o:['Tibio-tibial','Tibio-calcanéen (pontant la cheville)'],def:'Tibio-tibial'},
+ {k:'feModele',t:'text',l:'Fixateur — modèle',def:''},
+ {k:'fichesProx',t:'num',l:'Fiches proximales — nombre',def:'2'},
+ {k:'fichesDist',t:'num',l:'Fiches distales — nombre',def:'2'},
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.fe_bassin=[...LOT200_CORE.filter(o=>o.k!=='reduction'&&o.k!=='reductionDetails').map(o=>({...o})),
+ {k:'fbFiches',t:'seg',l:'Fiches',o:['Supra-acétabulaires','Crêtes iliaques'],def:'Supra-acétabulaires'},
+ {k:'feModele',t:'text',l:'Fixateur — modèle',def:''},
+ {k:'fichesNb',t:'num',l:'Fiches — nombre total',def:'2'},
+ {k:'fbReduction',t:'text',l:'Manœuvre de réduction de l’anneau',def:''},
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+for(const src of LOT205_SOURCES){
+ DOC_DOCS[src]=DOC_DOCS.femur.slice();
+ const at=DOC_OPTS[src].findIndex(o=>o.k==='appui');
+ DOC_OPTS[src].splice(at+1,0,
+ {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+}
+DOC_CCAM.retro='NBCB004';DOC_CCAM.tibdist='NCCA001';DOC_CCAM.fe_tibia='NCCA010';DOC_CCAM.fe_bassin='NACB001';
+function _lot205Reduction(f){
+ if(!f.reduction||f.reduction==='En place')return '';
+ return 'Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+(f.reductionDetails?' : '+f.reductionDetails:'')+'.\n';
+}
+function _lot205Body(f){
+ if(f._inter==='retro')return `Installation en décubitus dorsal, genou fléchi sur un coussin. Contrôle scopique de face et de profil.
+${_lot205Reduction(f)}Courte incision en regard du tendon patellaire, passage para-tendineux interne.
+Point d'entrée à la pointe carrée sous contrôle scopique de face et de profil. Montée du guide dans le fût fémoral, contrôle de la réduction.
+${f.alesage?'Alésages successifs au diamètre retenu.\n':''}Mise en place d'un clou rétrograde ${f.clouModele} de diamètre ${f.clouDiam} mm et de longueur ${f.clouLong} mm.
+Verrouillage distal par ${f.visDist} vis au viseur.
+Verrouillage proximal par ${f.visProx} vis à main levée sous contrôle scopique.
+`;
+ if(f._inter==='tibdist'){
+ const mipo=f.tdVoie==='MIPO médiale percutanée';
+ return `Installation en décubitus dorsal. Contrôle scopique de face et de profil.
+${_lot205Reduction(f)}${mipo?`Réduction indirecte sous contrôle scopique.
+Courte incision distale à la face médiale du tibia. Décollement épipériosté prudent et glissement de la plaque en sous-cutané, sans ouverture du foyer.
+Incision proximale limitée en regard de l'extrémité de la plaque.`:(f.tdVoie==='Abord médial direct'?'Abord direct de la face médiale du tibia distal, exposition et réduction du foyer.':'Abord antéro-latéral du tibia distal, exposition et réduction du foyer.')}
+${_vlLine(f)}Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales${mipo?' en percutané':''}.
+${f.tdFibule==='Plaque de la fibula dans le même temps'?'Dans le même temps, abord latéral de la fibula, réduction et ostéosynthèse par plaque.\n':''}`;
+ }
+ if(f._inter==='fe_tibia'){
+ const pont=f.feConfig!=='Tibio-tibial';
+ return `Installation en décubitus dorsal. Contrôle scopique.
+Mise en place de ${f.fichesProx} fiches proximales dans le tibia, à distance du foyer et des trajets d'une éventuelle synthèse définitive.
+${pont?`Mise en place de ${f.fichesDist} fiche(s) distale(s) dans le calcanéus${f.fichesDist>1?' et/ou le médio-pied':''}.`:`Mise en place de ${f.fichesDist} fiches distales dans le tibia, à distance du foyer.`}
+Montage du fixateur ${f.feModele||'externe'} en configuration ${pont?'tibio-calcanéenne pontant la cheville':'tibio-tibiale'}.
+${_lot205Reduction(f)}Réduction par distraction et alignement sous contrôle scopique, puis verrouillage du montage.
+`;
+ }
+ return `Installation en décubitus dorsal. Contrôle scopique du bassin de face, en incidences inlet et outlet.
+${f.fbFiches==='Supra-acétabulaires'?`Mise en place de ${f.fichesNb} fiches supra-acétabulaires sous contrôle scopique, en trajet sus-cotyloïdien.`:`Mise en place de ${f.fichesNb} fiches dans les crêtes iliaques sous contrôle scopique.`}
+${f.fbReduction?f.fbReduction+'.\n':''}Montage du fixateur ${f.feModele||'externe'} antérieur et fermeture de l'anneau pelvien sous contrôle scopique, puis verrouillage du montage.
+`;
+}
+function buildCRO_LOT205(f){
+ return `COMPTE-RENDU OPÉRATOIRE — ${TRAME_LABELS[f._inter].toUpperCase()} — CÔTÉ ${coteStrD(f).toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+Indication : ${f.indication}
+CCAM : ${f.ccam||'—'}
+
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+${_lot205Body(f)}Contrôle final : ${f.controle}.
+Lavage et contrôle de l'hémostase. ${LOT205_SOURCES.slice(2).includes(f._inter)?'Pansements des fiches.':'Fermeture plan par plan puis fermeture cutanée par '+docClosure(f)+'.'}
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;
+}
+
+// ── v206 : LOT 4 — sutures et réinsertions tendineuses (habitudes de Tom) ──
+const LOT206_SOURCES=['achille','rotulien','quadriceps','biceps_distal'];
+const _GARROT206=[{k:'garrotOn',t:'check',l:'Garrot',def:true},
+ {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
+ {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn}];
+function _lot206Core(indicDef){return [..._COMMON.map(o=>({...o})),
+ {k:'indication',t:'text',l:'Indication',def:indicDef},
+ {k:'controle',t:'text',l:'Contrôle final',def:'Satisfaisant'},
+ ..._GARROT206.map(o=>({...o}))];}
+function _lot206Immo(opts,def,sem){return [
+ {k:'immo',t:'seg',l:'Immobilisation',o:[...opts,'Consigne personnalisée'],def:def},
+ {k:'immoDetails',t:'text',l:'Immobilisation — consigne',def:'',show:f=>f.immo==='Consigne personnalisée'},
+ {k:'immoSem',t:'num',l:'Immobilisation — durée (semaines)',def:sem}];}
+DOC_OPTS.achille=[..._lot206Core('Rupture du tendon calcanéen'),
+ {k:'fixDetails',t:'area',l:'Gestes complémentaires',def:''},
+ ..._lot206Immo(['Attelle plâtrée antérieure en équin'],'Attelle plâtrée antérieure en équin','3'),
+ ...LOT200_AFTER.map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.rotulien=[..._lot206Core('Rupture du tendon patellaire'),
+ {k:'cadre',t:'seg',l:'Cadre de protection',o:['Cadre aux ischio-jambiers (DI)','Cerclage métallique','Cadre au PDS','Aucun'],def:'Cadre aux ischio-jambiers (DI)'},
+ {k:'fixDetails',t:'area',l:'Gestes complémentaires',def:''},
+ ..._lot206Immo(['Attelle de genou en extension'],'Attelle de genou en extension','6'),
+ ..._amp(true,'60','3','90','3'),
+ ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.quadriceps=[..._lot206Core('Rupture du tendon quadricipital'),
+ {k:'fixDetails',t:'area',l:'Gestes complémentaires',def:''},
+ ..._lot206Immo(['Attelle de genou en extension'],'Attelle de genou en extension','6'),
+ ..._amp(true,'60','3','90','3'),
+ ...LOT200_AFTER.filter(o=>!/^amp/.test(o.k||'')).map(o=>({...o,...(Array.isArray(o.o)?{o:o.o.slice()}:{})}))];
+DOC_OPTS.biceps_distal=[..._lot206Core('Rupture du tendon distal du biceps brachial'),
+ {k:'ancresModele',t:'selx',l:'Ancres — modèle',impType:'ancre',def:''},
+ {k:'ancresNb',t:'num',l:'Ancres — nombre',def:'2'},
+ {k:'fixDetails',t:'area',l:'Gestes complémentaires',def:''},
+ ..._lot206Immo(['Coude au corps (écharpe)','Attelle brachio-antébrachiale'],'Coude au corps (écharpe)','3'),
+ ...lot201CloneOptions('radius')];
+(function(){const m=DOC_OPTS.biceps_distal.find(o=>o.k==='matAttellePoignet');if(m)m.def=false;})();
+for(const src of LOT206_SOURCES){
+ DOC_DOCS[src]=DOC_DOCS.femur.slice();
+ if(src!=='biceps_distal'){
+ const at=DOC_OPTS[src].findIndex(o=>o.k==='appui');
+ DOC_OPTS[src].splice(at+1,0,
+ {k:'dechargeSem',t:'num',l:'Durée de la restriction (semaines)',def:'',show:f=>['Appui partiel','Décharge'].includes(f.appui)},
+ {k:'appuiDetails',t:'text',l:'Consigne d’appui',def:'',show:f=>['Appui partiel','Décharge','Consigne personnalisée'].includes(f.appui)});
+ }
+ const d=DOC_OPTS[src].find(o=>o.k==='matDeambulateur');if(d)d.def=false;
+}
+DOC_CCAM.achille='NJEA003';DOC_CCAM.rotulien='NJEA007';DOC_CCAM.quadriceps='NJEA002';DOC_CCAM.biceps_distal='MJEA019';
+function _lot206ImmoStr(f){return (f.immo==='Consigne personnalisée'?(f.immoDetails||'Immobilisation à préciser'):f.immo)+(f.immoSem?' pendant '+f.immoSem+' semaines':'');}
+function _lot206Body(f){
+ if(f._inter==='achille')return `Installation en décubitus ventral.
+${_garrotLine(f)}Abord postérieur para-achilléen médial.
+Ouverture du paraténon. Évacuation de l'hématome et repérage des extrémités tendineuses.
+Suture par deux hémi-Tsuge au PDS.
+Renfort par un surjet en X au Vicryl 2.
+Contrôle de la continuité du tendon et de l'équin physiologique, comparatif au côté controlatéral.
+Fermeture du paraténon.
+${f.fixDetails?f.fixDetails+'\n':''}`;
+ if(f._inter==='rotulien')return `Installation en décubitus dorsal.
+${_garrotLine(f)}Abord antérieur médian en regard de l'appareil extenseur.
+Exposition de la rupture et avivement du pôle inférieur de la rotule.
+Faufilage du tendon patellaire par deux points type Krackow au fil non résorbable.
+Forage de trois tunnels transosseux verticaux dans la rotule. Passage des fils et nouage au pôle supérieur, genou en extension.
+${f.cadre==='Cadre aux ischio-jambiers (DI)'?`Prélèvement du tendon du droit interne au stripper par le même abord et préparation du transplant.
+Passage du transplant dans un tunnel transversal de la tubérosité tibiale antérieure puis en cadre autour de l'appareil extenseur, au ras du pôle inférieur de la rotule.
+Mise en tension du cadre genou en extension et suture du transplant sur lui-même.
+`:(f.cadre==='Cerclage métallique'?'Protection du montage par un cerclage métallique rotulo-tibial.\n':(f.cadre==='Cadre au PDS'?'Protection du montage par un cadre au PDS entre la rotule et la tubérosité tibiale antérieure.\n':''))}Contrôle de la course de l'appareil extenseur et de la hauteur patellaire en flexion prudente.
+${f.fixDetails?f.fixDetails+'\n':''}`;
+ if(f._inter==='quadriceps')return `Installation en décubitus dorsal.
+${_garrotLine(f)}Abord antérieur médian en regard de l'appareil extenseur.
+Exposition de la rupture et avivement du pôle supérieur de la rotule.
+Faufilage du tendon quadricipital par deux points type Krackow au fil non résorbable.
+Forage de trois tunnels transosseux verticaux dans la rotule. Passage des fils et nouage au pôle inférieur, genou en extension.
+Contrôle de la course de l'appareil extenseur en flexion prudente.
+${f.fixDetails?f.fixDetails+'\n':''}`;
+ return `Installation en décubitus dorsal, membre supérieur sur table à bras.
+${_garrotLine(f)}Courte voie d'abord antérieure en regard du pli du coude.
+Repérage et protection du nerf cutané latéral de l'avant-bras.
+Récupération du tendon distal du biceps, avivement et faufilage par des points type grasping.
+Exposition de la tubérosité radiale en supination et avivement de l'empreinte.
+Mise en place de ${f.ancresNb} ancre(s) ${f.ancresModele}. Réinsertion du tendon au contact osseux, coude en flexion.
+Contrôle de la tenue du montage en flexion-supination.
+${f.fixDetails?f.fixDetails+'\n':''}`;
+}
+function buildCRO_LOT206(f){
+ return `COMPTE-RENDU OPÉRATOIRE — ${TRAME_LABELS[f._inter].toUpperCase()} — CÔTÉ ${coteStrD(f).toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+Indication : ${f.indication}
+CCAM : ${f.ccam||'—'}
+
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+${_lot206Body(f)}Contrôle final : ${f.controle}.
+${_garrotFin(f)}Lavage et contrôle de l'hémostase. Fermeture plan par plan puis fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+Immobilisation post-opératoire : ${_lot206ImmoStr(f)}.
+
+${_dSigBloc()}`;
+}
+function buildKINE_LOT206(f){
+ const head=`ORDONNANCE KINÉSITHÉRAPIE — ${TRAME_LABELS[f._inter].toUpperCase()}
+
+Patient : ${ptNom(f)}
+Date : ${doc_dateStr(f.dateInter)}
+
+Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.
+
+${_lot206ImmoStr(f)}.
+`;
+ if(f._inter==='achille')return head+`Pendant l'immobilisation : entretien de la mobilité des orteils, du genou et de la hanche.
+Après l'immobilisation : récupération progressive de la flexion dorsale, sans étirement forcé du tendon avant le 3e mois.
+Travail cicatriciel, lutte contre l'œdème, puis renforcement progressif du triceps sural selon les consignes chirurgicales.
+
+${_dSig()}${_dRpps()}`;
+ if(f._inter==='biceps_distal')return head+`Mobilisation précoce protégée du coude selon les consignes chirurgicales, sans extension contrariée.
+Pas de port de charge ni de flexion-supination contre résistance avant le 3e mois.
+Entretien de la mobilité de l'épaule, du poignet et des doigts. Travail cicatriciel.
+
+${_dSig()}${_dRpps()}`;
+ return head+`${f.ampOn?`Mobilisation du genou en respectant les amplitudes autorisées : flexion limitée à ${f.amp1Deg}° pendant ${f.amp1Sem} semaines${f.amp2Deg?', puis '+f.amp2Deg+'° pendant '+f.amp2Sem+' semaines':''}.
+`:''}Verrouillage quadricipital et travail isométrique précoce.
+Marche selon les consignes d'appui, attelle en place.
+Travail cicatriciel, puis renforcement progressif de l'appareil extenseur selon les consignes chirurgicales.
+
+${_dSig()}${_dRpps()}`;
+}
+function buildCRO_PIH(f){
+  const cote=coteStrD(f);
+  const cim=f.tigeFix==='Cimentée';
+  return `COMPTE-RENDU OPÉRATOIRE — PROTHÈSE INTERMÉDIAIRE DE HANCHE ${cote.toUpperCase()}
+
+Date opératoire : ${doc_dateStr(f.dateInter)}
+Opérateur : ${_dSig()}
+Aides opératoires : ${f.aides||'—'}
+Anesthésie : ${f.anesthesie}
+
+Indication : ${f.indication||('Fracture du col fémoral '+cote)}.
+CCAM : ${f.ccam}
+Rappel des implants : Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${cim?' cimentée':''} taille ${f.tigeTaille}${cim?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} col ${f.teteCol} / Cupule bipolaire ${f.bipModele} diamètre ${f.bipDiam} mm
+
+Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Extraction de la tête fémorale.
+Mesure du diamètre de la tête fémorale au calibreur : ${f.bipDiam} mm.
+Respect du cotyle natif, dont le cartilage est inspecté.
+
+Temps fémoral :
+On passe les râpes de tailles successives jusqu'à la râpe taille ${f.tigeTaille}.
+Essais sur râpe en place, tête ${f.teteTaille} col ${f.teteCol} et cupule bipolaire d'essai de ${f.bipDiam} mm.
+La stabilité est satisfaisante et les longueurs sont restaurées.
+${cim?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`}
+Assemblage de la tête ${f.teteTaille} col ${f.teteCol} et de la cupule bipolaire ${f.bipModele} de ${f.bipDiam} mm.
+Réduction de la hanche.
+Testing de stabilité satisfaisant.
+Nettoyage abondant.
+${f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''}${f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Fermeture cutanée par ${docClosure(f)}.
+Pansement ${f.pansement}.
+
+${_dSigBloc()}`;
+}
 function lot200Missing(f){
  let keys=[];
  if(['dhs','triple'].includes(f._inter)){
@@ -9232,14 +9537,36 @@ function lot200Missing(f){
  if(f.reduction!=='En place'&&(f._inter==='triple'||f.reduction==='Réduction à foyer ouvert'))keys.push('reductionDetails');
  keys.push(...(f._inter==='dhs'?['dhsModele','dhsAngle','dhsVisLong','dhsTrous','dhsNbVis']:['trModele','trDiam','trLong1','trLong2','trLong3']));
  if(f.trRondelles)keys.push('trRondellesDetails');
+ }else if(LOT205_SOURCES.includes(f._inter)){
+ keys=['indication','appui','controle'];
+ if(f._inter!=='fe_bassin')keys.splice(1,0,'reduction');
+ if(['Appui partiel','Décharge'].includes(f.appui)&&!(Number(f.dechargeSem)>0))return 'Durée de la restriction d’appui';
+ if(f.appui==='Consigne personnalisée')keys.push('appuiDetails');
+ if(f.reduction==='Réduction à foyer ouvert')keys.push('reductionDetails');
+ if(f._inter==='retro')keys.push('clouModele','clouDiam','clouLong','visDist','visProx');
+ if(f._inter==='tibdist')keys.push('plaqueModele','plaqueTrous','visProx','visDist');
+ if(f._inter==='fe_tibia')keys.push('fichesProx','fichesDist');
+ if(f._inter==='fe_bassin')keys.push('fichesNb');
+ }else if(LOT206_SOURCES.includes(f._inter)){
+ keys=['indication','controle'];
+ if(f._inter!=='biceps_distal')keys.push('appui');
+ if(['Appui partiel','Décharge'].includes(f.appui)&&!(Number(f.dechargeSem)>0))return 'Durée de la restriction d’appui';
+ if(f.appui==='Consigne personnalisée')keys.push('appuiDetails');
+ if(f.immo==='Consigne personnalisée')keys.push('immoDetails');
+ if(f._inter==='rotulien')keys.push('cadre');
+ if(f._inter==='biceps_distal')keys.push('ancresNb');
+ }else if(f._inter==='pih'){
+ keys=['indication','tigeModele','tigeTaille','tigeFix','bipDiam','appui'];
+ if(['Appui partiel','Décharge'].includes(f.appui)&&!(Number(f.dechargeSem)>0))return 'Durée de la restriction d’appui';
+ if(f.appui==='Consigne personnalisée')keys.push('appuiDetails');
  }else if(f._inter==='pth_ablation'){keys=['amoType'];if(f.amoType==='Autre')keys.push('amoAutre');if(f.amoComplet==='Partielle')keys.push('amoDetails');}
  const key=keys.find(k=>!String(f[k]??'').trim());return key?(DOC_OPTS[f._inter].find(o=>o.k===key)?.l||key):null;
 }
 function lot200SessionMissing(f){
  if(!f._amlModel)return lot200Missing(f);
- for(const [name,d] of Object.entries(f._amlModel.docs))if(d.kind==='native'&&['dhs','triple','pth_ablation'].includes(d.source)){
+ for(const [name,d] of Object.entries(f._amlModel.docs))if(d.kind==='native'&&['dhs','triple','pth_ablation','pih',...LOT205_SOURCES,...LOT206_SOURCES].includes(d.source)){
  const sf=amlSourceFields(f,name,d);if(name==='CRO'){const m=lot200Missing(sf);if(m)return m;}
- if(['CRH','Ordo kiné'].includes(name)&&['dhs','triple'].includes(d.source)){
+ if(['CRH','Ordo kiné'].includes(name)&&['dhs','triple','pih',...LOT205_SOURCES].includes(d.source)){
  if(!sf.appui)return 'Appui';if(['Appui partiel','Décharge'].includes(sf.appui)&&!(Number(sf.dechargeSem)>0))return 'Durée de la restriction d’appui';if(sf.appui==='Consigne personnalisée'&&!String(sf.appuiDetails||'').trim())return 'Consigne d’appui';
  }}return null;
 }
@@ -9399,7 +9726,9 @@ for(const source of LOT201_SOURCES){
  const fields=[];
  if(source==='humprox_plaque')fields.push(
  {k:'hpInstallation',t:'seg',l:'Installation',o:['Demi-assis','Décubitus dorsal'],def:''},
- {k:'hpVoie',t:'seg',l:'Voie d’abord',o:['Delto-pectorale','Supéro-externe'],def:'Delto-pectorale'});
+ {k:'hpVoie',t:'seg',l:'Voie d’abord',o:['Delto-pectorale','Supéro-externe'],def:'Delto-pectorale'},
+ {k:'hpTuberosites',t:'check',l:'Tubérosités sur fils',def:true});
+ if(source==='humdia_plaque'||source==='ulna_distal')fields.push(..._VISLIBRES.map(o=>({...o})));
  if(source==='humdia_plaque')fields.push(
  {k:'hdVoie',t:'seg',l:'Installation et voie',o:['Latérale','Postérieure trans-tricipitale'],def:'Latérale'},
  {k:'radialDetails',t:'text',l:'Nerf radial — constatations / rapport à la plaque',def:''});
@@ -9415,7 +9744,7 @@ for(const source of LOT201_SOURCES){
  {k:'brochesFinition',t:'seg',l:'Extrémités des broches',o:['Enfouies','Extériorisées'],def:''});
  DOC_OPTS[source].splice(_COMMON.length+1,0,...fields);
  const at=DOC_OPTS[source].findIndex(o=>o.k==='fermeture');
- const suites=[{k:'immo',t:'seg',l:'Immobilisation',o:[hum?'Immobilisation à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique','Consigne personnalisée'],def:hum?'Immobilisation à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique'},
+ const suites=[{k:'immo',t:'seg',l:'Immobilisation',o:[hum?'Dujarrier à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique','Consigne personnalisée'],def:hum?'Dujarrier à visée antalgique':source==='kapandji'?'Manchette en résine':'Attelle de poignet à visée antalgique'},
  {k:'immoDetails',t:'text',l:'Immobilisation — consigne',def:'',show:f=>f.immo==='Consigne personnalisée'}];
  if(source==='kapandji'){
  suites.push({k:'immoSem',t:'num',l:'Immobilisation — durée (semaines)',def:'6'},{k:'amoSem',t:'num',l:'Retrait des broches (semaines)',def:'6'});
@@ -9439,15 +9768,16 @@ CCAM : ${f.ccam||'—'}
 Installation : ${lot201Installation(f)}.
 Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
 ${f._inter==='humprox_plaque'?`${f.hpVoie==='Delto-pectorale'?'Abord delto-pectoral avec préservation de la veine céphalique.':'Abord supéro-externe, avec protection du nerf axillaire.'}
-Exposition du foyer et réduction des fragments sous contrôle scopique.
+${f.hpTuberosites?'Mise sur fils des tubérosités au travers de la coiffe des rotateurs.\n':''}Exposition du foyer et réduction des fragments sous contrôle scopique.
 Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, et fixation par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
+${f.hpTuberosites?'Réduction des tubérosités et amarrage des fils à la plaque.\n':''}Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
 `:''}${f._inter==='humdia_plaque'?`${f.hdVoie==='Latérale'?'Abord latéral de la diaphyse humérale.':'Abord postérieur trans-tricipital de la diaphyse humérale.'}
 Repérage systématique et protection du nerf radial pendant l’exposition, la réduction et la fixation.
-Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+${_vlLine(f)}Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
 Contrôle des rapports du nerf radial avec le montage.${f.radialDetails?' '+f.radialDetails:''}
 `:''}${f._inter==='ulna_distal'?`Abord dorsal de l’ulna distal, dans le prolongement de l’abord diaphysaire. Protection de la branche cutanée dorsale du nerf ulnaire.
-Exposition et réduction du foyer. Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Exposition et réduction du foyer.
+${_vlLine(f)}Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
 Contrôle de la mobilité en pronosupination et de l’articulation radio-ulnaire distale.
 `:''}${f._inter==='kapandji'?`Repérage du foyer sous contrôle scopique. Abords limités et protection des structures tendineuses et nerveuses superficielles.
 Mise en place de ${f.brocheNb} broches intrafocales de diamètre ${f.brocheDiam} mm selon la technique de Kapandji, permettant la réduction puis la stabilisation de la fracture du radius distal.
@@ -11048,7 +11378,7 @@ function _crhFils(f){
 }
 function _crhMotif(f){
  if(LOT201_SOURCES.includes(f._inter))return f.indication||'une intervention orthopédique';
- if(['dhs','triple','pth_ablation'].includes(f._inter))return f.indication||'une intervention orthopédique';
+ if(['dhs','triple','pth_ablation','pih',...LOT205_SOURCES,...LOT206_SOURCES].includes(f._inter))return f.indication||'une intervention orthopédique';
   const i=f._inter,c=coteStrD(f),cf=(c==='droit')?'droite':c;
   if(i==='cheville')return 'sa fracture de la cheville '+cf;
   if(i==='pseudarthrose')return 'sa pseudarthrose '+(_psIsFem(f)?'du fémur':(_psIsTib(f)?'de la diaphyse tibiale':'du pilon tibial'))+' '+(_psIsTib(f)&&c==='droit'?'droite':c);
@@ -11094,6 +11424,15 @@ function _crhActe(f){
 
  if(f._inter==='dhs')return 'une ostéosynthèse par vis-plaque DHS'+(f.dhsAnti?' avec vis antirotation':'');
  if(f._inter==='triple')return 'une ostéosynthèse du col fémoral par trois vis canulées';
+ if(f._inter==='pih')return 'une arthroplastie intermédiaire de hanche par voie postéro-latérale, tige '+(f.tigeFix==='Cimentée'?'cimentée':'sans ciment');
+ if(f._inter==='retro')return 'une ostéosynthèse du fémur par enclouage centromédullaire rétrograde verrouillé'+(f.alesage?' après alésage':'');
+ if(f._inter==='tibdist')return 'une ostéosynthèse de l’extrémité distale du tibia par plaque'+(f.tdVoie==='MIPO médiale percutanée'?' par voie mini-invasive':'');
+ if(f._inter==='fe_tibia')return 'une stabilisation du tibia par fixateur externe en configuration '+(f.feConfig==='Tibio-tibial'?'tibio-tibiale':'tibio-calcanéenne pontant la cheville');
+ if(f._inter==='fe_bassin')return 'une stabilisation de l’anneau pelvien par fixateur externe antérieur, fiches '+(f.fbFiches==='Supra-acétabulaires'?'supra-acétabulaires':'iliaques');
+ if(f._inter==='achille')return 'une suture à ciel ouvert du tendon calcanéen (deux hémi-Tsuge au PDS, renfort par surjet en X)';
+ if(f._inter==='rotulien')return 'une réinsertion transosseuse du tendon patellaire'+(f.cadre&&f.cadre!=='Aucun'?', protégée par un '+(f.cadre==='Cadre aux ischio-jambiers (DI)'?'cadre aux ischio-jambiers (droit interne)':(f.cadre==='Cerclage métallique'?'cerclage métallique':'cadre au PDS')):'');
+ if(f._inter==='quadriceps')return 'une réinsertion transosseuse du tendon quadricipital';
+ if(f._inter==='biceps_distal')return 'une réinsertion du tendon distal du biceps brachial sur la tubérosité radiale par ancres';
  if(f._inter==='pth_ablation')return 'une ablation '+(f.amoComplet==='Partielle'?'partielle':'complète')+' de '+amoMateriel(f)+', suivie de '+_crhActe({...f,_inter:'pth'});
 
   if(f._inter==='pth_hueter')return _crhActe({...f,_inter:'pth'})+' par voie antérieure de Hueter';
@@ -11306,6 +11645,7 @@ ${inj}— Surveillance et renouvellement du pansement (${f.pansement||'selon pro
 ${_dSig()}${_dRpps()}`;
 }
 function buildOrdoKine(f){
+  if(f&&f._inter==='pih')return buildOrdoKine({...f,_inter:'pth'});
   const inter=f._inter;
   const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
   if(inter==='lca'){
@@ -11710,6 +12050,9 @@ function docContentNative(doc){
     if(inter==='triple')return _croPost(buildCRO_TRIPLE(f));
     if(inter==='pth_ablation')return _croPost(buildCRO_AMOPTH(f));
     if(inter==='pth_hueter')return _croPost(buildCRO_HUETER(f));
+    if(inter==='pih')return _croPost(buildCRO_PIH(f));
+    if(LOT205_SOURCES.includes(inter))return _croPost(buildCRO_LOT205(f));
+    if(LOT206_SOURCES.includes(inter))return _croPost(buildCRO_LOT206(f));
     if(inter==='pth'||inter==='pth_revision')return _croPost(buildCRO_PTH(f));
     if(inter==='ptg')return _croPost(buildCRO_PTG(f));
     if(inter==='lca')return _croPost(buildCRO_LCA(f));
@@ -11733,14 +12076,14 @@ function docContentNative(doc){
     return 'COMPTE-RENDU OPÉRATOIRE\n\nPatient : '+ptNom(f)+'\nDate : '+doc_dateStr(f.dateInter)+'\nOpérateur : '+_dSig()+'\nAnesthésie : '+f.anesthesie+'\n\n'+(f.detailOp||'(Description à compléter)')+'\n\nFermeture cutanée par '+docClosure(f)+'.\nPansement '+f.pansement+'.\n\n'+_dSigBloc();
   }
   if(doc==='CRH'&&LOT201_SOURCES.includes(inter))return buildCRH_LOT201(f);
-  if(doc==='CRH'&&['dhs','triple'].includes(inter))return buildCRH_FIXATION(f);
+  if(doc==='CRH'&&['dhs','triple',...LOT205_SOURCES].includes(inter))return buildCRH_FIXATION(f);
   if(doc==='CRH'&&inter==='pth_ablation')return buildCRH_AMOPTH(f);
   if(doc==='CRH')return inter==='pth_hueter'?buildCRH_HUETER(f):buildCRH(f);
   if(doc==='Ordo pharma')return buildOrdoPharma(f);
   if(doc==='Ordo IDE')return buildOrdoIDE(f);
   if(doc==='Ordo matériel')return buildOrdoMateriel(f);
   if(doc==='Ordo kiné'){
-    let t=LOT201_SOURCES.includes(inter)?buildKINE_LOT201(f):['dhs','triple'].includes(inter)?buildKINE_FIXATION(f):inter==='pth_hueter'?buildKINE_HUETER(f):buildOrdoKine(f);
+    let t=LOT201_SOURCES.includes(inter)?buildKINE_LOT201(f):['dhs','triple',...LOT205_SOURCES].includes(inter)?buildKINE_FIXATION(f):LOT206_SOURCES.includes(inter)?buildKINE_LOT206(f):inter==='pth_hueter'?buildKINE_HUETER(f):buildOrdoKine(f);
     try{const _ck=coteStrD(f);if(_ck){const _nl=t.indexOf('\n');if(_nl>0&&!/CÔTÉ/i.test(t.slice(0,_nl)))t=t.slice(0,_nl)+' — CÔTÉ '+_ck.toUpperCase()+t.slice(_nl);}}catch(e){}
     const a=_ampTxt(f);
     if(a){const K='Rééducation au cabinet conseillée.';t=t.indexOf(K)>=0?t.replace(K,K+'\n\n'+a):(a+'\n\n'+t);}
@@ -11912,7 +12255,7 @@ function renderDocStep(){
   if(st)st.textContent=ptNom(DOCF)+' · '+doc_dateStr(DOCF.dateInter);
   if(docStep===1)renderDocForm();else renderDocModal();
 }
-const TRAME_LABELS={...LOT201_LABELS,dhs:'DHS',triple:'Triple vissage',pth_ablation:'Ablation + PTH',pth_hueter:'PTH · Hueter',manual:'Rédaction manuelle',pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
+const TRAME_LABELS={...LOT201_LABELS,dhs:'DHS',triple:'Triple vissage',pih:'Prothèse intermédiaire',retro:'Clou fémoral rétrograde',achille:'Suture du tendon d’Achille',rotulien:'Réinsertion du tendon rotulien',quadriceps:'Réinsertion du tendon quadricipital',biceps_distal:'Réinsertion du biceps distal',tibdist:'Plaque tibia distal',fe_tibia:'Fixateur externe tibia',fe_bassin:'Fixateur externe bassin',pth_ablation:'Ablation + PTH',pth_hueter:'PTH · Hueter',manual:'Rédaction manuelle',pth:'PTH',deuxos:'Avant-bras (2 os)',pilon:'Pilon tibial',palette:'Palette humérale',teteradiale:'Tête radiale',pth_revision:'Reprise PTH',ptg:'PTG',lca:'LCA',menisc:'Ménisque',cheville:'Cheville',plateau:'Plateau tibial',bassin:'Bassin / acétabulum',pseudarthrose:'Pseudarthrose',radius:'Radius distal',femur:'Fémur (clou)',femurplaque:'Fémur (plaque)',tibia:'Tibia (clou)',humerus:'Humérus (clou)',rotule:'Rotule',olecrane:'Olécrâne',clavicule:'Clavicule',arthroscopie:'Arthroscopie',ablation:'Ablation matériel',fracture:'Trauma libre'};
 function docSetTrame(k){
   window._trameEdit=false;
   if(!DOCF||(DOCF._inter===k&&!DOCF._amlModel)){renderDocForm();return;}
@@ -13247,7 +13590,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v202',
+    version:'atlas-v207',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -17428,6 +17771,8 @@ Date : {{v2}}
 {{v7}}{{v8}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(inj),(f.pansement||'selon protocole'),(docPansementFrequency(f)),(_crhFils(f)),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]);
 }
 function am_buildOrdoKine(f){
+  if(f&&f._inter==='pih')return am_buildOrdoKine({...f,_inter:'pth'});
+  if(f&&LOT206_SOURCES.includes(f._inter))return buildKINE_LOT206(f);
   const inter=f._inter;
   const intro="Je laisse le soin à mon confrère kinésithérapeute de décider du nombre et de la fréquence des séances. Rééducation au cabinet conseillée.";
   if(inter==='lca'){
@@ -17805,7 +18150,7 @@ Nombre de séances : 20, à renouveler selon évolution
 // Exact intervention identity; saved copies never reference another user's editable model.
 const AML_KEY='atlas_document_library_v1';
 const AML_DOCS=['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'];
-const AML_CRO={pth:'PTH',pth_revision:'PTH',ptg:'PTG',lca:'LCA',menisc:'MENISC',cheville:'CHEVILLE',plateau:'PLATEAU',bassin:'BASSIN',pseudarthrose:'PSEUDO',deuxos:'DEUXOS',pilon:'PILON',palette:'PALETTE',teteradiale:'TETERAD',radius:'RADIUS',femur:'FEMUR',tibia:'TIBIA',humerus:'HUMERUS',femurplaque:'FEMURPLAQUE',rotule:'ROTULE',olecrane:'OLECRANE',clavicule:'CLAVICULE'};
+const AML_CRO={pth:'PTH',pth_revision:'PTH',ptg:'PTG',lca:'LCA',menisc:'MENISC',cheville:'CHEVILLE',plateau:'PLATEAU',bassin:'BASSIN',pseudarthrose:'PSEUDO',deuxos:'DEUXOS',pilon:'PILON',palette:'PALETTE',teteradiale:'TETERAD',radius:'RADIUS',femur:'FEMUR',tibia:'TIBIA',humerus:'HUMERUS',femurplaque:'FEMURPLAQUE',rotule:'ROTULE',olecrane:'OLECRANE',clavicule:'CLAVICULE',pih:'PIH'};
 const AML_SHARED=new Set(['immoDetails','immoSem','amoSem','mobilisation','mobilisationDetails','appuiDetails',..._COMMON.map(o=>o.k),'cote','dateInter','nom','prenom','age','ccam','fermeture','filsType','pansement','pansementJours','antico','anticoJours','ains','consultSem','dateSortie','immo','appui','dechargeSem','vitC','redon',...Object.values(DOC_OPTS).flatMap(opts=>opts.map(o=>o.k).filter(k=>/^amp/.test(k||''))),...Object.keys(MAT_LABELS)]);
 const amlCopy=x=>JSON.parse(JSON.stringify(x));
 const amlKey=(spec,interv)=>JSON.stringify([String(spec),String(interv)]);
@@ -17821,9 +18166,11 @@ function amlTrace(source,doc,f){
  try{
   if(LOT201_SOURCES.includes(source)&&['CRO','CRH','Ordo kiné'].includes(doc))output=({'CRO':am_buildCRO_LOT201,'CRH':am_buildCRH_LOT201,'Ordo kiné':am_buildKINE_LOT201})[doc](f);
   else if(['dhs','triple','pth_ablation'].includes(source)&&doc==='CRO')output=({dhs:am_buildCRO_DHS,triple:am_buildCRO_TRIPLE,pth_ablation:am_buildCRO_AMOPTH})[source](f);
-  else if(['dhs','triple'].includes(source)&&doc==='CRH')output=am_buildCRH_FIXATION(f);
+  else if(['dhs','triple',...LOT205_SOURCES].includes(source)&&doc==='CRH')output=am_buildCRH_FIXATION(f);
   else if(source==='pth_ablation'&&doc==='CRH')output=am_buildCRH_AMOPTH(f);
-  else if(['dhs','triple'].includes(source)&&doc==='Ordo kiné')output=am_buildKINE_FIXATION(f);
+  else if(['dhs','triple',...LOT205_SOURCES].includes(source)&&doc==='Ordo kiné')output=am_buildKINE_FIXATION(f);
+  else if(LOT205_SOURCES.includes(source)&&doc==='CRO'){output=am_buildCRO_LOT205(f);}
+  else if(LOT206_SOURCES.includes(source)&&doc==='CRO'){output=am_buildCRO_LOT206(f);}
   else if(source==='pth_hueter'&&['CRO','CRH','Ordo kiné'].includes(doc)){output=({'CRO':am_buildCRO_HUETER,'CRH':am_buildCRH_HUETER,'Ordo kiné':am_buildKINE_HUETER})[doc](f);}
   else if(source==='manual'&&['CRO','CRH','Ordo pharma','Ordo kiné'].includes(doc)){output=({'CRO':am_buildCRO_MANUAL,'CRH':am_buildCRH_MANUAL,'Ordo pharma':am_buildPHARMA_MANUAL,'Ordo kiné':am_buildKINE_MANUAL})[doc](f);}
   else if(doc==='CRO'){
@@ -18218,14 +18565,105 @@ CCAM : {{v7}}
 Installation en décubitus dorsal sur table orthopédique, sans traction. Contrôle scopique de face et de profil.
 Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
 {{v8}}
-Abords latéraux permettant le positionnement de trois broches guides sous contrôle scopique, en triangle à pointe inférieure.
+{{v19}} Positionnement de trois broches guides sous contrôle scopique, {{v20}}.
 Contrôle de leur position cervico-céphalique sur les incidences de face et de profil, sans pénétration articulaire.
 Mesure et préparation des trajets. Mise en place de trois vis canulées {{v9}}, de diamètre {{v10}} mm, de longueurs {{v11}}, {{v12}} et {{v13}} mm.
 {{v14}}Contrôle scopique final de la réduction et du positionnement du matériel : {{v15}}.
 Lavage et contrôle de l’hémostase. Fermeture cutanée par {{v16}}.
 Pansement {{v17}}.
 
-{{v18}}`,[(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':('Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+' : '+(f.reductionDetails||'—')+'.')),(f.trModele),(f.trDiam),(f.trLong1),(f.trLong2),(f.trLong3),(f.trRondelles?'Mise en place de rondelles : '+f.trRondellesDetails+'.\n':''),(f.controle),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "reduction / reductionDetails", "trModele", "trDiam", "trLong1", "trLong2", "trLong3", "trRondelles / trRondellesDetails", "controle", "Texte lié", "pansement", "Signature"]);}
+{{v18}}`,[(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(f.reduction==='En place'?'Ostéosynthèse en place, sans manœuvre de réduction.':('Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+' : '+(f.reductionDetails||'—')+'.')),(f.trModele),(f.trDiam),(f.trLong1),(f.trLong2),(f.trLong3),(f.trRondelles?'Mise en place de rondelles : '+f.trRondellesDetails+'.\n':''),(f.controle),(docClosure(f)),(f.pansement),(_dSigBloc()),(f.trVoie==='Mini-abord latéral'?'Mini-abord latéral.':'Trois courtes incisions percutanées latérales.'),(f.trConfig==='Parallèles'?'parallèles entre elles':(f.trConfig==='Autre'?(f.trConfigAutre||'selon la configuration retenue'):'en triangle inversé à pointe inférieure'))],["Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "reduction / reductionDetails", "trModele", "trDiam", "trLong1", "trLong2", "trLong3", "trRondelles / trRondellesDetails", "controle", "Texte lié", "pansement", "Signature", "trVoie", "trConfig / trConfigAutre"]);}
+function am_buildCRO_PIH(f){
+  const cote=coteStrD(f);
+  const cim=f.tigeFix==='Cimentée';
+  return amTake("buildCRO_PIH_0",`COMPTE-RENDU OPÉRATOIRE — PROTHÈSE INTERMÉDIAIRE DE HANCHE {{v0}}
+
+Date opératoire : {{v1}}
+Opérateur : {{v2}}
+Aides opératoires : {{v3}}
+Anesthésie : {{v4}}
+
+Indication : {{v5}}.
+CCAM : {{v6}}
+Rappel des implants : Tige {{v7}} taille {{v8}} / Tête {{v9}} col {{v10}} / Cupule bipolaire {{v11}} diamètre {{v12}} mm
+
+Installation en décubitus latéral {{v13}}.
+Badigeon et champage stérile.
+Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
+Check-list.
+
+Voie d'abord postéro-latérale.
+Hémostases sous-cutanées.
+Ouverture du fascia lata.
+Discision des fibres du grand fessier.
+Pneumatisation de la bourse rétro-trochantérienne.
+Ouverture des pelvi-trochantériens et de la capsule en L inversé au ras du grand trochanter.
+Faufilage au Vicryl 2.
+Luxation de la hanche.
+Ostéotomie du col fémoral à la scie oscillante selon la planification pré-opératoire.
+Extraction de la tête fémorale.
+Mesure du diamètre de la tête fémorale au calibreur : {{v12}} mm.
+Respect du cotyle natif, dont le cartilage est inspecté.
+
+Temps fémoral :
+On passe les râpes de tailles successives jusqu'à la râpe taille {{v8}}.
+Essais sur râpe en place, tête {{v9}} col {{v10}} et cupule bipolaire d'essai de {{v12}} mm.
+La stabilité est satisfaisante et les longueurs sont restaurées.
+{{v14}}
+Assemblage de la tête {{v9}} col {{v10}} et de la cupule bipolaire {{v11}} de {{v12}} mm.
+Réduction de la hanche.
+Testing de stabilité satisfaisant.
+Nettoyage abondant.
+{{v15}}{{v16}}Réinsertion des pelvi-trochantériens et de la capsule par des points trans-glutéaux au Lucas.
+Fermeture plan par plan.
+Fermeture cutanée par {{v17}}.
+Pansement {{v18}}.
+
+{{v19}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication||('Fracture du col fémoral '+cote)),(f.ccam),(String(f.tigeModele||'')+(f.tigeLat?' Latéralisée':'')+(cim?' cimentée':'')),(f.tigeTaille),(f.teteTaille),(f.teteCol),(f.bipModele),(f.bipDiam),(cote==='gauche'?'droit':'gauche'),(cim?`Lavage pulsé et assèchement du fût fémoral.
+Mise en place d'un bouchon obturateur distal.
+Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
+Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Nouveaux essais sur la tige définitive strictement comparables.`),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "tigeModele / tigeLat / tigeFix", "tigeTaille", "teteTaille", "teteCol", "bipModele", "bipDiam", "Texte lié", "tigeFix / cimentType", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
+}
+AML_BUILDERS.PIH=am_buildCRO_PIH;
+function am_buildCRO_LOT206(f){
+ return amTake("buildCRO_LOT206_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} — CÔTÉ {{v1}}
+
+Patient : {{v2}}
+Date opératoire : {{v3}}
+Opérateur : {{v4}}
+Aides : {{v5}}
+Anesthésie : {{v6}}
+Indication : {{v7}}
+CCAM : {{v8}}
+
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+{{v9}}Contrôle final : {{v10}}.
+{{v11}}Lavage et contrôle de l'hémostase. Fermeture plan par plan puis fermeture cutanée par {{v12}}.
+Pansement {{v13}}.
+Immobilisation post-opératoire : {{v14}}.
+
+{{v15}}`,[(TRAME_LABELS[f._inter].toUpperCase()),(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(_lot206Body(f)),(f.controle),(_garrotFin(f)),(docClosure(f)),(f.pansement),(_lot206ImmoStr(f)),(_dSigBloc())],["_inter", "Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "Texte lié", "controle", "garrotMin", "Texte lié", "pansement", "immo / immoSem", "Signature"]);
+}
+function am_buildCRO_LOT205(f){
+ return amTake("buildCRO_LOT205_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} — CÔTÉ {{v1}}
+
+Patient : {{v2}}
+Date opératoire : {{v3}}
+Opérateur : {{v4}}
+Aides : {{v5}}
+Anesthésie : {{v6}}
+Indication : {{v7}}
+CCAM : {{v8}}
+
+Préparation cutanée et champage stérile. Antibioprophylaxie selon le protocole du service.
+{{v9}}Contrôle final : {{v10}}.
+Lavage et contrôle de l'hémostase. {{v11}}
+Pansement {{v12}}.
+
+{{v13}}`,[(TRAME_LABELS[f._inter].toUpperCase()),(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(_lot205Body(f)),(f.controle),(LOT205_SOURCES.slice(2).includes(f._inter)?'Pansements des fiches.':'Fermeture plan par plan puis fermeture cutanée par '+docClosure(f)+'.'),(f.pansement),(_dSigBloc())],["_inter", "Texte lié", "Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "Texte lié", "controle", "Texte lié", "pansement", "Signature"]);
+} // v203 : enregistré ici (même bloc script que le builder — un identifiant d'un bloc ultérieur casserait l'initialiseur du const)
 function am_buildCRO_AMOPTH(f){
   const cote=coteStrD(f);
   return amTake("buildCRO_AMOPTH_0",`COMPTE-RENDU OPÉRATOIRE — ABLATION DE MATÉRIEL + PTH {{v0}}
@@ -18372,15 +18810,16 @@ Lavage et contrôle de l’hémostase. {{v16}}Fermeture plan par plan puis ferme
 Pansement {{v18}}.
 {{v19}}
 {{v20}}`,[(LOT201_LABELS[f._inter].toUpperCase()),(coteStrD(f).toUpperCase()),(ptNom(f)),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(f.indication),(f.ccam||'—'),(lot201Installation(f)),(f._inter==='humprox_plaque'?`${f.hpVoie==='Delto-pectorale'?'Abord delto-pectoral avec préservation de la veine céphalique.':'Abord supéro-externe, avec protection du nerf axillaire.'}
-Exposition du foyer et réduction des fragments sous contrôle scopique.
+${f.hpTuberosites?'Mise sur fils des tubérosités au travers de la coiffe des rotateurs.\n':''}Exposition du foyer et réduction des fragments sous contrôle scopique.
 Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, et fixation par ${f.visProx} vis proximales et ${f.visDist} vis distales.
-Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
+${f.hpTuberosites?'Réduction des tubérosités et amarrage des fils à la plaque.\n':''}Contrôle du positionnement de la plaque et des vis, notamment de l’absence de pénétration articulaire.
 `:''),(f._inter==='humdia_plaque'?`${f.hdVoie==='Latérale'?'Abord latéral de la diaphyse humérale.':'Abord postérieur trans-tricipital de la diaphyse humérale.'}
 Repérage systématique et protection du nerf radial pendant l’exposition, la réduction et la fixation.
-Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+${_vlLine(f)}Réduction du foyer et mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
 Contrôle des rapports du nerf radial avec le montage.${f.radialDetails?' '+f.radialDetails:''}
 `:''),(f._inter==='ulna_distal'?`Abord dorsal de l’ulna distal, dans le prolongement de l’abord diaphysaire. Protection de la branche cutanée dorsale du nerf ulnaire.
-Exposition et réduction du foyer. Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
+Exposition et réduction du foyer.
+${_vlLine(f)}Mise en place de la plaque ${f.plaqueModele}, ${f.plaqueTrous} trous, fixée par ${f.visProx} vis proximales et ${f.visDist} vis distales.
 Contrôle de la mobilité en pronosupination et de l’articulation radio-ulnaire distale.
 `:''),(f._inter==='kapandji'?`Repérage du foyer sous contrôle scopique. Abords limités et protection des structures tendineuses et nerveuses superficielles.
 Mise en place de ${f.brocheNb} broches intrafocales de diamètre ${f.brocheDiam} mm selon la technique de Kapandji, permettant la réduction puis la stabilisation de la fracture du radius distal.
