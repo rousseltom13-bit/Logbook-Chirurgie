@@ -659,6 +659,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--
 .doc-ov.open{display:flex;}
 .doc-box{display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden;}
 .doc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:0 0 auto;padding:18px 18px 16px;padding-top:calc(18px + env(safe-area-inset-top,0px));border-bottom:0.5px solid var(--border);background:var(--bg);}
+.etab-pill{padding:9px 14px;min-height:44px;border-radius:var(--r-pill,99px);border:0.5px solid var(--border2);background:var(--bg2);font-size:13px;color:var(--text2);cursor:pointer;margin:0 6px 6px 0;}
+.etab-pill.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;}
 .doc-close{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:var(--fs-title);line-height:1;cursor:pointer;flex-shrink:0;}
 .doc-pen{width:36px;height:36px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;color:var(--text3);font-size:var(--fs-sub);line-height:1;cursor:pointer;flex-shrink:0;}
 .doc-tabsrow{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 8px;flex:0 0 auto;scrollbar-width:none;}
@@ -2185,7 +2187,8 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
           </div>
           <div class="field">
             <div class="field-label">Établissement</div>
-            <input type="text" id="f-etablissement" class="f-input" placeholder="ex. CHU Lille..." autocomplete="off" list="dl-etablissements">
+            <div id="f-etab-pills" style="display:flex;flex-wrap:wrap;"></div>
+            <input type="text" id="f-etablissement" class="f-input" placeholder="Autre établissement..." autocomplete="off" list="dl-etablissements" style="display:none;margin-top:6px;">
           </div>
         </div>
 
@@ -2615,6 +2618,10 @@ body,button,input,textarea,select{font-family:-apple-system,system-ui,'Segoe UI'
         </div>
 
         </div></details><details class="regl-detail"><summary><span class="regl-detail-title">Documents</span><span class="regl-summary" id="rs-documents">Destinataires</span><span class="regl-chevron">›</span></summary><div class="regl-detail-body"><div class="regl-row">
+            <div class="regl-label">Établissements — pastilles de saisie des blocs</div>
+            <div id="regl-etabs"></div>
+            <button type="button" class="regl-input" style="text-align:left;color:var(--accent);cursor:pointer;" onclick="reglAddEtab(\'\')">＋ Ajouter un établissement</button>
+          </div><div class="regl-row">
             <div class="regl-label">Emails secrétariat — destinataires des documents</div>
             <div id="regl-secrs"></div>
             <button type="button" class="regl-input" style="text-align:left;color:var(--accent);cursor:pointer;" onclick="reglAddSecr('')">＋ Ajouter une adresse</button>
@@ -3187,7 +3194,7 @@ button,a,label,input,select,textarea,[onclick]{touch-action:manipulation;}
           </div>
           <div class="ed-row">
             <span class="ed-k">Établissement</span>
-            <input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
+            <div id="e-etab-pills" style="display:flex;flex-wrap:wrap;"></div><input type="text" id="e-etablissement" autocomplete="off" list="dl-etablissements" placeholder="ex. CHU Lille…" style="display:none;margin-top:6px;width:100%;padding:10px;font-size:15px;border:none;background:transparent;color:var(--text);font-family:inherit;outline:none;">
           </div>
           <div class="ed-grid2">
             <div class="ed-cell">
@@ -6313,6 +6320,7 @@ function openEditModal(){
   document.getElementById('e-patient').value=b.patient||'';
   b._prevPatientNom=b.patient||'';
   document.getElementById('e-etablissement').value=b.etablissement||'';
+  try{const _eb=document.getElementById('e-etab-pills');if(_eb)_eb._autre=false;renderEtabPills('e');}catch(e){}
   document.getElementById('e-age').value=b.age||'';
   document.getElementById('e-imc').value=b.imc||'';
   document.getElementById('e-implants').value=b.implants||'';
@@ -6817,6 +6825,7 @@ function initForm(){
   document.getElementById('f-role').value='Principal';
   // Reset text fields
   ['f-patient','f-age','f-imc','f-implants','f-abord','f-astuces','f-remarques','f-duree','f-operateur','f-etablissement'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';})
+  try{const _fb=document.getElementById('f-etab-pills');if(_fb)_fb._autre=false;renderEtabPills('f');}catch(e){}
   document.querySelectorAll('#abord-pills .side-btn').forEach(b=>b.classList.remove('on'));;
   // Reset PTG fields
   const ptgFields=document.getElementById('ptg-fields');if(ptgFields)ptgFields.style.display='none';
@@ -7327,6 +7336,20 @@ function openLinkedBlocForm(){
   }, 150);
 }
 // Migration one-shot : backfill établissement = CHU Lille sur tous les blocs existants sans établissement
+function runEtabNormMigration(){
+  const FLAG='atlas_etab_norm_v1';
+  if(localStorage.getItem(FLAG))return;
+  let count=0;
+  blocs.forEach(b=>{
+    const v=String(b.etablissement||'').trim();if(!v)return;
+    let n=v;
+    if(/cambrai/i.test(v))n='CH Cambrai';
+    else if(/lille|salengro|chu/i.test(v))n='CHU Lille';
+    if(n!==v){b.etablissement=n;count++;}
+  });
+  if(count>0){saveLocal();console.info('[Atlas] Normalisation établissements : '+count+' bloc(s)');}
+  localStorage.setItem(FLAG,'1');
+}
 function runEtablissementMigration(){
   const FLAG = 'atlas_etablissement_migrated_v1';
   if(localStorage.getItem(FLAG)) return;
@@ -8500,6 +8523,7 @@ function _dSigBloc(){return _dSig()+'\n'+_dService()+_dHopN();}
 // ── Config par intervention ──
 const DOC_CCAM={deuxos:'MCCA008',pilon:'NCCA004',palette:'MBCA006',teteradiale:'MCCA001',pseudarthrose:'NBPA005',bassin:'NACA003',plateau:'NCCA007',pth:'NEKA020',pth_revision:'NEKA003',ptg:'NFKA007',lca:'NFMC003',menisc:'NFFC004',cheville:'NCCA016',radius:'MCCA005',femur:'NBCA010',tibia:'NCCB006',humerus:'MBCB002',femurplaque:'NBCA014',rotule:'NBCA002',olecrane:'MCCA001',clavicule:'MACA001'};
 const DOC_DOCS={
+  basem1:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo kiné'],
   teteradiale:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   palette:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
   pilon:['CRO','CRH','Ordo pharma','Ordo IDE','Ordo matériel','Ordo kiné'],
@@ -8560,13 +8584,13 @@ const DOC_OPTS={
     {k:'longueur',t:'seg',l:'Longueurs pré-opératoires',o:['Identiques','Raccourcissement','Rallongement'],def:'Identiques'},
     {k:'longueurMm',t:'num',l:'Inégalité (mm)',def:'10',show:f=>f.longueur&&f.longueur!=='Identiques'},
     {k:'cupType',t:'seg',l:'Type de cotyle',o:['Double mobilité','Simple mobilité'],def:'Double mobilité'},
-    {k:'cotyleModele',t:'selx',l:'Cotyle — modèle',def:'CAPTIV DM',impType:'cotyle'},
+    {k:'cotyleModele',t:'selx',l:'Cotyle — modèle',def:'',impType:'cotyle'},
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52'},
     {k:'insertMat',t:'seg',l:'Insert acétabulaire',o:['Polyéthylène','Céramique'],def:'Polyéthylène',show:f=>f.cupType==='Simple mobilité'},
     {k:'renfort',t:'check',l:'Renfort acétabulaire',def:false},
     {k:'renfortModele',t:'selx',l:'Renfort — modèle',def:'',impType:'renfort',show:f=>f.renfort},
     {k:'renfortNbVis',t:'num',l:'Renfort — nombre de vis',def:'2',show:f=>f.renfort},
-    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige'},
+    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'',impType:'tige'},
     {k:'tigeLat',t:'check',l:'Tige latéralisée',def:true},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12'},
     {k:'tigeFix',t:'seg',l:'Fixation de la tige',o:['Sans ciment','Cimentée'],def:'Sans ciment'},
@@ -8588,7 +8612,7 @@ const DOC_OPTS={
     {k:'indication',t:'text',l:'Indication',def:'Gonarthrose tricompartimentale'},
     {k:'deformation',t:'seg',l:'Déformation',o:['Varus','Valgus'],def:'Varus'},
     {k:'degres',t:'num',l:'Degrés',def:'5'},
-    {k:'modele',t:'selx',l:'Prothèse — modèle',def:'ACS',impType:'prothese'},
+    {k:'modele',t:'selx',l:'Prothèse — modèle',def:'',impType:'prothese'},
     {k:'femurT',t:'num',l:'Fémur — taille',def:'5'},
     {k:'plateauT',t:'num',l:'Plateau — taille',def:'4'},
     {k:'insertMm',t:'text',l:'Insert (mm)',def:'12,5'},
@@ -8620,7 +8644,7 @@ const DOC_OPTS={
     {k:'visTib',t:'num',l:'Vis interférence tibiale',def:'9'},
     {k:'lesionMed',t:'text',l:'Lésion méniscale médiale — description',ph:'zone, type, taille…',show:f=>f.menMed&&f.menMed!=='RAS'},
     {k:'lesionLat',t:'text',l:'Lésion méniscale latérale — description',ph:'zone, type, taille…',show:f=>f.menLat&&f.menLat!=='RAS'},
-    {k:'ancreType',t:'selx',l:'Ancres / matériel de réparation méniscale',def:'FAST-FIX 360',impType:'ancre',show:f=>docSuture(f)},
+    {k:'ancreType',t:'selx',l:'Ancres / matériel de réparation méniscale',def:'',impType:'ancre',show:f=>docSuture(f)},
     {k:'nbAncres',t:'num',l:"Nombre d'implants de suture",def:'2',show:f=>docSuture(f)},
     {k:'cartFP',t:'seg',l:'Cartilage fémoro-patellaire',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
     {k:'cartMed',t:'seg',l:'Cartilage — compartiment médial',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
@@ -8641,7 +8665,7 @@ const DOC_OPTS={
     {k:'synovectomie',t:'check',l:'Synovectomie partielle',def:false},
     {k:'lesionMed',t:'text',l:'Lésion méniscale médiale — description',ph:'zone, type, taille…',show:f=>f.menMed&&f.menMed!=='RAS'},
     {k:'lesionLat',t:'text',l:'Lésion méniscale latérale — description',ph:'zone, type, taille…',show:f=>f.menLat&&f.menLat!=='RAS'},
-    {k:'ancreType',t:'selx',l:'Ancres / matériel de réparation méniscale',def:'FAST-FIX 360',impType:'ancre',show:f=>docSuture(f)},
+    {k:'ancreType',t:'selx',l:'Ancres / matériel de réparation méniscale',def:'',impType:'ancre',show:f=>docSuture(f)},
     {k:'nbAncres',t:'num',l:"Nombre d'implants de suture",def:'2',show:f=>docSuture(f)},
     {k:'cartFP',t:'seg',l:'Cartilage fémoro-patellaire',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
     {k:'cartMed',t:'seg',l:'Cartilage — compartiment médial',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
@@ -8699,7 +8723,7 @@ const DOC_OPTS={
     {k:'paAO',t:'seg',l:'Classification AO (13-)',o:['A (extra-articulaire)','B (articulaire partielle)','C1','C2','C3'],def:'C2'},
     {k:'palTraitement',t:'seg',l:'Traitement',o:['Ostéosynthèse','Prothèse totale de coude'],def:'Ostéosynthèse'},
     {k:'paAbord',t:'seg',l:'Abord',o:f=>f.palTraitement==='Prothèse totale de coude'?['Para-tricipitale','Trans-tricipitale']:["Ostéotomie de l'olécrâne",'Para-tricipitale','Trans-tricipitale'],def:"Ostéotomie de l'olécrâne"},
-    {k:'ptcModele',t:'selx',l:'Prothèse — modèle',def:'Coonrad-Morrey',show:f=>!_paNotPtc(f)},
+    {k:'ptcModele',t:'selx',l:'Prothèse — modèle',def:'',show:f=>!_paNotPtc(f)},
     {k:'ptcTailleHum',t:'text',l:'Tige humérale — taille',def:'',show:f=>!_paNotPtc(f)},
     {k:'ptcTailleUln',t:'text',l:'Tige ulnaire — taille',def:'',show:f=>!_paNotPtc(f)},
     {k:'ptcCiment',t:'seg',l:'Ciment',o:['Aux antibiotiques','Standard'],def:'Aux antibiotiques',show:f=>!_paNotPtc(f)},
@@ -8839,11 +8863,11 @@ const DOC_OPTS={
     {k:'visLag',t:'num',l:'Vis inter-fragmentaires 3,5',def:'2',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
     {k:'plaquePostModele',t:'selx',l:'Plaque de reconstruction — modèle',def:'',impType:'plaque',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
     {k:'visPostNb',t:'num',l:'Plaque de reconstruction — vis',def:'6',show:f=>_bsVoies(f).post&&(!_bsFix(f)||f.synthAssoc)},
-    {k:'renfortModele',t:'selx',l:'Renfort — modèle',def:'BURSCH',impType:'renfort',show:f=>_bsFix(f)},
+    {k:'renfortModele',t:'selx',l:'Renfort — modèle',def:'',impType:'renfort',show:f=>_bsFix(f)},
     {k:'renfortNbVis',t:'num',l:'Renfort — nombre de vis',def:'4',show:f=>_bsFix(f)},
-    {k:'cotyleModele',t:'selx',l:'Cotyle cimenté DM — modèle',def:'CAPTIV DM',impType:'cotyle',show:f=>_bsFix(f)},
+    {k:'cotyleModele',t:'selx',l:'Cotyle cimenté DM — modèle',def:'',impType:'cotyle',show:f=>_bsFix(f)},
     {k:'cotyleTaille',t:'num',l:'Cotyle — taille',def:'52',show:f=>_bsFix(f)},
-    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'ECOFIT',impType:'tige',show:f=>_bsFix(f)},
+    {k:'tigeModele',t:'selx',l:'Tige — modèle',def:'',impType:'tige',show:f=>_bsFix(f)},
     {k:'tigeTaille',t:'num',l:'Tige — taille',def:'12',show:f=>_bsFix(f)},
     {k:'tigeFix',t:'seg',l:'Fixation de la tige',o:['Sans ciment','Cimentée'],def:'Sans ciment',show:f=>_bsFix(f)},
     {k:'cimentType',t:'seg',l:'Ciment',o:['Aux antibiotiques','Standard'],def:'Aux antibiotiques',show:f=>_bsFix(f)&&f.tigeFix==='Cimentée'},
@@ -8868,7 +8892,7 @@ const DOC_OPTS={
     {k:'relevement',t:'check',l:"Relèvement de l'enfoncement",def:true,show:f=>/Plaque/.test(f.montage||'')},
     {k:'comblement',t:'seg',l:'Comblement',o:['Aucun','Ostéopure','Autre substitut','Autogreffe de crête iliaque'],def:'Ostéopure',show:f=>f.montage==='Vissage percutané + greffe'||(/Plaque/.test(f.montage||'')&&f.relevement)},
     {k:'comblementAutre',t:'text',l:'Substitut — préciser',def:'',show:f=>f.comblement==='Autre substitut'},
-    {k:'plaqueLatModele',t:'selx',l:'Plaque latérale — modèle',def:'AxSOS',impType:'plaque',show:f=>/Plaque latérale/.test(f.montage||'')},
+    {k:'plaqueLatModele',t:'selx',l:'Plaque latérale — modèle',def:'',impType:'plaque',show:f=>/Plaque latérale/.test(f.montage||'')},
     {k:'visEpiLat',t:'num',l:'Plaque latérale — vis épiphysaires',def:'4',show:f=>/Plaque latérale/.test(f.montage||'')},
     {k:'visDiaLat',t:'num',l:'Plaque latérale — vis diaphysaires',def:'3',show:f=>/Plaque latérale/.test(f.montage||'')},
     {k:'plaqueMedModele',t:'selx',l:'Plaque médiale / postéro-médiale — modèle',def:'',impType:'plaque',show:f=>/médiale/.test(f.montage||'')&&/^Plaque/.test(f.montage||'')},
@@ -8876,7 +8900,7 @@ const DOC_OPTS={
     {k:'visDiaMed',t:'num',l:'Plaque médiale — vis diaphysaires',def:'2',show:f=>/médiale/.test(f.montage||'')&&/^Plaque/.test(f.montage||'')},
     {k:'visAdd',t:'check',l:'Vis canulées additionnelles (type Novastep…)',def:false,show:f=>/^Plaque/.test(f.montage||'')},
     {k:'visAddNb',t:'num',l:'Vis additionnelles — nombre',def:'1',show:f=>f.visAdd},
-    {k:'visAddModele',t:'selx',l:'Vis additionnelles — modèle',def:'Novastep',impType:'vis',show:f=>f.visAdd},
+    {k:'visAddModele',t:'selx',l:'Vis additionnelles — modèle',def:'',impType:'vis',show:f=>f.visAdd},
     {k:'garrotOn',t:'check',l:'Garrot',def:true},
     {k:'garrot',t:'num',l:'Garrot (mmHg)',def:'300',show:f=>f.garrotOn},
     {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
@@ -9284,6 +9308,7 @@ DOC_OPTS.basem1=[..._COMMON.map(o=>({...o})),
  {k:'bmLesion',t:'seg',l:'Lésion',o:['Bennett','Rolando','Comminutive'],def:'Bennett'},
  {k:'garrotOn',t:'check',l:'Garrot pneumatique',def:true},
  {k:'garrot',t:'num',l:'Garrot — pression (mmHg)',def:'250',show:f=>f.garrotOn},
+ {k:'garrotMin',t:'num',l:'Temps de garrot (min)',def:'',ph:'min',show:f=>f.garrotOn},
  {k:'bmIselin',t:'check',l:'Embrochage percutané selon Iselin (M1-M2)',def:false},
  {k:'bmVis',t:'check',l:'Vissage en compression (foyer ouvert)',def:false},
  {k:'bmVisNb',t:'num',l:'Vis — nombre',def:'1',show:f=>f.bmVis},
@@ -9457,6 +9482,7 @@ function _lot205Reduction(f){
  if(!f.reduction||f.reduction==='En place')return '';
  return 'Réduction '+(f.reduction==='Réduction à foyer fermé'?'à foyer fermé':'à foyer ouvert')+(f.reductionDetails?' : '+f.reductionDetails:'')+'.\n';
 }
+function _bmCouvrant(f){return f._inter==='basem1'&&(f.immoType==='Gantelet'||f.immoType==='Attelle commissurale');}
 function _bmIndic(f,low){
  const cote=coteStrD(f);
  const t=f.bmLesion==='Rolando'?'Fracture de Rolando de la base du premier métacarpien ':(f.bmLesion==='Comminutive'?'Fracture comminutive de la base du premier métacarpien ':'Fracture de Bennett de la base du premier métacarpien ');
@@ -9502,8 +9528,7 @@ CCAM : ${_bmCcam(f)}
  const prep=`Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
-${f.garrotOn?`Garrot pneumatique à la racine du membre gonflé à ${f.garrot||'250'} mmHg.
-`:''}`;
+${_garrotLine(f)}`;
  let t=head+`
 Installation en décubitus dorsal, membre supérieur sur table à bras. Amplificateur de brillance.
 `+prep;
@@ -9538,8 +9563,7 @@ Mise en place de deux broches de Kirschner ${f.bmBrDiam||'18/10'} trans-métacar
 `;
  t+=`
 Contrôle scopique final de face et de profil : réduction et congruence trapézo-métacarpienne, position du matériel.
-${f.garrotOn?`Lâcher du garrot, hémostase complémentaire.
-`:''}${open?`Fermeture capsulaire et réinsertion des muscles thénariens.
+${_garrotFin(f)}${open?`Fermeture capsulaire et réinsertion des muscles thénariens.
 Fermeture cutanée par ${docClosure(f)}.
 `:''}Pansement ${f.pansement||'sec'}.
 Immobilisation par ${f.immoType==='Gantelet'?'manchette-gantelet':(f.immoType==='Attelle commissurale'?'attelle commissurale':'attelle')} prenant la colonne du pouce.
@@ -9781,7 +9805,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : Fracture du col fémoral ${cote}.
 CCAM : ${f.ccam}
-Rappel des implants : Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${cim?' cimentée':''} taille ${f.tigeTaille}${cim?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} col ${f.teteCol} / Cupule bipolaire ${f.bipModele} diamètre ${f.bipDiam} mm
+Rappel des implants : Tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''}${cim?' cimentée':''} taille ${f.tigeTaille}${cim?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} col ${f.teteCol} / Cupule bipolaire ${f.bipModele} diamètre ${f.bipDiam} mm
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -9808,8 +9832,8 @@ La stabilité est satisfaisante et les longueurs sont restaurées.
 ${cim?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`}
 Assemblage de la tête ${f.teteTaille} col ${f.teteCol} et de la cupule bipolaire ${f.bipModele} de ${f.bipDiam} mm.
 Réduction de la hanche.
@@ -10129,7 +10153,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -10170,8 +10194,8 @@ La stabilité est excellente et les longueurs sont restaurées.
 ${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`}
 ${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
@@ -10195,9 +10219,10 @@ L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateSt
 ${_crhMeniscLine(f)}${_crhRadioLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+${_bmCouvrant(f)?`— Immobilisation laissée en place jusqu'à la consultation ; pansement et cicatrice contrôlés à cette occasion
+`:`— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
 — ${_crhFils(f)}
-— Kinésithérapie de rééducation
+`}— Kinésithérapie de rééducation
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
@@ -10217,9 +10242,10 @@ L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateSt
 ${_crhMeniscLine(f)}${_crhRadioLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+${_bmCouvrant(f)?`— Immobilisation laissée en place jusqu'à la consultation ; pansement et cicatrice contrôlés à cette occasion
+`:`— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
 — ${_crhFils(f)}
-— Kinésithérapie de rééducation
+`}— Kinésithérapie de rééducation
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
@@ -10438,9 +10464,10 @@ L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateSt
 ${_crhMeniscLine(f)}${_crhRadioLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+${_bmCouvrant(f)?`— Immobilisation laissée en place jusqu'à la consultation ; pansement et cicatrice contrôlés à cette occasion
+`:`— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
 — ${_crhFils(f)}
-— Kinésithérapie de rééducation
+`}— Kinésithérapie de rééducation
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
@@ -10495,7 +10522,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}
 
 Installation en décubitus dorsal sur table orthopédique avec dispositif de traction.
 Protection des points d'appui.
@@ -10517,7 +10544,7 @@ Ablation du labrum.
 Ablation du reliquat du ligament rond de la tête fémorale.
 Repérage du ligament transverse.
 Fraisages de tailles croissantes jusqu'à la taille ${f.cotyleTaille}.
-Mise en place d'un cotyle ${f.cotyleModele} taille ${f.cotyleTaille}, sans ciment, ${f.cupType==='Double mobilité'?'à double mobilité':'à simple mobilité'}.
+Mise en place d'un cotyle${f.cotyleModele?' '+f.cotyleModele:''} taille ${f.cotyleTaille}, sans ciment, ${f.cupType==='Double mobilité'?'à double mobilité':'à simple mobilité'}.
 ${f.cupType==='Simple mobilité'?`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 `:''}
 
@@ -10533,8 +10560,8 @@ La stabilité est excellente et les longueurs sont restaurées.
 ${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`}
 ${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
 Réduction de la hanche.
@@ -10602,7 +10629,7 @@ Anesthésie : ${f.anesthesie}
 
 Indication : ${f.indication||('Arthroplastie totale de hanche '+cote)}.
 CCAM : ${f.ccam}
-${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
+${f.longueur&&f.longueur!=='Identiques'?'Inégalité de longueur pré-opératoire : '+f.longueur.toLowerCase()+' de '+f.longueurMm+' mm.\n':''}Rappel des implants : Cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}${f.cotyleModele} taille ${f.cotyleTaille}${f.cupType==='Simple mobilité'?' (insert '+(f.insertMat||'polyéthylène').toLowerCase()+')':''} / Tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''}${f.tigeFix==='Cimentée'?' cimentée':''} taille ${f.tigeTaille}${f.tigeFix==='Cimentée'?' (ciment '+_cimStr(f)+')':''} / Tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}${f.renfort?' / Renfort acétabulaire'+(f.renfortModele?' '+f.renfortModele:''):''}
 
 Installation en décubitus latéral ${cote==='gauche'?'droit':'gauche'}.
 Badigeon et champage stérile.
@@ -10641,8 +10668,8 @@ La stabilité est excellente et les longueurs sont restaurées.
 ${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`}
 ${f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`}
@@ -11039,7 +11066,7 @@ Essai ulnaire en place.
 
 Essais : réduction de la charnière, flexion-extension complète, absence de conflit antérieur, pronosupination libre.
 Lavage abondant et assèchement des fûts, mise en place des obturateurs.
-Cimentation ${f.ptcCiment==='Standard'?'au ciment standard':'au ciment aux antibiotiques (gentamicine)'} des deux pièces : tige humérale ${f.ptcModele||'Coonrad-Morrey'}${f.ptcTailleHum?' taille '+f.ptcTailleHum:''}, tige ulnaire${f.ptcTailleUln?' taille '+f.ptcTailleUln:''}, maintenues en position jusqu'à polymérisation complète. Ablation du ciment excédentaire.
+Cimentation ${f.ptcCiment==='Standard'?'au ciment standard':'au ciment aux antibiotiques (gentamicine)'} des deux pièces : tige humérale${f.ptcModele?' '+f.ptcModele:''}${f.ptcTailleHum?' taille '+f.ptcTailleHum:''}, tige ulnaire${f.ptcTailleUln?' taille '+f.ptcTailleUln:''}, maintenues en position jusqu'à polymérisation complète. Ablation du ciment excédentaire.
 Assemblage et verrouillage de l'axe de la charnière semi-contrainte.
 Contrôle de la mobilité : flexion-extension complète, montage stable.
 ${f.paTransposition?`Transposition antérieure sous-cutanée du nerf ulnaire.
@@ -11519,7 +11546,7 @@ ${f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
 Mise en place d'une tige ${f.tigeModele||''} cimentée taille ${f.tigeTaille||'12'}, maintenue en position jusqu'à polymérisation complète, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
-Ablation du ciment excédentaire.`:`Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`}
+Ablation du ciment excédentaire.`:`Mise en place de la tige${f.tigeModele?' '+f.tigeModele:''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`}
 Réduction. Stabilité et mobilité satisfaisantes.
 Réinsertion des muscles pelvi-trochantériens et de la capsule par points trans-osseux.
 `;
@@ -12076,7 +12103,7 @@ function _crhMotif(f){
 function _l206ActeFix(f){return f.fixation==='Ancres'?'par ancres':(f.fixation==='Ancres + tunnels'?'par ancres et tunnels transosseux':'transosseuse');}
 function _l206ActeCadre(f){return f.cadre&&f.cadre!=='Aucun'?', protégée par un '+(f.cadre==='Cadre aux ischio-jambiers (DI)'?'cadre aux ischio-jambiers (droit interne)':(f.cadre==='Cerclage métallique'?'cerclage métallique':'cadre au PDS')):'';}
 function _crhActe(f){
- if(f._inter==='palette'&&f.palTraitement==='Prothèse totale de coude')return "la mise en place d'une prothèse totale de coude semi-contrainte de type "+(f.ptcModele||'Coonrad-Morrey');
+ if(f._inter==='palette'&&f.palTraitement==='Prothèse totale de coude')return "la mise en place d'une prothèse totale de coude semi-contrainte"+(f.ptcModele?" de type "+f.ptcModele:"");
  if(f._inter==='humprox_plaque')return 'une ostéosynthèse de l’humérus proximal par plaque, par voie '+f.hpVoie.toLowerCase();
  if(f._inter==='humdia_plaque')return 'une ostéosynthèse de la diaphyse humérale par plaque, par voie '+f.hdVoie.toLowerCase()+', avec repérage et protection du nerf radial';
  if(f._inter==='ulna_distal')return 'une ostéosynthèse de l’ulna distal par plaque, par voie dorsale';
@@ -12237,9 +12264,10 @@ L'intervention s'est parfaitement déroulée au bloc opératoire le ${doc_dateSt
 ${_crhMeniscLine(f)}${_crhRadioLine(f)}
 Les suites ont été simples, la sortie est donc autorisée ce jour avec les consignes suivantes :
 
-— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
+${_bmCouvrant(f)?`— Immobilisation laissée en place jusqu'à la consultation ; pansement et cicatrice contrôlés à cette occasion
+`:`— Pansements (${f.pansement}) à renouveler ${docPansementFrequency(f)}
 — ${_crhFils(f)}
-— Kinésithérapie de rééducation
+`}— Kinésithérapie de rééducation
 — ${_crhAppui(f)}
 ${_ampTxt(f)?'— '+_ampTxt(f)+'\n':''}— Antalgiques selon prescription
 ${antico}
@@ -12303,10 +12331,11 @@ function buildOrdoIDE(f){
 Patient : ${ptNom(f)} — né(e) le ${doc_dateStr(f.ddn)}
 Date : ${doc_dateStr(f.dateInter)}
 
-${inj}${(f._inter==='basem1'&&(f.bmFE||f.bmBrPeau==='Transcutanées'))?`— Soins locaux des orifices de broches et de fiches à chaque pansement (désinfection, compresses sèches)\n`:''}— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) ${docPansementFrequency(f)}
+${inj}${(!_bmCouvrant(f)&&f._inter==='basem1'&&(f.bmFE||f.bmBrPeau==='Transcutanées'))?`— Soins locaux des orifices de broches et de fiches à chaque pansement (désinfection, compresses sèches)\n`:''}${_bmCouvrant(f)?`— Surveillance de l'immobilisation : points de compression, œdème, chaleur et couleur des doigts
+`:`— Surveillance et renouvellement du pansement (${f.pansement||'selon protocole'}) ${docPansementFrequency(f)}
 — ${_crhFils(f)}
 — Surveillance de la cicatrice (rougeur, écoulement, désunion)
-— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
+`}— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
 
 ${_dSig()}${_dRpps()}`;
 }
@@ -12910,6 +12939,7 @@ function docAutoCCAM(){
   else if(i==='pilon'){
     DOCF.ccam=/^B/.test(DOCF.plAO||'C2')?'NCCA008':'NCCA004';
   }
+  else if(i==='basem1'){DOCF.ccam=(DOCF.bmVis||DOCF.bmPlaque)?'MDCA012':'';}
   else if(i==='palette'){
     if(DOCF.palTraitement==='Prothèse totale de coude'){DOCF.ccam='MFKA003';}
     else{const a=DOCF.paAO||'C2';
@@ -13117,6 +13147,53 @@ function _docMailMsg(){
   const prenomSig=(typeof getPrenom==='function'&&getPrenom())||_dSig();
   return 'Bonjour,\n\nVoilà les documents post-opératoires de '+civ+' '+nomPat+'.\n\nMerci beaucoup,\n\n'+prenomSig;
 }
+
+function _etabSeed(){
+  const base=['CHU Lille','CH Cambrai'];
+  try{(window.blocs||blocs||[]).forEach(b=>{const v=String(b.etablissement||'').trim();if(v&&!base.some(s=>s.toLowerCase()===v.toLowerCase()))base.push(v);});}catch(e){}
+  return base;
+}
+function getEtabs(p){
+  const raw=(Array.isArray(p&&p.etabs)&&p.etabs.length)?p.etabs:_etabSeed();
+  const out=[];raw.map(x=>String(x||'').trim()).filter(Boolean).forEach(v=>{if(!out.some(s=>s.toLowerCase()===v.toLowerCase()))out.push(v);});
+  return out;
+}
+function _etabRowHtml(v){
+  return '<div class="regl-etab-row" style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+    +'<input class="regl-input regl-etab-name" type="text" style="flex:1;margin:0;" placeholder="ex. CH Cambrai" value="'+String(v||'').replace(/"/g,'&quot;')+'">'
+    +'<button type="button" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:8px;min-width:44px;min-height:44px;" onclick="this.closest(\'.regl-etab-row\').remove()" aria-label="Retirer cet établissement">×</button></div>';
+}
+function renderReglEtabs(list){
+  const box=document.getElementById('regl-etabs');if(!box)return;
+  const vals=(list&&list.length)?list:[''];
+  box.innerHTML=vals.map(_etabRowHtml).join('');
+}
+function reglAddEtab(v){
+  const box=document.getElementById('regl-etabs');if(!box)return;
+  box.insertAdjacentHTML('beforeend',_etabRowHtml(v));
+}
+function renderEtabPills(prefix){
+  const box=document.getElementById(prefix+'-etab-pills');const inp=document.getElementById(prefix+'-etablissement');
+  if(!box||!inp)return;
+  const list=getEtabs(getProfil());
+  const cur=(inp.value||'').trim();
+  const inList=list.some(v=>v.toLowerCase()===cur.toLowerCase());
+  const autre=(!inList&&!!cur)||box._autre===true;
+  box.innerHTML=list.map(v=>'<button type="button" class="etab-pill'+((!autre&&cur.toLowerCase()===v.toLowerCase())?' on':'')+'" data-v="'+esc(v)+'" onclick="pickEtab(\''+prefix+'\',this.dataset.v)">'+esc(v)+'</button>').join('')
+   +'<button type="button" class="etab-pill'+(autre?' on':'')+'" onclick="etabAutre(\''+prefix+'\')">Autre</button>';
+  inp.style.display=autre?'':'none';
+}
+function pickEtab(prefix,v){
+  const box=document.getElementById(prefix+'-etab-pills');const inp=document.getElementById(prefix+'-etablissement');
+  if(!inp)return;if(box)box._autre=false;inp.value=v;renderEtabPills(prefix);
+}
+function etabAutre(prefix){
+  const box=document.getElementById(prefix+'-etab-pills');const inp=document.getElementById(prefix+'-etablissement');
+  if(!inp)return;if(box)box._autre=true;
+  const list=getEtabs(getProfil());
+  if(list.some(v=>v.toLowerCase()===(inp.value||'').trim().toLowerCase()))inp.value='';
+  renderEtabPills(prefix);try{inp.focus();}catch(e){}
+}
 function getSecrs(p){
   const list=(Array.isArray(p&&p.secrs)&&p.secrs.length)?p.secrs:[p&&p.secr1,p&&p.secr2];
   return list.map(x=>String(x||'').trim()).filter(Boolean);
@@ -13174,7 +13251,7 @@ function reglLoad(){
   const p=getProfil();
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||'';};
   set('regl-nom',p.nom);set('regl-titre',p.titre);set('regl-rpps',p.rpps);set('regl-service',p.service);set('regl-hopital',p.hopital);set('regl-chef',p.chef);
-  renderReglSecrs(getSecrs(p));set('regl-apikey',p.apikey);
+  renderReglSecrs(getSecrs(p));renderReglEtabs(getEtabs(p));set('regl-apikey',p.apikey);
   const sc=getSyncCfg();set('regl-sync-url',sc.url);const sm=document.getElementById('regl-sync-mode');if(sm)sm.value=sc.mode||'initiales';
   _syncStatusUI();
   if(typeof syncPratiqueUI==='function')syncPratiqueUI();
@@ -13183,7 +13260,8 @@ function reglLoad(){
 function reglSave(){
   const get=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
   const secrs=Array.from(document.querySelectorAll('.regl-secr-email')).map(e=>e.value.trim()).filter(Boolean);
-  const p={...getProfil(),nom:get('regl-nom'),titre:get('regl-titre'),rpps:get('regl-rpps'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secrs,secr1:secrs[0]||'',secr2:secrs[1]||''};
+  const etabs=Array.from(document.querySelectorAll('.regl-etab-name')).map(e=>e.value.trim()).filter(Boolean);
+  const p={...getProfil(),nom:get('regl-nom'),titre:get('regl-titre'),rpps:get('regl-rpps'),service:get('regl-service'),hopital:get('regl-hopital'),chef:get('regl-chef'),secrs,secr1:secrs[0]||'',secr2:secrs[1]||'',etabs};
   localStorage.setItem(PROFIL_KEY,JSON.stringify(p));
   const sc=getSyncCfg();sc.url=get('regl-sync-url');const smEl=document.getElementById('regl-sync-mode');sc.mode=smEl?smEl.value:'initiales';saveSyncCfg(sc);
   if(sc.url)syncPlanningNow(false);
@@ -14320,7 +14398,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v217',
+    version:'atlas-v219',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -14783,7 +14861,7 @@ function showApp(){
   // Tuto au premier lancement
 
   try{runPatientMigration();}catch(e){console.warn('migration patients échouée:',e);}
-  try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}
+  try{runEtablissementMigration();}catch(e){console.warn('migration etablissement échouée:',e);}   try{runEtabNormMigration();}catch(e){console.warn('normalisation etablissement échouée:',e);}
   try{runInfectionMigration();}catch(e){console.warn('migration infection échouée:',e);}
   try{runHospitMigration();}catch(e){console.warn('migration hospit échouée:',e);}
   try{runPathDupMigration();}catch(e){console.warn('migration chemins échouée:',e);}
@@ -17047,8 +17125,8 @@ Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}
 La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
 `:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc()),((f.insertMat||'polyéthylène').toLowerCase())];};
 ATLAS_MODEL_VALUES["CRH"]=function(f){
@@ -17255,8 +17333,8 @@ Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}
 La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
 `:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "renfort / renfortModele", "Texte lié", "renfort / renfortModele / renfortNbVis / cupType / cotyleModele / cotyleTaille", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol / insertMat", "crochet / crochetMarque / crochetLong / crochetNbVis", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
@@ -17935,7 +18013,7 @@ Voie d'abord postéro-latérale, ténotomie des pelvi-trochantériens sur fils r
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
 Mise en place d'une tige ${f.tigeModele||''} cimentée taille ${f.tigeTaille||'12'}, maintenue en position jusqu'à polymérisation complète, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.
-Ablation du ciment excédentaire.`:`Mise en place de la tige ${f.tigeModele||''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`)],["Texte lié", "greffeTete", "greffeTete", "renfortModele", "renfortNbVis", "Texte lié", "cotyleModele", "cotyleTaille", "tigeTaille", "tigeFix / tigeModele / tigeTaille / teteTaille / teteCol"]);
+Ablation du ciment excédentaire.`:`Mise en place de la tige${f.tigeModele?' '+f.tigeModele:''} taille ${f.tigeTaille||'12'}, tête ${f.teteTaille||'28'} col ${f.teteCol||'standard'}.`)],["Texte lié", "greffeTete", "greffeTete", "renfortModele", "renfortNbVis", "Texte lié", "cotyleModele", "cotyleTaille", "tigeTaille", "tigeFix / tigeModele / tigeTaille / teteTaille / teteCol"]);
   let corps='';
   const seq=[];
   if(synth){
@@ -19140,8 +19218,8 @@ Pansement {{v32}}.
 `:''),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "cotyleTaille", "cotyleModele", "cotyleTaille", "cupType", "cupType / insertMat", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
 }
 function am_buildCRH_HUETER(f){
@@ -19284,8 +19362,8 @@ Pansement {{v18}}.
 {{v19}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),('Fracture du col fémoral '+cote),(f.ccam),(String(f.tigeModele||'')+(f.tigeLat?' Latéralisée':'')+(cim?' cimentée':'')),(f.tigeTaille),(f.teteTaille),(f.teteCol),(f.bipModele),(f.bipDiam),(cote==='gauche'?'droit':'gauche'),(cim?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "tigeModele / tigeLat / tigeFix", "tigeTaille", "teteTaille", "teteCol", "bipModele", "bipDiam", "Texte lié", "tigeFix / cimentType", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
 }
 AML_BUILDERS.PIH=am_buildCRO_PIH;
@@ -19402,8 +19480,8 @@ Cimentation d'un cotyle ${f.cupType==='Double mobilité'?'double mobilité ':''}
 La tenue primaire est excellente.`),(f.tigeTaille),(f.teteCol),(f.tigeFix==='Cimentée'?`Lavage pulsé et assèchement du fût fémoral.
 Mise en place d'un bouchon obturateur distal.
 Injection rétrograde du ciment ${_cimStr(f)} au pistolet et pressurisation.
-Mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
-Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige ${f.tigeModele}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
+Mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} cimentée taille ${f.tigeTaille}, maintenue en position jusqu'à polymérisation complète.
+Ablation du ciment excédentaire.`:`Décision de mise en place d'une tige${f.tigeModele?' '+f.tigeModele:''}${f.tigeLat?' Latéralisée':''} sans ciment taille ${f.tigeTaille}.
 Nouveaux essais sur la tige définitive strictement comparables.`),(f.cupType==='Double mobilité'?`Assemblage de la tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol} dans l'insert mobile en polyéthylène.`:`Impaction de l'insert ${(f.insertMat||'polyéthylène').toLowerCase()} dans le cotyle.
 Mise en place d'une tête ${f.teteTaille} ${f.teteMat} col ${f.teteCol}.`),(f.crochet?`Mise en place d'un crochet trochantérien${f.crochetMarque?' '+f.crochetMarque:''}${f.crochetLong?' longueur '+f.crochetLong:''}, fixé par ${f.crochetNbVis||'—'} vis.
 `:''),(f.infiltration?'Infiltration péri-articulaire selon protocole.\n':''),(f.drainage?'Mise en place d\'un drain de Redon aspiratif.\n':''),(docClosure(f)),(f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "indication", "ccam", "longueur / longueurMm", "cupType", "cotyleModele", "cotyleTaille", "cupType / insertMat", "tigeModele", "tigeLat", "tigeFix", "tigeTaille", "tigeFix", "teteTaille", "teteMat", "teteCol", "renfort / renfortModele", "Texte lié", "Texte lié", "renfort / renfortModele / renfortNbVis / cupType / cotyleModele / cotyleTaille", "tigeTaille", "teteCol", "tigeFix / tigeModele / tigeLat / tigeTaille", "cupType / teteTaille / teteMat / teteCol / insertMat", "crochet / crochetMarque / crochetLong / crochetNbVis", "infiltration", "drainage", "Texte lié", "pansement", "Signature"]);
