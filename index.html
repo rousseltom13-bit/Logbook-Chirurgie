@@ -8667,6 +8667,10 @@ const DOC_OPTS={
     {k:'lesionLat',t:'text',l:'Lésion méniscale latérale — description',ph:'zone, type, taille…',show:f=>f.menLat&&f.menLat!=='RAS'},
     {k:'ancreType',t:'selx',l:'Ancres / matériel de réparation méniscale',def:'',impType:'ancre',show:f=>docSuture(f)},
     {k:'nbAncres',t:'num',l:"Nombre d'implants de suture",def:'2',show:f=>docSuture(f)},
+    {k:'menPieCrust',t:'check',l:'Pie crusting du ligament collatéral médial',def:false},
+    {k:'menPerfor',t:'check',l:"Perforations de l'échancrure (stimulation médullaire)",def:false,show:f=>docSuture(f)},
+    {k:'menAppui',t:'seg',l:'Appui post-opératoire',o:['Appui complet','Appui partiel','Appui complet sous attelle verrouillée en extension',"Pas d'appui"],def:'Appui complet'},
+    {k:'menAppuiSem',t:'num',l:'Durée de la restriction (semaines)',def:'4',show:f=>f.menAppui!=='Appui complet'},
     {k:'cartFP',t:'seg',l:'Cartilage fémoro-patellaire',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
     {k:'cartMed',t:'seg',l:'Cartilage — compartiment médial',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
     {k:'cartLat',t:'seg',l:'Cartilage — compartiment latéral',o:['Sain','ICRS 1','ICRS 2','ICRS 3','ICRS 4'],def:'Sain'},
@@ -10808,8 +10812,41 @@ Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
 
 ${_dSigBloc()}`;
 }
+function _menAppuiTxt(f){
+  const n=f.menAppuiSem||'4';
+  const a=f.menAppui||'Appui complet';
+  if(a==='Appui partiel')return 'Appui partiel sous couvert de 2 cannes anglaises pendant '+n+' semaines';
+  if(a==='Appui complet sous attelle verrouillée en extension')return 'Appui complet sous attelle verrouillée en extension à la marche pendant '+n+' semaines';
+  if(a==="Pas d'appui")return 'Décharge stricte du membre inférieur opéré pendant '+n+' semaines (déambulation avec 2 cannes anglaises)';
+  return 'Appui complet immédiat selon douleurs';
+}
 function buildCRO_MENISC(f){
   const cote=coteStrD(f);
+  const su=docSuture(f);
+  const sides=[['med','médial',f.menMed,f.lesionMed,f.menMedOut,f.cartMed],['lat','latéral',f.menLat,f.lesionLat,f.menLatOut,f.cartLat]];
+  const expl=sides.map(s=>{
+    const nom=s[1],v=s[2],les=s[3];
+    const cart=_cartLine(s[5]);
+    let m;
+    if(!v||v==='RAS')m='ménisque '+nom+' palpé au crochet : intact et stable';
+    else m='ménisque '+nom+' palpé au crochet : '+((les&&String(les).trim())?String(les).trim().replace(/\.+$/,''):'lésion instable');
+    return 'Compartiment '+nom+(nom==='latéral'?' en figure de 4':'')+' : '+(cart?cart+' ':'cartilage sain. ')+m+'.';
+  });
+  const gestes=[];
+  if(f.menPieCrust)gestes.push("Compartiment médial serré : pie crusting du ligament collatéral médial à l'aiguille sous léger valgus, ouverture progressive du compartiment donnant accès au segment postérieur sans lésion cartilagineuse iatrogène.");
+  sides.forEach(s=>{
+    const nom=s[1],v=s[2],out=s[4];
+    if(!v||v==='RAS')return;
+    if(v==='Méniscectomie partielle'){
+      gestes.push("Ménisque "+nom+" : méniscectomie partielle économique à la pince basket emportant la languette instable, régularisation au shaver jusqu'en zone saine, en respectant le mur méniscal. Palpation au crochet : mur restant stable.");
+    }else{
+      const impl=(f.nbAncres||'')+' implant(s)'+(f.ancreType?' '+f.ancreType:'');
+      gestes.push("Ménisque "+nom+" : réduction de la lésion au crochet palpeur. Avivement des berges de la lésion à la fraise arthroscopique jusqu'à obtention d'un saignement. Suture par "+impl+(v==='Suture outside-in'?' en technique outside-in':' tout-en-dedans')+", points espacés régulièrement"+(out?", complétée par des points outside-in":"")+". Contrôle final au crochet : réduction anatomique et stabilité de la suture.");
+    }
+  });
+  if(su&&f.menPerfor)gestes.push("Perforations osseuses de l'échancrure intercondylienne au poinçon, obtention d'un saignement médullaire venant au contact de la réparation (stimulation biologique de la cicatrisation).");
+  if(f.chondroplastie)gestes.push('Chondroplastie de régularisation au shaver.');
+  if(f.synovectomie)gestes.push('Synovectomie partielle.');
   return `COMPTE-RENDU OPÉRATOIRE — ARTHROSCOPIE DU GENOU ${cote.toUpperCase()}
 
 Date opératoire : ${doc_dateStr(f.dateInter)}
@@ -10820,27 +10857,30 @@ Anesthésie : ${f.anesthesie}
 Indication : Lésion méniscale du genou ${cote}.
 CCAM : ${f.ccam}
 
-Installation en décubitus dorsal, genou fléchi à 90°.
+Installation en décubitus dorsal, cale-pied et contre-appui latéral permettant le valgus forcé et la position en figure de 4.
 Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
 ${_garrotLine(f)}
 Temps arthroscopique :
-Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
-Exploration systématique du genou :
-- Compartiment fémoro-patellaire : ${_cartLine(f.cartFP)||'RAS'}
-- Compartiment médial : ${_menBlock(f,'med')}
-- Compartiment latéral : ${_menBlock(f,'lat')}
-- Échancrure : pivot central intact
-${_sutureMatLine(f)}
-${f.chondroplastie?'Chondroplastie de régularisation.\n':''}${f.synovectomie?'Synovectomie partielle.\n':''}Lavage articulaire abondant.
+Voie d'abord optique antéro-latérale. Voie instrumentale antéro-médiale réalisée à l'aiguille sous contrôle de la vue.
+Exploration systématique :
+Cul-de-sac quadricipital et compartiment fémoro-patellaire : ${_cartLine(f.cartFP)||'cartilage sain.'}
+${expl[0]}
+Échancrure : pivot central testé au crochet, continu et tendu.
+${expl[1]}
+
+${gestes.join('\n')}
+Lavage articulaire abondant.
 
 ${_garrotFin(f)}Fermeture des voies d'abord par points séparés.
 Fermeture cutanée par ${docClosure(f)}.
 Pansement ${(f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement}.
+Consignes : ${_menAppuiTxt(f)}.
 
 ${_dSigBloc()}`;
 }
+
 
 const CH_TITRE={'Malléole latérale isolée':'FRACTURE DE LA MALLÉOLE LATÉRALE','Bimalléolaire':'FRACTURE BIMALLÉOLAIRE','Trimalléolaire':'FRACTURE TRIMALLÉOLAIRE','Équivalent bimalléolaire':'ÉQUIVALENT BIMALLÉOLAIRE'};
 const CH_INDIC={'Malléole latérale isolée':'Fracture isolée de la malléole latérale','Bimalléolaire':'Fracture bimalléolaire','Trimalléolaire':'Fracture trimalléolaire','Équivalent bimalléolaire':'Équivalent bimalléolaire'};
@@ -11990,6 +12030,7 @@ ${_dSigBloc()}`;
 // ── CRH / Ordonnances (paramétrés) ──
 const CRH_ACTE={pth:"la mise en place d'une prothèse totale de hanche",pth_revision:"une reprise de prothèse totale de hanche",ptg:"la mise en place d'une prothèse totale de genou",lca:"une ligamentoplastie du ligament croisé antérieur",menisc:"une arthroscopie du genou pour geste méniscal",cheville:"une ostéosynthèse de fracture de la cheville",arthroscopie:"une arthroscopie du genou",ablation:"une ablation de matériel d'ostéosynthèse",fracture:"une ostéosynthèse"};
 function _crhAppui(f){
+ if(f._inter==='menisc')return _menAppuiTxt(f);
  if(f._inter==='basem1'){let s='Immobilisation par '+(f.immoType==='Gantelet'?'manchette-gantelet':(f.immoType==='Attelle commissurale'?'attelle commissurale':'attelle'))+' prenant la colonne du pouce pendant '+(f.immoSem||'6')+' semaines';if(f.bmIselin||f.bmBrCompl)s+=' — ablation des broches '+(f.bmBrPeau==='Transcutanées'?'en consultation à la 6e semaine':'sous anesthésie locale à la 6e semaine, à programmer');return s;}
  if(LOT201_SOURCES.includes(f._inter))return lot201Suites(f);
  if(['dhs','triple',...LOT205_SOURCES].includes(f._inter))return fixationAppui(f);
@@ -12412,7 +12453,7 @@ ${_dSig()}${_dRpps()}`;
 ${intro}
 
 ${su?`SUTURE MÉNISCALE — protocole protégé :
-S1 à S6 : appui avec 2 cannes anglaises pendant 1 mois ; flexion limitée à 90° jusqu'à la 6e semaine ; pas de flexion en charge ni rotation forcée.
+S1 à S6 : ${_menAppuiTxt(f).toLowerCase()} ; flexion limitée à 90° jusqu'à la 6e semaine ; pas de flexion en charge ni rotation forcée.
 S6 et au-delà : récupération progressive des amplitudes, renforcement en chaîne fermée puis ouverte, proprioception.
 Reprise sportive progressive à partir de M3-M4 selon évolution.`:`MÉNISCECTOMIE PARTIELLE :
 Appui complet immédiat. Récupération des amplitudes, lutte contre l'épanchement.
@@ -12853,6 +12894,8 @@ function openBlocDocs(bi,forcedInter){
   DOCF.nom=noms.join(' ')||parts[0]||'';DOCF.prenom=prenoms.join(' ');
   if(b.operateur)DOCF.aides=b.operateur;
   if(!DOCF.ddn&&b.age&&b.date){const _y=parseInt(String(b.date).slice(0,4),10)-parseInt(b.age,10);if(_y>1880&&_y<2030)DOCF.ddn=_y+'-01-01';}
+  if(DOCF.pansement)DOCF.pansementJours=(DOCF.pansement==='Sec')?'2':'4';
+  if(inter==='menisc'&&docSuture(DOCF)&&DOCF.menAppui==='Appui complet'){DOCF.menAppui='Appui complet sous attelle verrouillée en extension';DOCF.matAttelle=true;DOCF.matCannes=true;}
   if(b.ptgIndication)DOCF.indication=b.ptgIndication;
   if(inter==='basem1'){const _iv=b.interv||'';DOCF.bmLesion=/Rolando/i.test(_iv)?'Rolando':'Bennett';if(DOCF.bmLesion==='Rolando')DOCF.bmPlaque=true;else DOCF.bmIselin=true;}
   if(inter==='ptg'&&b.ptgDeformation){DOCF.deformation=b.ptgDeformation;if(b.ptgDegres)DOCF.degres=String(b.ptgDegres);}
@@ -12894,6 +12937,14 @@ function setDocF(k,v){
   DOCF.pansementJours=DOCF._pansementFrequencies[v]||'4';
  }
  DOCF[k]=v;docOverrides={};
+  if(k==='pansement'){DOCF.pansementJours=(v==='Sec')?'2':'4';}
+  if((k==='menMed'||k==='menLat')&&DOCF._inter==='menisc'&&docSuture(DOCF)&&DOCF.menAppui==='Appui complet'){
+    DOCF.menAppui='Appui complet sous attelle verrouillée en extension';DOCF.menAppuiSem=DOCF.menAppuiSem||'4';DOCF.matAttelle=true;DOCF.matCannes=true;
+  }
+  if(k==='menAppui'&&DOCF._inter==='menisc'){
+    DOCF.matAttelle=(v==='Appui complet sous attelle verrouillée en extension');
+    DOCF.matCannes=(v!=='Appui complet');
+  }
   if(k==='paAO'&&DOCF._inter==='palette'&&DOCF.palTraitement!=='Prothèse totale de coude'){
     DOCF.paAbord=/^A/.test(v)?'Para-tricipitale':"Ostéotomie de l'olécrâne";
   }
@@ -14398,7 +14449,7 @@ async function exportData(){
   showToast('Export en cours…');
   const ts=new Date().toISOString().slice(0,16).replace('T','_').replace(':','h');
   const payload={
-    version:'atlas-v219',
+    version:'atlas-v220',
     exported_at:new Date().toISOString(),
     blocs_count:blocs.length,
     planned_count:(planned||[]).length,
@@ -17466,6 +17517,31 @@ Réalisation d'un tunnel de diamètre 6 mm orienté vers la patte d'oie.
 }
 function am_buildCRO_MENISC(f){
   const cote=coteStrD(f);
+  const su=docSuture(f);
+  const sides=[['med','médial',f.menMed,f.lesionMed,f.menMedOut,f.cartMed],['lat','latéral',f.menLat,f.lesionLat,f.menLatOut,f.cartLat]];
+  const expl=sides.map(s=>{
+    const nom=s[1],v=s[2],les=s[3];
+    const cart=_cartLine(s[5]);
+    let m;
+    if(!v||v==='RAS')m='ménisque '+nom+' palpé au crochet : intact et stable';
+    else m='ménisque '+nom+' palpé au crochet : '+((les&&String(les).trim())?String(les).trim().replace(/\.+$/,''):'lésion instable');
+    return 'Compartiment '+nom+(nom==='latéral'?' en figure de 4':'')+' : '+(cart?cart+' ':'cartilage sain. ')+m+'.';
+  });
+  const gestes=[];
+  if(f.menPieCrust)gestes.push("Compartiment médial serré : pie crusting du ligament collatéral médial à l'aiguille sous léger valgus, ouverture progressive du compartiment donnant accès au segment postérieur sans lésion cartilagineuse iatrogène.");
+  sides.forEach(s=>{
+    const nom=s[1],v=s[2],out=s[4];
+    if(!v||v==='RAS')return;
+    if(v==='Méniscectomie partielle'){
+      gestes.push("Ménisque "+nom+" : méniscectomie partielle économique à la pince basket emportant la languette instable, régularisation au shaver jusqu'en zone saine, en respectant le mur méniscal. Palpation au crochet : mur restant stable.");
+    }else{
+      const impl=(f.nbAncres||'')+' implant(s)'+(f.ancreType?' '+f.ancreType:'');
+      gestes.push("Ménisque "+nom+" : réduction de la lésion au crochet palpeur. Avivement des berges de la lésion à la fraise arthroscopique jusqu'à obtention d'un saignement. Suture par "+impl+(v==='Suture outside-in'?' en technique outside-in':' tout-en-dedans')+", points espacés régulièrement"+(out?", complétée par des points outside-in":"")+". Contrôle final au crochet : réduction anatomique et stabilité de la suture.");
+    }
+  });
+  if(su&&f.menPerfor)gestes.push("Perforations osseuses de l'échancrure intercondylienne au poinçon, obtention d'un saignement médullaire venant au contact de la réparation (stimulation biologique de la cicatrisation).");
+  if(f.chondroplastie)gestes.push('Chondroplastie de régularisation au shaver.');
+  if(f.synovectomie)gestes.push('Synovectomie partielle.');
   return amTake("buildCRO_MENISC_0",`COMPTE-RENDU OPÉRATOIRE — ARTHROSCOPIE DU GENOU {{v0}}
 
 Date opératoire : {{v1}}
@@ -17476,27 +17552,30 @@ Anesthésie : {{v4}}
 Indication : Lésion méniscale du genou {{v5}}.
 CCAM : {{v6}}
 
-Installation en décubitus dorsal, genou fléchi à 90°.
+Installation en décubitus dorsal, cale-pied et contre-appui latéral permettant le valgus forcé et la position en figure de 4.
 Badigeon et champage stérile.
 Antibioprophylaxie pré-opératoire selon le protocole du CLIN.
 Check-list.
 {{v7}}
 Temps arthroscopique :
-Voie d'abord optique antéro-latérale puis antéro-médiale à l'aiguille sous contrôle arthroscopique.
-Exploration systématique du genou :
-- Compartiment fémoro-patellaire : {{v8}}
-- Compartiment médial : {{v9}}
-- Compartiment latéral : {{v10}}
-- Échancrure : pivot central intact
+Voie d'abord optique antéro-latérale. Voie instrumentale antéro-médiale réalisée à l'aiguille sous contrôle de la vue.
+Exploration systématique :
+Cul-de-sac quadricipital et compartiment fémoro-patellaire : {{v8}}
+{{v9}}
+Échancrure : pivot central testé au crochet, continu et tendu.
+{{v10}}
+
 {{v11}}
-{{v12}}{{v13}}Lavage articulaire abondant.
+Lavage articulaire abondant.
 
-{{v14}}Fermeture des voies d'abord par points séparés.
-Fermeture cutanée par {{v15}}.
-Pansement {{v16}}.
+{{v12}}Fermeture des voies d'abord par points séparés.
+Fermeture cutanée par {{v13}}.
+Pansement {{v14}}.
+Consignes : {{v15}}.
 
-{{v17}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.ccam),(_garrotLine(f)),(_cartLine(f.cartFP)||'RAS'),(_menBlock(f,'med')),(_menBlock(f,'lat')),(_sutureMatLine(f)),(f.chondroplastie?'Chondroplastie de régularisation.\n':''),(f.synovectomie?'Synovectomie partielle.\n':''),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "cartFP", "Texte lié", "Texte lié", "Texte lié", "chondroplastie", "synovectomie", "Texte lié", "Texte lié", "pansement", "Signature"]);
+{{v16}}`,[(cote.toUpperCase()),(doc_dateStr(f.dateInter)),(_dSig()),(f.aides||'—'),(f.anesthesie),(cote),(f.ccam),(_garrotLine(f)),(_cartLine(f.cartFP)||'cartilage sain.'),(expl[0]),(expl[1]),(gestes.join('\n')),(_garrotFin(f)),(docClosure(f)),((f.pansement||'Sec').toLowerCase()==='sec'?'sec':f.pansement),(_menAppuiTxt(f)),(_dSigBloc())],["Texte lié", "dateInter", "Signature", "aides", "anesthesie", "Texte lié", "ccam", "Texte lié", "cartFP", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "Texte lié", "pansement", "Texte lié", "Signature"]);
 }
+
 function am_buildCRO_CHEVILLE(f){
   const cote=coteStrD(f);
   const head=amTake("buildCRO_CHEVILLE_0",`COMPTE-RENDU OPÉRATOIRE — {{v0}} {{v1}}
@@ -17612,6 +17691,7 @@ Consignes : {{v4}} ; pas de port de charge pendant 6 semaines.
   return head+'\n'+corps+'\n'+fin;
 }
 function am_buildCRO_PALETTE(f){
+  if(f.palTraitement==='Prothèse totale de coude')return buildCRO_PALETTE(f);
   const cote=coteStrD(f);
   const cf=(cote==='droit')?'droite':cote;
   const artic=_paArtic(f);
@@ -18496,18 +18576,18 @@ Date : {{v2}}
 }
 function am_buildOrdoIDE(f){
   const inj=(f.antico&&f.antico!=='Aucun'&&anticoIsHBPM(f.antico))?('— Injection '+f.antico+' SC 1x/jour pendant '+f.anticoJours+' jours\n'):'';
+  const _std='— Surveillance et renouvellement du pansement ('+(f.pansement||'selon protocole')+') '+docPansementFrequency(f)+'\n— '+_crhFils(f)+'\n— Surveillance de la cicatrice (rougeur, écoulement, désunion)\n';
+  const soins=(f._inter==='basem1')?(_bmCouvrant(f)?"— Surveillance de l'immobilisation : points de compression, œdème, chaleur et couleur des doigts\n":(((f.bmFE||f.bmBrPeau==='Transcutanées')?'— Soins locaux des orifices de broches et de fiches à chaque pansement (désinfection, compresses sèches)\n':'')+_std)):_std;
   return amTake("buildOrdoIDE_0",`ORDONNANCE INFIRMIÈRE
 
 Patient : {{v0}} — né(e) le {{v1}}
 Date : {{v2}}
 
-{{v3}}— Surveillance et renouvellement du pansement ({{v4}}) {{v5}}
-— {{v6}}
-— Surveillance de la cicatrice (rougeur, écoulement, désunion)
-— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
+{{v3}}{{v4}}— Signaler tout signe inflammatoire local, fièvre > 38.5°C, douleur inhabituelle
 
-{{v7}}{{v8}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(inj),(f.pansement||'selon protocole'),(docPansementFrequency(f)),(_crhFils(f)),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "pansement", "Texte lié", "Texte lié", "Signature", "Signature"]);
+{{v5}}{{v6}}`,[(ptNom(f)),(doc_dateStr(f.ddn)),(doc_dateStr(f.dateInter)),(inj),(soins),(_dSig()),(_dRpps())],["Texte lié", "ddn", "dateInter", "Texte lié", "Texte lié", "Signature", "Signature"]);
 }
+
 function am_buildOrdoKine(f){
   if(f&&f._inter==='pih')return am_buildOrdoKine({...f,_inter:'pth'});
   if(f&&LOT206_SOURCES.includes(f._inter))return buildKINE_LOT206(f);
@@ -18566,7 +18646,7 @@ Flexion limitée à 90° jusqu'à la 6e semaine. Pas de flexion en charge ni rot
 
 Nombre de séances : 15, à adapter selon progression clinique
 {{v2}}{{v3}}`,[(intro),(su?`SUTURE MÉNISCALE — protocole protégé :
-S1 à S6 : appui avec 2 cannes anglaises pendant 1 mois ; flexion limitée à 90° jusqu'à la 6e semaine ; pas de flexion en charge ni rotation forcée.
+S1 à S6 : ${_menAppuiTxt(f).toLowerCase()} ; flexion limitée à 90° jusqu'à la 6e semaine ; pas de flexion en charge ni rotation forcée.
 S6 et au-delà : récupération progressive des amplitudes, renforcement en chaîne fermée puis ouverte, proprioception.
 Reprise sportive progressive à partir de M3-M4 selon évolution.`:`MÉNISCECTOMIE PARTIELLE :
 Appui complet immédiat. Récupération des amplitudes, lutte contre l'épanchement.
